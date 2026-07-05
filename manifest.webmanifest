@@ -1,0 +1,13 @@
+{
+  "name": "SENTINELLE — DBi360",
+  "short_name": "SENTINELLE",
+  "description": "Premier avis public sur une entreprise (méthode DBi360).",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef1f3",
+  "theme_color": "#1f3a5f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

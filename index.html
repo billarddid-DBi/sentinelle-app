@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f3a5f">
+<title>SENTINELLE — DBi360</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1f2937;background:#eef1f3;margin:0;padding:16px;}
+  .wrap{max-width:720px;margin:0 auto;}
+  b{font-weight:600;}
+  .topbar{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:600;color:#1f3a5f;margin:4px 0 14px;}
+  .panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:14px;}
+  label{font-size:12px;color:#6b7280;display:block;margin-bottom:4px;}
+  input[type=text],textarea{width:100%;font-size:16px;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font-family:inherit;}
+  textarea{min-height:52px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:16px;font-weight:600;border:none;border-radius:10px;padding:13px;cursor:pointer;margin-top:10px;}
+  .btn-primary{background:#1f3a5f;color:#fff;}
+  .btn-ghost{background:#fff;color:#1f3a5f;border:1px solid #1f3a5f;}
+  .btn:disabled{opacity:.5;}
+  .hint{font-size:12px;color:#9ca3af;margin-top:8px;line-height:1.5;}
+  #loading{display:none;text-align:center;padding:26px 10px;color:#4b5563;font-size:14px;}
+  .spin{width:34px;height:34px;border:3px solid #d1d5db;border-top-color:#1f3a5f;border-radius:50%;margin:0 auto 12px;animation:sp 1s linear infinite;}
+  @keyframes sp{to{transform:rotate(360deg);}}
+  #err{display:none;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:12px;font-size:13px;margin-bottom:14px;}
+  .card{border-radius:14px;overflow:hidden;border:1px solid #e5e7eb;background:#fff;}
+  .card h3{margin:0;}
+  .sec{padding:12px 16px;border-bottom:1px solid #eef2f5;}
+  .ktitle{font-size:13px;font-weight:700;letter-spacing:.3px;}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .mini{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:10px;}
+  .mini .l{font-size:11px;color:#6b7280;}
+  .mini .v{font-size:14px;font-weight:600;margin-top:2px;}
+  .chip{font-size:10px;padding:2px 7px;border-radius:10px;white-space:nowrap;}
+  .qw{background:#dcfce7;color:#14532d;border-radius:8px;padding:8px 11px;margin-top:8px;font-size:11.5px;line-height:1.5;}
+  .row{display:flex;gap:8px;align-items:flex-start;font-size:12px;margin-bottom:5px;}
+  .simrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .simrow input[type=range]{flex:1.3;}
+  .simrow .val{font-size:12px;font-weight:600;width:64px;text-align:right;}
+  .foot{padding:11px 16px;background:#f8fafc;font-size:10.5px;color:#6b7280;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar"><span>📡</span> SENTINELLE <span style="font-size:12px;font-weight:400;color:#9ca3af;">· DBi360</span></div>
+
+  <div class="panel" id="form">
+    <label>Nom de l'entreprise + ville</label>
+    <input type="text" id="q" placeholder="ex : La Romana, restaurant, Maizières-lès-Metz" autocomplete="off">
+    <label style="margin-top:12px;">Infos terrain (facultatif)</label>
+    <textarea id="field" placeholder="reprise, affaire familiale, réactivité, projet du dirigeant…"></textarea>
+    <button class="btn btn-primary" id="go">🔎 Lancer SENTINELLE</button>
+    <button class="btn btn-ghost" id="cam">📷 Scanner une carte de visite</button>
+    <input type="file" id="file" accept="image/*" capture="environment" style="display:none;">
+    <div class="hint">Premier avis public, sans entretien — sources publiques et estimations. Le vrai diagnostic (BOUSSOLE) se fait en entretien.</div>
+  </div>
+
+  <div id="err"></div>
+  <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
+  <div id="result"></div>
+</div>
+
+<script>
+const SECTEURS = {
+  btp:'#3f5a6b', artisan:'#3f5a6b', commerce:'#8a5a2b', boulangerie:'#8a5a2b',
+  restaurant:'#8a4231', industrie:'#37474f', sante:'#0f766e', juridique:'#1f3a5f',
+  immobilier:'#6d4c9f', services:'#4338ca', autre:'#374151'
+};
+const $ = id => document.getElementById(id);
+const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+$('go').onclick = () => {
+  const q = $('q').value.trim();
+  if(!q){ $('q').focus(); return; }
+  run({ text:q, fieldInfo:$('field').value.trim() });
+};
+$('cam').onclick = () => $('file').click();
+$('file').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    const b64 = rd.result.split(',')[1];
+    run({ imageBase64:b64, imageMediaType:f.type, fieldInfo:$('field').value.trim() });
+  };
+  rd.readAsDataURL(f);
+};
+
+async function run(payload){
+  $('err').style.display='none';
+  $('result').innerHTML='';
+  $('form').style.display='none';
+  $('loading').style.display='block';
+  const msgs=['Enquête publique en cours…','Lecture des sources officielles…','Analyse des avis et de la concurrence…','Choix de l\'archétype et de la posture…','Montage de la carte…'];
+  let i=0; const t=setInterval(()=>{ $('loadmsg').textContent=msgs[i%msgs.length]; i++; },2200);
+  try{
+    const r = await fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    const data = await r.json();
+    clearInterval(t); $('loading').style.display='none';
+    if(!r.ok || data.error){ showErr(data.error||'Erreur', data.detail||data.raw); return; }
+    render(data);
+  }catch(e){ clearInterval(t); $('loading').style.display='none'; showErr('Connexion impossible', String(e)); }
+}
+function showErr(m,d){
+  $('form').style.display='block';
+  $('err').style.display='block';
+  $('err').innerHTML='<b>'+esc(m)+'</b>'+(d?'<br><span style="font-size:11px">'+esc(d)+'</span>':'');
+}
+
+function render(d){
+  const col = SECTEURS[d.secteur] || '#374151';
+  const date = new Date().toLocaleDateString('fr-FR');
+  const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
+  const qw = (d.quickwins||[]).map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ');
+  const agents = (d.agents||[]).map(a=>{
+    const fire = a.tag && a.tag.indexOf('🔥')>=0;
+    const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
+    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${esc(a.tag||'🧱')}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
+  }).join('');
+  const r = d.radar||{labels:[],actuel:[],potentiel:[]};
+  const sim = d.simulateur||{personnes:2,heures:5,cout:40};
+  const unite = (d.chiffre&&d.chiffre.unite)||'€';
+
+  $('result').innerHTML = `
+  <div class="card">
+    <div style="background:${col};color:#fff;padding:16px 18px;">
+      <div style="font-size:12px;letter-spacing:1px;opacity:.85;">📡 SENTINELLE · DBi360</div>
+      <div style="font-size:19px;font-weight:600;margin-top:2px;">${esc(d.nom)}</div>
+      <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
+      <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
+    </div>
+    <div style="background:#fef3c7;border-left:4px solid #d97706;padding:9px 14px;font-size:12px;color:#7c4a03;line-height:1.5;">
+      <b>Premier avis, sans entretien.</b> Sources publiques et estimations (pré-audit). Le diagnostic <b>BOUSSOLE</b> donnera vos chiffres réels.
+    </div>
+
+    <div class="sec" style="background:#f8fafc;">
+      <div class="grid3">
+        <div class="mini"><div class="l">Enjeu principal</div><div class="v" style="color:${col};">${esc(d.resume?.enjeu)}</div></div>
+        <div class="mini"><div class="l">Vigilance</div><div class="v">${esc(d.resume?.vigilanceNiveau)} ${esc(d.resume?.vigilanceLabel)}</div></div>
+        <div class="mini"><div class="l">Atout / potentiel</div><div class="v" style="color:#16a34a;">${esc(d.resume?.atout)}</div></div>
+      </div>
+    </div>
+
+    <div class="sec"><div class="ktitle" style="color:${col};">📋 LE DÉTAIL DE L'ENQUÊTE</div>
+      <div style="font-size:12.5px;line-height:1.6;margin-top:6px;"><b style="color:${col};">Carte d'identité</b> <span style="color:#16a34a;font-size:11px;">🟢</span><br>${esc(d.identite)}</div>
+    </div>
+
+    <div class="sec">
+      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:4px;">Radar des 8 piliers <span style="font-weight:400;color:#6b7280;font-size:11px;">— hypothèses de pré-audit</span></div>
+      <div style="max-width:430px;margin:0 auto;"><canvas id="radar" height="260"></canvas></div>
+      <div style="font-size:11px;color:#6b7280;margin-top:6px;">L'écart <b>Actuel → Potentiel</b> = les leviers IA à prioriser.</div>
+    </div>
+
+    <div class="sec"><div class="grid2">
+      <div><div style="font-size:12px;font-weight:600;color:${col};margin-bottom:4px;">Valeurs affichées</div><div style="font-size:12px;color:#4b5563;line-height:1.5;">${esc(d.valeurs)}</div></div>
+      <div><div style="font-size:12px;font-weight:600;color:${col};margin-bottom:4px;">Image perçue</div><div style="font-size:12px;color:#4b5563;line-height:1.5;">${esc(d.imagePercue)}</div></div>
+    </div></div>
+
+    <div class="sec">
+      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;">⚠️ Vigilance & quick wins</div>
+      ${vig}
+      <div class="qw"><b>Quick wins :</b> ${esc(qw)}</div>
+    </div>
+
+    <div class="sec"><div class="grid2" style="font-size:12px;">
+      <div><div style="font-weight:600;color:${col};">⭐ Avis clients</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avis)}</div></div>
+      <div><div style="font-weight:600;color:${col};">📣 Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
+    </div></div>
+
+    <div class="sec"><div class="ktitle" style="color:${col};">🧠 INTELLIGENCE STRATÉGIQUE</div>
+      <div class="grid2" style="font-size:12px;margin-top:8px;">
+        <div class="mini"><b style="color:${col};">Financier</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.financier)}</div></div>
+        <div class="mini"><b style="color:${col};">Concurrence</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.concurrence)}</div></div>
+        <div class="mini"><b style="color:${col};">Visibilité / marge</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.visibilite)}</div></div>
+        <div class="mini"><b style="color:${col};">Dirigeant</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.dirigeant)}</div></div>
+      </div>
+    </div>
+
+    <div class="sec"><div class="ktitle" style="color:${col};">🤖 AGENTS IA POTENTIELS — 1ʳᵉ conclusion</div>
+      <div style="margin-top:8px;">${agents}</div>
+    </div>
+
+    <div class="sec"><div class="ktitle" style="color:#b45309;">🎯 POUR ALLER PLUS LOIN</div>
+      <div style="background:${col};color:#fff;border-radius:12px;padding:14px 16px;text-align:center;margin-top:8px;">
+        <div style="font-size:12px;opacity:.85;">${esc(d.chiffre?.label)||'Estimation illustrative'}</div>
+        <div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="heroV">–</span> ${unite==='h'?'h':'€'} <span style="font-size:14px;font-weight:400;opacity:.85;">/ an</span></div>
+        <div style="font-size:12px;opacity:.85;" id="heroSub"></div>
+      </div>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:11px 14px;margin-top:10px;font-size:12px;color:#7c2d12;line-height:1.55;"><b>Le coût de l'inaction :</b> ${esc(d.coutInaction)}</div>
+      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-top:10px;">
+        <div style="font-size:12px;font-weight:600;color:${col};margin-bottom:8px;">🎚️ Simulateur — ajustez à votre réalité</div>
+        <div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="${sim.personnes}"><span class="val" id="sPv"></span></div>
+        <div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem. / pers.</label><input type="range" id="sH" min="1" max="15" step="1" value="${sim.heures}"><span class="val" id="sHv"></span></div>
+        <div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="${sim.cout}"><span class="val" id="sCv"></span></div>
+      </div>
+      <div class="grid2" style="margin-top:10px;font-size:12px;">
+        <div class="mini"><div style="font-weight:600;color:#6b7280;">Aujourd'hui</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.aujourdhui)}</div></div>
+        <div class="mini" style="border:2px solid #d97706;"><div style="font-weight:600;color:#b45309;">Avec l'IA</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.avecIA)}</div></div>
+      </div>
+      <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
+    </div>
+
+    <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
+  </div>
+  <button class="btn btn-ghost" style="margin-top:14px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
+
+  // Radar
+  try{
+    new Chart(document.getElementById('radar'),{type:'radar',data:{labels:r.labels,datasets:[
+      {label:'Actuel estimé',data:r.actuel,borderColor:col,backgroundColor:col+'2e',borderWidth:2,pointRadius:2},
+      {label:'Potentiel IA',data:r.potentiel,borderColor:'#d97706',backgroundColor:'#d9770622',borderWidth:2,pointRadius:2}
+    ]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#9ca3af',backdropColor:'transparent'},grid:{color:'#e5e7eb'},angleLines:{color:'#e5e7eb'},pointLabels:{font:{size:10},color:'#4b5563'}}},plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:10}}}}});
+  }catch(e){}
+
+  // Simulateur
+  function sim2(){
+    const p=+$('sP').value,h=+$('sH').value,c=+$('sC').value;
+    $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €';
+    const hrs=p*h*45, eur=Math.round(hrs*c/100)*100, soir=Math.round(hrs/8);
+    if(unite==='h'){ $('heroV').textContent=hrs.toLocaleString('fr-FR'); $('heroSub').textContent='≈ '+soir+' soirées rendues — soit ≈ '+eur.toLocaleString('fr-FR')+' €'; }
+    else { $('heroV').textContent=eur.toLocaleString('fr-FR'); $('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées) rendues'; }
+  }
+  ['sP','sH','sC'].forEach(id=>$(id).addEventListener('input',sim2));
+  sim2();
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
