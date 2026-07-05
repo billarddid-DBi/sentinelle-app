@@ -21,7 +21,7 @@ Ne vends jamais le mauvais levier (pas "plus de clients" à un artisan débordé
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
-SORTIE : réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant ou après, aucune balise de code), suivant EXACTEMENT ce schéma :
+SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
 {
  "nom": "Nom de l'entreprise",
  "ville": "Ville (CP)",
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
 
     const anthropicReq = {
       model: MODEL,
-      max_tokens: 4096,
+      max_tokens: 8000,
       system: METHODE,
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
       messages: [{ role: "user", content: userContent }]
@@ -100,6 +100,8 @@ export default async function handler(req, res) {
     for (const block of (data.content || [])) {
       if (block.type === "text") out += block.text;
     }
+    // Filet de sécurité : retire d'éventuelles balises de citation <cite ...>…</cite>
+    out = out.replace(/<\/?cite[^>]*>/gi, "");
     // Extrait le JSON (au cas où il y aurait du texte autour)
     const start = out.indexOf("{");
     const end = out.lastIndexOf("}");
