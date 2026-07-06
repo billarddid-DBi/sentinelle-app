@@ -1,0 +1,123 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière (transaction, location, gestion de biens)",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Consolider & sécuriser l'activité",
+    "vigilanceNiveau": "🔴",
+    "vigilanceLabel": "Trésorerie & visibilité fragiles",
+    "atout": "36 ans d'ancienneté, avis 5/5"
+  },
+  "identite": "SARL créée le 19/22 mai 1989 (SIREN 350 747 713, RCS Metz, NAF 6831Z Agences immobilières), siège 200 rue de Pont-à-Mousson à Montigny-lès-Metz, gérant Michel Szajnerman (né en décembre 1962), effectif déclaré de 0 salarié en 2025, capital social de 7 622 €.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      35,
+      30,
+      30,
+      25,
+      20,
+      40,
+      55,
+      25
+    ],
+    "potentiel": [
+      60,
+      55,
+      60,
+      65,
+      70,
+      60,
+      75,
+      55
+    ]
+  },
+  "valeurs": "Écoute, disponibilité et accompagnement de proximité, mis en avant depuis 1989 ('à votre service et votre écoute depuis 1989').",
+  "imagePercue": "Image d'agence indépendante ancienne et discrète, connue localement mais peu visible en ligne face à des enseignes plus structurées (Laforêt, réseaux nationaux).",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Dernier bilan public connu (2013) affichait un chiffre d'affaires de 39 660 € en baisse de ~26% et un résultat net négatif ; aucune donnée financière plus récente publiée, ce qui appelle la prudence."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Effectif déclaré à 0 salarié : l'activité semble reposer uniquement sur le gérant, ce qui fragilise la continuité en cas d'absence ou de ralentissement."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Aucun site web ni présence sur les réseaux sociaux identifiés : la visibilité dépend entièrement de portails tiers (PagesJaunes, LeBonCoin, SeLoger, MeilleursAgents)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Très peu d'avis clients recensés (3 avis) malgré 36 ans d'existence, alors que des concurrents proches affichent des dizaines d'avis récents."
+    }
+  ],
+  "quickwins": [
+    "Centraliser et relancer la collecte d'avis clients sur un support unique et à jour",
+    "Créer une vitrine en ligne simple regroupant mandats, contacts et estimations",
+    "Automatiser les relances de rendez-vous et de suivi de dossiers de gestion locative"
+  ],
+  "avis": "Note de 5/5 sur 3 avis recensés sur PagesJaunes ; un avis cite la disponibilité et la réactivité d'une interlocutrice de l'agence, sans autre volume d'avis identifié sur les autres plateformes.",
+  "presence": "Aucun site web ni réseau social propre identifié ; présence uniquement via des fiches sur des portails tiers (PagesJaunes, LeBonCoin Pro, SeLoger, MeilleursAgents, Immotop.lu, Mappy, Cylex, 118712).",
+  "intel": {
+    "financier": "Capital social de 7 622 €, dernier chiffre d'affaires public connu de 39 660 € (2013) avec résultat net négatif de -5 692 € ; comptes des exercices récents (2022-2023) déposés sous confidentialité totale, non consultables publiquement.",
+    "concurrence": "Marché local dense : agence Laforêt Montigny-lès-Metz très active et bien notée à proximité immédiate, ainsi que plusieurs indépendants (Carrara Immobilier, Arsenal Immobilier, Benedic, Cogesim, AEC Diagimmo) dans un rayon très restreint.",
+    "visibilite": "Visibilité en ligne limitée, dépendante des annuaires et portails d'annonces, sans site propre ni réseaux sociaux actifs recensés.",
+    "dirigeant": "Gérant unique, Michel Szajnerman, né en décembre 1962, à la tête de la structure depuis plusieurs années (source RCS/Pappers) ; aucune information publique sur ses intentions futures."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Agent Réputation & Avis",
+      "benefice": "Sollicite automatiquement les avis clients après chaque transaction ou fin de mandat pour renforcer la crédibilité en ligne."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent Secrétariat & RDV",
+      "benefice": "Gère les prises de rendez-vous, relances et rappels de visites pour libérer du temps administratif au gérant."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent Vitrine en ligne",
+      "benefice": "Centralise mandats, biens disponibles et coordonnées sur une page simple, réduisant la dépendance aux seuls portails tiers."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent Suivi Gestion Locative",
+      "benefice": "Automatise les relances de loyers, états des lieux et échéances de baux pour sécuriser la trésorerie."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent Capitalisation du savoir-faire",
+      "benefice": "Formalise 36 ans d'expérience du marché local (quartiers, prix, réseaux) pour ne pas perdre cette connaissance."
+    }
+  ],
+  "archetype": "Entreprise fragilisée",
+  "posture": "Consolidation & Trésorerie (prudent)",
+  "chiffre": {
+    "unite": "h",
+    "label": "Heures administratives récupérables par semaine"
+  },
+  "coutInaction": "Sans structuration minimale (visibilité, suivi client, relances), la baisse d'activité déjà observée sur les derniers comptes publiés pourrait se poursuivre, avec un risque accru pour la trésorerie.",
+  "simulateur": {
+    "personnes": 1,
+    "heures": 6,
+    "cout": 35
+  },
+  "avantApres": {
+    "aujourdhui": "Le gérant gère seul appels, visites, dossiers de gestion locative et suivi administratif, sans outil numérique dédié ni site propre.",
+    "avecIA": "Les tâches répétitives (RDV, relances, avis, suivi de loyers) sont assistées, laissant plus de temps pour les dossiers à forte valeur et la relation client de proximité."
+  },
+  "cta": "Ce premier avis reste une hypothèse de pré-audit : un entretien BOUSSOLE permettrait d'objectiver la situation réelle (comptes récents, charge de travail, projets) avant toute décision.",
+  "sources": "Sources publiques consultées : societe.com, pappers.fr, verif.com, manageo.fr (données RCS/INSEE, bilans 2013, confidentialité comptes 2022-2023), PagesJaunes (avis, RCS), MeilleursAgents, SeLoger, LeBonCoin Pro, mc.moselle.gouv.fr (registre agents immobiliers). Confiance : élevée pour identité/RCS, moyenne pour les données financières (dernier bilan public datant de 2013), faible pour les avis (volume très limité)."
+}
