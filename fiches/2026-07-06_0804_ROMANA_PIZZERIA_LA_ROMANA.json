@@ -1,0 +1,123 @@
+{
+  "nom": "ROMANA (Pizzeria La Romana)",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Restaurant italien / pizzeria au feu de bois",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Régularité qualité & service",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Inconstance post-transition",
+    "atout": "Forte notoriété locale historique"
+  },
+  "identite": "SAS ROMANA (SIREN 839452786, RCS Metz), activité de restauration/pizzeria, société créée en mai 2018, effectif estimé entre 6 et 9 salariés, établissement au 32 Grand Rue à Maizières-lès-Metz (enseigne aussi référencée sous 'Pizzeria Romana').",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      45,
+      40,
+      50,
+      40,
+      55,
+      65,
+      55
+    ],
+    "potentiel": [
+      75,
+      68,
+      65,
+      72,
+      65,
+      72,
+      82,
+      75
+    ]
+  },
+  "valeurs": "Cuisine italienne traditionnelle, pizza napolitaine au feu de bois, produits importés d'Italie, cadre chaleureux et convivial, équipe présentée comme 'transalpine'.",
+  "imagePercue": "Établissement perçu localement comme une institution ancienne et appréciée, avec une bonne notation globale sur plusieurs plateformes, mais des avis récents plus contrastés évoquant un changement de propriétaire et une qualité moins constante.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Plusieurs avis récents mentionnent un changement de propriétaire ('le restaurant a été vendu') et une qualité de pâte/recette jugée moins régulière qu'avant."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Des retours signalent des délais d'attente longs sur les commandes à emporter (jusqu'à une heure), avec information tardive au client."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Une réponse de la direction sur TripAdvisor évoque des hausses de tarifs liées aux charges et à l'inflation, signe de tension sur les marges à surveiller."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Base d'avis globalement positive et volumineuse (plusieurs centaines d'avis cumulés), preuve d'une clientèle fidèle à réactiver."
+    }
+  ],
+  "quickwins": [
+    "Mettre en place un accusé de réception + estimation fiable du temps d'attente pour les commandes à emporter",
+    "Standardiser et documenter les recettes clés (pâte, sauces) pour sécuriser la régularité malgré les changements d'équipe en cuisine",
+    "Répondre systématiquement et rapidement aux avis en ligne (positifs et négatifs) pour rassurer sur la continuité de qualité post-reprise"
+  ],
+  "avis": "Notes globalement bonnes mais hétérogènes selon les plateformes : 4,4/5 sur Restaurant Guru, 92% de recommandation sur Facebook (18 avis), 7,9/10 sur un agrégateur multi-sites (523 avis), 79/100 sur Sluurpy. Des avis plus récents (LaCarte.menu, TripAdvisor) pointent une baisse de régularité perçue depuis un changement de propriétaire, notamment sur la texture de la pâte à pizza et les délais d'attente en vente à emporter.",
+  "presence": "Présence numérique large mais dispersée : page Facebook active (plus de 1000 mentions J'aime), fiches sur TripAdvisor, Petit Futé, PagesJaunes, Mappy, LaCarte.menu, Sluurpy, Restaurant Guru et eat-list. Aucun site web officiel propre clairement identifié dans les sources publiques consultées — Non trouvé publiquement.",
+  "intel": {
+    "financier": "Comptes annuels déposés sous confidentialité ; le chiffre d'affaires 2022 était inférieur à 700 000 € et le bilan inférieur à 350 000 €, avec un effectif inférieur à 10 salariés. Détails financiers précis non trouvés publiquement.",
+    "concurrence": "Plusieurs restaurants italiens et pizzerias sont recensés dans le secteur de Maizières-lès-Metz et Metz, avec une offre de cuisine méditerranéenne/italienne concurrente identifiée sur les annuaires spécialisés.",
+    "visibilite": "Bonne visibilité locale cumulée sur de nombreux annuaires et plateformes d'avis, avec un volume d'avis significatif (plusieurs centaines), traduisant une notoriété ancienne dans la région.",
+    "dirigeant": "Plusieurs mandataires apparaissent dans les actes de formation de la société sans qu'un nom unique de dirigeant actuel ne ressorte clairement des sources publiques. Des avis clients évoquent une vente récente de l'établissement à de nouveaux propriétaires — information à vérifier en entretien, non confirmée officiellement. Âge et identité précise du dirigeant : Non trouvé publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Agent de prise de commande & suivi à emporter",
+      "benefice": "Réduit l'attente perçue en informant automatiquement le client du délai réel et évite les appels de relance en cuisine."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de veille et réponse aux avis en ligne",
+      "benefice": "Détecte et répond rapidement aux avis (positifs/négatifs) pour rassurer sur la continuité de qualité après le changement de propriétaire."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent mémoire des recettes & standards cuisine",
+      "benefice": "Capitalise les recettes et gestes clés (pâte, sauces) pour sécuriser la régularité malgré les changements d'équipe en cuisine."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de planning équipe salle/cuisine",
+      "benefice": "Anticipe les pics de charge (week-ends, réservations) pour fluidifier le service et limiter les tensions en cuisine."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de gestion des réservations & no-show",
+      "benefice": "Confirme et rappelle les réservations pour optimiser le taux de remplissage en salle."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "EFFICACITÉ & FIDÉLISATION",
+  "chiffre": {
+    "unite": "h",
+    "label": "heures hebdomadaires récupérables sur la gestion des commandes et des avis"
+  },
+  "coutInaction": "Sans action, l'écart croissant entre la réputation historique de l'établissement et les avis récents plus mitigés risque d'éroder progressivement la clientèle fidèle construite sur plusieurs années.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "L'équipe gère simultanément le service en salle, la cuisine et les appels pour les commandes à emporter, avec un risque d'attente longue et d'irrégularité dans les recettes lors des pics d'activité.",
+    "avecIA": "Un agent dédié aux commandes à emporter et un suivi structuré des recettes libèrent l'équipe pour se concentrer sur l'accueil et la constance des plats, tout en surveillant la réputation en ligne en temps réel."
+  },
+  "cta": "Ce premier avis reste une hypothèse de pré-audit : un entretien BOUSSOLE permettra de vérifier la situation réelle (transition de propriétaire, organisation cuisine/salle) et de co-construire un plan d'action adapté.",
+  "sources": "Sources publiques agrégées : PagesJaunes, Societe.com, Pappers, 118712, Facebook, TripAdvisor, Restaurant Guru, Sluurpy, Restoranking, Petit Futé, LaCarte.menu (niveau de confiance moyen : données identitaires SIREN/RCS fiables, informations sur le dirigeant actuel et les avis récents à confirmer en entretien)."
+}
