@@ -205,7 +205,8 @@ function render(d){
 
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
-  <button class="btn btn-ghost" style="margin-top:14px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
+  <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>
+  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
 
   // Radar
   try{
@@ -226,6 +227,22 @@ function render(d){
   ['sP','sH','sC'].forEach(id=>$(id).addEventListener('input',sim2));
   sim2();
   window.scrollTo(0,0);
+  saveFiche(d);
+}
+
+function saveFiche(d){
+  const st=$('saveStatus');
+  try{
+    const card=document.querySelector('.card').cloneNode(true);
+    const orig=document.getElementById('radar');
+    const cv=card.querySelector('#radar');
+    if(orig && cv){ const img=document.createElement('img'); try{ img.src=orig.toDataURL('image/png'); }catch(e){} img.style.width='100%'; img.style.maxWidth='430px'; cv.parentNode.replaceChild(img,cv); }
+    const css=document.querySelector('style') ? document.querySelector('style').textContent : '';
+    const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div></body></html>';
+    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,json:d,html:html})})
+      .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '✅ Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '⚠️ Non enregistré ('+((x&&x.error)||'erreur')+')'; })
+      .catch(e=>{ if(st) st.textContent='⚠️ Non enregistré (connexion)'; });
+  }catch(e){ if(st) st.textContent='⚠️ Non enregistré'; }
 }
 </script>
 </body>
