@@ -213,7 +213,7 @@ function render(d){
     new Chart(document.getElementById('radar'),{type:'radar',data:{labels:r.labels,datasets:[
       {label:'Actuel estimé',data:r.actuel,borderColor:col,backgroundColor:col+'2e',borderWidth:2,pointRadius:2},
       {label:'Potentiel IA',data:r.potentiel,borderColor:'#d97706',backgroundColor:'#d9770622',borderWidth:2,pointRadius:2}
-    ]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#9ca3af',backdropColor:'transparent'},grid:{color:'#e5e7eb'},angleLines:{color:'#e5e7eb'},pointLabels:{font:{size:10},color:'#4b5563'}}},plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:10}}}}});
+    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#9ca3af',backdropColor:'transparent'},grid:{color:'#e5e7eb'},angleLines:{color:'#e5e7eb'},pointLabels:{font:{size:10},color:'#4b5563'}}},plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:10}}}}});
   }catch(e){}
 
   // Simulateur
@@ -227,7 +227,7 @@ function render(d){
   ['sP','sH','sC'].forEach(id=>$(id).addEventListener('input',sim2));
   sim2();
   window.scrollTo(0,0);
-  saveFiche(d);
+  setTimeout(function(){ saveFiche(d); }, 700);
 }
 
 function saveFiche(d){
