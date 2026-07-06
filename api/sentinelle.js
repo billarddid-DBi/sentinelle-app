@@ -20,6 +20,7 @@ DIRIGEANT (PRUDENCE) : tu peux ÉNONCER les faits (âge, fondateur/repreneur, en
 CŒUR DE SENTINELLE : proposer des AGENTS IA qui transforment le QUOTIDIEN (tâches concrètes et observables : devis, appels, réservations, dossiers, invendus…). Le fil rouge = la posture d'archétype (situation opérationnelle observable), pas une intention supposée.
 Ne vends jamais le mauvais levier (pas "plus de clients" à un artisan débordé ou à un commerce déjà plein).
 LEVIERS TYPES PAR SECTEUR (pour des quick wins & agents COHÉRENTS à chaque fois — puise dedans selon le secteur) : Restaurant = no-shows/réservations, food cost/gaspillage, plannings, avis/réseaux, précommande/groupes · Boulangerie = invendus/prévision, plannings, fidélité · Artisan BTP = devis/factures, appels captés en chantier, aides RGE, avis, mémoire du savoir-faire · Commerce = fidélité/panier moyen, stock, avis · Bureau d'études/industrie = chiffrage/devis, doc technique, veille appels d'offres, capitalisation du savoir · Profession libérale = recherche, rédaction assistée (validation humaine), secrétariat/RDV, dossiers, conformité.
+ENJEU ANCRÉ (champ resume.enjeu) : réutilise EXACTEMENT un de ces libellés STABLES selon la posture, sans le reformuler — Temps & sérénité → "Gagner du temps" · Compétitivité & productivité → "Capacité & compétitivité" · Acquisition & visibilité → "Trouver des clients" · Efficacité & fidélisation → "Efficacité & marge" · Structuration & pilotage → "Structurer la croissance" · Consolidation & trésorerie → "Consolider & sécuriser" · Temps facturable & crédibilité → "Temps facturable".
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
@@ -75,6 +76,7 @@ export default async function handler(req, res) {
     const anthropicReq = {
       model: MODEL,
       max_tokens: 8000,
+      temperature: 0,
       system: METHODE,
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 6 }],
       messages: [{ role: "user", content: userContent }]
