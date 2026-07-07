@@ -1,0 +1,134 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière (vente, location, gestion, expertise)",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Gagner du temps",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Structure mono-personne, avis contrastés",
+    "atout": "36 ans d'ancrage local"
+  },
+  "identite": "SARL créée le 22 mai 1989 (SIREN 350 747 713, NAF 6831Z – Agences immobilières), gérée par Michel Szajnerman, né en décembre 1962, avec un effectif déclaré de 0 salarié en 2025.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      40,
+      45,
+      50,
+      32,
+      60,
+      65,
+      45
+    ],
+    "potentiel": [
+      75,
+      70,
+      72,
+      75,
+      78,
+      80,
+      85,
+      72
+    ]
+  },
+  "valeurs": "Proximité, disponibilité et accompagnement personnalisé mis en avant sur les fiches professionnelles (vente, location, gestion, expertise).",
+  "imagePercue": "Image d'une petite structure familière et accessible, mais avec des avis clients hétérogènes selon les plateformes consultées.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis clients contrastés : très bonnes notes sur PagesJaunes et Mappy (5/5, peu d'avis) mais 2,8/5 sur plus de 20 notes selon LeBienImmobilier."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Aucun site internet propre ni réseau social identifié ; visibilité reposant uniquement sur des portails tiers (SeLoger, Logic-Immo, MeilleursAgents)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Effectif déclaré à 0 salarié : l'ensemble de l'activité (vente, location, gestion, expertise) semble reposer sur le seul gérant."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Marché local dense à Montigny-lès-Metz, avec de nombreuses agences concurrentes bien référencées (Lagimmo, Era Immobilier, Optimhome, KAB Immobilier…)."
+    }
+  ],
+  "quickwins": [
+    "Centraliser et harmoniser les avis clients (Google, PagesJaunes, LeBienImmobilier) pour clarifier l'image en ligne.",
+    "Créer/optimiser une fiche Google Business Profile complète (horaires, photos, avis regroupés).",
+    "Mettre en place une prise de rendez-vous et un accueil téléphonique automatisés pour ne manquer aucun appel pendant les visites."
+  ],
+  "avis": "Avis très positifs sur PagesJaunes et Mappy (5/5, disponibilité et réactivité soulignées) mais nettement plus mitigés sur LeBienImmobilier (2,8/5 sur plus de 20 notes) — un écart à investiguer.",
+  "presence": "Pas de site web propre ni de réseaux sociaux actifs identifiés ; présence exclusivement via des portails immobiliers tiers (SeLoger, Logic-Immo, MeilleursAgents, PagesJaunes, Mappy).",
+  "intel": {
+    "financier": "Dernier chiffre d'affaires public connu (bilan 2013) : 39 660 €, en baisse par rapport à 53 586 € l'exercice précédent ; les comptes plus récents bénéficient de la confidentialité légale accordée aux petites structures.",
+    "concurrence": "Marché immobilier local dense avec de nombreuses agences à proximité immédiate (Lagimmo, Era Immobilier, Optimhome, KAB Immobilier, Sarl Morgante…).",
+    "visibilite": "Visibilité reposant uniquement sur des portails immobiliers classiques, sans site propre ni animation de réseaux sociaux identifiée.",
+    "dirigeant": "Michel Szajnerman, gérant né en décembre 1962, dirige cette agence depuis plusieurs années (les registres publics mentionnent des dates différentes selon les sources)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Standard & prise de RDV virtuelle",
+      "benefice": "Capter les appels et demandes de visite même en déplacement, sans perdre de prospects."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Assistant de diffusion multi-portails",
+      "benefice": "Mettre à jour les annonces en un clic sur tous les sites (SeLoger, Logic-Immo, PagesJaunes…) au lieu de le faire manuellement partout."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de centralisation des avis",
+      "benefice": "Regrouper, répondre et valoriser les avis clients pour harmoniser l'image en ligne."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Assistant de gestion documentaire",
+      "benefice": "Sécuriser et accélérer le classement des mandats, états des lieux et dossiers de gestion locative."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de relance propriétaires/locataires",
+      "benefice": "Automatiser les relances de routine pour libérer du temps consacré au terrain et aux clients."
+    }
+  ],
+  "archetype": "Artisan saturé",
+  "posture": "Temps & sérénité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps administratif hebdomadaire potentiellement libérable"
+  },
+  "coutInaction": "Chaque semaine passée à jongler seul entre appels, annonces et suivi administratif est autant de temps en moins pour les visites et la relation client.",
+  "simulateur": {
+    "personnes": 1,
+    "heures": 6,
+    "cout": 45
+  },
+  "avantApres": {
+    "aujourdhui": "Michel gère seul les appels, les visites, la rédaction des annonces sur plusieurs portails et le suivi administratif, souvent en parallèle des rendez-vous.",
+    "avecIA": "Les appels et prises de RDV sont captés automatiquement, les annonces sont diffusées en un clic sur tous les portails, et les avis sont centralisés — le temps se concentre sur la relation client et les visites."
+  },
+  "cta": "Un échange avec BOUSSOLE permettrait d'objectiver ces pistes et de prioriser les actions selon le quotidien réel de l'agence.",
+  "indice": {
+    "estime": 48,
+    "potentiel": 78
+  },
+  "aura": {
+    "sens": "l'ancrage discret",
+    "couleur": "Marron",
+    "definition": "Une entreprise enracinée depuis 36 ans, portée avec constance par un seul artisan de l'immobilier, entre fidélité locale et charge concentrée sur une personne.",
+    "eclat": "moyen"
+  },
+  "fierte": "36 années d'implantation à Montigny-lès-Metz témoignent d'une vraie fidélité de clientèle et d'un savoir-faire reconnu localement, porté avec constance par un seul dirigeant. Avec quelques outils numériques bien choisis, cette solidité artisanale pourrait rayonner davantage et gagner en sérénité au quotidien.",
+  "sources": "Societe.com, Pappers.fr, Verif.com, Manageo, PagesJaunes, Mappy, LeBienImmobilier.fr, SeLoger, MeilleursAgents, Logic-Immo — données publiques et avis clients tiers, aucune source interne à l'entreprise. Confiance bonne pour les données légales (SIREN/NAF/dirigeant), moyenne pour les avis clients (divergences notables selon plateformes) et faible pour les données financières récentes (comptes confidentiels)."
+}
