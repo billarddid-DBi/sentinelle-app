@@ -70,6 +70,16 @@ const SECTEURS = {
   restaurant:'#8a4231', industrie:'#37474f', sante:'#0f766e', juridique:'#1f3a5f',
   immobilier:'#6d4c9f', services:'#4338ca', autre:'#374151'
 };
+const AURAS = {
+  'Doré':{h:'#eab308',b:'#fef9c3',t:'#a16207'}, 'Rouge':{h:'#ef4444',b:'#fee2e2',t:'#b91c1c'},
+  'Orange':{h:'#f97316',b:'#ffedd5',t:'#c2410c'}, 'Jaune':{h:'#facc15',b:'#fef9c3',t:'#a16207'},
+  'Vert':{h:'#22c55e',b:'#dcfce7',t:'#15803d'}, 'Turquoise':{h:'#14b8a6',b:'#ccfbf1',t:'#0f766e'},
+  'Bleu':{h:'#3b82f6',b:'#dbeafe',t:'#1d4ed8'}, 'Violet':{h:'#8b5cf6',b:'#ede9fe',t:'#6d28d9'},
+  'Rose':{h:'#ec4899',b:'#fce7f3',t:'#be185d'}, 'Argent':{h:'#94a3b8',b:'#f1f5f9',t:'#475569'},
+  'Marron':{h:'#92643f',b:'#f0e6dd',t:'#78451e'}, 'Gris':{h:'#9ca3af',b:'#f3f4f6',t:'#4b5563'},
+  'Noir':{h:'#4b5563',b:'#e5e7eb',t:'#1f2937'}, 'Blanc':{h:'#cbd5e1',b:'#f8fafc',t:'#64748b'}
+};
+function starsHTML(v){var n=Math.max(1,Math.min(5,Math.round((v||0)/20)));return '★'.repeat(n)+'<span style="opacity:.3">'+'★'.repeat(5-n)+'</span>';}
 const $ = id => document.getElementById(id);
 const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
@@ -123,6 +133,44 @@ function render(d){
   const r = d.radar||{labels:[],actuel:[],potentiel:[]};
   const sim = d.simulateur||{personnes:2,heures:5,cout:40};
   const unite = (d.chiffre&&d.chiffre.unite)||'€';
+
+  let auraHTML='';
+  if(d.aura && d.indice){
+    const au = AURAS[d.aura.couleur] || AURAS['Bleu'];
+    const est = (d.indice.estime!=null)?d.indice.estime:50;
+    const pot = (d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+25);
+    auraHTML = `
+    <div class="sec" style="background:#0f1225;color:#fff;">
+      <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ VOTRE INDEX AURA <span style="font-weight:400;opacity:.7;">(estimé)</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-around;gap:6px;margin-top:10px;">
+        <div style="text-align:center;flex:1;">
+          <div style="font-size:9px;letter-spacing:1px;color:#c7d2fe;">AUJOURD'HUI</div>
+          <div style="width:90px;height:90px;margin:6px auto 4px;border-radius:50%;background:radial-gradient(circle at 50% 45%, ${au.h} 0%, ${au.h} 55%, #222 135%);box-shadow:0 0 18px 3px ${au.h}66;border:2px dashed rgba(255,255,255,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:20px;font-weight:700;color:#fff;">${est}<span style="font-size:10px;font-weight:400;opacity:.8;">/100</span></div>
+            <div style="font-size:12px;color:#fff;">${starsHTML(est)}</div>
+          </div>
+          <div style="font-size:10px;color:#eaf1fb;">Aura ${esc(d.aura.couleur)}</div>
+        </div>
+        <div style="color:#8891b5;text-align:center;"><div style="font-size:18px;">→</div><div style="font-size:8px;line-height:1.2;">piste<br>déjà là</div></div>
+        <div style="text-align:center;flex:1;">
+          <div style="font-size:9px;letter-spacing:1px;color:#fde68a;">POTENTIEL</div>
+          <div style="width:90px;height:90px;margin:6px auto 4px;border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff1b8 0%,#f59e0b 55%,#b45309 125%);box-shadow:0 0 34px 8px rgba(245,158,11,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+            <div style="font-size:20px;font-weight:700;color:#fff;">${pot}<span style="font-size:10px;font-weight:400;opacity:.85;">/100</span></div>
+            <div style="font-size:12px;color:#fff;">${starsHTML(pot)}</div>
+          </div>
+          <div style="font-size:10px;color:#fde68a;">vers le rayonnement</div>
+        </div>
+      </div>
+    </div>
+    <div class="sec" style="background:${au.b};">
+      <div style="font-size:12.5px;font-weight:600;color:${au.t};">Aura ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
+      <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
+    </div>
+    <div class="sec" style="background:#f0fdf4;">
+      <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre aura raconte déjà</div>
+      <div style="font-size:12px;color:#14532d;line-height:1.55;margin-top:3px;">${esc(d.fierte)}</div>
+    </div>`;
+  }
 
   $('result').innerHTML = `
   <div class="card">
@@ -203,6 +251,8 @@ function render(d){
       <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
     </div>
 
+    ${auraHTML}
+
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>
@@ -238,7 +288,9 @@ function saveFiche(d){
     const cv=card.querySelector('#radar');
     if(orig && cv){ const img=document.createElement('img'); try{ img.src=orig.toDataURL('image/png'); }catch(e){} img.style.width='100%'; img.style.maxWidth='430px'; cv.parentNode.replaceChild(img,cv); }
     const css=document.querySelector('style') ? document.querySelector('style').textContent : '';
-    const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div></body></html>';
+    var uu=(d.chiffre&&d.chiffre.unite)||'€';
+    var sim='<scr'+'ipt>(function(){function e(n){return n.toLocaleString("fr-FR");}var u="'+uu+'";function s(){var P=document.getElementById("sP"),H=document.getElementById("sH"),C=document.getElementById("sC");if(!P||!H||!C)return;var p=+P.value,h=+H.value,c=+C.value;document.getElementById("sPv").textContent=p;document.getElementById("sHv").textContent=h+" h";document.getElementById("sCv").textContent=c+" €";var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8);var V=document.getElementById("heroV"),S=document.getElementById("heroSub");if(!V)return;if(u==="h"){V.textContent=e(hrs);if(S)S.textContent="≈ "+soir+" soirées rendues — soit ≈ "+e(eur)+" €";}else{V.textContent=e(eur);if(S)S.textContent="≈ "+e(hrs)+" h ("+soir+" soirées) rendues";}}["sP","sH","sC"].forEach(function(id){var x=document.getElementById(id);if(x)x.addEventListener("input",s);});s();})();</scr'+'ipt>';
+    const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div>'+sim+'</body></html>';
     fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,json:d,html:html})})
       .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '✅ Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '⚠️ Non enregistré ('+((x&&x.error)||'erreur')+')'; })
       .catch(e=>{ if(st) st.textContent='⚠️ Non enregistré (connexion)'; });
