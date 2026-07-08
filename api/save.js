@@ -34,18 +34,22 @@ export default async function handler(req, res) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) { res.status(500).json({ error: "GITHUB_TOKEN non configuré sur Vercel" }); return; }
   try {
-    const { nom, json, html } = req.body || {};
+    const { nom, json, html, type } = req.body || {};
     if (!json) { res.status(400).json({ error: "Aucune fiche à enregistrer" }); return; }
+
+    // type: "boussole" -> dossier boussoles/ ; sinon SENTINELLE -> fiches/
+    const kind = (type === "boussole") ? "boussole" : "sentinelle";
+    const folder = (kind === "boussole") ? "boussoles" : "fiches";
 
     const now = new Date();
     const stamp = now.toISOString().slice(0, 16).replace("T", "_").replace(/:/g, "");
-    const base = `fiches/${stamp}_${slug(nom)}`;
+    const base = `${folder}/${stamp}_${slug(nom)}`;
 
-    await putFile(token, base + ".json", b64(JSON.stringify(json, null, 2)), "fiche " + (nom || "") + " (mobile)");
+    await putFile(token, base + ".json", b64(JSON.stringify(json, null, 2)), kind + " " + (nom || "") + " (mobile)");
     if (html) {
-      await putFile(token, base + ".html", b64(html), "fiche HTML " + (nom || "") + " (mobile)");
+      await putFile(token, base + ".html", b64(html), kind + " HTML " + (nom || "") + " (mobile)");
     }
-    res.status(200).json({ ok: true, path: base });
+    res.status(200).json({ ok: true, path: base, kind });
   } catch (e) {
     res.status(500).json({ error: "Enregistrement impossible", detail: String(e).slice(0, 300) });
   }
