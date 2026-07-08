@@ -120,83 +120,143 @@ function showView(v){
 }
 const bkey = s => s.replace(/[^A-Za-z]/g,'');
 const BPILIERS = ['Vision','Organisation','Processus','Informations','Outils','Décisions','Clients','Performance'];
-const BCRIT = {
-  'Vision':['Le cap et les objectifs sont clairs et partagés','On sait ce qui nous différencie et on le met en avant','La stratégie est formalisée (pas que dans la tête du dirigeant)','L\'équipe connaît et adhère à la direction','On anticipe les évolutions du marché'],
-  'Organisation':['Les rôles et responsabilités sont clairs (qui décide quoi)','La délégation fonctionne (pas tout sur 1-2 personnes)','Le climat social / l\'ambiance est sain (RH)','Le recrutement et l\'intégration sont maîtrisés','L\'entreprise ne dépend pas d\'une seule personne clé'],
-  'Processus':['Les façons de faire sont formalisées (procédures écrites)','Les délais sont tenus (pas de goulot de validation)','La qualité est constante (peu d\'erreurs / reprises)','Les tâches répétitives sont optimisées','Outils et process sont bien articulés'],
-  'Informations':['On sait pourquoi on gagne ou perd un dossier (causes, avis)','Le savoir-faire est documenté / capitalisé','Les données sont centralisées et accessibles','L\'information circule bien entre les personnes','Les données sont fiables et à jour'],
-  'Outils':['Les outils & équipements du quotidien sont performants','Les tâches répétitives (devis, rapports) sont fluides et rapides','Les logiciels sont bien maîtrisés par l\'équipe','Les outils sont bien intégrés (pas de double saisie)','L\'entreprise teste / adopte les nouvelles technologies'],
-  'Décisions':['Le pilotage s\'appuie sur des indicateurs fiables (pas au feeling)','Le chiffrage / la tarification suit une méthode objective','Les décisions sont prises rapidement quand il le faut','On mesure les résultats des décisions prises','Des tableaux de bord existent et sont utilisés'],
-  'Clients':['La réputation & la relation client sont bonnes et suivies','La prospection / le développement commercial est structuré','La satisfaction client est mesurée','La fidélisation est travaillée (pas que de la conquête)','Le portefeuille client est équilibré (pas trop dépendant d\'un client)'],
-  'Performance':['La rentabilité est suivie et maîtrisée','Les résultats sont stables (pas d\'hémorragie talents/clients)','La trésorerie est saine et anticipée','La productivité est mesurée et s\'améliore','La croissance est maîtrisée / soutenable']
+/* Référentiel des 200 critères : 8 piliers × 5 sous-domaines × 5 critères.
+   Express = 1er critère de chaque sous-domaine (40) · Complet = les 200. */
+const REFERENTIEL = {
+ "Vision": {
+  "Cap & objectifs": ["Le dirigeant sait où il veut emmener l'entreprise à 3 ans","Des objectifs concrets et datés existent (pas que des intentions)","Les objectifs sont chiffrés et mesurables","Les priorités de l'année sont claires","Les objectifs sont revus régulièrement"],
+  "Positionnement & différenciation": ["L'entreprise sait précisément ce qui la distingue","Cette différence est réelle et défendable (pas qu'un slogan)","Le positionnement est clair (prix, qualité, proximité, niche)","La différenciation est mise en avant dans la communication","La cible de clientèle est bien définie"],
+  "Stratégie formalisée": ["La stratégie est écrite (pas que dans la tête du dirigeant)","Il existe un plan de développement à moyen terme","Les choix stratégiques sont argumentés (marché, moyens)","La stratégie tient compte des forces et faiblesses","Des moyens (budget, temps) sont alloués à la stratégie"],
+  "Adhésion & partage": ["L'équipe connaît la direction de l'entreprise","Les collaborateurs adhèrent au projet","La vision est communiquée régulièrement","Chacun comprend sa contribution aux objectifs","Les nouveaux arrivants sont embarqués dans le projet"],
+  "Anticipation & innovation": ["L'entreprise surveille les évolutions de son marché","Les menaces (concurrence, réglementation) sont anticipées","Les opportunités nouvelles sont identifiées","L'entreprise se remet en question / se réinvente","Une veille (techno, marché) est organisée"]
+ },
+ "Organisation": {
+  "Rôles & responsabilités": ["Chacun connaît son rôle et son périmètre","On sait qui décide quoi (pas de zones floues)","L'organigramme est clair (même informel)","Les responsabilités ne se chevauchent pas / ne se contredisent pas","Les missions de chacun sont explicites (fiches de poste)"],
+  "Délégation & autonomie": ["Le dirigeant délègue réellement (pas tout sur lui)","Les collaborateurs décident à leur niveau","Les tâches ne remontent pas systématiquement au dirigeant","La confiance est accordée sans micro-management","L'entreprise tourne quand le dirigeant est absent"],
+  "Climat social & RH": ["L'ambiance de travail est saine","Les tensions et conflits sont gérés","Les collaborateurs se sentent reconnus et valorisés","Le management est bienveillant et respectueux","Le turnover est faible et maîtrisé"],
+  "Recrutement & intégration": ["Le recrutement est anticipé (pas dans l'urgence)","Le processus de recrutement est efficace","L'intégration des nouveaux est organisée","On trouve les compétences dont on a besoin","La marque employeur attire les candidats"],
+  "Compétences & dépendance": ["Les compétences clés sont identifiées","L'entreprise ne dépend pas d'une seule personne indispensable","La formation continue est encouragée","Les compétences sont transmises (pas de rétention de savoir)","La montée en compétence est planifiée"]
+ },
+ "Processus": {
+  "Formalisation": ["Les façons de faire sont écrites (procédures)","Les process clés sont documentés","Les bonnes pratiques sont partagées","Un nouveau peut travailler en suivant les procédures","Les procédures sont tenues à jour"],
+  "Délais & fluidité": ["Les délais annoncés sont tenus","Il n'y a pas de goulot d'étranglement (validation, une personne)","Le flux de travail est fluide de bout en bout","Les urgences sont gérées sans tout désorganiser","Les temps d'attente entre étapes sont maîtrisés"],
+  "Qualité & fiabilité": ["La qualité des livrables est constante","Les erreurs et reprises sont rares","Les contrôles qualité sont en place","Les réclamations clients sont rares","Les non-conformités sont analysées et corrigées"],
+  "Optimisation": ["Les tâches répétitives sont identifiées","Les tâches à faible valeur sont réduites ou automatisées","Les process sont régulièrement améliorés","Les gaspillages (temps, ressources) sont traqués","Les collaborateurs proposent des améliorations"],
+  "Coordination & articulation": ["Les outils et les process sont bien articulés","Les informations passent bien d'une étape à l'autre","Les différents services / personnes se coordonnent bien","Les doublons de travail sont évités","Les interfaces (devis → prod → facturation) sont fluides"]
+ },
+ "Informations": {
+  "Connaissance client & marché": ["On sait pourquoi on gagne un dossier ou une vente","On sait pourquoi on perd un dossier ou une vente","Les avis et retours clients sont collectés","On connaît les besoins réels de ses clients","Les données de marché sont exploitées"],
+  "Capitalisation du savoir-faire": ["Le savoir-faire est documenté (pas que dans les têtes)","Les cas et dossiers types sont réutilisables","L'expérience passée sert aux nouveaux dossiers","Le départ d'une personne ne fait pas perdre le savoir","Une base de connaissance existe"],
+  "Centralisation & accès": ["Les données sont centralisées (pas éparpillées)","Chacun accède facilement à l'info dont il a besoin","On ne perd pas de temps à chercher l'information","Les documents sont bien rangés et retrouvables","Une seule source de vérité par donnée (pas 3 versions)"],
+  "Circulation de l'information": ["L'information circule bien entre les personnes","Les réunions et échanges sont utiles et efficaces","Les décisions sont communiquées à ceux concernés","Il n'y a pas de rétention d'information","Les canaux de communication sont clairs"],
+  "Fiabilité & sécurité": ["Les données sont fiables (peu d'erreurs)","Les données sont à jour","Les données sont sauvegardées","Les données sensibles sont protégées (RGPD)","La saisie des données est rigoureuse"]
+ },
+ "Outils": {
+  "Équipement & performance": ["Les outils et équipements du quotidien sont performants","Le matériel est à jour et bien entretenu","Les outils ne sont pas un frein au travail","Les investissements en outils sont pertinents","Les outils correspondent aux besoins réels"],
+  "Fluidité des tâches": ["Les tâches répétitives (devis, factures, rapports) sont rapides","La saisie d'information n'est pas chronophage","Les tâches administratives sont fluides","Les outils font gagner du temps (pas en perdre)","Peu de tâches manuelles évitables subsistent"],
+  "Maîtrise des outils": ["L'équipe maîtrise bien les logiciels utilisés","Les outils sont bien paramétrés","Les fonctionnalités utiles sont réellement utilisées","Une formation aux outils est assurée","Les outils ne sont pas sous-exploités"],
+  "Intégration & interopérabilité": ["Les outils communiquent entre eux (pas de double saisie)","Les données passent d'un outil à l'autre sans ressaisie","Le système d'information est cohérent","Il n'y a pas d'îlots d'outils déconnectés","Les flux entre logiciels sont automatisés"],
+  "Adoption des technologies": ["L'entreprise teste de nouvelles solutions","Les opportunités du numérique et de l'IA sont explorées","L'entreprise n'a pas de retard technologique","Les collaborateurs sont ouverts au changement d'outils","Une réflexion sur l'automatisation existe"]
+ },
+ "Décisions": {
+  "Pilotage par indicateurs": ["Les décisions s'appuient sur des données (pas au feeling)","Les indicateurs clés sont identifiés et suivis","On dispose de chiffres fiables pour décider","Le dirigeant a une vision chiffrée de son activité","Les indicateurs sont regardés régulièrement"],
+  "Chiffrage & tarification": ["Le chiffrage / devis suit une méthode objective","Les prix couvrent réellement les coûts et la marge","La tarification n'est pas arbitraire (à la tête du client)","Les coûts de revient sont connus","La rentabilité par produit / service / client est connue"],
+  "Réactivité décisionnelle": ["Les décisions sont prises rapidement quand il le faut","On ne reste pas bloqué sur des décisions importantes","Les arbitrages sont clairs et assumés","L'entreprise sait dire non ou arrêter ce qui ne marche pas","Les décisions ne dépendent pas d'une seule personne indisponible"],
+  "Suivi des décisions": ["On mesure les résultats des décisions prises","Les actions engagées font l'objet d'un suivi","On corrige le tir quand une décision ne donne rien","Les échecs sont analysés (pas cachés)","Les décisions passées nourrissent les suivantes"],
+  "Tableaux de bord": ["Des tableaux de bord existent et sont utilisés","Ils sont à jour et fiables","Ils sont lisibles (pas une usine à gaz)","Ils couvrent les dimensions clés (commerce, prod, finance)","Ils déclenchent réellement des actions"]
+ },
+ "Clients": {
+  "Réputation & image": ["La réputation de l'entreprise est bonne","Les avis en ligne sont bons et suivis","L'image perçue correspond à la réalité","Le bouche-à-oreille est favorable","L'e-réputation est gérée (réponses aux avis)"],
+  "Prospection & développement": ["La prospection est structurée (pas au hasard)","Le développement commercial est régulier","Le pipeline de prospects est suivi","Les canaux d'acquisition sont identifiés et travaillés","La conversion prospect → client est mesurée"],
+  "Satisfaction client": ["La satisfaction client est mesurée","Les réclamations sont traitées et suivies","On agit sur les causes d'insatisfaction","Le client est écouté (enquêtes, retours)","Le niveau de service est constant"],
+  "Fidélisation & relation": ["La fidélisation est travaillée (pas que la conquête)","La relation client est suivie dans la durée","Un outil (CRM) suit les échanges clients","Les clients reviennent et recommandent","Des actions de fidélisation existent"],
+  "Portefeuille & dépendance": ["Le portefeuille client est équilibré","L'entreprise ne dépend pas d'un seul gros client","Les segments de clientèle sont identifiés","La perte d'un client n'est pas fatale","La valeur des clients (récurrence, marge) est connue"]
+ },
+ "Performance": {
+  "Rentabilité": ["La rentabilité est suivie et maîtrisée","Les marges sont connues et satisfaisantes","Les charges sont maîtrisées","La rentabilité par activité est connue","Les leviers de rentabilité sont actionnés"],
+  "Stabilité & résilience": ["Les résultats sont stables dans le temps","Il n'y a pas d'hémorragie de talents ou de clients","L'entreprise résiste aux aléas (crise, saisonnalité)","L'activité n'est pas trop dépendante d'un facteur unique","Les risques majeurs sont identifiés et couverts"],
+  "Trésorerie & finances": ["La trésorerie est saine","Les encaissements et décaissements sont anticipés","Les délais de paiement clients sont maîtrisés","L'entreprise a de la visibilité financière","Le financement (BFR, investissement) est sous contrôle"],
+  "Productivité": ["La productivité est mesurée","Le temps est bien employé (peu de temps perdu)","La productivité s'améliore dans le temps","Le rapport valeur produite / ressources est bon","Les gains de productivité sont réinvestis"],
+  "Croissance & pérennité": ["La croissance est maîtrisée et soutenable","L'entreprise investit pour l'avenir","La pérennité à long terme est assurée","La transmission / succession est anticipée","Le modèle économique reste viable dans le temps"]
+ }
 };
+function buildItems(mode){
+  var items=[];
+  BPILIERS.forEach(function(p){
+    var subs=REFERENTIEL[p], si=0;
+    Object.keys(subs).forEach(function(sd){
+      var crits=subs[sd];
+      var take = (mode==='express') ? [crits[0]] : crits;
+      take.forEach(function(c,ci){ items.push({id:'b_'+bkey(p)+'_'+si+'_'+ci, pilier:p, sous:sd, crit:c}); });
+      si++;
+    });
+  });
+  return items;
+}
 function startGrille(mode){
   showView('bGrille');
-  if(mode==='complet'){
-    $('bGrille').innerHTML='<div class="panel"><div style="font-size:16px;font-weight:700;color:#374151;">🔬 BOUSSOLE Complet</div>'
-      +'<div style="font-size:13px;color:#4b5563;line-height:1.6;margin-top:8px;">La grille Complète (<b>200 critères</b>, 2 à 4 sessions sur plusieurs semaines) se déroule sur plusieurs RDV. Le référentiel détaillé est en cours de finalisation dans la méthode.<br><br>En attendant, l\'<b>Express</b> couvre déjà les 8 piliers et produit un indice justifié.</div>'
-      +'<button class="btn btn-primary" style="margin-top:12px;" onclick="startGrille(\'express\')">⚡ Lancer l\'Express à la place</button>'
-      +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">← Retour</button></div>';
-    return;
-  }
-  let rows='';
-  BPILIERS.forEach(function(p){
-    var k=bkey(p);
-    rows+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1f3a5f;">'+p+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="bp_'+k+'">–</span>/100</div></div>';
-    BCRIT[p].forEach(function(c,i){
-      var id='b_'+k+'_'+i;
-      rows+='<div style="margin-top:11px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;">'+esc(c)+'</div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+id+'" oninput="bcalc()"><span class="val" id="'+id+'v">3</span></div></div>';
-    });
-    rows+='</div>';
-  });
-  $('bGrille').innerHTML=
-    '<div class="panel" style="position:sticky;top:0;z-index:5;background:#0f1225;color:#fff;text-align:center;padding:12px;">'
-    +'<div style="font-size:11px;color:#c7d2fe;">🧭 BOUSSOLE Express · indice justifié en direct</div>'
+  var items=buildItems(mode); window.bItems=items;
+  var label = (mode==='express') ? 'Express' : 'Complet';
+  var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#0f1225;color:#fff;text-align:center;padding:12px;">'
+    +'<div style="font-size:11px;color:#c7d2fe;">🧭 BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="bIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100</span> <span id="bStars" style="font-size:16px;color:#f59e0b;"></span></div>'
-    +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>'
-    +rows
-    +'<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
+    +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>';
+  var curP=null,curS=null,open=false;
+  items.forEach(function(it){
+    if(it.pilier!==curP){ if(open)html+='</div>'; curP=it.pilier; curS=null;
+      html+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1f3a5f;">'+curP+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="bp_'+bkey(curP)+'">–</span>/100</div></div>'; open=true;
+    }
+    if(mode==='complet' && it.sous!==curS){ curS=it.sous;
+      html+='<div style="font-size:10.5px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;border-bottom:1px solid #f0e6dd;padding-bottom:3px;">'+esc(curS)+'</div>';
+    }
+    html+='<div style="margin-top:10px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;">'+esc(it.crit)+'</div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bcalc()"><span class="val" id="'+it.id+'v">3</span></div></div>';
+  });
+  if(open)html+='</div>';
+  html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
     +'<button class="btn btn-primary" onclick="bFinish()">✅ Terminer & voir le diagnostic</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">← Retour</button>';
+  $('bGrille').innerHTML=html;
   bcalc();
 }
 function bScan(){
-  var sum=0,n=0,pil={},faibles=[];
-  BPILIERS.forEach(function(p){
-    var k=bkey(p),ps=0,pn=0;
-    BCRIT[p].forEach(function(c,i){
-      var el=$('b_'+k+'_'+i); if(!el) return;
-      var v=+el.value; var lab=$('b_'+k+'_'+i+'v'); if(lab) lab.textContent=v;
-      sum+=v;n++;ps+=v;pn++; if(v<=2) faibles.push(c+' ('+v+'/5)');
-    });
-    pil[p]=pn?Math.round(ps/(pn*5)*100):0;
+  var items=window.bItems||[], sum=0,n=0,pil={},faibles=[];
+  items.forEach(function(it){
+    var el=$(it.id); if(!el) return;
+    var v=+el.value; var lab=$(it.id+'v'); if(lab) lab.textContent=v;
+    sum+=v;n++;
+    if(!pil[it.pilier]) pil[it.pilier]={s:0,n:0};
+    pil[it.pilier].s+=v; pil[it.pilier].n++;
+    if(v<=2) faibles.push(it.crit+' ('+v+'/5)');
   });
-  return {idx:n?Math.round(sum/(n*5)*100):0,n:n,pil:pil,faibles:faibles};
+  var pct={}; BPILIERS.forEach(function(p){ if(pil[p]) pct[p]=Math.round(pil[p].s/(pil[p].n*5)*100); });
+  return {idx:n?Math.round(sum/(n*5)*100):0,n:n,pil:pct,faibles:faibles};
 }
 function bcalc(){
   var r=bScan();
   $('bIdx').textContent=r.idx; $('bStars').innerHTML=starsHTML(r.idx);
-  BPILIERS.forEach(function(p){var e=$('bp_'+bkey(p)); if(e)e.textContent=r.pil[p];});
+  BPILIERS.forEach(function(p){var e=$('bp_'+bkey(p)); if(e && r.pil[p]!=null) e.textContent=r.pil[p];});
   var fz=$('bFaibles');
-  if(r.faibles.length){fz.style.display='block';fz.innerHTML='<b>⚠️ Points faibles (≤2/5) — besoins à creuser :</b><br>• '+r.faibles.join('<br>• ');}
+  if(r.faibles.length){var sh=r.faibles.slice(0,10),ex=r.faibles.length-sh.length;fz.style.display='block';fz.innerHTML='<b>⚠️ Points faibles (≤2/5) — '+r.faibles.length+' besoin(s) à creuser :</b><br>• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres…</i>':'');}
   else fz.style.display='none';
 }
 function bFinish(){
   var r=bScan();
-  var bars=BPILIERS.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
+  var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
+  var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
     var c=r.pil[p]>=60?'#22c55e':r.pil[p]>=40?'#f59e0b':'#ef4444';
     return '<div style="display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;"><div style="width:96px;color:#4b5563;">'+p+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:14px;"><div style="width:'+r.pil[p]+'%;background:'+c+';height:14px;border-radius:5px;"></div></div><div style="width:26px;text-align:right;font-weight:600;">'+r.pil[p]+'</div></div>';
   }).join('');
-  var bes=r.faibles.length?('• '+r.faibles.join('<br>• ')):'Aucun critère ≤2/5 — solide.';
+  var sh=r.faibles.slice(0,14),ex=r.faibles.length-sh.length;
+  var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   $('bGrille').innerHTML='<div class="card">'
-   +'<div style="background:#2a1b4a;color:#fff;padding:16px 18px;"><div style="font-size:12px;color:#c7b3ff;">🧭 BOUSSOLE Express · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
+   +'<div style="background:#2a1b4a;color:#fff;padding:16px 18px;"><div style="font-size:12px;color:#c7b3ff;">🧭 BOUSSOLE · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
    +'<div style="font-size:36px;font-weight:700;margin-top:4px;">'+r.idx+'<span style="font-size:15px;font-weight:400;opacity:.75;">/100</span> <span style="font-size:18px;color:#f59e0b;">'+starsHTML(r.idx)+'</span></div>'
    +'<div style="font-size:11px;color:#9d8fd0;">Aura intérieure — chaque point se justifie par une note /5 traçable.</div></div>'
    +'<div class="sec"><div class="ktitle" style="color:#2a1b4a;">Les 8 piliers /100</div><div style="margin-top:8px;">'+bars+'</div></div>'
    +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;">⚠️ Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
    +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12px;color:#14532d;line-height:1.55;"><b>Posture honnête :</b> certaines faiblesses (climat social, cap, gouvernance) relèvent du <b>management</b>, pas de l\'IA — on les nomme et on oriente. L\'IA agit sur les tâches concrètes (capitalisation, devis, voix du client…).</div></div>'
-   +'<div class="foot">Regard subjectif du répondant · indice Express provisoire · à confronter à la phase humaine. La grille Complète (200) affinerait le score.</div></div>'
-   +'<button class="btn btn-ghost" onclick="startGrille(\'express\')">↺ Recommencer</button>'
+   +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>'
+   +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">↺ Nouvelle grille</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'form\')">🏠 Accueil</button>';
   window.scrollTo(0,0);
 }
