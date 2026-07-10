@@ -1,6 +1,6 @@
 {
   "functions": {
     "api/concurrents.js": { "maxDuration": 60 },
-    "api/sentinelle.js": { "maxDuration": 45 }
+    "api/sentinelle.js": { "maxDuration": 60 }
   }
 }
