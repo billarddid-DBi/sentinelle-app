@@ -1,0 +1,134 @@
+{
+  "nom": "Référence Pare-Brise Metz Augny (REFERENCE METZ)",
+  "ville": "Augny (57685)",
+  "activite": "Réparation, remplacement de pare-brise et vitrages automobiles, calibrage caméra ADAS",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Concurrence locale dense",
+    "atout": "Très bons avis clients"
+  },
+  "identite": "REFERENCE METZ (enseigne Référence Pare-Brise), SIREN 877844076, installée Zone Actisud, 59 rue du Bois d'Orly à Augny (57685), après un transfert de siège depuis Jouy-aux-Arches (ex Essey-lès-Nancy). L'enseigne nationale a été fondée en 2011 dans le Grand Est et est spécialisée dans la réparation d'impact, le remplacement de pare-brise et le calibrage caméra ADAS.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      58,
+      62,
+      68,
+      52,
+      48,
+      58,
+      82,
+      63
+    ],
+    "potentiel": [
+      75,
+      80,
+      85,
+      72,
+      78,
+      78,
+      92,
+      82
+    ]
+  },
+  "valeurs": "Proximité, réactivité, transparence sur les démarches assurance, prise en charge « zéro reste à charge », attention portée au détail (nettoyage, vérifications complémentaires du véhicule).",
+  "imagePercue": "Image très positive et chaleureuse : accueil, soin apporté au véhicule (aspiration, contrôle pression pneus) et gestion fluide des dossiers assurance reviennent très régulièrement dans les avis.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Marché très concurrentiel à Metz : Carglass, France Pare-Brise, GlassAuto et Speedy sont tous présents sur l'agglomération, ce qui impose une différenciation continue sur l'expérience client."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes publiés avec confidentialité partielle en 2023, limitant la visibilité financière externe sur la structure."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Un avis évoque un délai de traitement perçu comme long, lié aux conditions d'un contrat d'assurance récent du client — signal à surveiller sur la fluidité de la communication en cas de dossier atypique."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Volume d'avis positifs récurrent et récent (dont janvier 2026), signe d'une dynamique client saine."
+    }
+  ],
+  "quickwins": [
+    "Centraliser les rappels de rendez-vous et les relances dossiers assurance pour fluidifier le quotidien de l'agence.",
+    "Systématiser la sollicitation d'avis juste après une intervention réussie pour capitaliser sur la satisfaction déjà exprimée.",
+    "Mettre en place un tableau de bord simple des délais moyens de traitement assurance pour anticiper les situations comme celle évoquée dans certains avis."
+  ],
+  "avis": "Les avis publics (PagesJaunes, site de l'agence, Facebook) sont majoritairement très favorables : accueil, soin du véhicule et prise en charge assurance sont salués. Un avis Facebook indique 100% de recommandation sur 7 avis, et les commentaires PagesJaunes les plus récents (janvier 2026) restent élogieux.",
+  "presence": "Présence active sur Facebook (page dédiée à l'agence d'Augny), avec des liens vers TikTok et LinkedIn du réseau national Référence Pare-Brise, ainsi qu'un site web dédié à l'agence.",
+  "intel": {
+    "financier": "Comptes disposant d'une confidentialité partielle pour l'exercice 2023, ce qui indique une structure ne dépassant pas certains seuils (bilan <6M€, CA net <12M€) ; chiffre d'affaires précis non trouvé publiquement.",
+    "concurrence": "Concurrence directe forte sur l'agglomération de Metz : Carglass (centres à Metz et via Norauto à Augny même), France Pare-Brise, GlassAuto (Moulins-lès-Metz) et Speedy sont tous positionnés sur le vitrage automobile dans le secteur.",
+    "visibilite": "Bonne visibilité locale via annuaires (PagesJaunes, 118712, Cylex, Mappy), le site de l'enseigne et les réseaux sociaux ; référencement cohérent sur le mot-clé « pare-brise Augny/Metz ».",
+    "dirigeant": "Une annonce Bodacc antérieure mentionne un gérant nommé Nicolas Etienne pour cette structure, mais les informations disponibles publiquement ne permettent pas de confirmer avec certitude l'identité du dirigeant actuel ni son année de naissance ; à vérifier directement en entretien."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Agent de prise de RDV & rappels clients",
+      "benefice": "Réduit les créneaux perdus et libère le téléphone de l'agence pendant les interventions en atelier."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de suivi des dossiers assurance",
+      "benefice": "Accélère la transmission des pièces et les relances, limitant les délais perçus comme longs par certains clients."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de sollicitation & réponse aux avis",
+      "benefice": "Capitalise sur la satisfaction déjà exprimée pour renforcer durablement la réputation en ligne."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de fidélisation (rappels entretien/offres)",
+      "benefice": "Encourage le retour des clients existants (essuie-glaces, traitement anti-pluie, contrôle vitrage) sans effort commercial supplémentaire."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de suivi de stock pare-brise",
+      "benefice": "Sécurise les délais d'intervention rapide (J+1) en anticipant les besoins de réapprovisionnement."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps hebdomadaire estimé passé sur les tâches administratives (RDV, relances assurance)"
+  },
+  "coutInaction": "Chaque heure passée en tâches manuelles de prise de rendez-vous ou de relance assurance est une heure en moins consacrée à l'accueil et à la qualité perçue, qui constitue aujourd'hui le principal atout de l'agence.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 35
+  },
+  "avantApres": {
+    "aujourdhui": "L'équipe jongle entre l'accueil en agence, les appels de prise de rendez-vous et le suivi téléphonique des dossiers d'assurance, parfois au détriment du temps consacré à chaque client.",
+    "avecIA": "Les rendez-vous et rappels sont gérés automatiquement, les dossiers assurance sont préqualifiés et suivis, laissant l'équipe se concentrer sur l'accueil et la qualité de service qui font déjà sa réputation."
+  },
+  "cta": "Ce premier avis n'est qu'un point de départ : un échange BOUSSOLE permettrait d'objectiver précisément les leviers prioritaires pour cette agence.",
+  "indice": {
+    "estime": 62,
+    "potentiel": 85
+  },
+  "aura": {
+    "sens": "la chaleur relationnelle",
+    "couleur": "Orange",
+    "definition": "Une énergie d'accueil et de proximité, portée par une équipe qui soigne chaque détail de la relation client.",
+    "eclat": "fort"
+  },
+  "fierte": "Cette agence a su construire, sur un marché très concurrentiel, une réputation d'accueil et de soin du client qui ressort spontanément dans de nombreux avis récents. Ce socle relationnel solide est une base idéale pour aller plus loin grâce à des outils qui libèrent du temps pour ce qui fait déjà sa force : la qualité de la relation client.",
+  "sources": "Sources publiques consultées : PagesJaunes, site referenceparebrise.fr et referenceparebrise-metz-augny.fr, Facebook, Pappers, Societe.com, Synta-IQ, Mappy, 118712, Cylex, ainsi que sites des concurrents locaux (Carglass, France Pare-Brise, GlassAuto, Speedy). Confiance : forte sur l'identité et l'activité (sources légales convergentes), moyenne sur les avis (volume limité mais convergent), faible sur l'identité précise du dirigeant actuel (donnée non confirmée)."
+}
