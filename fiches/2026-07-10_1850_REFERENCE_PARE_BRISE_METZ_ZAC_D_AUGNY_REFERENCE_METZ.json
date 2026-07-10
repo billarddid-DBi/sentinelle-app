@@ -1,0 +1,134 @@
+{
+  "nom": "Référence Pare-Brise Metz Zac d'Augny (REFERENCE METZ)",
+  "ville": "Augny (57685)",
+  "activite": "Réparation d'impact, remplacement de pare-brise et calibrage caméra ADAS (agence du réseau national Référence Pare-Brise)",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Situation stable",
+    "atout": "Réseau national structuré + bons avis"
+  },
+  "identite": "Entité REFERENCE METZ, SIREN 877844076, agence Zone Actisud à Augny, activité déclarée entretien/réparation/remplacement de pare-brises et vitrages automobiles ; enseigne du réseau Référence Pare-Brise fondé en 2011, piloté par la société Colorauto (gérant historique Nicolas Etienne).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      65,
+      70,
+      55,
+      60,
+      60,
+      80,
+      68
+    ],
+    "potentiel": [
+      75,
+      82,
+      85,
+      75,
+      80,
+      78,
+      90,
+      85
+    ]
+  },
+  "valeurs": "Service sans avance de frais, prise en charge assurance simplifiée, véhicule de prêt, propreté et calibrage ADAS mis en avant comme gages de sécurité.",
+  "imagePercue": "Image d'agence spécialisée fiable et accueillante, avec de nombreux retours clients soulignant la qualité de l'accueil et du service.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "De nombreux avis PagesJaunes/Facebook évoquent un accueil excellent et un service soigné."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Un avis fait état d'un litige sur un délai de traitement lié à un contrat d'assurance récent, avec plusieurs relances client restées sans réponse."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Aucune note Google consolidée propre à l'agence d'Augny n'a été retrouvée publiquement (contrairement à d'autres enseignes du secteur qui l'affichent)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Les comptes de l'entité SIREN 877844076 bénéficient d'une confidentialité partielle depuis 2023, limitant la lecture financière précise de l'agence."
+    }
+  ],
+  "quickwins": [
+    "Centraliser et harmoniser les avis multi-plateformes (Google, PagesJaunes, Facebook) pour un pilotage unique de la réputation.",
+    "Digitaliser le suivi des dossiers assurance pour fluidifier les délais et éviter les litiges comme celui observé.",
+    "Automatiser la prise de rendez-vous en ligne pour capter les demandes hors horaires d'ouverture (lundi-samedi)."
+  ],
+  "avis": "Avis globalement très positifs sur PagesJaunes et le site de l'enseigne (accueil, propreté, respect des délais, véhicule de prêt), avec toutefois un avis relatant une insatisfaction liée à un délai de traitement assurance. Note Google spécifique à l'agence : Non trouvé publiquement.",
+  "presence": "Site dédié referenceparebrise.fr/augny et referenceparebrise-metz-augny.fr, fiches annuaires (PagesJaunes, Cylex, 118712, Mappy, Applivoiture), page Facebook (131 mentions J'aime), présence réseau sur TikTok et LinkedIn (marque nationale).",
+  "intel": {
+    "financier": "Comptes de REFERENCE METZ (SIREN 877844076) en confidentialité partielle depuis 2023 ; la société mère du réseau, Colorauto, affichait un chiffre d'affaires de 3,35 M€ sur son dernier exercice public (2020), mais ce chiffre concerne le réseau et non l'agence d'Augny isolément.",
+    "concurrence": "Présence d'enseignes concurrentes nationales dans la zone (Carglass à Moulins-lès-Metz, Mondial Pare-Brise référencé dans le même annuaire local), signe d'une concurrence structurée sur le marché du vitrage automobile à Metz/Augny.",
+    "visibilite": "Bonne couverture d'annuaires et réseaux sociaux, cohérente avec une enseigne nationale multi-sites ; absence de note Google agrégée visible spécifiquement pour l'agence d'Augny dans les sources consultées.",
+    "dirigeant": "Nicolas Etienne est identifié comme gérant historique de la société Colorauto, structure faîtière du réseau Référence Pare-Brise (dont dépend l'agence d'Augny) ; année de naissance non trouvée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Agent de prise de RDV intelligent",
+      "benefice": "Qualifie l'appel/la demande en ligne 24/7, vérifie la couverture assurance et propose un créneau, même hors horaires d'ouverture."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent de suivi de dossier assurance",
+      "benefice": "Automatise les relances et le suivi des dossiers bris de glace pour éviter les litiges liés aux délais, comme celui observé dans un avis client."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de gestion des avis clients",
+      "benefice": "Centralise les avis Google/PagesJaunes/Facebook et propose des réponses à valider, pour renforcer une image déjà positive."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de fidélisation",
+      "benefice": "Relance les clients après intervention et propose des offres ciblées pour transformer un bon accueil ponctuel en fidélité durable."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent de veille stock pare-brise",
+      "benefice": "Anticipe les besoins d'approvisionnement pour tenir les délais d'intervention rapide (J+1) mis en avant par le réseau."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné estimé sur la gestion des dossiers et RDV chaque semaine"
+  },
+  "coutInaction": "Sans automatisation du suivi assurance et des avis, l'agence risque de laisser filer des litiges évitables et une partie de la demande hors horaires, malgré une bonne réputation de base.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "L'équipe jongle entre accueil physique, gestion téléphonique des RDV et suivi manuel des dossiers assurance, avec un risque de délais mal perçus par certains clients.",
+    "avecIA": "La prise de RDV et le suivi des dossiers assurance sont en grande partie automatisés, laissant l'équipe se concentrer sur l'accueil et la qualité d'intervention."
+  },
+  "cta": "Ce premier avis SENTINELLE est une hypothèse de pré-audit : un échange BOUSSOLE permettrait de vérifier ces pistes avec le dirigeant et d'affiner un plan d'action concret.",
+  "indice": {
+    "estime": 62,
+    "potentiel": 83
+  },
+  "aura": {
+    "sens": "la fiabilité installée",
+    "couleur": "Bleu",
+    "definition": "Une agence ancrée dans un réseau national structuré, qui inspire confiance par la régularité de son service et l'accueil de ses équipes.",
+    "eclat": "moyen"
+  },
+  "fierte": "Cette agence s'appuie sur un réseau national solide, des avis clients majoritairement chaleureux et un savoir-faire technique reconnu (calibrage ADAS, service sans avance de frais). Le potentiel est réel : en fluidifiant encore le suivi des dossiers et la gestion de la réputation en ligne, l'agence peut transformer une bonne image locale en véritable moteur de fidélisation durable.",
+  "sources": "Sources publiques croisées : site officiel referenceparebrise.fr et referenceparebrise-metz-augny.fr (confiance forte, déclaratif entreprise), PagesJaunes/118712/Cylex/Mappy/Applivoiture (avis et fiches pro, confiance moyenne), Facebook et LinkedIn (présence réseaux, confiance moyenne), Pappers/Societe.com/Synta-IQ/Manageo/RubyPayeur (données légales SIREN/dirigeants, confiance forte pour l'identité, données financières partielles/confidentielles pour l'agence elle-même)."
+}
