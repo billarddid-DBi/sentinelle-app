@@ -420,7 +420,7 @@ function showErr(m,d){
 }
 
 function render(d){
-  window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||'';
+  window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null;
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
@@ -630,7 +630,7 @@ function runConcurrence(){
   var kw=(document.getElementById('cKw')&&document.getElementById('cKw').value.trim())||'';
   var out=document.getElementById('cOut');
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
-  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,radius:rad,keyword:kw})})
+  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,radius:rad,keyword:kw,prospectAura:window.lastAura||null})})
    .then(function(r){return r.json();})
    .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ '+esc(d.error)+'</div>'; return; } renderConcu(d); })
    .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ Connexion impossible.</div>'; });

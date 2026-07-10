@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "Clé API manquante (ANTHROPIC_API_KEY)." }); return; }
   try {
-    const { nom, ville, radius, keyword } = req.body || {};
+    const { nom, ville, radius, keyword, prospectAura } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
     const rad = Math.max(2, Math.min(50, parseInt(radius) || 20));
 
@@ -105,9 +105,18 @@ export default async function handler(req, res) {
       if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
     }
     const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null }; };
+    // Le prospect garde son Index Aura OFFICIEL de SENTINELLE (jamais recalculé ici) — cohérence.
+    const prospectRow = enrich(prospect, 0);
+    if (prospectAura && typeof prospectAura.note === "number") {
+      prospectRow.aura = {
+        note: prospectAura.note,
+        couleur: prospectAura.couleur || (prospectRow.aura && prospectRow.aura.couleur) || "Bleu",
+        eclat: prospectAura.eclat || (prospectRow.aura && prospectRow.aura.eclat) || "moyen"
+      };
+    }
     res.status(200).json({
       naf: prospect.naf, keyword: (keyword || "").trim() || null, radius: rad,
-      prospect: enrich(prospect, 0),
+      prospect: prospectRow,
       concurrents: concurrents.map((c, idx) => enrich(c, idx + 1))
     });
   } catch (err) {
