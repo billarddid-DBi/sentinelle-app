@@ -86,6 +86,12 @@
       <option value="Blanc">⚪ Blanc — le renouveau</option>
     </select>
 
+    <label>Aura extérieure — note SENTINELLE (facultatif, /100)</label>
+    <input type="text" inputmode="numeric" id="bExt" placeholder="ex : 55 — laissez vide s'il n'y a pas eu de SENTINELLE" autocomplete="off" style="margin-bottom:12px;">
+    <label>Potentiel visé (facultatif, /100)</label>
+    <input type="text" inputmode="numeric" id="bPot" placeholder="par défaut : note obtenue + 25" autocomplete="off" style="margin-bottom:6px;">
+    <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>Aura extérieure</b> pour révéler l'<b>Indice de Vérité</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
+
     <div style="border:2px solid #1f3a5f;border-radius:12px;padding:14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
         <div style="font-size:16px;font-weight:700;color:#1f3a5f;">⚡ Express</div>
@@ -149,6 +155,8 @@ function eclat(idx){return idx>=75?'éclatant':idx>=60?'rayonnant':idx>=45?'vif'
 // Code couleur ÉNERGIE (standard DBi360) : bleu froid (bas) -> rouge feu (haut)
 function energyColor(v){v=Math.max(0,Math.min(100,v));var s=[[30,58,138],[59,130,246],[16,185,129],[245,158,11],[239,68,68]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
 function energyWord(v){return v<25?'glacial':v<40?'froid':v<55?'tiède':v<70?'chaud':'en feu';}
+// Cadran de trajectoire (statique, export-safe) : 5 zones colorées code énergie + curseur ▼ sur la zone active
+function trajDial(zones,active){var stops=[0,25,50,75,100];return '<div style="display:flex;gap:3px;align-items:flex-end;margin-top:6px;">'+zones.map(function(z,i){var on=i===active;return '<div style="flex:1;text-align:center;">'+'<div style="font-size:11px;height:13px;color:#111;">'+(on?'▼':'')+'</div>'+'<div style="height:'+(on?18:11)+'px;background:'+energyColor(stops[i])+';border-radius:3px;'+(on?'box-shadow:0 0 0 2px #fff,0 0 0 3px '+energyColor(stops[i])+';':'opacity:.5;')+'"></div>'+'<div style="font-size:8px;margin-top:4px;line-height:1.1;color:'+(on?'#111':'#9ca3af')+';font-weight:'+(on?700:400)+';">'+z+'</div>'+'</div>';}).join('')+'</div>';}
 function starsHTML(v){var n=Math.max(1,Math.min(5,Math.round((v||0)/20)));return '★'.repeat(n)+'<span style="opacity:.3">'+'★'.repeat(5-n)+'</span>';}
 const $ = id => document.getElementById(id);
 const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -293,6 +301,33 @@ function bFinish(){
    +'<div style="text-align:center;"><div style="width:92px;height:92px;border-radius:50%;background:radial-gradient(circle at 50% 42%,'+au.h+' 0%,'+au.h+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+au.h+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);"><div style="font-size:22px;font-weight:700;color:#fff;">'+r.idx+'<span style="font-size:9px;opacity:.8;">/100</span></div><div style="font-size:12px;color:#fff;">'+starsHTML(r.idx)+'</div></div><div style="font-size:10px;color:#c4b5fd;margin-top:4px;">éclat <b>'+ec+'</b></div></div>'
    +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#ddd6fe;">Aura '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
    +'</div></div>';
+  // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
+  var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
+  var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
+  var potV=(($('bPot')&&$('bPot').value)||'').replace(',','.').trim();
+  var pot=(potV!=='' && !isNaN(parseFloat(potV)))?Math.max(0,Math.min(100,Math.round(parseFloat(potV)))):Math.min(100,r.idx+25);
+  var verite=(ext!=null)?(r.idx-ext):null;
+  var progression=Math.round(pot-r.idx);
+  var trajSec='';
+  if(ext!=null){
+    var dv=verite;
+    var vz=dv<=-20?0:dv<=-8?1:dv<8?2:dv<20?3:4;
+    var vzone=['Glaciation','Refroidissement','Équilibre','Élan','Combustion'][vz];
+    var vmsg=['L\'image publique dépasse très largement la réalité vécue : une dette de crédibilité à combler vite.','La réputation promet un peu plus que ce que l\'interne délivre aujourd\'hui — l\'écart se rembourse au quotidien.','Ce que vous montrez et ce que vous êtes coïncident : position saine.','La réalité dépasse l\'image : une valeur encore sous-vendue.','Pépite cachée : vous valez bien plus que ce que le public perçoit.'][vz];
+    var sign=dv>0?'+':'';
+    trajSec+='<div class="sec" style="background:#faf7ff;"><div class="ktitle" style="color:#6d28d9;">🎯 Indice de Vérité <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
+     +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
+     +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
+     +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:9px;">'+vmsg+'</div></div>';
+  } else {
+    trajSec+='<div class="sec" style="background:#faf7ff;"><div style="font-size:11.5px;color:#6d28d9;line-height:1.5;"><b>🎯 Indice de Vérité :</b> renseignez l\'Aura extérieure (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
+  }
+  var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
+  var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
+  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;">📈 Indice de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
+   +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
+   +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
+   +'<div style="font-size:11px;color:#9ca3af;line-height:1.45;margin-top:8px;">Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.</div></div>';
   var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:el?+el.value:null};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
   var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
@@ -321,6 +356,7 @@ function bFinish(){
    +'<div style="font-size:36px;font-weight:700;margin-top:4px;">'+r.idx+'<span style="font-size:15px;font-weight:400;opacity:.75;">/100</span> <span style="font-size:18px;color:#f59e0b;">'+starsHTML(r.idx)+'</span></div>'
    +'<div style="font-size:11px;color:#9d8fd0;">Chaque point se justifie par une note /5 traçable. · '+date+'</div></div>'
    +auraBand
+   +trajSec
    +'<div class="sec"><div class="ktitle" style="color:#2a1b4a;">Les 8 piliers /100</div><div style="margin-top:8px;">'+bars+'</div></div>'
    +heatSec
    +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;">⚠️ Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
@@ -337,7 +373,7 @@ function bFinish(){
    +'<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;"><thead><tr style="background:#ede9fe;"><th style="text-align:left;padding:4px 6px;">Pilier</th><th style="text-align:left;padding:4px 6px;">Sous-domaine</th><th style="text-align:left;padding:4px 6px;">Critère</th><th style="padding:4px 6px;">/5</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   var css=document.querySelector('style')?document.querySelector('style').textContent:'';
   var fiche='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td{border:1px solid #e5e7eb;padding:4px 6px;} table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card+annexe+'</div></body></html>';
-  var payload={type:'boussole',nom:nom,json:{type:'boussole',mode:mode,nom:nom,date:date,indice:r.idx,etoiles:Math.max(1,Math.min(5,Math.round(r.idx/20))),aura:{couleur:aura,sens:ad.s,definition:ad.d,eclat:ec},piliers:r.pil,faibles:r.faibles,details:details},html:fiche};
+  var payload={type:'boussole',nom:nom,json:{type:'boussole',mode:mode,nom:nom,date:date,indice:r.idx,etoiles:Math.max(1,Math.min(5,Math.round(r.idx/20))),aura:{couleur:aura,sens:ad.s,definition:ad.d,eclat:ec},trajectoire:{exterieure:ext,interieure:r.idx,potentiel:pot,indiceVerite:verite,indiceProgression:progression},piliers:r.pil,faibles:r.faibles,details:details},html:fiche};
   fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(x){return x.json();}).then(function(x){var s=$('bSave');if(s)s.textContent=(x&&x.ok)?'✅ Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur':'⚠️ Non enregistré ('+((x&&x.error)||'erreur')+')';})
     .catch(function(){var s=$('bSave');if(s)s.textContent='⚠️ Non enregistré (connexion)';});
@@ -426,6 +462,9 @@ function render(d){
     <div class="sec" style="background:${au.b};">
       <div style="font-size:12.5px;font-weight:600;color:${au.t};">Aura ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
+    </div>
+    <div class="sec" style="background:#faf7ff;">
+      <div style="font-size:11.5px;color:#6d28d9;line-height:1.55;"><b>🎯 Indice de Vérité</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
     </div>
     <div class="sec" style="background:#f0fdf4;">
       <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre aura raconte déjà</div>
