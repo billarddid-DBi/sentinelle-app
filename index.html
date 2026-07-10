@@ -7,6 +7,8 @@
 <title>SENTINELLE — DBi360</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1f2937;background:#eef1f3;margin:0;padding:16px;}
@@ -418,6 +420,7 @@ function showErr(m,d){
 }
 
 function render(d){
+  window.lastNom=d.nom; window.lastVille=d.ville;
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
@@ -556,6 +559,7 @@ function render(d){
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>
+  <button class="btn btn-primary" style="margin-top:10px;" onclick="openConcurrence()">🗺️ Analyser la concurrence autour de vous</button>
   <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
 
   // Radar
@@ -596,6 +600,58 @@ function saveFiche(d){
       .catch(e=>{ if(st) st.textContent='⚠️ Non enregistré (connexion)'; });
   }catch(e){ if(st) st.textContent='⚠️ Non enregistré'; }
 }
+
+/* ===== CONCURRENCE (module SENTINELLE) ===== */
+function openConcurrence(){
+  var nom=window.lastNom||'';
+  var host=document.getElementById('concuPanel');
+  if(!host){ host=document.createElement('div'); host.id='concuPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
+  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">🗺️ La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Établissements du même code d\'activité (NAF) près de '+esc(nom)+'. Un repère public, à aujourd\'hui — pas des « concurrents » au sens strict.</div></div>'
+   +'<div class="sec"><label>Rayon de recherche</label>'
+   +'<div class="simrow"><input type="range" id="cRad" min="2" max="100" step="1" value="25" oninput="var v=document.getElementById(\'cRadV\');if(v)v.textContent=this.value+\' km\';"><span class="val" id="cRadV">25 km</span></div>'
+   +'<button class="btn btn-primary" onclick="runConcurrence()">🔎 Analyser les 8 plus proches</button>'
+   +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div></div><div id="cOut"></div>';
+  host.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function presBadge(p){
+  var m={fort:['#dcfce7','#14532d'],moyen:['#fef9c3','#854d0e'],faible:['#fee2e2','#991b1b']};
+  if(!p||!m[p]) return '<span style="color:#9ca3af;">n.c.</span>';
+  return '<span style="background:'+m[p][0]+';color:'+m[p][1]+';padding:2px 8px;border-radius:8px;font-size:11px;">'+p+'</span>';
+}
+function avisTxt(av){ if(!av||av.note==null) return '<span style="color:#9ca3af;">n.c.</span>'; return '<b>'+av.note+'</b>/5'+(av.nombre?' <span style="color:#9ca3af;font-size:11px;">('+av.nombre+')</span>':''); }
+function auraCell(au){ if(!au||au.note==null) return '<span style="color:#9ca3af;">n.c.</span>'; var a=AURAS[au.couleur]||AURAS['Bleu']; return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+a.h+';box-shadow:0 0 4px '+a.h+'88;vertical-align:middle;margin-right:5px;"></span><b>'+au.note+'</b> <span style="color:#f59e0b;font-size:10px;">'+starsHTML(au.note)+'</span>'; }
+function runConcurrence(){
+  var rad=(document.getElementById('cRad')&&+document.getElementById('cRad').value)||25;
+  var out=document.getElementById('cOut');
+  out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des établissements + analyse des avis…</div>';
+  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,radius:rad})})
+   .then(function(r){return r.json();})
+   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ '+esc(d.error)+'</div>'; return; } renderConcu(d); })
+   .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ Connexion impossible.</div>'; });
+}
+function renderConcu(d){
+  var out=document.getElementById('cOut');
+  if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun établissement du même code NAF ('+esc(d.naf||'?')+') dans ce rayon. Essayez un rayon plus grand.</div>'; return; }
+  var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 '+esc(d.prospect.nom)+'<br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
+  d.concurrents.forEach(function(c){
+    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;">'+esc(c.nom)+'<br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
+  });
+  out.innerHTML='<div class="sec"><div id="cMap" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div>'
+   +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;">🟣 votre prospect · 🔴 même NAF (rayon '+d.radius+' km)</div></div>'
+   +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1f3a5f;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">Index Aura</th></tr></thead><tbody>'+rows+'</tbody></table>'
+   +'<div class="hint">Comparatif à aujourd\'hui, sans prévisions. Avis/présence/aura = estimation IA sur sources publiques. « Même code NAF » = repère, pas concurrence stricte.</div></div>';
+  try{
+    if(window.cMapObj){ window.cMapObj.remove(); window.cMapObj=null; }
+    var map=L.map('cMap').setView([d.prospect.lat,d.prospect.long],11); window.cMapObj=map;
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    var pts=[[d.prospect.lat,d.prospect.long]];
+    L.circleMarker([d.prospect.lat,d.prospect.long],{radius:10,color:'#fff',weight:2,fillColor:'#7c3aed',fillOpacity:1}).addTo(map).bindPopup('<b>'+esc(d.prospect.nom)+'</b><br>votre prospect');
+    d.concurrents.forEach(function(c){ if(c.lat&&c.long){ L.circleMarker([c.lat,c.long],{radius:7,color:'#fff',weight:1.5,fillColor:'#ef4444',fillOpacity:.95}).addTo(map).bindPopup('<b>'+esc(c.nom)+'</b><br>'+esc(c.commune||'')+' · '+c.distance+' km'); pts.push([c.lat,c.long]); } });
+    if(pts.length>1) map.fitBounds(pts,{padding:[30,30]});
+    setTimeout(function(){ if(window.cMapObj) window.cMapObj.invalidateSize(); },150);
+  }catch(e){ var mm=document.getElementById('cMap'); if(mm) mm.innerHTML='<div style="padding:20px;color:#9ca3af;font-size:12px;">Carte indisponible.</div>'; }
+}
+/* ===== fin CONCURRENCE ===== */
 </script>
 </body>
 </html>
