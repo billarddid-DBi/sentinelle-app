@@ -1,6 +1,7 @@
-// CONCURRENCE — module SENTINELLE. Établissements du même code NAF autour du prospect,
-// puis comparatif PUBLIC À AUJOURD'HUI (avis · présence · Index Aura), sans prévisions.
-// Géo = API publique recherche-entreprises (gratuite). Comparatif = Claude + recherche web.
+// CONCURRENCE — module SENTINELLE. Concurrents = même code NAF (cohérence catégorie)
+// FILTRÉ par mot-clé métier (le vrai métier), autour du prospect. Comparatif PUBLIC
+// À AUJOURD'HUI (avis · présence · Index Aura), sans prévisions.
+// Géo/registre = API publique recherche-entreprises (gratuite). Comparatif = Claude + web.
 
 const MODEL = "claude-sonnet-5";
 const API = "https://recherche-entreprises.api.gouv.fr";
@@ -22,32 +23,33 @@ async function resolveProspect(nom, ville) {
   const s = e.siege || {};
   return {
     siren: e.siren, naf: e.activite_principale, nom: e.nom_complet,
-    commune: s.libelle_commune, adresse: s.adresse,
+    commune: s.libelle_commune, departement: s.departement,
     lat: parseFloat(s.latitude), long: parseFloat(s.longitude)
   };
 }
 
-async function nearby(naf, lat, long, radius, excludeSiren) {
+// NAF (cohérence) + mot-clé (métier) dans le département, puis distance haversine -> 8 plus proches.
+async function searchCompetitors(keyword, naf, departement, plat, plong, radius, excludeSiren) {
   const items = [];
-  for (let page = 1; page <= 2; page++) {
-    const url = `${API}/near_point?activite_principale=${encodeURIComponent(naf)}&lat=${lat}&long=${long}&radius=${radius}&per_page=25&page=${page}`;
-    const r = await fetch(url);
+  const kw = (keyword || "").trim();
+  for (let page = 1; page <= 4; page++) {
+    const params = new URLSearchParams();
+    if (kw) params.set("q", kw);
+    if (naf) params.set("activite_principale", naf);
+    if (departement) params.set("departement", departement);
+    params.set("per_page", "25");
+    params.set("page", String(page));
+    const r = await fetch(`${API}/search?${params.toString()}`);
     if (!r.ok) break;
     const d = await r.json();
     const results = d.results || [];
     for (const e of results) {
       if (e.siren === excludeSiren) continue;
-      const ets = (e.matching_etablissements && e.matching_etablissements.length)
-        ? e.matching_etablissements : [e.siege].filter(Boolean);
-      let best = null;
-      for (const et of ets) {
-        const la = parseFloat(et.latitude), lo = parseFloat(et.longitude);
-        if (isNaN(la) || isNaN(lo)) continue;
-        const dist = haversine(lat, long, la, lo);
-        if (!best || dist < best.dist) best = { dist, la, lo, commune: et.libelle_commune };
-      }
-      if (!best) continue;
-      items.push({ siren: e.siren, nom: e.nom_complet, commune: best.commune, lat: best.la, long: best.lo, distance: Math.round(best.dist * 10) / 10 });
+      const s = e.siege || {};
+      const la = parseFloat(s.latitude), lo = parseFloat(s.longitude);
+      if (isNaN(la) || isNaN(lo)) continue;
+      const dist = haversine(plat, plong, la, lo);
+      items.push({ siren: e.siren, nom: e.nom_complet, commune: s.libelle_commune, lat: la, long: lo, distance: Math.round(dist * 10) / 10 });
     }
     if (results.length < 25) break;
   }
@@ -70,16 +72,16 @@ export default async function handler(req, res) {
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "Clé API manquante (ANTHROPIC_API_KEY)." }); return; }
   try {
-    const { nom, ville, radius } = req.body || {};
+    const { nom, ville, radius, keyword } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
-    const rad = Math.max(2, Math.min(100, parseInt(radius) || 25));
+    const rad = Math.max(2, Math.min(50, parseInt(radius) || 20));
 
     const prospect = await resolveProspect(nom, ville);
     if (!prospect || isNaN(prospect.lat) || isNaN(prospect.long)) {
       res.status(404).json({ error: "Entreprise introuvable dans l'annuaire officiel (vérifiez le nom + la ville)." });
       return;
     }
-    const concurrents = await nearby(prospect.naf, prospect.lat, prospect.long, rad, prospect.siren);
+    const concurrents = await searchCompetitors(keyword, prospect.naf, prospect.departement, prospect.lat, prospect.long, rad, prospect.siren);
 
     const list = [prospect, ...concurrents];
     const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
@@ -104,7 +106,7 @@ export default async function handler(req, res) {
     }
     const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null }; };
     res.status(200).json({
-      naf: prospect.naf, radius: rad,
+      naf: prospect.naf, keyword: (keyword || "").trim() || null, radius: rad,
       prospect: enrich(prospect, 0),
       concurrents: concurrents.map((c, idx) => enrich(c, idx + 1))
     });
