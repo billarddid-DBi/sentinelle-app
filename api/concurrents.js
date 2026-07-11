@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
     const areq = {
       model: MODEL, max_tokens: 4000, temperature: 0, system: SYS,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 8 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 16 }],
       messages: [{ role: "user", content: [{ type: "text", text: "Entreprises à évaluer (conserve chaque index i) :\n" + lines }] }]
     };
     const rr = await fetch("https://api.anthropic.com/v1/messages", {
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
       const dd = await rr.json();
       let out = "";
       for (const b of (dd.content || [])) if (b.type === "text") out += b.text;
-      out = out.replace(/<\/?cite[^>]*>/gi, "");
+      out = out.replace(/<\/?cite[^>]*>/gi, "").replace(/```json/gi, "").replace(/```/g, "");
       dbgRaw = out;
       const s = out.indexOf("{"), e = out.lastIndexOf("}");
       if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
