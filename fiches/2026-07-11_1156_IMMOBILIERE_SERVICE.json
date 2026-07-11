@@ -1,0 +1,142 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Avis en baisse",
+    "atout": "Ancienneté établie depuis 1989"
+  },
+  "identite": "SIREN 350 747 713, SIRET 35074771300013, SRL depuis 19 mai 1989 (36 ans), code NAF 6831Z (Agences immobilières), gérant depuis 19 janvier 2005 (21 ans). Effectif non trouvé publiquement. Adresse : 200 rue de Pont-à-Mousson, 57950 Montigny-lès-Metz.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      42,
+      40,
+      48,
+      38,
+      42
+    ],
+    "potentiel": [
+      65,
+      72,
+      70,
+      68,
+      68,
+      70,
+      68,
+      68
+    ]
+  },
+  "valeurs": "Expérience, réactivité, savoir-faire, accompagnement personnalisé, connaissance du marché local depuis 1989.",
+  "imagePercue": "Agence établie et fiable, mais image dégradée en ligne : avis mitigés (2,8/5 sur LeBienImmobilier avec 20+ notes), présence faible sur réseaux sociaux, site web absent ou très daté. Concurrence locale forte (Laforêt, Lagimmo avec 5/5).",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis clients en baisse : 2,8/5 sur LeBienImmobilier (20+ notes) vs 5/5 sur Mappy (3 avis récents). Divergence importante suggère une dégradation progressive ou une gestion d'avis inégale."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Absence de site web propre : l'agence n'apparaît que sur annuaires tiers (PagesJaunes, SeLoger, LeBonCoin, Mappy). Aucun domaine immobiliere-service.fr ou .com trouvé. Handicap majeur en visibilité digitale."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Concurrence locale très agressive : Laforêt (5/5, équipe visible), Lagimmo (5/5, 48 avis), Optimhome, Benedic. Immobilière Service perd en crédibilité et en attractivité client."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes en confidentialité totale depuis 2022 : données financières non publiques. Impossible de vérifier chiffre d'affaires, bénéfices, santé financière réelle."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web moderne (vitrine + annonces) avec SEO local pour Montigny & Metz",
+    "Lancer une stratégie avis : récolter & répondre aux avis Google/PagesJaunes pour inverser la tendance 2,8→4+",
+    "Automatiser la gestion des annonces (syndication SeLoger, LeBonCoin, Mappy) et des leads entrants",
+    "Mettre en place un CRM simple pour suivi clients, relances, fidélisation & panier moyen",
+    "Documenter & valoriser le savoir-faire local (quartiers, prix, tendances) en contenu blog/vidéo"
+  ],
+  "avis": "Avis mitigés et divergents. LeBienImmobilier : 2,8/5 (20+ notes). Mappy : 5/5 (3 avis récents). PagesJaunes : 5/5 (3 avis, dont un très positif mentionnant Michèle, responsable agence Metz, pour sa disponibilité et réactivité). Tendance générale : avis positifs sur le service client (réactivité, sourire, professionnalisme) mais volume faible et note globale dégradée.",
+  "presence": "Présence fragmentée sur annuaires (PagesJaunes, SeLoger, LeBonCoin, Mappy, MeilleursAgents). Actif sur LeBonCoin (dernière activité il y a 12 jours). Aucun site web propre, aucune présence visible sur Facebook, Instagram, LinkedIn. Horaires affichés : lun-jeu 10h-18h, ven 10h-14h + RDV.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes en confidentialité totale depuis 2022 (article L.232-25). Chiffre d'affaires 2013 : 39 660 € (données très anciennes, peu fiables). Impossible d'évaluer santé financière actuelle.",
+    "concurrence": "Marché très concurrentiel : 1 296 agences immobilières en Moselle. Laforêt (5/5, équipe visible, services modernes), Lagimmo (5/5, 48 avis, très bien noté), Optimhome, Benedic, Carrara, Concordis. Immobilière Service perd en visibilité et crédibilité.",
+    "visibilite": "Très faible. Aucun site web propre. Présence réduite aux annuaires tiers. Pas de contenu, pas de réseaux sociaux, pas de stratégie digitale visible. Handicap majeur face à concurrence.",
+    "dirigeant": "Gérant depuis 19 janvier 2005 (21 ans). Identité non trouvée publiquement. Bénéficiaires effectifs en accès restreint depuis 31/07/2024."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Création site web + SEO local",
+      "benefice": "Visibilité immédiate, captation leads organiques, crédibilité renforcée vs concurrence. Gain estimé : 5-10 leads/mois."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Stratégie avis & réputation (Google, PagesJaunes)",
+      "benefice": "Inverser tendance 2,8→4+ en 3-6 mois. Augmenter confiance clients, différencier vs concurrence. Automatiser récolte & réponses."
+    },
+    {
+      "tag": "🧱",
+      "nom": "CRM + pipeline clients (devis, suivi, fidélisation)",
+      "benefice": "Centraliser contacts, relances, historique. Augmenter taux de conversion & panier moyen. Gain : 10-15% CA."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Syndication annonces (SeLoger, LeBonCoin, Mappy)",
+      "benefice": "Maximiser exposition biens, réduire temps manuel. Augmenter visibilité & inquiries."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Contenu local (blog, vidéos quartiers, tendances prix)",
+      "benefice": "Positionner expertise locale, attirer clients recherche info. Renforcer SEO & crédibilité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Automatisation leads & relances (email, SMS)",
+      "benefice": "Réduire charge manuelle, augmenter réactivité, améliorer conversion. Gain : 5-8h/semaine."
+    }
+  ],
+  "archetype": "Commerce établi & performant (en déclin)",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en automatisation & organisation"
+  },
+  "coutInaction": "Chaque mois sans site web = 5-10 leads perdus vs concurrence. Avis dégradés = -20-30% confiance clients. Risque : perte progressive de marché local et fermeture à moyen terme.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle annonces, pas de site, avis fragmentés, aucune stratégie digitale. Réactivité client bonne mais invisible. Perte progressive de clients vs Laforêt/Lagimmo.",
+    "avecIA": "Site web + SEO, avis gérés automatiquement, CRM centralisé, annonces syndiquées, leads qualifiés. Gain 8-10h/semaine, +20-30% leads, avis 4+/5 en 6 mois."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet et un plan d'action personnalisé : reprendre la main sur votre visibilité digitale, inverser les avis, et reconquérir votre marché local.",
+  "indice": {
+    "estime": 42,
+    "potentiel": 68
+  },
+  "aura": {
+    "sens": "Fiabilité sous tension",
+    "couleur": "Marron",
+    "definition": "Agence ancrée localement depuis 36 ans, avec un savoir-faire solide et une équipe réactive, mais débordée par la transformation digitale et la concurrence. Énergie de stabilité menacée par l'inaction.",
+    "eclat": "faible"
+  },
+  "fierte": "Immobilière Service a bâti une présence locale solide en 36 ans, avec une équipe reconnue pour sa réactivité et son professionnalisme (avis positifs sur le service client). Ce fondement est précieux et peut devenir un atout majeur : avec une stratégie digitale claire et des outils adaptés, l'agence peut transformer son expérience en leadership local et reconquérir la confiance des clients modernes.",
+  "sources": "PagesJaunes (SIREN, RCS, avis), Societe.com (identité, NAF, gérant), SeLoger (horaires, services), LeBonCoin (activité récente), MeilleursAgents (présentation, avis), LeBienImmobilier (note 2,8/5), Mappy (note 5/5), Montigny-Entreprendre (historique local). Données financières : confidentialité totale depuis 2022 (non vérifiables). Site web : introuvable. Réseaux sociaux : aucun trouvé."
+}
