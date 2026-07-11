@@ -57,6 +57,20 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
 }
 Le tableau "agents" contient 4 à 6 éléments. Le tableau "vigilance" contient 3 à 4 éléments. Les scores du radar sont des hypothèses de pré-audit cohérentes avec l'archétype.`;
 
+// Index Aura = formule DÉTERMINISTE sur les avis Google (même calcul pour prospect ET concurrents -> cohérence)
+function auraFromRating(rating, count) {
+  let note = 50;
+  if (rating != null) {
+    if (rating >= 4.6) note = count >= 40 ? 86 : 80;
+    else if (rating >= 4.3) note = count >= 40 ? 80 : 74;
+    else if (rating >= 4.0) note = 70;
+    else if (rating >= 3.5) note = 60;
+    else if (rating >= 3.0) note = 50;
+    else note = 38;
+  }
+  return note;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
@@ -121,6 +135,26 @@ export default async function handler(req, res) {
     let fiche;
     try { fiche = JSON.parse(out.slice(start, end + 1)); }
     catch (e) { res.status(500).json({ error: "JSON invalide", raw: out.slice(0, 500) }); return; }
+
+    // COHÉRENCE de l'Index Aura : la NOTE vient de la même formule déterministe (avis Google)
+    // que pour les concurrents -> une entreprise a la même note qu'elle soit prospect ou concurrent.
+    try {
+      const gkey = process.env.GOOGLE_PLACES_KEY;
+      if (gkey && fiche && fiche.nom) {
+        const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
+        const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
+        if (gr.ok) {
+          const gd = await gr.json();
+          const p = (gd.results || [])[0];
+          if (p && p.rating != null) {
+            const note = auraFromRating(p.rating, p.user_ratings_total);
+            fiche.indice = fiche.indice || {};
+            fiche.indice.estime = note;
+            fiche.indice.potentiel = Math.min(100, note + 20);
+          }
+        }
+      }
+    } catch (_) {}
 
     res.status(200).json(fiche);
   } catch (e) {
