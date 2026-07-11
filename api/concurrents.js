@@ -66,7 +66,7 @@ const SYS = `Tu compares des entreprises françaises sur leur image PUBLIQUE AUJ
 INTERDIT : toute prévision, tout potentiel, toute projection. On décrit l'état d'aujourd'hui, point.
 N'INVENTE JAMAIS : si une info est introuvable, mets null (avis) ou reste prudent. Couleur parmi : Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc. Éclat parmi : faible, moyen, fort.
 SOIS EFFICACE : au MAXIMUM 1 recherche web par entreprise, puis DONNE directement le JSON final pour LES 9 entités. Termine TOUJOURS par le JSON complet, ne laisse AUCUNE entité vide (si tu manques d'info, mets avis null et estime l'aura ~50).
-SORTIE : UNIQUEMENT ce JSON (pas de texte avant/après, pas de ```), aucune balise, aucune citation :
+SORTIE : UNIQUEMENT ce JSON (pas de texte avant/après, pas de balise de code), aucune balise, aucune citation :
 {"entreprises":[{"i":0,"avis":{"note":<number|null>,"nombre":<int|null>,"resume":"<courte synthèse ou 'Non trouvé publiquement'>"},"presence":"fort|moyen|faible","aura":{"note":<int 0-100>,"couleur":"<couleur>","eclat":"faible|moyen|fort"},"site":"<url ou ''>"}]}`;
 
 export default async function handler(req, res) {
