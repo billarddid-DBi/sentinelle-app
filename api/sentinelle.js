@@ -1,7 +1,7 @@
 // SENTINELLE — fonction serverless (Vercel). Le "cerveau" : enquête + méthode DBi360.
 // La clé API n'est JAMAIS exposée au téléphone : elle vit ici, côté serveur (variable d'environnement).
 
-const MODEL = "claude-sonnet-5"; // modèle par défaut (bon équilibre qualité / coût / vitesse)
+const MODEL = "claude-haiku-4-5-20251001"; // modèle RAPIDE : SENTINELLE génère un gros rapport -> priorité vitesse (tient sous le plafond 60s Vercel)
 
 const METHODE = `Tu es SENTINELLE, l'outil de pré-diagnostic public de la méthode DBi360 (Didier Billard / SASU CLIXYE).
 À partir de SOURCES PUBLIQUES uniquement (utilise l'outil de recherche web), tu produis un PREMIER AVIS sur une entreprise française.
@@ -81,7 +81,7 @@ export default async function handler(req, res) {
       model: MODEL,
       max_tokens: 8000,
       system: METHODE,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 2 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
       messages: [{ role: "user", content: userContent }]
     };
 
