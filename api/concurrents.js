@@ -1,10 +1,11 @@
-// CONCURRENCE — module SENTINELLE. Concurrents = même code NAF (cohérence catégorie)
-// FILTRÉ par mot-clé métier (le vrai métier), autour du prospect. Comparatif PUBLIC
-// À AUJOURD'HUI (avis · présence · Index Aura), sans prévisions.
-// Géo/registre = API publique recherche-entreprises (gratuite). Comparatif = Claude + web.
+// CONCURRENCE — module SENTINELLE. On trouve les concurrents comme une recherche Google Maps :
+// via l'IA + recherche web (le registre légal SIRENE ne connaît pas les enseignes/catégories,
+// ex. un resto enregistré "SARL Dupont" est introuvable par "restaurant italien").
+// Chaque adresse est ensuite géolocalisée (api-adresse.data.gouv.fr, gratuit) pour la carte.
 
-const MODEL = "claude-haiku-4-5-20251001"; // modèle rapide : tâche de comparaison simple, priorité vitesse + coût
+const MODEL = "claude-haiku-4-5-20251001";
 const API = "https://recherche-entreprises.api.gouv.fr";
+const ADR = "https://api-adresse.data.gouv.fr";
 
 function haversine(la1, lo1, la2, lo2) {
   const R = 6371, r = Math.PI / 180;
@@ -15,78 +16,53 @@ function haversine(la1, lo1, la2, lo2) {
 
 const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[-']/g, " ");
 
-async function tryQuery(q) {
-  const r = await fetch(`${API}/search?q=${encodeURIComponent(q)}&per_page=8`);
-  if (!r.ok) return [];
-  const d = await r.json();
-  return d.results || [];
-}
-
-async function resolveProspect(nom, ville) {
-  const villeMain = norm(ville).split(" ").filter(Boolean)[0] || "";
-  // Stratégies : nom+ville, puis nom seul (le nom commercial ne matche pas toujours avec la ville accolée)
-  let results = [];
-  if (nom && ville) results = await tryQuery(nom + " " + ville);
-  if (!results.length && nom) results = await tryQuery(nom);
-  if (!results.length && nom) results = await tryQuery(nom.split(" ").slice(0, 2).join(" "));
-  if (!results.length) return null;
-  // On choisit le meilleur : commune qui matche la ville + coordonnées présentes
-  let best = null;
-  for (const e of results) {
-    const s = e.siege || {};
-    const geo = s.latitude && s.longitude ? 1 : 0;
-    const communeMatch = villeMain && s.libelle_commune && norm(s.libelle_commune).indexOf(villeMain) !== -1 ? 2 : 0;
-    const score = geo + communeMatch;
-    if (!best || score > best.score) best = { e, s, score };
-    if (score === 3) break;
-  }
-  const e = best.e, s = best.s;
-  return {
-    siren: e.siren, naf: e.activite_principale, nom: e.nom_complet,
-    commune: s.libelle_commune, departement: s.departement,
-    lat: parseFloat(s.latitude), long: parseFloat(s.longitude)
-  };
-}
-
-// NAF (cohérence) + mot-clé (métier) dans le département, puis distance haversine -> 8 plus proches.
-async function searchCompetitors(keyword, naf, departement, plat, plong, radius, excludeSiren) {
-  const items = [];
-  const kw = (keyword || "").trim();
-  for (let page = 1; page <= 4; page++) {
-    const params = new URLSearchParams();
-    if (kw) params.set("q", kw);
-    if (departement) params.set("departement", departement);
-    params.set("per_page", "25");
-    params.set("page", String(page));
-    const r = await fetch(`${API}/search?${params.toString()}`);
-    if (!r.ok) break;
-    const d = await r.json();
-    const results = d.results || [];
-    for (const e of results) {
-      if (e.siren === excludeSiren) continue;
-      const s = e.siege || {};
-      const la = parseFloat(s.latitude), lo = parseFloat(s.longitude);
-      if (isNaN(la) || isNaN(lo)) continue;
-      const dist = haversine(plat, plong, la, lo);
-      items.push({ siren: e.siren, nom: e.nom_complet, commune: s.libelle_commune, lat: la, long: lo, distance: Math.round(dist * 10) / 10 });
+// Localise le prospect : d'abord le registre (coords + commune), sinon on géocode la ville.
+async function locateProspect(nom, ville) {
+  try {
+    const q = encodeURIComponent([nom, ville].filter(Boolean).join(" "));
+    const r = await fetch(`${API}/search?q=${q}&per_page=8`);
+    if (r.ok) {
+      const d = await r.json();
+      const villeMain = norm(ville).split(" ").filter(Boolean)[0] || "";
+      let best = null;
+      for (const e of (d.results || [])) {
+        const s = e.siege || {};
+        const geo = s.latitude && s.longitude ? 1 : 0;
+        const cm = villeMain && s.libelle_commune && norm(s.libelle_commune).indexOf(villeMain) !== -1 ? 2 : 0;
+        const score = geo + cm;
+        if (!best || score > best.score) best = { s, nom: e.nom_complet, score };
+        if (score === 3) break;
+      }
+      if (best && best.s.latitude && best.s.longitude) {
+        return { nom: best.nom || nom, commune: best.s.libelle_commune || ville, lat: parseFloat(best.s.latitude), long: parseFloat(best.s.longitude) };
+      }
     }
-    if (results.length < 25) break;
-  }
-  const map = {};
-  for (const it of items) { if (!map[it.siren] || it.distance < map[it.siren].distance) map[it.siren] = it; }
-  return Object.values(map).filter(it => it.distance <= radius).sort((a, b) => a.distance - b.distance).slice(0, 8);
+  } catch (_) {}
+  // Fallback : géocodage de la ville
+  const g = await geocode(ville || nom);
+  if (g) return { nom, commune: ville, lat: g.lat, long: g.long };
+  return null;
 }
 
-const SYS = `Tu compares des entreprises françaises sur leur image PUBLIQUE AUJOURD'HUI, via l'outil de recherche web. Pour CHAQUE entreprise de la liste (garde son index i), donne :
-- avis : la note d'avis en ligne (Google/annuaires) sur 5 et le nombre d'avis. Si introuvable, note et nombre = null.
-- presence : UN seul mot parmi "fort", "moyen", "faible" (site web, réseaux, fraîcheur, visibilité).
-- aura : note entière 0-100, fondée SURTOUT sur les avis (même logique que le prospect, pour comparer ce qui est comparable), de façon OBJECTIVE : 4,5+/5 avec du volume → 78-88 · 4 à 4,5 → 65-77 · 3 à 4 → 48-62 · <3 → 30-45 · peu ou pas d'avis → ~50. Ajuste de ±5 selon la présence web. Jamais au feeling. Donne aussi couleur d'aura et éclat.
-- site : l'URL du site officiel si tu la vois pendant ta recherche d'avis (sinon "") — ne fais PAS de recherche dédiée juste pour le site.
-INTERDIT : toute prévision, tout potentiel, toute projection. On décrit l'état d'aujourd'hui, point.
-N'INVENTE JAMAIS : si une info est introuvable, mets null (avis) ou reste prudent. Couleur parmi : Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc. Éclat parmi : faible, moyen, fort.
-SOIS EFFICACE : au MAXIMUM 1 recherche web par entreprise, puis DONNE directement le JSON final pour LES 9 entités. Termine TOUJOURS par le JSON complet, ne laisse AUCUNE entité vide (si tu manques d'info, mets avis null et estime l'aura ~50).
-SORTIE : UNIQUEMENT ce JSON (pas de texte avant/après, pas de balise de code), aucune balise, aucune citation :
-{"entreprises":[{"i":0,"avis":{"note":<number|null>,"nombre":<int|null>,"resume":"<courte synthèse ou 'Non trouvé publiquement'>"},"presence":"fort|moyen|faible","aura":{"note":<int 0-100>,"couleur":"<couleur>","eclat":"faible|moyen|fort"},"site":"<url ou ''>"}]}`;
+async function geocode(q) {
+  if (!q) return null;
+  try {
+    const r = await fetch(`${ADR}/search/?q=${encodeURIComponent(q)}&limit=1`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const f = (d.features || [])[0];
+    const c = f && f.geometry && f.geometry.coordinates;
+    return c ? { long: c[0], lat: c[1] } : null;
+  } catch (_) { return null; }
+}
+
+const SYS = `Tu repères les concurrents locaux d'une entreprise, exactement comme une recherche Google Maps, via l'outil de recherche web.
+DONNÉES fournies : un métier (mot-clé), la ville du prospect, un rayon en km, et le nom du prospect (à EXCLURE des concurrents).
+TÂCHE : trouve jusqu'à 8 entreprises RÉELLES de ce métier autour de cette ville (les plus proches et notables, telles qu'un client les trouve sur Google Maps). Renseigne aussi les infos du prospect.
+Pour le prospect ET chaque concurrent : nom (commercial, celui connu du public), commune, adresse complète (numéro + rue + code postal + ville — INDISPENSABLE pour localiser), avis {note sur 5, nombre} (null si introuvable), présence (fort|moyen|faible : site + réseaux + fraîcheur), aura (note 0-100 SURTOUT selon les avis : 4,5+/5 avec du volume → 78-88 · 4 à 4,5 → 65-77 · 3 à 4 → 48-62 · <3 → 30-45 · sans avis → ~50 ; ±5 selon la présence), couleur d'aura (Doré/Rouge/Orange/Jaune/Vert/Turquoise/Bleu/Violet/Rose/Argent/Marron/Gris/Noir/Blanc), éclat (faible|moyen|fort), site (URL https ou "").
+RÈGLES : n'invente AUCUNE entreprise (uniquement des vraies, trouvées via la recherche web) ; exclus le prospect des concurrents ; sois efficace puis DONNE directement le JSON final complet, sans rien laisser vide.
+SORTIE : UNIQUEMENT ce JSON, pas de texte avant/après, pas de balise de code :
+{"prospect":{"avis":{"note":<n|null>,"nombre":<n|null>,"resume":"<court>"},"presence":"fort|moyen|faible","aura":{"note":<int>,"couleur":"<couleur>","eclat":"<eclat>"},"site":"<url|>"},"concurrents":[{"nom":"<nom>","commune":"<commune>","adresse":"<adresse complète>","avis":{"note":<n|null>,"nombre":<n|null>,"resume":"<court>"},"presence":"fort|moyen|faible","aura":{"note":<int>,"couleur":"<couleur>","eclat":"<eclat>"},"site":"<url|>"}]}`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
@@ -97,51 +73,54 @@ export default async function handler(req, res) {
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
     const rad = Math.max(2, Math.min(50, parseInt(radius) || 20));
     const kw = (keyword || "").trim();
-    if (!kw) { res.status(400).json({ error: "Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier)." }); return; }
+    if (!kw) { res.status(400).json({ error: "Entrez un mot-clé métier (ex : restaurant italien, pare-brise, plombier)." }); return; }
 
-    const prospect = await resolveProspect(nom, ville);
-    if (!prospect || isNaN(prospect.lat) || isNaN(prospect.long)) {
-      res.status(404).json({ error: "Entreprise introuvable dans l'annuaire officiel (vérifiez le nom + la ville)." });
-      return;
-    }
-    const concurrents = await searchCompetitors(keyword, prospect.naf, prospect.departement, prospect.lat, prospect.long, rad, prospect.siren);
+    const prospect = await locateProspect(nom, ville);
+    if (!prospect || isNaN(prospect.lat)) { res.status(404).json({ error: "Impossible de localiser le prospect (vérifiez la ville)." }); return; }
 
-    const list = [prospect, ...concurrents];
-    const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
+    // 1) L'IA trouve + qualifie les concurrents (comme Google Maps)
+    const user = `Métier : ${kw}\nVille du prospect : ${prospect.commune || ville}\nRayon : environ ${rad} km autour de cette ville\nProspect (à exclure des concurrents) : ${prospect.nom || nom}`;
     const areq = {
       model: MODEL, max_tokens: 4000, temperature: 0, system: SYS,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 10 }],
-      messages: [{ role: "user", content: [{ type: "text", text: "Entreprises à évaluer (conserve chaque index i) :\n" + lines }] }]
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 12 }],
+      messages: [{ role: "user", content: [{ type: "text", text: user }] }]
     };
     const rr = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify(areq)
     });
-    let byi = {};
+    let parsed = { prospect: {}, concurrents: [] };
     if (rr.ok) {
       const dd = await rr.json();
       let out = "";
       for (const b of (dd.content || [])) if (b.type === "text") out += b.text;
       out = out.replace(/<\/?cite[^>]*>/gi, "").replace(/```json/gi, "").replace(/```/g, "");
       const s = out.indexOf("{"), e = out.lastIndexOf("}");
-      if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
+      if (s !== -1 && e !== -1) { try { parsed = JSON.parse(out.slice(s, e + 1)); } catch (_) {} }
     }
-    const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null, site: x.site || null }; };
-    // Le prospect garde son Index Aura OFFICIEL de SENTINELLE (jamais recalculé ici) — cohérence.
-    const prospectRow = enrich(prospect, 0);
-    if (prospectAura && typeof prospectAura.note === "number") {
-      prospectRow.aura = {
-        note: prospectAura.note,
-        couleur: prospectAura.couleur || (prospectRow.aura && prospectRow.aura.couleur) || "Bleu",
-        eclat: prospectAura.eclat || (prospectRow.aura && prospectRow.aura.eclat) || "moyen"
+    const list = (parsed.concurrents || []).slice(0, 8);
+
+    // 2) Géocodage des adresses des concurrents (gratuit) -> coords + distance
+    const geocoded = await Promise.all(list.map(async c => {
+      const g = c.adresse ? await geocode(c.adresse) : null;
+      const dist = g ? Math.round(haversine(prospect.lat, prospect.long, g.lat, g.long) * 10) / 10 : null;
+      return {
+        nom: c.nom, commune: c.commune || "", lat: g ? g.lat : null, long: g ? g.long : null,
+        distance: dist, avis: c.avis || null, presence: c.presence || null, aura: c.aura || null, site: c.site || null
       };
-    }
-    res.status(200).json({
-      naf: prospect.naf, keyword: (keyword || "").trim() || null, radius: rad,
-      prospect: prospectRow,
-      concurrents: concurrents.map((c, idx) => enrich(c, idx + 1))
-    });
+    }));
+    geocoded.sort((a, b) => (a.distance == null ? 999 : a.distance) - (b.distance == null ? 999 : b.distance));
+
+    const pp = parsed.prospect || {};
+    const prospectRow = {
+      nom: prospect.nom, commune: prospect.commune, lat: prospect.lat, long: prospect.long,
+      avis: pp.avis || null, presence: pp.presence || null,
+      aura: (prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : (pp.aura || null),
+      site: pp.site || null
+    };
+
+    res.status(200).json({ keyword: kw, radius: rad, prospect: prospectRow, concurrents: geocoded });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur", detail: String(err).slice(0, 300) });
   }
