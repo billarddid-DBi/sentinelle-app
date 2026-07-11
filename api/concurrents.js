@@ -96,15 +96,17 @@ export default async function handler(req, res) {
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify(areq)
     });
-    let byi = {};
+    let byi = {}, dbgRaw = "";
     if (rr.ok) {
       const dd = await rr.json();
       let out = "";
       for (const b of (dd.content || [])) if (b.type === "text") out += b.text;
       out = out.replace(/<\/?cite[^>]*>/gi, "");
+      dbgRaw = out;
       const s = out.indexOf("{"), e = out.lastIndexOf("}");
       if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
     }
+    if (req.body && req.body.debug) { res.status(200).json({ rr_ok: rr.ok, byiKeys: Object.keys(byi), rawModel: dbgRaw.slice(0, 4000) }); return; }
     const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null, site: x.site || null }; };
     // Le prospect garde son Index Aura OFFICIEL de SENTINELLE (jamais recalculé ici) — cohérence.
     const prospectRow = enrich(prospect, 0);
