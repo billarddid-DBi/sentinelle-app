@@ -1,0 +1,142 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - Vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Avis en baisse",
+    "atout": "Ancienneté établie depuis 1989"
+  },
+  "identite": "SIREN 350747713, SIRET 35074771300013, SaRL, NAF 6831Z (Agences immobilières), établie depuis le 19 mai 1989 (36 ans), gérant depuis janvier 2005. Comptes confidentiels (PME). Effectif non trouvé publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      42,
+      40,
+      48,
+      38,
+      42
+    ],
+    "potentiel": [
+      62,
+      68,
+      65,
+      62,
+      62,
+      65,
+      62,
+      62
+    ]
+  },
+  "valeurs": "À votre service et votre écoute depuis 1989. Réactivité et savoir-faire essentiels. Équipe dynamique, parking réservé, estimation gratuite.",
+  "imagePercue": "Agence établie mais image dégradée en ligne. Avis mitigés (2,8/5 sur LeBienImmobilier avec 20+ notes ; 5/5 sur Mappy avec 3 avis récents ; 5/5 sur PagesJaunes avec 3 avis). Présence sur annuaires (PagesJaunes, SeLoger, LeBonCoin, MeilleursAgents) mais site propre non trouvé. Horaires réguliers (lun-jeu 10h-18h, ven 10h-14h).",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis clients disparates : 2,8/5 sur LeBienImmobilier (20+ notes) vs 5/5 sur Mappy/PagesJaunes (3 avis chacun). Volatilité de perception."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Absence de site web propre détecté. Présence uniquement via annuaires tiers (SeLoger, LeBonCoin, MeilleursAgents). Visibilité digitale limitée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes confidentiels depuis 2022 : données financières non publiques. Impossible d'évaluer la santé financière ou la croissance."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Ancienneté solide (36 ans) et stabilité opérationnelle. Gérant en place depuis 21 ans. Présence locale établie à Montigny-lès-Metz."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web moderne avec portfolio de biens, avis clients, formulaire de contact direct",
+    "Mettre en place une stratégie Google My Business + avis (répondre aux avis négatifs, solliciter les positifs)",
+    "Automatiser les appels de prospection et relances de dossiers via CRM léger",
+    "Publier des contenus réguliers (conseils immobiliers, estimations, actualités marché local) sur réseaux sociaux",
+    "Centraliser la gestion des annonces multi-portails (SeLoger, LeBonCoin, MeilleursAgents) avec synchronisation"
+  ],
+  "avis": "Avis disparates : 2,8/5 sur LeBienImmobilier (20+ notes), 5/5 sur Mappy (3 avis récents), 5/5 sur PagesJaunes (3 avis). Clients apprécient la disponibilité et réactivité (mention de Michèle, responsable agence Metz). Pas d'avis négatifs explicites mais volume faible et volatilité suggèrent une présence en ligne peu active.",
+  "presence": "Présente sur PagesJaunes, SeLoger, LeBonCoin (professionnel actif il y a 12 jours), MeilleursAgents, Mappy, Montigny-Entreprendre. Pas de site web propre détecté. Pas de présence Facebook/Instagram/LinkedIn visible. Horaires affichés : lun-jeu 10h-18h, ven 10h-14h, sur RDV. Tél : 03 87 55 07 14 / 06 12 47 93 50.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2022 (PME). Chiffre d'affaires, bénéfice, structure du capital non publics. Impossible d'évaluer la rentabilité ou la trésorerie.",
+    "concurrence": "Marché local dense : Laforêt Montigny-lès-Metz (avis très positifs, équipe visible), Lagimmo (5/5 avec 48 avis), Optimhome, Benedic Immobilier, Carrara Immobilier, Sophie Fuchs, Concordis Metz. Immobilière Service est en position intermédiaire en termes de visibilité et d'avis.",
+    "visibilite": "Faible. Pas de site propre, présence uniquement via annuaires tiers. Pas de contenu éditorial, pas de réseaux sociaux actifs. Dépendance totale aux portails immobiliers pour la génération de leads. Aucune stratégie de marque visible.",
+    "dirigeant": "Gérant depuis janvier 2005 (21 ans). Identité non trouvée publiquement. Pas d'information sur l'âge, la formation ou les intentions (transmission, croissance, stabilisation)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Captation & qualification des appels",
+      "benefice": "Centraliser tous les appels entrants (03 87 55 07 14 + 06 12 47 93 50) dans un système unique avec transcription, historique client, et routage intelligent vers le bon agent. Réduit les appels perdus et accélère le traitement."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestion des avis & réputation",
+      "benefice": "Automatiser la sollicitation d'avis post-transaction, répondre aux avis négatifs en 24h, consolider les avis de tous les portails (PagesJaunes, Mappy, LeBienImmobilier, Google) sur un tableau de bord unique."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Synchronisation multi-portails",
+      "benefice": "Publier une annonce une seule fois et la synchroniser automatiquement sur SeLoger, LeBonCoin, MeilleursAgents, Mappy. Évite les doublons, les erreurs et gagne 2-3h par semaine."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Rédaction & photos assistées",
+      "benefice": "Générer automatiquement des descriptions de biens optimisées SEO et des suggestions de photos à partir des données du bien. Améliore la qualité des annonces et le taux de clics."
+    },
+    {
+      "tag": "🧱",
+      "nom": "CRM léger & suivi de dossier",
+      "benefice": "Centraliser les contacts, les dossiers en cours, les relances automatiques (estimation demandée, visite prévue, compromis signé). Évite les oublis et accélère la clôture."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Site web vitrine + formulaires",
+      "benefice": "Créer un site simple (portfolio, avis, formulaire de contact, estimation en ligne). Capture les leads directs et améliore la crédibilité vs annuaires tiers."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative et prospection"
+  },
+  "coutInaction": "Sans action, le risque est une érosion progressive de la part de marché face à des concurrents mieux visibles (Laforêt, Lagimmo). Les avis disparates et l'absence de site propre freinent la génération de leads directs et renforcent la dépendance aux portails tiers (coûteux). La perte de clients potentiels par manque de réactivité digitale s'accélère.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Appels fragmentés sur 2 numéros, avis dispersés sur 4 portails, annonces manuelles sur chaque site, relances par email/téléphone, pas de site propre, pas de contenu marketing.",
+    "avecIA": "Appels centralisés avec historique, avis consolidés et réponses automatisées, annonces synchronisées en 1 clic, relances programmées, site vitrine avec formulaires, contenu généré (conseils, estimations)."
+  },
+  "cta": "Explorez BOUSSOLE pour définir votre stratégie digitale et identifier les leviers prioritaires (site, avis, CRM, prospection). Un diagnostic approfondi révélera les gains cachés.",
+  "indice": {
+    "estime": 42,
+    "potentiel": 68
+  },
+  "aura": {
+    "sens": "Fiabilité & expérience",
+    "couleur": "Bleu",
+    "definition": "Agence ancrée dans le temps, solide et rassurante, mais qui peine à briller en ligne et à capter l'énergie du marché digital actuel.",
+    "eclat": "faible"
+  },
+  "fierte": "Immobilière Service a bâti une présence locale respectable en 36 ans, avec une équipe reconnue pour sa disponibilité et sa réactivité (avis clients le confirment). Ce socle de confiance est un atout majeur. Le potentiel est énorme : une modernisation digitale (site, avis, CRM, contenu) pourrait transformer cette expérience en leadership visible et multiplier les leads directs.",
+  "sources": "PagesJaunes (avis, identité légale), SeLoger (profil agence), LeBonCoin (profil pro, activité récente), MeilleursAgents (avis, présentation), Mappy (avis, localisation), LeBienImmobilier (note 2,8/5), Societe.com (SIREN, NAF, gérant, ancienneté), Montigny-Entreprendre (présentation locale). Confiance : moyenne (données publiques fragmentées, comptes confidentiels, avis volatiles)."
+}
