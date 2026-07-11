@@ -1,0 +1,133 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, pizzas au feu de bois"
+  },
+  "identite": "SIREN 839452786, SAS créée 7 mai 2018, 6-9 salariés, restaurant familial depuis 1980 (ancienne entité), spécialités italiennes pizza au feu de bois. Dirigeant actuel non identifié publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      48,
+      50,
+      45,
+      40,
+      52,
+      62,
+      58
+    ],
+    "potentiel": [
+      75,
+      72,
+      75,
+      70,
+      68,
+      78,
+      85,
+      80
+    ]
+  },
+  "valeurs": "Authenticité italienne, produits frais, accueil chaleureux, cuisine maison, tradition familiale.",
+  "imagePercue": "Institution locale établie, pizzeria de référence en région, mais signaux de transition post-reprise (changement de propriétaires, variations de qualité rapportées).",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Reprise récente (2024) : avis clients mentionnent changement de propriétaires et pizzaiolo, avec variations de qualité (pâte, délais). Risque de perte de fidèles."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Délais de service : attentes longues rapportées (1h+ pour emporter), organisation à optimiser post-transition."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis globalement positifs (4.4-4.6/5 sur TripAdvisor, Google, Sluurpy) : pizzas et pâtes appréciées, accueil professionnel, cadre rénové."
+    }
+  ],
+  "quickwins": [
+    "Optimiser les délais de préparation (gestion des commandes, plannings) pour retrouver la fluidité d'avant",
+    "Capitaliser sur la recette historique des pizzas : documenter & stabiliser le savoir-faire du nouveau pizzaiolo",
+    "Relancer la fidélité clients via avis & réseaux (Facebook actif, mais peu de contenu récent)",
+    "Mettre en place un système de réservation/gestion des pics (samedi saturé) pour éviter les refus de clients",
+    "Analyser les no-shows et les commandes à emporter pour ajuster les prévisions"
+  ],
+  "avis": "Avis clients contrastés post-reprise : excellentes notes sur la qualité des pizzas et pâtes (4.4-4.6/5), accueil chaleureux, cadre convivial. Mais critiques sur délais (attentes longues), variations de qualité de la pâte depuis le changement de propriétaires (mars 2024). Clients fidèles déçus par la perte du pizzaiolo historique. Récemment (2025), avis redeviennent positifs (qualité retrouvée, service au top).",
+  "presence": "Facebook actif (1051 likes, 92% recommandent), mais contenu peu fréquent. Présent sur TripAdvisor (#1 sur 5 restaurants locaux), Google (4.4/5), Sluurpy (79/100), Restaurant Guru (4.4/5). Site officiel : non trouvé publiquement.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes non publics (confidentialité appliquée). Dernière clôture 30 sept 2023. Effectif stable 6-9 salariés.",
+    "concurrence": "Marché local : Chicken Chips (fast-food américain), La Cloche d'Or (cuisine maison), restaurants marocains/turcs. La Romana reste #1 pizzeria locale (TripAdvisor). Peu de concurrence directe haut de gamme.",
+    "visibilite": "Bonne présence en ligne (annuaires, avis), mais site officiel absent. Facebook peu actualisé. Pas de stratégie digitale visible (pas de menu en ligne, pas de réservation en ligne).",
+    "dirigeant": "Reprise en 2024 (propriétaires actuels non identifiés publiquement). Ancienne entité dirigée par Massimo (mentionné dans avis historiques). Transition en cours."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Optimiseur de délais & plannings",
+      "benefice": "Réduire les attentes (1h → 30-40 min), gérer les pics samedi, éviter les refus de clients."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Capitalisateur de recette (pizzas)",
+      "benefice": "Documenter & stabiliser la pâte & cuisson, former le nouveau pizzaiolo, retrouver la signature historique."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de fidélité & avis",
+      "benefice": "Relancer les clients perdus post-reprise, générer avis positifs, animer Facebook & Google."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Système de réservation & prévisions",
+      "benefice": "Anticiper les commandes, gérer les no-shows, optimiser les stocks & la main-d'œuvre."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Digitaliseur (menu, réservation en ligne)",
+      "benefice": "Augmenter la visibilité, faciliter les commandes, réduire les appels téléphoniques."
+    }
+  ],
+  "archetype": "Commerce établi & performant (en transition)",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par jour en optimisation des délais & plannings"
+  },
+  "coutInaction": "Chaque semaine sans optimisation = clients perdus (fidèles déçus par les délais), avis négatifs qui s'accumulent, et risque de voir la reprise échouer. La fenêtre de stabilisation post-reprise se ferme rapidement.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Commande pizza 18h → attente 1h, client frustré, appel pour relancer. Samedi : refus de clients (salle pleine). Avis mitigés. Pizzaiolo nouveau, recette instable.",
+    "avecIA": "Commande 18h → prévue 18h30 (système anticipe les pics). Samedi : réservations gérées, pas de refus. Avis positifs (délais respectés). Recette documentée & stable, formation du pizzaiolo accélérée."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie post-reprise : stabiliser la qualité, optimiser les délais, relancer la fidélité et transformer cette transition en succès.",
+  "indice": {
+    "estime": 62,
+    "potentiel": 80
+  },
+  "aura": {
+    "sens": "Chaleur & résilience",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une chaleur méditerranéenne authentique, portée par une équipe qui traverse une transition délicate avec professionnalisme. Son énergie est celle d'une maison qui se réinvente sans perdre son âme.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide de 40+ ans comme institution locale, avec des pizzas au feu de bois et une cuisine maison qui ravissent les clients. Malgré la transition de 2024, l'équipe retrouve son élan et les avis récents (2025) confirment le retour à l'excellence. Le potentiel est immense : avec une organisation optimisée et la recette stabilisée, cette pizzeria peut devenir un modèle de réussite post-reprise en région.",
+  "sources": "PagesJaunes (SIREN 839452786, SAS, 2023), 118712.fr (création 7 mai 2018, 6-9 salariés), TripAdvisor (4.6/5, 84 avis, #1 local), Google/Restaurant Guru (4.4/5, 667 avis), Sluurpy (79/100), Facebook (1051 likes, 92% recommandent), LaCarte.Menu (avis transition 2024), Petit Futé (historique Massimo). Comptes non publics. Dirigeant actuel non identifié publiquement."
+}
