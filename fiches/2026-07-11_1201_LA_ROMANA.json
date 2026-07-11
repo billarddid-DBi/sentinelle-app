@@ -1,0 +1,142 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria italienne, pâtes, cuisine italienne traditionnelle",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réputation solide, avis excellents"
+  },
+  "identite": "SIREN 839452786, SAS créée 7 mai 2018, 6-9 salariés, NAF 5610A (restauration de type traditionnel). Établissement situé 32 Grand Rue, Maizières-lès-Metz.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      65,
+      60,
+      70,
+      82,
+      75
+    ],
+    "potentiel": [
+      82,
+      78,
+      82,
+      78,
+      75,
+      82,
+      90,
+      85
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients frais, accueil chaleureux, cuisine maison, tradition culinaire.",
+  "imagePercue": "Restaurant établi et réputé, institution locale depuis des années. Pizzeria de référence avec four à bois, pâtes fraîches maison, équipe italienne. Cadre rénové, convivial, service professionnel et attentionné.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients très positifs et constants (4.4-4.6/5 sur multiples plateformes, 667+ avis). Classé #1 des pizzerias locales."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes confidentiels depuis 2022 (< 700k€ CA ou < 350k€ bilan). Pas de visibilité financière publique."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence active sur Facebook (1051 likes, 92% recommandation). Présent sur tous les annuaires majeurs (TripAdvisor, Google, Sluurpy, etc.)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Changement de propriétaire/pizzaiolo signalé (mars 2024). Quelques avis mentionnent variation de qualité post-reprise, mais tendance générale positive depuis."
+    }
+  ],
+  "quickwins": [
+    "Optimiser la gestion des réservations & no-shows (samedi saturé, attentes longues signalées)",
+    "Capitaliser sur les avis excellents : automatiser la collecte et la réponse (Google, TripAdvisor)",
+    "Fidéliser via programme de fidélité ou offres groupes (repas d'entreprise, événements)",
+    "Améliorer la visibilité du menu en ligne et les horaires (site officiel absent, infos fragmentées)",
+    "Optimiser les délais de préparation à emporter (attentes de 1h+ mentionnées)"
+  ],
+  "avis": "Avis clients très positifs et constants : 4.4/5 sur Google (667 avis), 4.6/5 sur TripAdvisor (84 avis), 7.9/10 sur RestoRanking (523 avis). Louanges récurrentes : pizzas excellentes, pâtes fraîches, accueil chaleureux, service professionnel, cadre rénové. Quelques critiques post-reprise (2024) sur variation de qualité de pâte, mais tendance générale très positive. Clients fidèles, recommandations fréquentes.",
+  "presence": "Facebook actif (1051 likes, 92% recommandation, posts réguliers). Présent sur TripAdvisor, Google, Sluurpy, RestoRanking, LaCarte.Menu, PetitFuté, RestaurantsDeF rance. Pas de site officiel détecté. Téléphone : +33 3 87 80 62 44.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2022 (article L.232-25 du Code du Commerce). Effectif < 10 salariés, CA probablement < 700k€. Pas de données publiques de chiffre d'affaires ou bénéfice.",
+    "concurrence": "Marché local : Chicken Chips (fast-food américain), La Cloche d'Or (cuisine maison française), restaurants marocains (Shéhérazade), autres pizzerias (Pizzeria Marcus, Le Venezia). La Romana classée #1 des pizzerias sur TripAdvisor et Restaurant Guru localement.",
+    "visibilite": "Forte présence en ligne via annuaires et avis. Pas de site propre. Facebook actif mais basique. Classement #1 local sur TripAdvisor et Restaurant Guru. Visibilité organique forte grâce aux avis.",
+    "dirigeant": "Non trouvé publiquement. Changement de propriétaire signalé en mars 2024 (ancien propriétaire Massimo mentionné dans avis anciens). Nouvelle équipe en place, pizzaiolo changé."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire les attentes samedi (saturé), capturer les groupes, optimiser le taux de remplissage. Gain : +15-20% de couverture, meilleure expérience client."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Collecteur & répondeur d'avis automatisé",
+      "benefice": "Amplifier la réputation (4.4/5 actuel → 4.7/5 cible). Répondre aux avis en temps réel, fidéliser. Gain : +10-15% de nouveaux clients via avis."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Optimiseur de délais à emporter",
+      "benefice": "Réduire les attentes (1h → 30-40 min). Prévisions de charge, organisation cuisine. Gain : +20% de commandes à emporter, satisfaction +."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de fidélité & groupes",
+      "benefice": "Créer programme de fidélité, cibler repas d'entreprise, événements. Gain : +10-15% de panier moyen, clients réguliers."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Créateur de site vitrine & menu en ligne",
+      "benefice": "Présence web professionnelle, menu visible, réservation en ligne. Gain : +20-30% de visibilité, crédibilité renforcée."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de qualité post-reprise",
+      "benefice": "Documenter & standardiser les recettes (pâte, garnitures). Capitaliser sur savoir-faire. Gain : stabilité qualité, confiance clients."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion opérationnelle (réservations, avis, délais)"
+  },
+  "coutInaction": "Chaque samedi saturé sans optimisation = clients perdus, attentes longues, avis mitigés. Absence de site = 20-30% de visibilité perdue vs concurrents. Avis non gérés = réputation plafonnée à 4.4/5 au lieu de 4.7+/5.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Samedi : file d'attente, attentes 1h+, réservations manuelles, avis non répondus, menu fragmenté en ligne, délais à emporter longs.",
+    "avecIA": "Réservations optimisées, prévisions de charge, avis collectés & répondus auto, menu centralisé, délais réduits, fidélité programmée, site vitrine actif."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer la croissance post-reprise, optimiser l'opérationnel et consolider la fidélité client.",
+  "indice": {
+    "estime": 76,
+    "potentiel": 88
+  },
+  "aura": {
+    "sens": "Chaleur & excellence",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une énergie chaleureuse et authentique, incarnant la tradition italienne avec fierté et professionnalisme. Une maison où la qualité et l'accueil créent une fidélité naturelle.",
+    "eclat": "fort"
+  },
+  "fierte": "La Romana s'est bâti une réputation solide d'institution locale, classée #1 des pizzerias avec des avis constants et excellents (4.4-4.6/5). Malgré un changement de propriétaire en 2024, l'équipe a su maintenir la confiance et la qualité, prouvant la robustesse du modèle. Le potentiel est clair : optimiser l'opérationnel et la fidélité pour transformer cette excellence en croissance durable et rentabilité accrue.",
+  "sources": "PagesJaunes (SIREN 839452786, SAS, 6-9 salariés, NAF 5610A, créée 7 mai 2018), TripAdvisor (4.6/5, 84 avis, #1 local), Google/Restaurant Guru (4.4/5, 667 avis), Sluurpy (7.9/10, 523 avis), Facebook (1051 likes, 92% recommandation), LaCarte.Menu, RestoRanking, Petit Futé. Comptes confidentiels depuis 2022 (Pappers, Societe.com). Changement propriétaire mars 2024 (LaCarte.Menu). Confiance : très élevée (données officielles + avis massifs + présence multi-canaux)."
+}
