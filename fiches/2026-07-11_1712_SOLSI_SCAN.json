@@ -1,0 +1,142 @@
+{
+  "nom": "SOLSI-SCAN",
+  "ville": "Hagondange (57300)",
+  "activite": "Scanning 3D, métrologie, rétroconception",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Jeune, solide, intégré",
+    "atout": "Expertise technique rare, groupe établi"
+  },
+  "identite": "SARL créée en 2021 (SIREN 900558420, NAF 7112B), capital 10 000€, dirigée par Didier Billard depuis 2024 (anciennement Guillaume HUG). Filiale du Groupe SOLSI fondé en 1985, implanté à Hagondange (Moselle). Effectif non trouvé publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      65,
+      75,
+      70,
+      68,
+      62
+    ],
+    "potentiel": [
+      85,
+      82,
+      85,
+      80,
+      88,
+      85,
+      82,
+      78
+    ]
+  },
+  "valeurs": "Expertise technique, innovation (scanning 3D, drones, simulation numérique), partenariat industriel, optimisation des process clients.",
+  "imagePercue": "Bureau d'études spécialisé en métrologie 3D et ingénierie mécanique, reconnu dans les secteurs spatial, aéronautique, automobile, ferroviaire. Présence active sur LinkedIn (Groupe SOLSI). Site web professionnel et à jour.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Jeune structure (3 ans) mais adossée à un groupe établi depuis 1985 avec expertise reconnue."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Pas de retard de paiement signalé, bonne solvabilité selon Rubypayeur."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes non publics (confidentialité déclarée) : chiffre d'affaires, effectif exact, rentabilité non accessibles."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Changement de gérant en 2024 (Didier Billard) : transition maîtrisée, continuité du groupe assurée."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la capture et le suivi des appels d'offres industriels (secteurs spatial, aéro, auto, ferroviaire)",
+    "Structurer la documentation technique et les retours d'expérience (RETEX) en base de connaissances IA",
+    "Optimiser la facturation et le suivi des devis complexes (scanning 3D, métrologie, rétroconception)",
+    "Renforcer la présence digitale et la génération de leads B2B (SEO technique, contenu ingénierie)",
+    "Automatiser les rapports de contrôle dimensionnel et les certificats de conformité"
+  ],
+  "avis": "Non trouvé publiquement pour SOLSI-SCAN. Groupe SOLSI (SOLSI-CAD) : 4 avis Google avec note moyenne 4,3/5 (fiabilité, expertise technique appréciées).",
+  "presence": "Site officiel solsi-scan3d-metrologie.fr actif et à jour. LinkedIn Groupe SOLSI très actif (1 561 abonnés), publications régulières sur projets, événements, expertise. Pas de présence détectée sur Facebook, Instagram, Twitter.",
+  "site": "https://www.solsi-scan3d-metrologie.fr",
+  "intel": {
+    "financier": "Comptes confidentiels (déclaration L. 232-25). Capital 10 000€. Aucun retard de paiement signalé. Pas de procédure en cours.",
+    "concurrence": "Marché de niche (scanning 3D industriel). Concurrents : bureaux d'études généralistes, prestataires de métrologie régionaux. Avantage SOLSI-SCAN : intégration groupe (CAD, LUX), offre globale de l'avant-projet à la réalisation.",
+    "visibilite": "Bonne visibilité B2B via LinkedIn et site technique. Peu de visibilité grand public. Présence événementielle (petit-déj focus, réseaux professionnels). Pas de campagne marketing digitale détectée.",
+    "dirigeant": "Didier Billard, gérant depuis août 2024 (anciennement Guillaume HUG, janvier 2023 - août 2024). Christophe Doub fondateur (2021). Billard est aussi mentionné dans les activités du Groupe SOLSI (visite patrimoine, etc.). Année de naissance non trouvée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur d'appels d'offres IA",
+      "benefice": "Veille automatisée sur les marchés publics et privés (spatial, aéro, auto, ferroviaire) + alertes ciblées → gain de temps commercial, réactivité accrue."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de devis & facturation technique",
+      "benefice": "Génération automatisée de devis complexes (scanning 3D, métrologie, rétroconception) + suivi des marges → réduction des erreurs, accélération du cycle commercial."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capitalisation RETEX & base de connaissances",
+      "benefice": "Structuration des retours d'expérience (projets, solutions, cas d'usage) en base interrogeable → réutilisation du savoir-faire, réponses plus rapides aux clients."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Rédacteur de rapports & certificats",
+      "benefice": "Génération automatisée des rapports de contrôle dimensionnel, certificats de conformité, synthèses techniques → gain de temps administratif, conformité assurée."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Générateur de contenu technique SEO",
+      "benefice": "Production de contenus (cas d'usage, guides, articles) optimisés pour les moteurs de recherche → amélioration du référencement, attraction de leads qualifiés."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Assistant de planification & ressources",
+      "benefice": "Optimisation des plannings de scanning, allocation des équipes, gestion des équipements → meilleure utilisation des capacités, réduction des délais."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Heures gagnées par mois en automatisation administrative et prospection"
+  },
+  "coutInaction": "Sans optimisation, SOLSI-SCAN risque de perdre des opportunités commerciales face à des concurrents mieux structurés digitalement, et de voir ses équipes surchargées par des tâches administratives répétitives (devis, rapports, suivi). La capitalisation du savoir-faire reste fragmentée.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Devis manuels (2-3h), appels d'offres manqués, rapports saisis à la main, RETEX dispersés, prospection réactive.",
+    "avecIA": "Devis générés en 15 min, alertes appels d'offres automatisées, rapports structurés en 30 min, base RETEX interrogeable, prospection proactive et ciblée."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre croissance et libérer vos équipes techniques pour se concentrer sur l'innovation et la relation client.",
+  "indice": {
+    "estime": 74,
+    "potentiel": 94
+  },
+  "aura": {
+    "sens": "L'expertise technique",
+    "couleur": "Bleu",
+    "definition": "SOLSI-SCAN rayonne par sa fiabilité technique et son ancrage dans l'excellence industrielle : une structure jeune mais solide, portée par 40 ans d'expertise groupe.",
+    "eclat": "moyen"
+  },
+  "fierte": "SOLSI-SCAN a bâti en 3 ans une expertise rare en scanning 3D et métrologie industrielle, reconnue dans les secteurs les plus exigeants (spatial, aéronautique, ferroviaire). Adossée au Groupe SOLSI depuis 1985, elle dispose d'une base solide et d'une offre globale unique. Son potentiel de croissance est fort : structurer la prospection, capitaliser le savoir-faire et automatiser l'administratif lui permettront de doubler sa capacité commerciale et technique.",
+  "sources": "Societe.com, Verif.com, Pappers.fr, Kompass, Rubypayeur (pas de retard paiement), LinkedIn Groupe SOLSI (1 561 abonnés, publications actives), site solsi-scan3d-metrologie.fr (à jour), Digital-Engineering.fr (avis SOLSI-CAD 4,3/5), RocketReach (Marine Gougelin, communication Groupe SOLSI). Comptes confidentiels : chiffre d'affaires, effectif, rentabilité non accessibles."
+}
