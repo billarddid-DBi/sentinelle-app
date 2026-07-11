@@ -61,11 +61,12 @@ async function searchCompetitors(keyword, naf, departement, plat, plong, radius,
 const SYS = `Tu compares des entreprises françaises sur leur image PUBLIQUE AUJOURD'HUI, via l'outil de recherche web. Pour CHAQUE entreprise de la liste (garde son index i), donne :
 - avis : la note d'avis en ligne (Google/annuaires) sur 5 et le nombre d'avis. Si introuvable, note et nombre = null.
 - presence : UN seul mot parmi "fort", "moyen", "faible" (site web, réseaux, fraîcheur, visibilité).
-- aura : l'Index Aura ACTUEL = note entière 0-100, calculée avec la MÊME GRILLE que le prospect (ON COMPARE CE QUI EST COMPARABLE), de façon OBJECTIVE et factuelle — PARS DE 50, puis ajuste selon les FAITS : Avis ≥4,5/5 avec volume → +20 · 4 à 4,5 → +12 · 3 à 4 → +4 · <3 → −10 · peu/pas d'avis → 0. Site moderne et à jour → +10 · correct mais daté → +3 · absent/obsolète → −8. Présence/fraîcheur active → +8 · discrète → 0 · fantôme → −5. Ancienneté/structure établie → +7 · jeune → 0 · fragile → −5. Signaux négatifs (litiges, avis en baisse) → −10 à −20. Borne 5–95. Donne aussi couleur d'aura et éclat. Ne devine JAMAIS au feeling.
-- site : l'URL du site officiel (format https://…) si tu la trouves, sinon "".
+- aura : note entière 0-100, fondée SURTOUT sur les avis (même logique que le prospect, pour comparer ce qui est comparable), de façon OBJECTIVE : 4,5+/5 avec du volume → 78-88 · 4 à 4,5 → 65-77 · 3 à 4 → 48-62 · <3 → 30-45 · peu ou pas d'avis → ~50. Ajuste de ±5 selon la présence web. Jamais au feeling. Donne aussi couleur d'aura et éclat.
+- site : l'URL du site officiel si tu la vois pendant ta recherche d'avis (sinon "") — ne fais PAS de recherche dédiée juste pour le site.
 INTERDIT : toute prévision, tout potentiel, toute projection. On décrit l'état d'aujourd'hui, point.
 N'INVENTE JAMAIS : si une info est introuvable, mets null (avis) ou reste prudent. Couleur parmi : Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc. Éclat parmi : faible, moyen, fort.
-SORTIE : UNIQUEMENT ce JSON, rien d'autre, aucune balise, aucune citation :
+SOIS EFFICACE : au MAXIMUM 1 recherche web par entreprise, puis DONNE directement le JSON final pour LES 9 entités. Termine TOUJOURS par le JSON complet, ne laisse AUCUNE entité vide (si tu manques d'info, mets avis null et estime l'aura ~50).
+SORTIE : UNIQUEMENT ce JSON (pas de texte avant/après, pas de ```), aucune balise, aucune citation :
 {"entreprises":[{"i":0,"avis":{"note":<number|null>,"nombre":<int|null>,"resume":"<courte synthèse ou 'Non trouvé publiquement'>"},"presence":"fort|moyen|faible","aura":{"note":<int 0-100>,"couleur":"<couleur>","eclat":"faible|moyen|fort"},"site":"<url ou ''>"}]}`;
 
 export default async function handler(req, res) {
@@ -88,7 +89,7 @@ export default async function handler(req, res) {
     const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
     const areq = {
       model: MODEL, max_tokens: 4000, temperature: 0, system: SYS,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 16 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 10 }],
       messages: [{ role: "user", content: [{ type: "text", text: "Entreprises à évaluer (conserve chaque index i) :\n" + lines }] }]
     };
     const rr = await fetch("https://api.anthropic.com/v1/messages", {
