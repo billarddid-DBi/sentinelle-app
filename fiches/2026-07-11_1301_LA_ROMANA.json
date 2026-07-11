@@ -1,0 +1,142 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, #1 local"
+  },
+  "identite": "SIREN 839452786, SAS créée mai 2018, 6-9 salariés. Pizzeria italienne au feu de bois, 32 Grand Rue, Maizières-lès-Metz (57280). Établissement établi avec forte notoriété locale.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      48,
+      50,
+      52,
+      45,
+      50,
+      68,
+      58
+    ],
+    "potentiel": [
+      72,
+      68,
+      72,
+      70,
+      68,
+      70,
+      85,
+      78
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients frais, accueil chaleureux, tradition culinaire.",
+  "imagePercue": "Restaurant établi et réputé, institution locale, mais en phase de stabilisation post-reprise. Excellente notoriété sur les avis (4.4-4.6/5), classé #1 à Maizières. Signaux de transition opérationnelle visibles.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Changement de propriétaires récent (mars 2024) : avis mentionnent baisse de qualité (pâtes dures, attentes longues). Risque de perte de fidèles."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Absence de site web officiel et présence digitale limitée (Facebook seul). Pas de gestion active des réservations en ligne ni de menu numérique."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes non publics : données financières confidentielles (SAS). Effectif stable (6-9) mais capacité opérationnelle à vérifier post-transition."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Positif : forte base de clients fidèles, classement #1 local, avis récents redeviennent positifs (février 2025). Potentiel de rebond clair."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web + menu en ligne (réservations, commandes à emporter)",
+    "Mettre en place un système de gestion des réservations (no-shows, groupes)",
+    "Relancer la fidélité : programme de clients réguliers, avis Google actifs",
+    "Optimiser les plannings cuisine/service pour réduire les attentes",
+    "Capitaliser sur la réputation : photos/vidéos des pizzas au feu de bois sur réseaux"
+  ],
+  "avis": "Très bons avis globaux (4.4-4.6/5, 523-667 avis agrégés). Clients louent la qualité des pizzas au feu de bois, l'accueil chaleureux et les pâtes fraîches. Avis récents (2025) redeviennent positifs après une période de transition post-reprise (mars 2024) où certains clients ont signalé une baisse de qualité. Consensus : restaurant établi, institution locale, en phase de stabilisation.",
+  "presence": "Facebook actif (1051 likes, 92% recommandation). Présent sur TripAdvisor (#1), Google (4.4/5), Restaurant Guru, Sluurpy. Pas de site officiel, pas de LinkedIn, pas de newsletter visible. Présence digitale basique mais suffisante pour la notoriété locale.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes non publics (SAS avec confidentialité). Dernière clôture 30 sept 2023. Effectif stable 6-9 salariés. Pas de données de chiffre d'affaires publiques.",
+    "concurrence": "Classé #1 sur 5 restaurants à Maizières-lès-Metz. Concurrence : restaurants généralistes (La Cloche d'Or, Chicken Chips), fast-food. Pas de pizzeria italienne directe de même standing visible localement.",
+    "visibilite": "Forte notoriété locale (institution depuis ~1997 selon avis). Classement #1 TripAdvisor. Présence Google/Facebook stable. Pas de campagne marketing visible. Potentiel de visibilité accrue via site web et réseaux.",
+    "dirigeant": "Non trouvé publiquement. Reprise récente (mars 2024) mentionnée dans avis. Ancien propriétaire (Massimo) cité dans avis historiques. Nouvelle équipe en place, en phase de consolidation."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire les pertes de places (samedi saturé), optimiser les groupes, relancer les clients fidèles par SMS/email."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de plannings cuisine/service",
+      "benefice": "Réduire les attentes (actuellement 1h+ mentionné), synchroniser pâtes/pizzas, améliorer la satisfaction client."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réputation",
+      "benefice": "Capitaliser sur les 4.4/5 Google, répondre aux avis négatifs, générer des avis positifs récents pour contrer la transition."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Créateur de contenu culinaire",
+      "benefice": "Photos/vidéos des pizzas au feu de bois, stories Facebook/Instagram, mettre en avant l'authenticité italienne."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de menu & prix",
+      "benefice": "Analyser la rentabilité des plats, optimiser le food cost (pâtes fraîches, ingrédients importés), ajuster les prix."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Développeur de site web & e-commerce",
+      "benefice": "Créer un site officiel avec menu, réservations en ligne, commandes à emporter, intégration Google Maps/avis."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Heures gagnées par mois en gestion opérationnelle (réservations, plannings, avis)"
+  },
+  "coutInaction": "Risque de perte de fidèles suite à la transition post-reprise si la qualité/service ne se stabilisent pas rapidement. Absence de site web et gestion digitale limite la capture de nouvelles réservations et la visibilité en ligne.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des réservations (appels, carnet papier), plannings ad hoc, avis non gérés activement, pas de suivi des no-shows, menu papier seul.",
+    "avecIA": "Réservations automatisées avec rappels SMS, plannings optimisés par IA, avis Google gérés et répondus, contenu culinaire généré, menu en ligne avec commandes à emporter."
+  },
+  "cta": "Explorez BOUSSOLE pour stabiliser la transition post-reprise, optimiser les opérations quotidiennes et reconquérir la fidélité des clients historiques.",
+  "indice": {
+    "estime": 62,
+    "potentiel": 78
+  },
+  "aura": {
+    "sens": "Chaleur & authenticité",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une énergie chaleureuse et authentique, celle d'une institution locale qui accueille avec générosité et partage la passion de la cuisine italienne traditionnelle.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide comme #1 restaurant à Maizières-lès-Metz, avec une clientèle fidèle qui reconnaît l'authenticité de ses pizzas au feu de bois et l'accueil chaleureux de son équipe. Malgré la transition récente, les avis redeviennent positifs (février 2025), signalant une stabilisation et un potentiel de croissance clair : avec une meilleure gestion opérationnelle et une présence digitale renforcée, le restaurant peut consolider sa position de leader local et attirer une nouvelle génération de clients.",
+  "sources": "PagesJaunes (SIREN, forme juridique, comptes), 118712.fr (effectif, création), TripAdvisor (4.6/5, 84 avis, #1), Google/Restaurant Guru (4.4/5, 667 avis), Facebook (1051 likes, 92%), LaCarte.Menu & Sluurpy (avis détaillés, transition post-reprise), Petit Futé & RestoRanking (avis historiques, réputation). Confiance : haute pour identité légale et avis clients, moyenne pour données financières (confidentielles)."
+}
