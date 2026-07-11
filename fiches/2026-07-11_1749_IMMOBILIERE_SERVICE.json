@@ -1,0 +1,142 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Avis mitigés, concurrence forte",
+    "atout": "Ancienneté établie depuis 1989"
+  },
+  "identite": "SIREN 350 747 713, SARL, code NAF 6831Z (Agences immobilières), établie depuis 19 mai 1989 (36 ans), gérant depuis janvier 2005, effectif non public, adresse 200 rue de Pont-à-Mousson 57950 Montigny-lès-Metz.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      62,
+      58,
+      55,
+      52,
+      48,
+      56,
+      48,
+      52
+    ],
+    "potentiel": [
+      78,
+      75,
+      72,
+      70,
+      68,
+      72,
+      70,
+      70
+    ]
+  },
+  "valeurs": "Réactivité, savoir-faire, accompagnement personnalisé, connaissance du marché local depuis 36 ans.",
+  "imagePercue": "Agence établie et fiable, mais avec une présence digitale discrète et des avis clients contrastés (2,8/5 sur LeBienImmobilier avec 20+ notes, 5/5 sur Mappy avec 3 avis récents). Positionnée comme professionnelle et disponible.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis clients fragmentés : 2,8/5 sur LeBienImmobilier (20+ notes) vs 5/5 sur Mappy (3 avis). Signale une variabilité de satisfaction ou une gestion d'avis inégale."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale limitée : pas de site web propre détecté, présence réduite sur réseaux sociaux, dépendance aux annuaires (PagesJaunes, MeilleursAgents, LeBonCoin)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Concurrence locale intense : au moins 10+ agences immobilières à Montigny-lès-Metz, dont Laforêt (très bien notée) et d'autres réseaux structurés."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Stabilité financière : comptes publics avec confidentialité partielle (L.232-25), clôture 31 décembre 2024, aucun signal de procédure ou alerte publique."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web moderne avec portfolio de biens, estimations en ligne, formulaires de contact optimisés SEO local",
+    "Centraliser et répondre aux avis clients (Google, PagesJaunes, Mappy) pour homogénéiser la perception et augmenter la note moyenne",
+    "Automatiser la capture de leads via WhatsApp/SMS et relance de prospects non convertis (devis, visites)",
+    "Mettre en place une newsletter mensuelle aux propriétaires/bailleurs pour fidéliser et générer des mandats de gestion",
+    "Créer des fiches annonces enrichies (photos HDR, vidéo 360°, estimation gratuite en ligne) pour se différencier"
+  ],
+  "avis": "Avis contrastés : PagesJaunes 5/5 (3 avis, dont éloge de Michèle pour disponibilité et réactivité), Mappy 5/5 (3 avis récents), mais LeBienImmobilier 2,8/5 (20+ notes). Clients apprécient la disponibilité et le professionnalisme du gérant Michel, mais certains avis suggèrent des délais ou des attentes non comblées. Peu d'avis récents (< 4 ans comptabilisés).",
+  "presence": "Présence sur annuaires (PagesJaunes, MeilleursAgents, SeLoger, LeBonCoin, Mappy, Montigny-Entreprendre). Pas de site web propre détecté. Pas de présence visible sur Facebook, Instagram ou LinkedIn. Horaires affichés : lun-jeu 10h-18h, ven 10h-14h, RDV sur demande.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes annuels avec confidentialité partielle (article L.232-25), clôture 31 décembre 2024. Chiffre d'affaires 2013 : 39 660 € (données anciennes, non actualisées). Bénéficiaires effectifs non accessibles publiquement depuis 31/07/2024.",
+    "concurrence": "Marché très concurrentiel : Laforêt Montigny-lès-Metz (excellente réputation, équipe structurée), Lagimmo (5/5 avec 48 avis), Immobilière C.W., IMMO CITY, Av-space, Carrara Immobilier, Benedic Immobilier, mandataires indépendants (SAFTI, Optimhome). Immobilière Service est une PME indépendante face à des réseaux nationaux.",
+    "visibilite": "Visibilité faible en ligne : pas de site web, dépendance aux annuaires, peu de contenu marketing. Pas de stratégie SEO local détectable. Présence sur LeBonCoin active (annonces régulières), mais pas de différenciation digitale.",
+    "dirigeant": "Gérant depuis janvier 2005 (21 ans). Prénom Michel mentionné dans les avis clients (disponible, jovial, digne de confiance). Pas d'informations publiques sur l'âge, la formation ou les intentions stratégiques."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Capteur de leads & relance automatisée",
+      "benefice": "Récupérer tous les prospects (formulaires web, appels, visites) et les relancer par SMS/WhatsApp/email selon le statut (intéressé, en attente, non converti). Gain : +30% de conversions, moins de prospects perdus."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire d'avis clients",
+      "benefice": "Centraliser les avis de tous les annuaires, alerter l'équipe sur les avis négatifs, générer des demandes d'avis aux clients satisfaits. Gain : note moyenne +0,5 à +1 point, meilleure visibilité locale."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Créateur de fiches annonces enrichies",
+      "benefice": "Générer automatiquement des descriptions SEO-optimisées, des galeries photos, des vidéos 360° et des estimations pour chaque bien. Gain : +40% de clics, meilleure conversion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planificateur de visites & confirmations",
+      "benefice": "Automatiser la prise de RDV, les confirmations SMS/email, les rappels 24h avant. Gain : -50% de no-shows, meilleure organisation de l'équipe."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur de mandats (propriétaires/bailleurs)",
+      "benefice": "Identifier les propriétaires locaux, envoyer des campagnes ciblées (estimation gratuite, gestion locative), relancer les anciens clients. Gain : +20% de nouveaux mandats, fidélisation."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Tableau de bord de performance",
+      "benefice": "Suivre en temps réel : leads par source, taux de conversion, délai moyen de vente/location, marge par transaction, satisfaction client. Gain : pilotage clair, décisions data-driven."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en automatisation (prospection, relance, gestion d'avis, confirmations)"
+  },
+  "coutInaction": "Sans optimisation digitale et automatisation, Immobilière Service risque de perdre des leads face à la concurrence (Laforêt, Lagimmo), de voir sa note moyenne baisser (avis fragmentés), et de consommer trop de temps en tâches manuelles (appels, relances, gestion d'avis). Coût estimé : 2-3 mandats perdus par mois, soit 3 000-5 000 € de CA non réalisé.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Lundi : appels entrants, visites, gestion manuelle des avis. Mardi : prospection téléphonique, relance de dossiers. Mercredi : confirmations de RDV par téléphone, réponse aux demandes d'estimation. Jeudi : gestion des annonces sur LeBonCoin, PagesJaunes. Vendredi : fermeture à 14h, pas de suivi des prospects en attente.",
+    "avecIA": "Lundi : IA capture les leads (formulaires, appels), envoie confirmations SMS auto. Mardi : IA relance les prospects non convertis, génère des fiches annonces enrichies. Mercredi : IA gère les avis (alertes, demandes de témoignages), équipe se concentre sur visites qualifiées. Jeudi : IA prospecte les propriétaires locaux, envoie campagnes ciblées. Vendredi : tableau de bord en temps réel, équipe analyse les performances et ajuste la stratégie."
+  },
+  "cta": "Explorez comment BOUSSOLE peut transformer votre quotidien : diagnostic complet de vos processus, identification des 3-4 leviers prioritaires, et plan d'action personnalisé pour regagner du temps et des clients.",
+  "indice": {
+    "estime": 50,
+    "potentiel": 70
+  },
+  "aura": {
+    "sens": "Fiabilité établie",
+    "couleur": "Bleu",
+    "definition": "Immobilière Service rayonne une fiabilité ancrée dans 36 ans de présence locale, avec une équipe disponible et attentive, mais qui peine à briller dans l'univers digital et à homogénéiser sa perception client.",
+    "eclat": "moyen"
+  },
+  "fierte": "Immobilière Service a bâti une présence solide et respectée à Montigny-lès-Metz depuis 1989, avec un gérant reconnu pour sa disponibilité et son professionnalisme. Cette fondation est un atout majeur : elle peut devenir un levier de croissance en l'amplifiant par la digitalisation et l'automatisation, pour transformer la confiance locale en visibilité régionale et en efficacité opérationnelle.",
+  "sources": "PagesJaunes (SIREN, RCS, avis), Societe.com (statuts, NAF, gérant), MeilleursAgents (avis, présentation), SeLoger (avis, horaires), LeBonCoin (annonces actives), Mappy (avis, localisation), LeBienImmobilier (note 2,8/5), Montigny-Entreprendre (fiche entreprise), Pappers (données financières confidentielles). Confiance : haute pour identité et avis, moyenne pour données financières (confidentialité partielle), faible pour intentions stratégiques (non publiques)."
+}
