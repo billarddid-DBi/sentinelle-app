@@ -421,7 +421,7 @@ function showErr(m,d){
   $('err').innerHTML='<b>'+esc(m)+'</b>'+(d?'<br><span style="font-size:11px">'+esc(d)+'</span>':'');
 }
 
-function render(d){
+function render(d,skipSave){
   window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null;
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
@@ -584,7 +584,7 @@ function render(d){
   ['sP','sH','sC'].forEach(id=>$(id).addEventListener('input',sim2));
   sim2();
   window.scrollTo(0,0);
-  setTimeout(function(){ saveFiche(d); }, 700);
+  if(!skipSave) setTimeout(function(){ saveFiche(d); }, 700);
 }
 
 function saveFiche(d){
@@ -675,12 +675,20 @@ function openHistory(){
     if(!d.items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
     el.innerHTML=d.items.map(function(it){
       var badge=it.type==='BOUSSOLE'?'background:#ede9fe;color:#6d28d9':'background:#e0f2fe;color:#075985';
-      return '<a href="'+it.url+'" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
+      var open=(it.type==='SENTINELLE')?'href="javascript:void(0)" onclick="restoreFiche(\''+it.url.replace(/\.html$/,'.json')+'\')"':'href="'+it.url+'" target="_blank"';
+      return '<a '+open+' style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
         +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;'+badge+';white-space:nowrap;">'+it.type+'</span>'
         +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(it.nom)+'</span>'
         +'<span style="font-size:11px;color:#9ca3af;white-space:nowrap;">'+esc(it.date)+'</span><span style="color:#9ca3af;">›</span></a>';
     }).join('')+'<button class="btn btn-ghost" style="margin-top:12px;" onclick="var p=document.getElementById(\'histPanel\');if(p)p.remove();">Fermer</button>';
   }).catch(function(){ var el=document.getElementById('histList'); if(el) el.innerHTML='<div style="color:#991b1b;font-size:13px;">⚠️ Connexion impossible.</div>'; });
+}
+function restoreFiche(url){
+  var p=document.getElementById('histPanel'); if(p) p.remove();
+  document.getElementById('form').style.display='none';
+  var res=document.getElementById('result'); res.innerHTML='<div style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement de la fiche…</div>';
+  window.scrollTo(0,0);
+  fetch(url).then(function(r){return r.json();}).then(function(d){ render(d,true); }).catch(function(){ res.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">Fiche illisible.</div>'; });
 }
 /* ===== fin HISTORIQUE ===== */
 </script>

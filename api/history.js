@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   try {
     const a = await listDir(token, "fiches", "SENTINELLE");
     const b = await listDir(token, "boussoles", "BOUSSOLE");
-    const all = a.concat(b).sort((x, y) => (y.date + y.heure).localeCompare(x.date + x.heure));
+    const all = a.concat(b).sort((x, y) => (y.date + y.heure).localeCompare(x.date + x.heure)).slice(0, 5);
     res.status(200).json({ items: all });
   } catch (e) {
     res.status(500).json({ error: "Historique indisponible", detail: String(e).slice(0, 200) });

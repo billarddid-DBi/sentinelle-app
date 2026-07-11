@@ -13,14 +13,34 @@ function haversine(la1, lo1, la2, lo2) {
   return 2 * R * Math.asin(Math.sqrt(a));
 }
 
-async function resolveProspect(nom, ville) {
-  const q = encodeURIComponent([nom, ville].filter(Boolean).join(" "));
-  const r = await fetch(`${API}/search?q=${q}&per_page=1`);
-  if (!r.ok) return null;
+const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[-']/g, " ");
+
+async function tryQuery(q) {
+  const r = await fetch(`${API}/search?q=${encodeURIComponent(q)}&per_page=8`);
+  if (!r.ok) return [];
   const d = await r.json();
-  const e = (d.results || [])[0];
-  if (!e) return null;
-  const s = e.siege || {};
+  return d.results || [];
+}
+
+async function resolveProspect(nom, ville) {
+  const villeMain = norm(ville).split(" ").filter(Boolean)[0] || "";
+  // Stratégies : nom+ville, puis nom seul (le nom commercial ne matche pas toujours avec la ville accolée)
+  let results = [];
+  if (nom && ville) results = await tryQuery(nom + " " + ville);
+  if (!results.length && nom) results = await tryQuery(nom);
+  if (!results.length && nom) results = await tryQuery(nom.split(" ").slice(0, 2).join(" "));
+  if (!results.length) return null;
+  // On choisit le meilleur : commune qui matche la ville + coordonnées présentes
+  let best = null;
+  for (const e of results) {
+    const s = e.siege || {};
+    const geo = s.latitude && s.longitude ? 1 : 0;
+    const communeMatch = villeMain && s.libelle_commune && norm(s.libelle_commune).indexOf(villeMain) !== -1 ? 2 : 0;
+    const score = geo + communeMatch;
+    if (!best || score > best.score) best = { e, s, score };
+    if (score === 3) break;
+  }
+  const e = best.e, s = best.s;
   return {
     siren: e.siren, naf: e.activite_principale, nom: e.nom_complet,
     commune: s.libelle_commune, departement: s.departement,
