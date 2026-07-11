@@ -87,7 +87,7 @@ export default async function handler(req, res) {
     const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
     const areq = {
       model: MODEL, max_tokens: 4000, system: SYS,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 12 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 8 }],
       messages: [{ role: "user", content: [{ type: "text", text: "Entreprises à évaluer (conserve chaque index i) :\n" + lines }] }]
     };
     const rr = await fetch("https://api.anthropic.com/v1/messages", {
