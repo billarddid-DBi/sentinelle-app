@@ -92,7 +92,7 @@ SORTIE : UNIQUEMENT ce JSON, pas de texte, pas de balise de code :
 {"prospect":{"avis":{"note":<n|null>,"nombre":<n|null>,"resume":"<court>"},"presence":"...","aura":{"note":<int>,"couleur":"...","eclat":"..."},"site":"<url|>"},"concurrents":[{"nom":"...","commune":"...","adresse":"...","avis":{"note":<n|null>,"nombre":<n|null>,"resume":"..."},"presence":"...","aura":{"note":<int>,"couleur":"...","eclat":"..."},"site":"<url|>"}]}`;
 
 async function claudeFind(kw, prospect, ville, rad, key) {
-  const user = `Métier : ${kw}\nVille du prospect : ${prospect.commune || ville}\nRayon : environ ${rad} km\nProspect (à exclure) : ${prospect.nom}`;
+  const user = `Métier : ${kw}\nVille du prospect : ${prospect.commune || ville}\nObjectif : les entreprises les PLUS PROCHES (on gardera les 8 plus proches)\nProspect (à exclure) : ${prospect.nom}`;
   const areq = { model: MODEL, max_tokens: 4000, temperature: 0, system: SYS, tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 12 }], messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
   const rr = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify(areq) });
   let parsed = { prospect: {}, concurrents: [] };
@@ -117,7 +117,7 @@ export default async function handler(req, res) {
   try {
     const { nom, ville, radius, keyword, prospectAura } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
-    const rad = Math.max(2, Math.min(50, parseInt(radius) || 20));
+    const rad = 40; // biais de recherche large ; on ne filtre PAS par distance, on garde les 8 plus proches
     const kw = (keyword || "").trim();
     if (!kw) { res.status(400).json({ error: "Entrez un mot-clé métier (ex : restaurant italien, pare-brise, plombier)." }); return; }
 
@@ -138,7 +138,6 @@ export default async function handler(req, res) {
           const loc = (p.geometry || {}).location || {};
           if (loc.lat == null) continue;
           const dist = Math.round(haversine(prospect.lat, prospect.long, loc.lat, loc.lng) * 10) / 10;
-          if (dist > rad) continue;
           const isProspect = norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
           rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
         }
