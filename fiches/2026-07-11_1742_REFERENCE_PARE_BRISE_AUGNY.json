@@ -1,0 +1,142 @@
+{
+  "nom": "Référence Pare-Brise Augny",
+  "ville": "Augny (57685)",
+  "activite": "Réparation et remplacement de pare-brise, calibrage ADAS",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réseau multi-sites, avis solides"
+  },
+  "identite": "Agence du réseau Référence Pare-Brise fondé en 2011 dans le Grand Est. Établissement à Augny (Zone Actisud, 59 rue Bois d'Orly). Code NAF 45.20a (entretien et réparation de véhicules automobiles légers). Effectif et dirigeant non trouvés publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      75,
+      70,
+      72,
+      70,
+      78,
+      75
+    ],
+    "potentiel": [
+      82,
+      80,
+      85,
+      82,
+      84,
+      82,
+      88,
+      87
+    ]
+  },
+  "valeurs": "Qualité du travail, attention au détail, service client sans reste à charge, compatibilité toutes assurances, véhicule de prêt gratuit.",
+  "imagePercue": "Agence professionnelle, accueillante, fiable. Positionnement sur la qualité et la transparence tarifaire (zéro frais à avancer). Présence active sur réseaux sociaux et annuaires.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients positifs et réguliers (4,5+/5) sur PagesJaunes et site officiel. Engagement de qualité confirmé par les retours."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Réseau établi et multi-sites (10+ agences en Grand Est). Structure solide, fondée en 2011, opérationnelle depuis des années."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Données financières et effectif non accessibles publiquement. Comptes non publiés (structure franchisée probable)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale cohérente : site moderne, Facebook actif, TikTok, LinkedIn. Prise de RDV en ligne fonctionnelle."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des RDV et relances (réduction des no-shows)",
+    "Centraliser les avis clients et mettre en place un système de réponse systématique",
+    "Optimiser le suivi des dossiers assurance (délais, statuts) pour réduire les frictions",
+    "Capitaliser les témoignages vidéo clients pour renforcer la confiance en ligne",
+    "Analyser les pics de demandes et ajuster les plannings/stocks de pare-brise"
+  ],
+  "avis": "Avis clients très positifs : accueil excellent, personnel au top, travail soigné, respect des délais, prêt de véhicule apprécié, nettoyage du véhicule inclus. Quelques avis mentionnent des délais liés aux assurances (facteur externe). Taux de recommandation élevé sur Facebook (100% recommend, 7 avis).",
+  "presence": "Site officiel referenceparebrise.fr/augny moderne et à jour. Facebook actif (131 likes, posts réguliers). TikTok et LinkedIn présents. Présence sur annuaires (PagesJaunes, Mappy, 118712, Cylex). Horaires clairs (lun-sam, jusqu'à 18h). Téléphone et email de contact visibles.",
+  "site": "https://www.referenceparebrise.fr/augny",
+  "intel": {
+    "financier": "Comptes non publics (structure franchisée probable). Pas de données de chiffre d'affaires ou résultat accessibles.",
+    "concurrence": "Marché local : Mondial Pare-Brise (concurrent direct à Augny), Carglass (national). Référence Pare-Brise se différencie par le zéro frais à avancer et la qualité de service.",
+    "visibilite": "Bonne visibilité locale et régionale. Présence multi-canaux (web, réseaux, annuaires). Offres promotionnelles régulières (300€ offerts, places Europa-Park, etc.).",
+    "dirigeant": "Non trouvé publiquement. Réseau franchisé ou groupe : chaque agence peut avoir un gérant local."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de RDV & relances",
+      "benefice": "Réduire les no-shows, optimiser le taux de remplissage des créneaux, envoyer des rappels SMS/email automatiques."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Suivi dossiers assurance",
+      "benefice": "Tracker les statuts de prise en charge, alerter sur les délais, réduire les frictions client liées aux assurances."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Collecteur & répondeur d'avis",
+      "benefice": "Centraliser les avis de tous les canaux, répondre systématiquement, renforcer la réputation en ligne."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de demandes & plannings",
+      "benefice": "Identifier les pics de demandes, optimiser les stocks de pare-brise, ajuster les effectifs et horaires."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Producteur de contenu client (vidéos, témoignages)",
+      "benefice": "Créer des preuves sociales visuelles, augmenter la confiance et la conversion en ligne."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Tableau de bord performance",
+      "benefice": "Suivre les KPIs (délai moyen, taux de satisfaction, chiffre d'affaires par agence), piloter les décisions."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine sur la gestion administrative et le suivi client"
+  },
+  "coutInaction": "Sans optimisation, l'agence risque de perdre des clients à cause des no-shows, des délais mal communiqués et d'une présence en ligne fragmentée. Les avis positifs ne sont pas systématiquement exploités pour la conversion.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des RDV, suivi des dossiers assurance par email/téléphone, réponses aux avis irrégulières, pas de vue d'ensemble sur les pics de demandes.",
+    "avecIA": "RDV automatisés avec rappels, suivi assurance centralisé et alertes, avis collectés et répondus en temps réel, tableau de bord des demandes pour ajuster les ressources."
+  },
+  "cta": "Explorez comment BOUSSOLE peut transformer votre quotidien opérationnel et renforcer votre fidélisation client.",
+  "indice": {
+    "estime": 86,
+    "potentiel": 100
+  },
+  "aura": {
+    "sens": "la fiabilité professionnelle",
+    "couleur": "Bleu",
+    "definition": "Référence Pare-Brise dégage une énergie de confiance et de sérénité : établie, transparente, attentive au détail, elle rassure le client dès le premier contact.",
+    "eclat": "moyen"
+  },
+  "fierte": "Vous avez bâti une agence solide avec une réputation de qualité et un service client exemplaire. Vos avis clients parlent d'eux-mêmes : accueil chaleureux, travail soigné, zéro surprise tarifaire. Le potentiel est clair : en automatisant l'administratif et en capitalisant mieux vos forces (avis, témoignages, fidélité), vous pouvez dégager du temps pour la croissance et renforcer votre position face à la concurrence.",
+  "sources": "PagesJaunes (avis clients, infos agence), site officiel referenceparebrise.fr, Facebook (engagement), Mappy, 118712, Cylex (annuaires), Annuaire des Entreprises (données légales partielles). Confiance : moyenne à forte sur l'identité et les avis ; faible sur les données financières (non publiques)."
+}
