@@ -61,7 +61,7 @@ async function searchCompetitors(keyword, naf, departement, plat, plong, radius,
 const SYS = `Tu compares des entreprises françaises sur leur image PUBLIQUE AUJOURD'HUI, via l'outil de recherche web. Pour CHAQUE entreprise de la liste (garde son index i), donne :
 - avis : la note d'avis en ligne (Google/annuaires) sur 5 et le nombre d'avis. Si introuvable, note et nombre = null.
 - presence : UN seul mot parmi "fort", "moyen", "faible" (site web, réseaux, fraîcheur, visibilité).
-- aura : l'Index Aura ACTUEL = note entière 0-100 (niveau de confiance perçu), couleur d'aura, éclat.
+- aura : l'Index Aura ACTUEL = note entière 0-100. Calcule-la de façon STABLE : pars de 50 et ajuste selon les FAITS (avis moyen + volume, présence/site, ancienneté), ne devine pas au feeling. Donne aussi couleur d'aura et éclat.
 INTERDIT : toute prévision, tout potentiel, toute projection. On décrit l'état d'aujourd'hui, point.
 N'INVENTE JAMAIS : si une info est introuvable, mets null (avis) ou reste prudent. Couleur parmi : Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc. Éclat parmi : faible, moyen, fort.
 SORTIE : UNIQUEMENT ce JSON, rien d'autre, aucune balise, aucune citation :
@@ -86,7 +86,7 @@ export default async function handler(req, res) {
     const list = [prospect, ...concurrents];
     const lines = list.map((e, i) => `${i} = ${i === 0 ? "PROSPECT: " : ""}${e.nom} (${e.commune || ""})`).join("\n");
     const areq = {
-      model: MODEL, max_tokens: 4000, system: SYS,
+      model: MODEL, max_tokens: 4000, temperature: 0, system: SYS,
       tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 8 }],
       messages: [{ role: "user", content: [{ type: "text", text: "Entreprises à évaluer (conserve chaque index i) :\n" + lines }] }]
     };
