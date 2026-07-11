@@ -3,7 +3,7 @@
 // À AUJOURD'HUI (avis · présence · Index Aura), sans prévisions.
 // Géo/registre = API publique recherche-entreprises (gratuite). Comparatif = Claude + web.
 
-const MODEL = "claude-sonnet-5";
+const MODEL = "claude-haiku-4-5-20251001"; // modèle rapide : tâche de comparaison simple, priorité vitesse + coût
 const API = "https://recherche-entreprises.api.gouv.fr";
 
 function haversine(la1, lo1, la2, lo2) {
