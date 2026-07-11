@@ -16,6 +16,14 @@ function haversine(la1, lo1, la2, lo2) {
 }
 const norm = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[-']/g, " ");
 
+// Extrait la VILLE d'une adresse Google (ex. "63 Grand Rue, 57280 Maizières-lès-Metz, France" -> "Maizières-lès-Metz")
+function townFrom(addr) {
+  const parts = (addr || "").split(",").map(s => s.trim()).filter(Boolean);
+  for (const p of parts) { const m = p.match(/\b\d{5}\b\s*(.+)/); if (m && m[1]) return m[1].trim(); }
+  const noCountry = parts.filter(p => !/^france$/i.test(p));
+  return noCountry.length ? noCountry[noCountry.length - 1] : "";
+}
+
 async function geocode(q) {
   if (!q) return null;
   try {
@@ -132,7 +140,7 @@ export default async function handler(req, res) {
           const dist = Math.round(haversine(prospect.lat, prospect.long, loc.lat, loc.lng) * 10) / 10;
           if (dist > rad) continue;
           const isProspect = norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
-          rows.push({ isProspect, nom: p.name, commune: (p.formatted_address || "").split(",").slice(-2)[0] ? (p.formatted_address || "").split(",").slice(-2)[0].replace(/\d{5}/, "").trim() : "", lat: loc.lat, long: loc.lng, distance: dist, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
+          rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
         // le prospect lui-même sert à récupérer ses avis, puis on l'exclut des concurrents
