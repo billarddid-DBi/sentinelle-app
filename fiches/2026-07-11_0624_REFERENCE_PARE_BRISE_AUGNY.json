@@ -1,0 +1,139 @@
+{
+  "nom": "Référence Pare-Brise Augny",
+  "ville": "Augny (57685)",
+  "activite": "Réparation et remplacement de pare-brises et vitrages automobiles, calibrage ADAS",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Franchise établie, avis excellents, services complets"
+  },
+  "identite": "Entreprise SIREN 877844076 (REFERENCE METZ), NAF 4520Z, fondée en 2011 dans le Grand Est. Gérant : Nicolas Etiienne. Agence du réseau Référence Pare-Brise. Confidentialité partielle des comptes en 2023 (CA < 12M€). Pas d'effectif public détecté.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      75,
+      78,
+      70,
+      76,
+      74,
+      82,
+      80
+    ],
+    "potentiel": [
+      82,
+      85,
+      88,
+      82,
+      86,
+      84,
+      90,
+      88
+    ]
+  },
+  "valeurs": "Qualité de service, accessibilité client, transparence tarifaire, impact environnemental (recyclage 19 tonnes/mois), inclusion et engagement sociétal, partenariats locaux.",
+  "imagePercue": "Agence fiable et professionnelle, spécialiste reconnu du vitrage automobile avec forte présence numérique. Marque nationale du groupe COLORAUTO/réseau Référence, facile d'accès (RDV en ligne, horaires réguliers lundi-samedi). Réseaux actifs : Facebook, LinkedIn (groupe national 502 abonnés), TikTok, site web dédié.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients très positifs (100% de recommandations visibles, mentions d'accueil excellent, prestations soignées, véhicule de prêt apprécié)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Offres promotionnelles actives et régulières (franchise offerte 100€ ou cadeau, jusqu'à 300€ offerts, formations clients régulières)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Compétition forte sur le marché (Rapid Pare-Brise 300+ centres, France Pare-Brise 490 centres, Mondial Pare-Brise, Euro Pare-Brise). Positionnement national plutôt que local aurait besoin de consolidation."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Données financières confidentielles (bilan partiel 2023). Effectif et chiffre d'affaires exact non publics. Impossibilité d'évaluer la croissance interne."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la prise de RDV et relances SMS pour réduire les no-shows et optimiser le taux de remplissage des créneaux",
+    "Piloter les stocks de pare-brises (centrale d'achat) et les délais J+1 avec un tableau de bord temps réel pour anticiper les ruptures",
+    "Construire un CRM client pour fidéliser et relancer sur services complémentaires (traitement anti-pluie, décalaminage, carte grise)"
+  ],
+  "avis": "Avis clients très favorables (Google, PagesJaunes, Facebook). Synthèse : accueil excellent, personnel au top, travail propre, véhicule de prêt gratuit, aspiration/désinfection, aucun reste à charge, respect du contrat. Quelques avis montrant gestion proactive des délais d'assurance. Notes récentes (2026, 2025) toutes positives. Score Facebook : 100% recommend (7 avis).",
+  "presence": "Site internet complet (referenceparebrise.fr + referenceparebrise-metz-augny.fr), pages Google My Business actives, Facebook engagement moyen (131 likes, posts réguliers), LinkedIn groupe national avec 502 abonnés, TikTok présent, présence dans annuaires (PagesJaunes, Mappy, 118712, Cylex). Responsive à la communication (gestion professionnelle des avis négatifs avec explications détaillées).",
+  "intel": {
+    "financier": "Confidentialité partielle en 2023. Comptes non publics. Pas d'accès à chiffre d'affaires, bénéfices, dettes. Hypothèse : PME locale saine (avis positifs, pérennité depuis 2011).",
+    "concurrence": "Marché très fragmenté : France Pare-Brise (490 centres, groupe Saint-Gobain), Rapid Pare-Brise (300+ centres, 1ère franchisé indépendante), Mondial Pare-Brise (25 ans, franchises multiples), Euro Pare-Brise (30+ agences). Référence Pare-Brise : réseau plus petit mais en croissance. Position : franchise de proximité avec services à valeur ajoutée (ADAS, carte grise, décalaminage).",
+    "visibilite": "Bonne visibilité locale (Zone Actisud Metz, parking facile, accès par GPS). Visibilité web correcte (site propriétaire, annuaires). Campagnes promotionnelles visibles (offres saisonnières, partenariats basket/foot locaux). Pas de données sur traffic SEO/PPC.",
+    "dirigeant": "Nicolas Etiienne, gérant. Pas de date de naissance ou d'information personnelle publique. Pas d'indication sur transmission, reprise ou développement prévu — ces informations relèvent d'un entretien BOUSSOLE."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Agent RDV & Fidélité",
+      "benefice": "Automatiser la prise de rendez-vous en ligne et SMS de confirmation/rappel pour réduire no-shows (observé : oublis clients) et optimiser la séquence client dès réservation."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent Pilot Stock & Achats",
+      "benefice": "Piloter les stocks de pare-brises (références, délais fournisseurs, capacité de prêt) pour maintenir la promesse J+1 et éviter les refus de clients sur disponibilité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent CRM & Relance Ventes",
+      "benefice": "Capitaliser les 300+ clients/mois (estimé) : fidélité, vente croisée (films tint, traitement, décalaminage, carte grise), satisfaction + upsell = marge."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent Pilotage KPI",
+      "benefice": "Dashboard temps réel : délais intervention, taux réparation vs remplacement, NPS, CA par service. Détecte les goulets (assurance, technique) pour gagner en productivité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Agent Contenu & Web",
+      "benefice": "Enrichir avis (Google/PagesJaunes via email post-intervention), blog (astuces vitrages, sécurité ADAS), FAQ pour capturer recherche organique locale."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Agent Conformité & Formation",
+      "benefice": "Capitaliser savoir-faire technique (ADAS, résine, calibrage), traçabilité dossiers clients, conformité RGPD/données assurances pour sécuriser la relation assureur."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Gain estimé en productivité & perte réduite par optimisation RDV, stock et fidélité"
+  },
+  "coutInaction": "Sans optimisation : pertes de commandes par no-shows (5-10% des RDV), ruptures stock (délais rallongés, clients irrités), absence de fidélité (30% clients churn vers concurrence), marges érodées. Sur 12 mois, cela coûte plusieurs milliers d'euros en CA non réalisé et surcoûts de gestion.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 3,
+    "cout": 45
+  },
+  "avantApres": {
+    "aujourdhui": "Prise de RDV manuelle + appels (débordement équipe), stocks gérés par feuilles/central (pas de visibilité temps réel), clients traités une fois (pas de relance/fidélité), reporting manuel. Marges comprimées par inefficacités.",
+    "avecIA": "RDV automatisés 24/7 (SMS rappel), stocks pilotés en continu, CRM reçoit chaque client (fidélité + vente croisée), dashboard KPI en direct. Équipe se concentre sur technique/service. Marges améliorées de 5-8%."
+  },
+  "cta": "Parlons-en lors d'un entretien BOUSSOLE pour explorer votre vision de croissance, vos vrais goulots opérationnels et les agents IA qui feront décoller votre efficacité.",
+  "indice": {
+    "estime": 76,
+    "potentiel": 85
+  },
+  "aura": {
+    "sens": "la fiabilité & le soin",
+    "couleur": "Bleu",
+    "definition": "Entreprise de confiance, installée et structurée, qui cultive la proximité client et l'excellence opérationnelle. Rayonne par sa rigueur, son accueil chaleureux et son engagement durable.",
+    "eclat": "moyen"
+  },
+  "fierte": "Vous avez bâti une agence apprécié des clients depuis 13 ans, avec des avis exemplaires et une offre complète. Vous maîtrisez déjà la qualité de service et la fidélisation par les services ajoutés (ADAS, décalaminage, carte grise). L'IA peut vous aider à passer à l'étape suivante : libérer votre équipe des tâches répétitives (RDV, relances, stock) pour que chacun se concentre sur la relation client et l'innovation.",
+  "sources": "PagesJaunes (avis fiables, 2021-2026), referenceparebrise.fr (site propriétaire, actif), SIREN 877844076 (Pappers, Synta-IQ), Facebook (131 likes, engagement), LinkedIn groupe national (502 abonnés, contenu corporate), Google My Business (horaires, localisation), Mappy/118712/Cylex (annuaires confirmés). Confiance : 8/10 (données publiques fiables, avis consolidés, pas d'info financière détaillée)."
+}
