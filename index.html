@@ -60,6 +60,7 @@
     <input type="file" id="file" accept="image/*" capture="environment" style="display:none;">
     <div class="hint">Premier avis public, sans entretien — sources publiques et estimations. Le vrai diagnostic (BOUSSOLE) se fait en entretien.</div>
     <button class="btn btn-ghost" style="margin-top:8px;border-style:dashed;" onclick="showView('bChoice')">🧭 Diagnostic en entretien (BOUSSOLE) →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="openHistory()">📁 Mes recherches (cloud)</button>
   </div>
 
   <!-- BOUSSOLE — écran de choix Express / Complet -->
@@ -560,6 +561,7 @@ function render(d){
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>
+  <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank">🌐 Voir le site / les avis</a>
   <button class="btn btn-primary" style="margin-top:10px;" onclick="openConcurrence()">🗺️ Analyser la concurrence autour de vous</button>
   <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
 
@@ -639,9 +641,9 @@ function runConcurrence(){
 function renderConcu(d){
   var out=document.getElementById('cOut');
   if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' (NAF '+esc(d.naf||'?')+') dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
-  var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 '+esc(d.prospect.nom)+'<br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
+  var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' 🔗</a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
   d.concurrents.forEach(function(c){
-    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;">'+esc(c.nom)+'<br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
+    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' 🔗</a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
   });
   out.innerHTML='<div class="sec"><div id="cMap" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div>'
    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;">🟣 votre prospect · 🔴 concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' (rayon '+d.radius+' km)</div></div>'
@@ -658,7 +660,29 @@ function renderConcu(d){
     setTimeout(function(){ if(window.cMapObj) window.cMapObj.invalidateSize(); },150);
   }catch(e){ var mm=document.getElementById('cMap'); if(mm) mm.innerHTML='<div style="padding:20px;color:#9ca3af;font-size:12px;">Carte indisponible.</div>'; }
 }
+function siteLink(nom,ville,site){ return (site && /^https?:\/\//i.test(site)) ? site : 'https://www.google.com/search?q='+encodeURIComponent(((nom||'')+' '+(ville||'')).trim()); }
 /* ===== fin CONCURRENCE ===== */
+
+/* ===== HISTORIQUE (Mes recherches) ===== */
+function openHistory(){
+  var host=document.getElementById('histPanel');
+  if(!host){ host=document.createElement('div'); host.id='histPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
+  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">📁 Mes recherches</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Vos analyses sauvegardées dans le cloud — accessibles même sans PC.</div></div><div class="sec" id="histList"><div style="text-align:center;padding:18px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement…</div></div>';
+  host.scrollIntoView({behavior:'smooth',block:'start'});
+  fetch('/api/history').then(function(r){return r.json();}).then(function(d){
+    var el=document.getElementById('histList'); if(!el) return;
+    if(d.error||!d.items){ el.innerHTML='<div style="color:#991b1b;font-size:13px;">⚠️ '+esc((d&&d.error)||'Indisponible')+'</div>'; return; }
+    if(!d.items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
+    el.innerHTML=d.items.map(function(it){
+      var badge=it.type==='BOUSSOLE'?'background:#ede9fe;color:#6d28d9':'background:#e0f2fe;color:#075985';
+      return '<a href="'+it.url+'" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
+        +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;'+badge+';white-space:nowrap;">'+it.type+'</span>'
+        +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(it.nom)+'</span>'
+        +'<span style="font-size:11px;color:#9ca3af;white-space:nowrap;">'+esc(it.date)+'</span><span style="color:#9ca3af;">›</span></a>';
+    }).join('')+'<button class="btn btn-ghost" style="margin-top:12px;" onclick="var p=document.getElementById(\'histPanel\');if(p)p.remove();">Fermer</button>';
+  }).catch(function(){ var el=document.getElementById('histList'); if(el) el.innerHTML='<div style="color:#991b1b;font-size:13px;">⚠️ Connexion impossible.</div>'; });
+}
+/* ===== fin HISTORIQUE ===== */
 </script>
 </body>
 </html>

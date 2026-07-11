@@ -40,6 +40,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "quickwins": ["action 1","action 2","action 3"],
  "avis": "synthèse des avis (ou 'Non trouvé publiquement')",
  "presence": "présence & réseaux",
+ "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "…" } ],
  "archetype": "nom de l'archétype retenu",

@@ -61,11 +61,12 @@ async function searchCompetitors(keyword, naf, departement, plat, plong, radius,
 const SYS = `Tu compares des entreprises françaises sur leur image PUBLIQUE AUJOURD'HUI, via l'outil de recherche web. Pour CHAQUE entreprise de la liste (garde son index i), donne :
 - avis : la note d'avis en ligne (Google/annuaires) sur 5 et le nombre d'avis. Si introuvable, note et nombre = null.
 - presence : UN seul mot parmi "fort", "moyen", "faible" (site web, réseaux, fraîcheur, visibilité).
-- aura : l'Index Aura ACTUEL = note entière 0-100. Calcule-la de façon STABLE : pars de 50 et ajuste selon les FAITS (avis moyen + volume, présence/site, ancienneté), ne devine pas au feeling. Donne aussi couleur d'aura et éclat.
+- aura : l'Index Aura ACTUEL = note entière 0-100, calculée avec la MÊME GRILLE que le prospect (ON COMPARE CE QUI EST COMPARABLE), de façon OBJECTIVE et factuelle — PARS DE 50, puis ajuste selon les FAITS : Avis ≥4,5/5 avec volume → +20 · 4 à 4,5 → +12 · 3 à 4 → +4 · <3 → −10 · peu/pas d'avis → 0. Site moderne et à jour → +10 · correct mais daté → +3 · absent/obsolète → −8. Présence/fraîcheur active → +8 · discrète → 0 · fantôme → −5. Ancienneté/structure établie → +7 · jeune → 0 · fragile → −5. Signaux négatifs (litiges, avis en baisse) → −10 à −20. Borne 5–95. Donne aussi couleur d'aura et éclat. Ne devine JAMAIS au feeling.
+- site : l'URL du site officiel (format https://…) si tu la trouves, sinon "".
 INTERDIT : toute prévision, tout potentiel, toute projection. On décrit l'état d'aujourd'hui, point.
 N'INVENTE JAMAIS : si une info est introuvable, mets null (avis) ou reste prudent. Couleur parmi : Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc. Éclat parmi : faible, moyen, fort.
 SORTIE : UNIQUEMENT ce JSON, rien d'autre, aucune balise, aucune citation :
-{"entreprises":[{"i":0,"avis":{"note":<number|null>,"nombre":<int|null>,"resume":"<courte synthèse ou 'Non trouvé publiquement'>"},"presence":"fort|moyen|faible","aura":{"note":<int 0-100>,"couleur":"<couleur>","eclat":"faible|moyen|fort"}}]}`;
+{"entreprises":[{"i":0,"avis":{"note":<number|null>,"nombre":<int|null>,"resume":"<courte synthèse ou 'Non trouvé publiquement'>"},"presence":"fort|moyen|faible","aura":{"note":<int 0-100>,"couleur":"<couleur>","eclat":"faible|moyen|fort"},"site":"<url ou ''>"}]}`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
       const s = out.indexOf("{"), e = out.lastIndexOf("}");
       if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
     }
-    const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null }; };
+    const enrich = (e, i) => { const x = byi[i] || {}; return { ...e, avis: x.avis || null, presence: x.presence || null, aura: x.aura || null, site: x.site || null }; };
     // Le prospect garde son Index Aura OFFICIEL de SENTINELLE (jamais recalculé ici) — cohérence.
     const prospectRow = enrich(prospect, 0);
     if (prospectAura && typeof prospectAura.note === "number") {
