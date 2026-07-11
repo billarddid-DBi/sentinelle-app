@@ -55,7 +55,6 @@ async function searchCompetitors(keyword, naf, departement, plat, plong, radius,
   for (let page = 1; page <= 4; page++) {
     const params = new URLSearchParams();
     if (kw) params.set("q", kw);
-    if (naf) params.set("activite_principale", naf);
     if (departement) params.set("departement", departement);
     params.set("per_page", "25");
     params.set("page", String(page));
@@ -97,6 +96,8 @@ export default async function handler(req, res) {
     const { nom, ville, radius, keyword, prospectAura } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
     const rad = Math.max(2, Math.min(50, parseInt(radius) || 20));
+    const kw = (keyword || "").trim();
+    if (!kw) { res.status(400).json({ error: "Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier)." }); return; }
 
     const prospect = await resolveProspect(nom, ville);
     if (!prospect || isNaN(prospect.lat) || isNaN(prospect.long)) {

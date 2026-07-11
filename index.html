@@ -610,11 +610,11 @@ function openConcurrence(){
   var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
   var host=document.getElementById('concuPanel');
   if(!host){ host=document.createElement('div'); host.id='concuPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
-  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">🗺️ La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+' — filtre NAF cohérent + mot-clé. Repère public, à aujourd\'hui.</div></div>'
+  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">🗺️ La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+', par mot-clé. Repère public, à aujourd\'hui.</div></div>'
    +'<div class="sec">'
-   +'<label>Métier / mot-clé</label>'
-   +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pare-brise, plombier, scan 3D" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
-   +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots suffisent. On cherche dans le <b>même code NAF</b> que votre prospect, puis on filtre sur ce mot.</div>'
+   +'<label>Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+   +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
+   +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de votre prospect.</div>'
    +'<label>Rayon de recherche</label>'
    +'<div class="simrow"><input type="range" id="cRad" min="2" max="50" step="1" value="20" oninput="var v=document.getElementById(\'cRadV\');if(v)v.textContent=this.value+\' km\';"><span class="val" id="cRadV">20 km</span></div>'
    +'<button class="btn btn-primary" onclick="runConcurrence()">🔎 Analyser les 8 plus proches</button>'
@@ -632,6 +632,7 @@ function runConcurrence(){
   var rad=(document.getElementById('cRad')&&+document.getElementById('cRad').value)||20;
   var kw=(document.getElementById('cKw')&&document.getElementById('cKw').value.trim())||'';
   var out=document.getElementById('cOut');
+  if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,radius:rad,keyword:kw,prospectAura:window.lastAura||null})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
@@ -640,7 +641,7 @@ function runConcurrence(){
 }
 function renderConcu(d){
   var out=document.getElementById('cOut');
-  if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' (NAF '+esc(d.naf||'?')+') dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
+  if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
   var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' 🔗</a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
   d.concurrents.forEach(function(c){
     rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' 🔗</a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura,true)+'</td></tr>';
@@ -648,7 +649,7 @@ function renderConcu(d){
   out.innerHTML='<div class="sec"><div id="cMap" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div>'
    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;">🟣 votre prospect · 🔴 concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' (rayon '+d.radius+' km)</div></div>'
    +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1f3a5f;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">Index Aura</th></tr></thead><tbody>'+rows+'</tbody></table>'
-   +'<div class="hint"><b>Aura prospect</b> = son score SENTINELLE complet · <b>≈ aura concurrents</b> = estimé rapide basé sur les avis (repère comparatif). Comparatif à aujourd\'hui, sans prévisions. « Même NAF » = repère, pas concurrence stricte.</div></div>';
+   +'<div class="hint"><b>Aura prospect</b> = son score SENTINELLE complet · <b>≈ aura concurrents</b> = estimé rapide basé sur les avis (repère comparatif). Comparatif à aujourd\'hui, sans prévisions. Recherche par mot-clé métier autour du prospect.</div></div>';
   try{
     if(window.cMapObj){ window.cMapObj.remove(); window.cMapObj=null; }
     var map=L.map('cMap').setView([d.prospect.lat,d.prospect.long],11); window.cMapObj=map;
