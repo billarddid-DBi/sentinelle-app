@@ -1,0 +1,142 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Restaurant pizzeria italienne",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, qualité produits"
+  },
+  "identite": "SIREN 839 452 786, SAS, code NAF 5610A (restauration sur place), créée 7 mai 2018, 6-9 salariés, établissement 32 Grand Rue. Comptes confidentiels (clôture 30 sept 2023).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      48,
+      52,
+      45,
+      40,
+      50,
+      68,
+      58
+    ],
+    "potentiel": [
+      72,
+      70,
+      75,
+      68,
+      65,
+      72,
+      85,
+      78
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients importés du sud de l'Italie, accueil chaleureux, service professionnel.",
+  "imagePercue": "Institution locale établie, réputée pour ses pizzas au feu de bois et pâtes fraîches. Récemment reprise, avec signaux mitigés : excellents avis récents (4.4/5 Google, 79/100 Sluurpy) mais témoignages de clients fidèles déçus par changement de qualité post-vente.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Reprise récente du restaurant (ancien propriétaire parti) : risque de perte de savoir-faire culinaire et de clientèle fidèle. Avis anciens mentionnent pâtes dures, attentes longues."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Tension tarifaire : direction justifie augmentations par charges/inflation. Clients sensibles au rapport qualité-prix (escalope 26,90€ critiquée)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis actuels très positifs (février 2025) : personnel sympathique, pizzas excellentes, service impeccable. Stabilisation observée."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Positionnement #1 des pizzerias locales (Restaurant Guru), forte présence réseaux (Facebook 1051 likes, 92% recommandation)."
+    }
+  ],
+  "quickwins": [
+    "Capitaliser le savoir-faire : documenter recettes pizzas/pâtes, former équipe nouvelle sur standards anciens propriétaire",
+    "Optimiser réservations & gestion flux : réduire attentes longues (1h mentionnée), piloter plannings par prévisions",
+    "Fidéliser clients historiques : programme petit-déjeuner/apéro, relance personnalisée des anciens habitués",
+    "Maîtriser food cost : traçabilité ingrédients importés, réduire gaspillage, justifier tarifs par qualité",
+    "Animer réseaux : posts réguliers plats du jour, avis clients, événements (groupes, réservations)"
+  ],
+  "avis": "Avis très positifs récents (février 2025) : 4.4/5 Google (667 avis), 79/100 Sluurpy, 92% recommandation Facebook. Clients louent pizzas excellentes, pâtes fraîches, accueil chaleureux, service professionnel. Quelques critiques anciennes (post-reprise) sur qualité pâtes et attentes longues, désormais résorbées. Tarifs perçus comme élevés mais justifiés par qualité.",
+  "presence": "Facebook actif (1051 likes, posts réguliers), présent sur Google Maps, TripAdvisor, Restaurant Guru, Sluurpy, eat-list. Site web non trouvé publiquement. Réseaux montrent engagement (réponses avis, infos travaux).",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels (SAS, article L.232-25). Pas de données publiques. Effectif stable 6-9 salariés. Charges/inflation citées comme enjeu tarifaire.",
+    "concurrence": "Marché local : Planet Pizza, Mond'O Pizza, Le Venezia (autres pizzerias). La Romana classée #1 sur Restaurant Guru. Concurrence moyenne-haute en zone urbaine Metz.",
+    "visibilite": "Très bonne : #1 pizzeria locale, forte présence réseaux, avis massifs (667 Google). Pas de site web propre = opportunité. Travaux en cours (avril 2025) communiqués sur Facebook.",
+    "dirigeant": "Non trouvé publiquement. Ancien propriétaire (Massimo mentionné dans avis anciens) parti avec pizzaiolo (frère). Nouveaux propriétaires depuis mars (date estimée). Gestion actuelle réactive (réponses avis, communication travaux)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Capitaine Recettes",
+      "benefice": "Documenter & valider recettes pizzas/pâtes, former équipe sur standards qualité, réduire écarts post-reprise"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Maestro Réservations",
+      "benefice": "Piloter plannings par prévisions, réduire attentes longues (1h → 20-30 min), optimiser flux cuisine/salle"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Fidèle Historique",
+      "benefice": "Relancer clients anciens (habitués mensuels), proposer programme fidélité, récupérer parts perdues post-vente"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Traçabilité Ingrédients",
+      "benefice": "Documenter sourcing Italie, justifier tarifs par qualité, réduire gaspillage, maîtriser food cost"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Animateur Réseaux",
+      "benefice": "Posts quotidiens plats du jour, avis clients, événements groupes, créer site web simple (menu, réservation)"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur Avis",
+      "benefice": "Monitorer sentiment clients, détecter tendances (tarifs, attentes), ajuster offre en temps réel"
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en optimisation réservations + fidélité"
+  },
+  "coutInaction": "Risque de perte progressive de clientèle fidèle (habitués mensuels partis), érosion marge par tarifs non justifiés, attentes longues = mauvais avis et désistements. Concurrence locale peut capter parts.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Réservations manuelles, attentes 1h, clients historiques perdus, tarifs critiqués, avis mitigés anciens, réseaux peu animés.",
+    "avecIA": "Plannings optimisés (attentes 20-30 min), fidélité relancée (programme, SMS), recettes documentées, food cost maîtrisé, réseaux animés quotidiens, avis positifs consolidés."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer la reprise : capitaliser savoir-faire, optimiser opérations, fidéliser clients historiques et consolider marge.",
+  "indice": {
+    "estime": 62,
+    "potentiel": 78
+  },
+  "aura": {
+    "sens": "Chaleur & renaissance",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une énergie chaleureuse et accueillante, portée par une reprise dynamique qui redonne vie à une institution locale. Malgré la transition, elle incarne la convivialité italienne et la qualité retrouvée.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a su rebondir après sa reprise et retrouver la confiance de sa clientèle : les avis récents (février 2025) témoignent d'une qualité culinaire retrouvée et d'un service professionnel qui honore son statut d'institution locale. Avec une équipe engagée et une base solide de clients fidèles, le restaurant a le potentiel pour consolider sa position #1 et transformer les défis opérationnels en leviers de croissance durable.",
+  "sources": "PagesJaunes (SIREN, RCS, effectif), 118712.fr (SIRET, NAF, création), Facebook (engagement, likes), Google Maps & Restaurant Guru (avis 4.4/5, 667 votes), Sluurpy (79/100), TripAdvisor, LaCarte.Menu, eat-list, Petit Futé, RestoRanking. Confiance : haute pour identité & avis, moyenne pour financier (comptes confidentiels), haute pour présence réseaux."
+}
