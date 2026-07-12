@@ -49,7 +49,9 @@ async function locateProspect(nom, ville) {
         if (!best || score > best.score) best = { s, nom: e.nom_complet, score };
         if (score === 3) break;
       }
-      if (best && best.s.latitude && best.s.longitude)
+      // On ne fait confiance au registre que si la COMMUNE correspond à la ville demandée (score 3 = commune + coords).
+      // Sinon = siège d'une chaîne (ex. Mondial Pare-Brise HQ Paris) -> on tombera sur le géocodage de la ville.
+      if (best && best.score === 3)
         return { nom: best.nom || nom, commune: best.s.libelle_commune || ville, lat: parseFloat(best.s.latitude), long: parseFloat(best.s.longitude) };
     }
   } catch (_) {}
