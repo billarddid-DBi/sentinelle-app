@@ -1,0 +1,160 @@
+{
+  "nom": "Mondial Pare-Brise Augny",
+  "ville": "Augny (57685)",
+  "activite": "Réparation et remplacement de pare-brise, vitrages automobiles",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établissement performant",
+    "atout": "Réseau national, avis solides, services complets"
+  },
+  "identite": "Établissement secondaire du groupe Mondial Pare-Brise (SIREN 418505343, SAS créée 1998). Siège social à Rueil-Malmaison (92500), 250 salariés groupe, 124 établissements. NAF 4520A (Entretien et réparation de véhicules automobiles légers). Augny : 388 rue du Bois d'Orly, 57685. Ouvert lun-jeu 8h-12h/14h-18h, ven 8h-12h/14h-17h.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      75,
+      78,
+      70,
+      76,
+      72,
+      78,
+      75
+    ],
+    "potentiel": [
+      82,
+      85,
+      88,
+      82,
+      86,
+      84,
+      88,
+      85
+    ]
+  },
+  "valeurs": "TechCare (maîtrise technique + attention client), qualité des matériaux, service rapide, garantie nationale, proximité, transparence administrative.",
+  "imagePercue": "Enseigne fiable et professionnelle, accueil courtois, service fluide. Réputation solide au niveau local (78 avis Google 5,0/5 pour Augny). Groupe reconnu nationalement mais avec variabilité de qualité selon les centres.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients très positifs localement (5,0/5 sur 78 avis Google Augny). Professionnalisme et réactivité confirmés."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Variabilité de qualité observée au niveau groupe : diagnostic technique inégal selon les centres, quelques avis négatifs sur Trustpilot (pose défectueuse, manque de suivi)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale locale faible (Facebook 4 likes, peu d'activité). Site groupe riche mais peu de contenu spécifique au centre Augny."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Modèle économique stable : agrément toutes assurances, prise en charge administrative, prêt de véhicule, déplacement gratuit = fidélisation client forte."
+    }
+  ],
+  "quickwins": [
+    "Activer Google My Business local + avis réguliers pour consolider la réputation Augny",
+    "Créer contenu local (avant/après, témoignages vidéo) pour différencier le centre",
+    "Mettre en place un suivi post-intervention (SMS, mail) pour capturer les avis positifs",
+    "Documenter les cas complexes (ADAS, camping-cars) pour renforcer la crédibilité technique",
+    "Optimiser la prise de RDV en ligne (actuellement fonctionnelle) avec rappels SMS"
+  ],
+  "avis": "Avis Google Augny : 5,0/5 (78 avis). Trustpilot groupe : 3,5-4,0/5 (149 avis). Synthèse : accueil chaleureux, service rapide, gestion assurance simplifiée, nettoyage véhicule apprécié. Points faibles : variabilité diagnostic technique, quelques cas de pose défectueuse, manque de suivi après intervention dans certains centres.",
+  "presence": "Site groupe mondialparebrise.fr actif et moderne. Facebook Augny : 4 likes, peu d'activité. Google My Business : présent, 78 avis 5,0/5. Pas de LinkedIn, Instagram ou TikTok détectés pour le centre local. Présence digitale groupe forte, locale discrète.",
+  "site": "https://www.mondialparebrise.fr/trouver-mon-centre/mondial-pare-brise-augny",
+  "intel": {
+    "financier": "Groupe : CA 73,9 M€ (2024), capital 102 k€. Établissement Augny : données non publiques (filiale). Groupe sain, croissance stable, 124 établissements.",
+    "concurrence": "Marché très concurrentiel : Carglass, OuiGlass, Référence Pare-Brise (aussi à Augny), France Pare-Brise. Mondial leader national par taille (400+ centres). Augny : concurrence locale modérée, Référence Pare-Brise principal concurrent.",
+    "visibilite": "Groupe : forte visibilité nationale (campagnes, partenariats assurances). Centre Augny : visibilité locale bonne (Google 5,0/5) mais peu de contenu spécifique. Pas de présence réseaux sociaux locaux.",
+    "dirigeant": "Groupe dirigé par MACIF (mutuelle, actionnaire). Administrateurs : Mira Gojkovic (Présidente), Catherine Di Marco, Médéric Borde. Pas d'info sur le responsable local Augny."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réputation locale",
+      "benefice": "Automatiser la collecte d'avis post-intervention (SMS + lien Google), relancer les clients satisfaits, détecter les insatisfaits pour correction rapide. Cible : +30 avis/mois, maintien 4,8+/5."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de cas techniques",
+      "benefice": "Capturer avant/après, diagnostic détaillé, ADAS, camping-cars en photos/vidéo courtes. Publier sur Google My Business, site local, réseaux. Cible : 2-3 posts/semaine, crédibilité technique +40%."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Optimiseur de RDV en ligne",
+      "benefice": "Analyser les créneaux libres, envoyer rappels SMS 24h avant, proposer créneaux alternatifs si indisponibilité. Cible : réduire no-shows de 20%, augmenter taux de remplissage de 15%."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Rédacteur de contenu local",
+      "benefice": "Créer fiches produits (pare-brise chauffant, ADAS, camping-cars), guides (assurance, entretien), FAQ. Publier sur site groupe + Google My Business. Cible : +50% trafic local, +25% demandes de devis."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Animateur réseaux sociaux",
+      "benefice": "Lancer Facebook/Instagram locaux : avis clients, conseils, promotions, événements. Engagement hebdomadaire. Cible : 500 followers 6 mois, +20% appels entrants."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de satisfaction post-intervention",
+      "benefice": "Envoyer micro-sondage (2 questions) 48h après intervention, identifier irritants, alerter manager si score <4/5. Cible : amélioration continue, réduction réclamations de 30%."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion avis, contenu, RDV"
+  },
+  "coutInaction": "Sans optimisation digitale locale, le centre risque de plafonner à 78 avis et de perdre des clients face à la concurrence (Référence Pare-Brise, Carglass). Chaque mois sans présence réseaux = -5 à 10 appels entrants estimés, soit -2 à 3 k€ CA/mois.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion avis manuelle, pas de suivi post-intervention, contenu local absent, RDV en ligne basique, réseaux sociaux inactifs. Équipe débordée par appels, peu de temps pour fidélisation.",
+    "avecIA": "Avis collectés automatiquement, contenu généré 2x/semaine, RDV optimisés avec rappels, réseaux sociaux animés, satisfaction mesurée en continu. Équipe libérée pour conseil client et ventes croisées."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie digitale du centre Augny et identifier les leviers de croissance spécifiques à votre marché local.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 85
+  },
+  "dimensions": {
+    "avis": 85,
+    "reseaux": 25,
+    "site": 70,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Fiabilité professionnelle",
+    "couleur": "Bleu",
+    "definition": "Établissement solide et fiable, ancré dans un réseau national reconnu, avec une réputation locale excellente mais une présence digitale locale à développer.",
+    "eclat": "moyen"
+  },
+  "fierte": "Mondial Pare-Brise Augny incarne la fiabilité : 78 avis Google 5,0/5, service rapide et courtois, gestion assurance transparente. Vous avez bâti une réputation locale exemplaire dans un secteur concurrentiel. Le potentiel est clair : en activant les leviers digitaux locaux (avis, réseaux, contenu), vous pouvez augmenter la visibilité de 30% et consolider votre position face à la concurrence régionale.",
+  "sources": "Google My Business Augny (78 avis 5,0/5, juin 2026) · Trustpilot groupe (149 avis, juin 2024) · Kompass (SIRET 418505343, fondation 2020) · Verif.com (CA 73,9 M€ 2024, 250 salariés) · Société.com (statuts SAS, capital 102 k€) · Site officiel mondialparebrise.fr · Mappy, PagesJaunes, Custplace (avis clients) · Consumer-Guidance (étude visites mystères avril 2026) · Confiance : données publiques officielles (INSEE, RCS) + avis clients vérifiés.",
+  "_auraCalc": {
+    "avis": 86,
+    "reseaux": 25,
+    "site": 70,
+    "traction": 80,
+    "poids": {
+      "avis": 40,
+      "reseaux": 30,
+      "site": 10,
+      "traction": 20
+    }
+  }
+}
