@@ -99,6 +99,31 @@ function metierProfile(s) {
   return { avis: 30, reseaux: 20, site: 25, traction: 25 };
 }
 
+// ===== AURA OBJECTIVE (reproductible) : profil métier {q,v,s} + scores note/volume/site — identique à concurrents.js =====
+function profil(kw) {
+  const a = (kw || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/restaur|pizz|\bresto|brasser|\bbar\b|cafe|creperie|kebab|sushi|traiteur|boulanger|patisser|glacier/.test(a)) return { q: 30, v: 45, s: 25 };
+  if (/coiff|estheti|beaute|barbier|ongl|\bspa\b|salon|tatou|massage/.test(a)) return { q: 30, v: 45, s: 25 };
+  if (/pare.?brise|garage|carrosser|\bpneu|mecani|\bauto\b|automobile|vidange|controle.?techn/.test(a)) return { q: 35, v: 40, s: 25 };
+  if (/plomb|electr|platr|macon|couvr|menuis|charpent|peintr|carrel|serrur|chauffag|artisan|\bbtp\b|renov|toitur|terrass|paysag|jardin/.test(a)) return { q: 45, v: 20, s: 35 };
+  if (/avocat|notaire|medecin|dentist|comptable|\bexpert|architec|huissier|\bkine|osteo|geometr|assureur/.test(a)) return { q: 30, v: 20, s: 50 };
+  if (/bureau.?etud|ingenier|conseil|agence.?web|informatique|industr|sous.?trait|\bb2b|logiciel|scan|metrolog/.test(a)) return { q: 25, v: 15, s: 60 };
+  if (/immobil|courtier|\bbanque|agence.?immo/.test(a)) return { q: 30, v: 30, s: 40 };
+  return { q: 30, v: 35, s: 35 };
+}
+function qScore(r) { if (r == null) return 45; if (r >= 4.8) return 90; if (r >= 4.5) return 84; if (r >= 4.2) return 78; if (r >= 4.0) return 72; if (r >= 3.5) return 62; if (r >= 3.0) return 52; return 40; }
+function vScore(c) { c = c || 0; if (c >= 500) return 92; if (c >= 150) return 85; if (c >= 50) return 76; if (c >= 15) return 66; if (c >= 5) return 55; if (c >= 1) return 45; return 32; }
+function sScore(has) { return has ? 75 : 28; }
+async function getWebsite(placeId, key) {
+  if (!placeId || !key) return null;
+  try {
+    const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=website&language=fr&key=${key}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d.result && d.result.website ? d.result.website : null;
+  } catch (_) { return null; }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
@@ -164,26 +189,26 @@ export default async function handler(req, res) {
     try { fiche = JSON.parse(out.slice(start, end + 1)); }
     catch (e) { res.status(500).json({ error: "JSON invalide", raw: out.slice(0, 500) }); return; }
 
-    // Index Aura = SOMME PONDÉRÉE des 4 dimensions (poids selon l'archétype).
-    // Objectif : la dimension "avis" = note Google si dispo. Subjectif : reseaux/site/traction jugés par l'IA.
+    // Index Aura OBJECTIF (reproductible) : note + volume Google + présence site, pondérés MÉTIER. Aucun jugement -> même note partout.
     try {
-      const dims = fiche.dimensions || {};
-      const num = (v, d) => (typeof v === "number" && !isNaN(v)) ? Math.max(0, Math.min(100, v)) : d;
-      let avisDim = num(dims.avis, 45);
       const gkey = process.env.GOOGLE_PLACES_KEY;
       if (gkey && fiche && fiche.nom) {
-        try {
-          const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
-          const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
-          if (gr.ok) { const gd = await gr.json(); const p = (gd.results || [])[0]; if (p && p.rating != null) avisDim = auraFromRating(p.rating, p.user_ratings_total); }
-        } catch (_) {}
+        const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
+        const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
+        if (gr.ok) {
+          const gd = await gr.json();
+          const p = (gd.results || [])[0];
+          if (p) {
+            const site = await getWebsite(p.place_id, gkey);
+            const w = profil(fiche.activite || fiche.secteur || fiche.archetype);
+            const note = Math.max(5, Math.min(97, Math.round((w.q * qScore(p.rating != null ? p.rating : null) + w.v * vScore(p.user_ratings_total || null) + w.s * sScore(!!site)) / 100)));
+            fiche.indice = fiche.indice || {};
+            fiche.indice.estime = note;
+            fiche.indice.potentiel = Math.min(100, note + 18);
+            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w };
+          }
+        }
       }
-      const w = metierProfile(fiche.activite || fiche.secteur || fiche.archetype);
-      const aura = Math.round((w.avis * avisDim + w.reseaux * num(dims.reseaux, 50) + w.site * num(dims.site, 50) + w.traction * num(dims.traction, 50)) / 100);
-      fiche.indice = fiche.indice || {};
-      fiche.indice.estime = Math.max(5, Math.min(95, aura));
-      fiche.indice.potentiel = Math.min(100, fiche.indice.estime + 20);
-      fiche._auraCalc = { avis: avisDim, reseaux: num(dims.reseaux, 50), site: num(dims.site, 50), traction: num(dims.traction, 50), poids: w };
     } catch (_) {}
 
     res.status(200).json(fiche);

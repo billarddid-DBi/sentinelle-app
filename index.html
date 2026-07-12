@@ -444,18 +444,19 @@ function render(d,skipSave){
     let progHTML='';
     if(d._auraCalc && d._auraCalc.poids){
       var _W=d._auraCalc.poids, _C=d._auraCalc;
+      var _q=function(r){ if(r==null)return 45; if(r>=4.8)return 90; if(r>=4.5)return 84; if(r>=4.2)return 78; if(r>=4.0)return 72; if(r>=3.5)return 62; if(r>=3.0)return 52; return 40; };
+      var _v=function(c){ c=c||0; if(c>=500)return 92; if(c>=150)return 85; if(c>=50)return 76; if(c>=15)return 66; if(c>=5)return 55; if(c>=1)return 45; return 32; };
       var _L=[
-        {k:"Avis clients",w:_W.avis,s:_C.avis,act:"récolter plus d'avis (relance après prestation)"},
-        {k:"Réseaux sociaux",w:_W.reseaux,s:_C.reseaux,act:"publier régulièrement (actus, réalisations, coulisses)"},
-        {k:"Site web",w:_W.site,s:_C.site,act:"moderniser et enrichir le site"},
-        {k:"Traction & références",w:_W.traction,s:_C.traction,act:"valoriser ancienneté, références, avant/après"}
+        {k:"Qualité (note Google)",w:_W.q,s:_q(_C.note_google),act:"soigner l'expérience client pour monter la note"},
+        {k:"Nombre d'avis",w:_W.v,s:_v(_C.nb_avis),act:"récolter plus d'avis (relance après prestation)"},
+        {k:"Site web",w:_W.s,s:(_C.site?75:28),act:(_C.site?"enrichir et moderniser le site":"créer un site, même simple")}
       ];
       _L.forEach(function(x){x.gain=Math.round(x.w*(100-x.s)/100);});
       var _top=_L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
       if(_top.length){
         progHTML='<div class="sec" style="background:#faf7ff;"><div style="font-size:12.5px;font-weight:600;color:#6d28d9;">🎯 Où travailler pour monter votre note</div>'
           +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#7c3aed;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
-          +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier ('+esc(d.archetype||'')+') et votre marge de progression.</div></div>';
+          +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div></div>';
       }
     }
     auraHTML = `

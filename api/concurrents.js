@@ -89,6 +89,35 @@ function weightsFor(arch) {
 }
 function colorFor(note) { return note >= 80 ? "Doré" : note >= 68 ? "Vert" : note >= 55 ? "Bleu" : note >= 45 ? "Orange" : "Gris"; }
 
+// ===== AURA 100% OBJECTIVE (reproductible) : note Google + volume d'avis + présence site, pondérés MÉTIER =====
+function profil(kw) { // {q: qualité avis, v: volume avis, s: site}
+  const a = (kw || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/restaur|pizz|\bresto|brasser|\bbar\b|cafe|creperie|kebab|sushi|traiteur|boulanger|patisser|glacier/.test(a)) return { q: 30, v: 45, s: 25 };
+  if (/coiff|estheti|beaute|barbier|ongl|\bspa\b|salon|tatou|massage/.test(a)) return { q: 30, v: 45, s: 25 };
+  if (/pare.?brise|garage|carrosser|\bpneu|mecani|\bauto\b|automobile|vidange|controle.?techn/.test(a)) return { q: 35, v: 40, s: 25 };
+  if (/plomb|electr|platr|macon|couvr|menuis|charpent|peintr|carrel|serrur|chauffag|artisan|\bbtp\b|renov|toitur|terrass|paysag|jardin/.test(a)) return { q: 45, v: 20, s: 35 };
+  if (/avocat|notaire|medecin|dentist|comptable|\bexpert|architec|huissier|\bkine|osteo|geometr|assureur/.test(a)) return { q: 30, v: 20, s: 50 };
+  if (/bureau.?etud|ingenier|conseil|agence.?web|informatique|industr|sous.?trait|\bb2b|logiciel|scan|metrolog/.test(a)) return { q: 25, v: 15, s: 60 };
+  if (/immobil|courtier|\bbanque|agence.?immo/.test(a)) return { q: 30, v: 30, s: 40 };
+  return { q: 30, v: 35, s: 35 };
+}
+function qScore(r) { if (r == null) return 45; if (r >= 4.8) return 90; if (r >= 4.5) return 84; if (r >= 4.2) return 78; if (r >= 4.0) return 72; if (r >= 3.5) return 62; if (r >= 3.0) return 52; return 40; }
+function vScore(c) { c = c || 0; if (c >= 500) return 92; if (c >= 150) return 85; if (c >= 50) return 76; if (c >= 15) return 66; if (c >= 5) return 55; if (c >= 1) return 45; return 32; }
+function sScore(has) { return has ? 75 : 28; }
+function objectiveAura(rating, count, hasSite, w) {
+  const note = Math.max(5, Math.min(97, Math.round((w.q * qScore(rating) + w.v * vScore(count) + w.s * sScore(hasSite)) / 100)));
+  return { note, couleur: colorFor(note), eclat: (count || 0) >= 50 ? "fort" : (count || 0) >= 12 ? "moyen" : "faible" };
+}
+async function getWebsite(placeId, key) {
+  if (!placeId || !key) return null;
+  try {
+    const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=website&language=fr&key=${key}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d.result && d.result.website ? d.result.website : null;
+  } catch (_) { return null; }
+}
+
 // Poids des 4 dimensions selon le MÉTIER (stable -> une entreprise a la même grille partout). Identique dans sentinelle.js.
 function metierProfile(s) {
   const a = (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
@@ -188,28 +217,25 @@ export default async function handler(req, res) {
           const dist = Math.round(rawDist * 10) / 10;
           // le prospect = sa propre fiche Google (à ~0 km de lui), OU nom qui correspond
           const isProspect = rawDist <= 0.15 || norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
-          rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
+          rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
         // le prospect lui-même sert à récupérer ses avis, puis on l'exclut des concurrents
         const self = rows.find(x => x.isProspect);
         if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura };
         concurrents = rows.filter(x => !x.isProspect).slice(0, 8);
-        // RIGUEUR : tout le monde (PROSPECT INCLUS) noté pareil = avis Google + poids MÉTIER (stable) + dimensions jugées identiquement.
+        // OBJECTIF & REPRODUCTIBLE : aura = note + volume Google + présence site (Place Details), pondérés MÉTIER. Aucun jugement IA -> même entreprise = même note partout.
         try {
-          const akey = process.env.ANTHROPIC_API_KEY;
-          const w = metierProfile(kw);
-          const nv = (v, d) => (typeof v === "number" && !isNaN(v)) ? Math.max(0, Math.min(100, v)) : d;
+          const w = profil(kw);
           const scoreList = (self ? [self] : []).concat(concurrents);
-          const ds = await scoreDimensions(scoreList, akey);
-          const mkAura = (c, d) => {
-            const avisDim = (c.avis && c.avis.note != null) ? auraFromRating(c.avis.note, c.avis.nombre).note : 45;
-            const note = Math.max(5, Math.min(95, Math.round((w.avis * avisDim + w.reseaux * nv(d.reseaux, 50) + w.site * nv(d.site, 50) + w.traction * nv(d.traction, 50)) / 100)));
-            return { note, couleur: colorFor(note), eclat: (c.aura && c.aura.eclat) || "moyen" };
-          };
-          let k = 0;
-          if (self) { const d = ds[k++] || {}; if (!(d.reseaux == null && d.site == null && d.traction == null)) self.aura = mkAura(self, d); prospectData = { avis: self.avis, presence: self.presence, aura: self.aura }; }
-          concurrents = concurrents.map(function (c) { const d = ds[k++] || {}; if (d.reseaux == null && d.site == null && d.traction == null) return c; return { ...c, aura: mkAura(c, d) }; });
+          const sites = await Promise.all(scoreList.map(function (c) { return getWebsite(c.placeId, gkey); }));
+          scoreList.forEach(function (c, i) {
+            const rating = (c.avis && c.avis.note != null) ? c.avis.note : null;
+            const count = (c.avis && c.avis.nombre != null) ? c.avis.nombre : null;
+            c.site = c.site || sites[i] || null;
+            c.aura = objectiveAura(rating, count, !!sites[i], w);
+          });
+          if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura, site: self.site };
         } catch (_) {}
       }
     }
