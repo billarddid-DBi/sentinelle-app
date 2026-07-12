@@ -22,6 +22,7 @@ Ne vends jamais le mauvais levier (pas "plus de clients" à un artisan débordé
 LEVIERS TYPES PAR SECTEUR (pour des quick wins & agents COHÉRENTS à chaque fois — puise dedans selon le secteur) : Restaurant = no-shows/réservations, food cost/gaspillage, plannings, avis/réseaux, précommande/groupes · Boulangerie = invendus/prévision, plannings, fidélité · Artisan BTP = devis/factures, appels captés en chantier, aides RGE, avis, mémoire du savoir-faire · Commerce = fidélité/panier moyen, stock, avis · Bureau d'études/industrie = chiffrage/devis, doc technique, veille appels d'offres, capitalisation du savoir · Profession libérale = recherche, rédaction assistée (validation humaine), secrétariat/RDV, dossiers, conformité.
 ENJEU ANCRÉ (champ resume.enjeu) : réutilise EXACTEMENT un de ces libellés STABLES selon la posture, sans le reformuler — Temps & sérénité → "Gagner du temps" · Compétitivité & productivité → "Capacité & compétitivité" · Acquisition & visibilité → "Trouver des clients" · Efficacité & fidélisation → "Efficacité & marge" · Structuration & pilotage → "Structurer la croissance" · Consolidation & trésorerie → "Consolider & sécuriser" · Temps facturable & crédibilité → "Temps facturable".
 INDEX AURA (signature de fin, intention = FIERTÉ + envie) : attribue une COULEUR D'AURA selon l'archétype et les signaux — Doré=rayonnement/excellence · Rouge=conquête/dynamique · Orange=chaleur/relation client · Jaune=élan/jeune · Vert=équilibre/sain · Turquoise=lien/soin · Bleu=fiabilité/installé · Violet=expertise (profession libérale) · Rose=bienveillance/proximité · Argent=agilité · Marron=ancrage sous tension/débordé · Gris ou Noir=transition/période difficile (avec délicatesse). L'ÉCLAT (faible/moyen/fort) = force et clarté des signaux. indice.estime = niveau actuel sur 100, calculé avec cette GRILLE D'ANCRAGE (applique-la mécaniquement, ne devine JAMAIS au feeling — c'est ce qui garantit qu'une même entreprise donne la même note à chaque analyse) : PARS DE 50, puis ajuste selon les FAITS publics — Avis clients : ≥4,5/5 avec volume → +20 · 4 à 4,5 → +12 · 3 à 4 → +4 · <3 → −10 · peu ou pas d'avis → 0. Site web : moderne et à jour → +10 · correct mais daté → +3 · absent/obsolète → −8. Présence & fraîcheur (réseaux, publications) : active → +8 · discrète → 0 · fantôme → −5. Ancienneté & structure : établie et solide → +7 · jeune → 0 · fragile → −5. Signaux négatifs publics (litiges, avis en baisse) → −10 à −20. BORNE le résultat entre 5 et 95 et garde-le cohérent avec la moyenne du radar. indice.potentiel = estimé + 15 à 30 selon la marge (strictement > estimé). Le champ "fierte" est BIENVEILLANT et VALORISANT : fais ressortir la fierté (ce qui est déjà bâti + le potentiel), MÊME si les scores sont bas ; ne casse JAMAIS le dirigeant.
+DIMENSIONS DE PERFORMANCE VISIBLE (impératif, pour l'Index Aura) : note chacune de 0 à 100 d'après ce que tu OBSERVES — "avis" (réputation en ligne : note + volume ; 0 si aucun) · "reseaux" (présence et vitalité sur les réseaux sociaux : activité, fraîcheur, engagement) · "site" (existence + qualité + richesse + modernité + adéquation au métier ; 0 si pas de site) · "traction" (ancienneté, activité réelle « tourne bien / toujours du travail », références, bouche-à-oreille — un signe FORT de santé même sans présence digitale). Honnêteté cruciale : peu d'avis n'est PAS forcément négatif (dépend du métier) ; un beau site ne garantit PAS la santé. Ces 4 notes alimentent le calcul pondéré de l'aura.
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
@@ -51,6 +52,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "avantApres": { "aujourdhui": "journée type actuelle", "avecIA": "avec l'IA" },
  "cta": "phrase d'appel vers BOUSSOLE",
  "indice": { "estime": <entier 0-100>, "potentiel": <entier 0-100, strictement supérieur à estime> },
+ "dimensions": { "avis": <0-100>, "reseaux": <0-100>, "site": <0-100>, "traction": <0-100> },
  "aura": { "sens": "2-3 mots (ex: la fiabilité)", "couleur": "un seul mot parmi: Doré, Rouge, Orange, Jaune, Vert, Turquoise, Bleu, Violet, Rose, Argent, Marron, Gris, Noir, Blanc", "definition": "1 phrase : l'énergie que dégage l'entreprise", "eclat": "faible ou moyen ou fort" },
  "fierte": "2 phrases VALORISANTES qui font ressortir la fierté (ce qui est déjà bâti + le potentiel), même si les scores sont bas — jamais casser",
  "sources": "sources & niveaux de confiance"
@@ -69,6 +71,19 @@ function auraFromRating(rating, count) {
     else note = 38;
   }
   return note;
+}
+
+// Poids des 4 dimensions (avis, reseaux, site, traction) selon l'archétype -> somme = 100
+function weightsFor(arch) {
+  const a = (arch || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/artisan|platr|couvr|macon|btp|plomb|electr|menuis|toitur|peintr/.test(a)) return { avis: 25, reseaux: 10, site: 5, traction: 60 };
+  if (/liberal|expert|reglement|avocat|medecin|notaire|comptable|architec|credibilit/.test(a)) return { avis: 25, reseaux: 10, site: 35, traction: 30 };
+  if (/b2b|technique|sous.?trait|ingenier|industr|\betude|bureau/.test(a)) return { avis: 15, reseaux: 20, site: 45, traction: 20 };
+  if (/fragil|consolid|tresorer|difficult/.test(a)) return { avis: 30, reseaux: 15, site: 15, traction: 40 };
+  if (/croissance|structur|pilotage|multi/.test(a)) return { avis: 20, reseaux: 25, site: 30, traction: 25 };
+  if (/etabli|performant|efficac|fidelis/.test(a)) return { avis: 40, reseaux: 30, site: 10, traction: 20 };
+  if (/jeune|quete|acquisition|visibilit/.test(a)) return { avis: 30, reseaux: 30, site: 25, traction: 15 };
+  return { avis: 30, reseaux: 20, site: 25, traction: 25 };
 }
 
 export default async function handler(req, res) {
@@ -136,24 +151,26 @@ export default async function handler(req, res) {
     try { fiche = JSON.parse(out.slice(start, end + 1)); }
     catch (e) { res.status(500).json({ error: "JSON invalide", raw: out.slice(0, 500) }); return; }
 
-    // COHÉRENCE de l'Index Aura : la NOTE vient de la même formule déterministe (avis Google)
-    // que pour les concurrents -> une entreprise a la même note qu'elle soit prospect ou concurrent.
+    // Index Aura = SOMME PONDÉRÉE des 4 dimensions (poids selon l'archétype).
+    // Objectif : la dimension "avis" = note Google si dispo. Subjectif : reseaux/site/traction jugés par l'IA.
     try {
+      const dims = fiche.dimensions || {};
+      const num = (v, d) => (typeof v === "number" && !isNaN(v)) ? Math.max(0, Math.min(100, v)) : d;
+      let avisDim = num(dims.avis, 45);
       const gkey = process.env.GOOGLE_PLACES_KEY;
       if (gkey && fiche && fiche.nom) {
-        const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
-        const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
-        if (gr.ok) {
-          const gd = await gr.json();
-          const p = (gd.results || [])[0];
-          if (p && p.rating != null) {
-            const note = auraFromRating(p.rating, p.user_ratings_total);
-            fiche.indice = fiche.indice || {};
-            fiche.indice.estime = note;
-            fiche.indice.potentiel = Math.min(100, note + 20);
-          }
-        }
+        try {
+          const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
+          const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
+          if (gr.ok) { const gd = await gr.json(); const p = (gd.results || [])[0]; if (p && p.rating != null) avisDim = auraFromRating(p.rating, p.user_ratings_total); }
+        } catch (_) {}
       }
+      const w = weightsFor(fiche.archetype);
+      const aura = Math.round((w.avis * avisDim + w.reseaux * num(dims.reseaux, 50) + w.site * num(dims.site, 50) + w.traction * num(dims.traction, 50)) / 100);
+      fiche.indice = fiche.indice || {};
+      fiche.indice.estime = Math.max(5, Math.min(95, aura));
+      fiche.indice.potentiel = Math.min(100, fiche.indice.estime + 20);
+      fiche._auraCalc = { avis: avisDim, reseaux: num(dims.reseaux, 50), site: num(dims.site, 50), traction: num(dims.traction, 50), poids: w };
     } catch (_) {}
 
     res.status(200).json(fiche);
