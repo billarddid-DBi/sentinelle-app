@@ -197,37 +197,47 @@ export default async function handler(req, res) {
     const kw = (keyword || "").trim();
     if (!kw) { res.status(400).json({ error: "Entrez un mot-clé métier (ex : restaurant italien, pare-brise, plombier)." }); return; }
 
-    const prospect = await locateProspect(nom, ville);
-    if (!prospect || isNaN(prospect.lat)) { res.status(404).json({ error: "Impossible de localiser le prospect (vérifiez la ville)." }); return; }
-
-    let concurrents = [], prospectData = {}, source = "";
     const gkey = process.env.GOOGLE_PLACES_KEY;
+    let concurrents = [], prospectData = {}, source = "";
+    let center = null, prospectPlace = null, prospectNom = nom, prospectCommune = ville;
 
+    // 1) Le PROSPECT via Google (sa propre fiche : note, avis, site, position) — même source que les concurrents -> cohérence
     if (gkey) {
-      // --- GOOGLE PLACES ---
-      const g = await googleTextSearch(`${kw} près de ${prospect.commune || ville}`, prospect.lat, prospect.long, rad, gkey);
+      const pg = await googleTextSearch(`${nom} ${ville}`, 46.6, 2.4, 500, gkey);
+      const pp = (pg.status === "OK" && pg.results.length) ? pg.results[0] : null;
+      if (pp && pp.geometry && pp.geometry.location) {
+        prospectPlace = pp;
+        prospectNom = pp.name;
+        prospectCommune = townFrom(pp.formatted_address) || ville;
+        center = { lat: pp.geometry.location.lat, long: pp.geometry.location.lng };
+      }
+    }
+    // Localisation de secours (registre/géocodage) si Google ne trouve pas le prospect
+    if (!center) {
+      const loc = await locateProspect(nom, ville);
+      if (!loc || isNaN(loc.lat)) { res.status(404).json({ error: "Impossible de localiser le prospect (vérifiez la ville)." }); return; }
+      center = { lat: loc.lat, long: loc.long }; prospectNom = loc.nom || nom; prospectCommune = loc.commune || ville;
+    }
+
+    // 2) Les CONCURRENTS autour du prospect (exclusion par place_id exact)
+    if (gkey) {
+      const g = await googleTextSearch(`${kw} près de ${prospectCommune}`, center.lat, center.long, rad, gkey);
       if (g.status === "OK") {
         source = "google";
-        const pnorm = norm(prospect.nom);
         const rows = [];
         for (const p of g.results) {
-          const loc = (p.geometry || {}).location || {};
-          if (loc.lat == null) continue;
-          const rawDist = haversine(prospect.lat, prospect.long, loc.lat, loc.lng);
-          const dist = Math.round(rawDist * 10) / 10;
-          // le prospect = sa propre fiche Google (à ~0 km de lui), OU nom qui correspond
-          const isProspect = rawDist <= 0.15 || norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
-          rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
+          const loc2 = (p.geometry || {}).location || {};
+          if (loc2.lat == null) continue;
+          if (prospectPlace && p.place_id === prospectPlace.place_id) continue;
+          const dist = Math.round(haversine(center.lat, center.long, loc2.lat, loc2.lng) * 10) / 10;
+          rows.push({ nom: p.name, commune: townFrom(p.formatted_address), lat: loc2.lat, long: loc2.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: null, site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
-        // le prospect lui-même sert à récupérer ses avis, puis on l'exclut des concurrents
-        const self = rows.find(x => x.isProspect);
-        if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura };
-        concurrents = rows.filter(x => !x.isProspect).slice(0, 8);
-        // OBJECTIF & REPRODUCTIBLE : aura = note + volume Google + présence site (Place Details), pondérés MÉTIER. Aucun jugement IA -> même entreprise = même note partout.
+        concurrents = rows.slice(0, 8);
+        // Aura OBJECTIVE (prospect INCLUS) = note + volume Google + présence site, pondérés MÉTIER
         try {
           const w = profil(kw);
-          const scoreList = (self ? [self] : []).concat(concurrents);
+          const scoreList = (prospectPlace ? [{ placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null }] : []).concat(concurrents);
           const sites = await Promise.all(scoreList.map(function (c) { return getWebsite(c.placeId, gkey); }));
           scoreList.forEach(function (c, i) {
             const rating = (c.avis && c.avis.note != null) ? c.avis.note : null;
@@ -235,21 +245,20 @@ export default async function handler(req, res) {
             c.site = c.site || sites[i] || null;
             c.aura = objectiveAura(rating, count, !!sites[i], w);
           });
-          if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura, site: self.site };
+          if (prospectPlace) { const s0 = scoreList[0]; prospectData = { avis: s0.avis, presence: presenceFromCount(prospectPlace.user_ratings_total), aura: s0.aura, site: s0.site }; }
         } catch (_) {}
       }
     }
 
     if (source !== "google") {
-      // --- REPLI IA (gratuit) ---
       const key = process.env.ANTHROPIC_API_KEY;
       if (!key) { res.status(500).json({ error: "Aucune source configurée (ni GOOGLE_PLACES_KEY ni ANTHROPIC_API_KEY)." }); return; }
-      const f = await claudeFind(kw, prospect, ville, rad, key);
+      const f = await claudeFind(kw, { nom: prospectNom, commune: prospectCommune, lat: center.lat, long: center.long }, ville, rad, key);
       prospectData = f.prospectData; concurrents = f.concurrents; source = "web";
     }
 
     const prospectRow = {
-      nom: prospect.nom, commune: prospect.commune, lat: prospect.lat, long: prospect.long,
+      nom: prospectNom, commune: prospectCommune, lat: center.lat, long: center.long,
       avis: prospectData.avis || null, presence: prospectData.presence || null,
       aura: prospectData.aura || ((prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : null),
       site: prospectData.site || null
