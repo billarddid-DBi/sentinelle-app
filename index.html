@@ -441,6 +441,23 @@ function render(d,skipSave){
     const au = AURAS[d.aura.couleur] || AURAS['Bleu'];
     const est = (d.indice.estime!=null)?d.indice.estime:50;
     const pot = (d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+25);
+    let progHTML='';
+    if(d._auraCalc && d._auraCalc.poids){
+      var _W=d._auraCalc.poids, _C=d._auraCalc;
+      var _L=[
+        {k:"Avis clients",w:_W.avis,s:_C.avis,act:"récolter plus d'avis (relance après prestation)"},
+        {k:"Réseaux sociaux",w:_W.reseaux,s:_C.reseaux,act:"publier régulièrement (actus, réalisations, coulisses)"},
+        {k:"Site web",w:_W.site,s:_C.site,act:"moderniser et enrichir le site"},
+        {k:"Traction & références",w:_W.traction,s:_C.traction,act:"valoriser ancienneté, références, avant/après"}
+      ];
+      _L.forEach(function(x){x.gain=Math.round(x.w*(100-x.s)/100);});
+      var _top=_L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
+      if(_top.length){
+        progHTML='<div class="sec" style="background:#faf7ff;"><div style="font-size:12.5px;font-weight:600;color:#6d28d9;">🎯 Où travailler pour monter votre note</div>'
+          +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#7c3aed;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
+          +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier ('+esc(d.archetype||'')+') et votre marge de progression.</div></div>';
+      }
+    }
     auraHTML = `
     <div class="sec" style="background:#0f1225;color:#fff;">
       <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ VOTRE INDEX AURA <span style="font-weight:400;opacity:.7;">(estimé)</span></div>
@@ -474,7 +491,7 @@ function render(d,skipSave){
     <div class="sec" style="background:#f0fdf4;">
       <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre aura raconte déjà</div>
       <div style="font-size:12px;color:#14532d;line-height:1.55;margin-top:3px;">${esc(d.fierte)}</div>
-    </div>`;
+    </div>${progHTML}`;
   }
 
   $('result').innerHTML = `
