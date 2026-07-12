@@ -169,8 +169,10 @@ export default async function handler(req, res) {
         for (const p of g.results) {
           const loc = (p.geometry || {}).location || {};
           if (loc.lat == null) continue;
-          const dist = Math.round(haversine(prospect.lat, prospect.long, loc.lat, loc.lng) * 10) / 10;
-          const isProspect = norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
+          const rawDist = haversine(prospect.lat, prospect.long, loc.lat, loc.lng);
+          const dist = Math.round(rawDist * 10) / 10;
+          // le prospect = sa propre fiche Google (à ~0 km de lui), OU nom qui correspond
+          const isProspect = rawDist <= 0.15 || norm(p.name).indexOf(pnorm) !== -1 || (pnorm && pnorm.indexOf(norm(p.name)) !== -1);
           rows.push({ isProspect, nom: p.name, commune: townFrom(p.formatted_address), lat: loc.lat, long: loc.lng, distance: dist, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: auraFromRating(p.rating, p.user_ratings_total), site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
