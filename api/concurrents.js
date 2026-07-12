@@ -219,7 +219,7 @@ export default async function handler(req, res) {
       center = { lat: loc.lat, long: loc.long }; prospectNom = loc.nom || nom; prospectCommune = loc.commune || ville;
     }
 
-    // 2) Les CONCURRENTS autour du prospect (exclusion par place_id exact)
+    // 2) Les CONCURRENTS ; le PROSPECT = le résultat le PLUS PROCHE du centre (même liste -> même fiche que s'il était concurrent)
     if (gkey) {
       const g = await googleTextSearch(`${kw} près de ${prospectCommune}`, center.lat, center.long, rad, gkey);
       if (g.status === "OK") {
@@ -228,16 +228,17 @@ export default async function handler(req, res) {
         for (const p of g.results) {
           const loc2 = (p.geometry || {}).location || {};
           if (loc2.lat == null) continue;
-          if (prospectPlace && p.place_id === prospectPlace.place_id) continue;
           const dist = Math.round(haversine(center.lat, center.long, loc2.lat, loc2.lng) * 10) / 10;
           rows.push({ nom: p.name, commune: townFrom(p.formatted_address), lat: loc2.lat, long: loc2.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: null, site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
+        let selfRow = null;
+        if (rows.length && rows[0].distance <= 0.25) selfRow = rows.shift();
+        else if (prospectPlace) selfRow = { nom: prospectNom, placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null };
         concurrents = rows.slice(0, 8);
-        // Aura OBJECTIVE (prospect INCLUS) = note + volume Google + présence site, pondérés MÉTIER
         try {
           const w = profil(kw);
-          const scoreList = (prospectPlace ? [{ placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null }] : []).concat(concurrents);
+          const scoreList = (selfRow ? [selfRow] : []).concat(concurrents);
           const sites = await Promise.all(scoreList.map(function (c) { return getWebsite(c.placeId, gkey); }));
           scoreList.forEach(function (c, i) {
             const rating = (c.avis && c.avis.note != null) ? c.avis.note : null;
@@ -245,7 +246,7 @@ export default async function handler(req, res) {
             c.site = c.site || sites[i] || null;
             c.aura = objectiveAura(rating, count, !!sites[i], w);
           });
-          if (prospectPlace) { const s0 = scoreList[0]; prospectData = { avis: s0.avis, presence: presenceFromCount(prospectPlace.user_ratings_total), aura: s0.aura, site: s0.site }; }
+          if (selfRow) prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
         } catch (_) {}
       }
     }
