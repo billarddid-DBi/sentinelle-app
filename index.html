@@ -71,7 +71,7 @@
     <label>Nom de l'entreprise (+ ville)</label>
     <input type="text" id="bNom" placeholder="ex : SOLSI-SCAN, Hagondange" autocomplete="off" style="margin-bottom:12px;">
 
-    <label>Couleur d'aura (nature de l'entreprise)</label>
+    <label>Couleur IVE (nature de l'entreprise)</label>
     <select id="bAuraSel" style="width:100%;font-size:16px;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font-family:inherit;background:#fff;margin-bottom:14px;">
       <option value="Violet">🟣 Violet — l'expertise</option>
       <option value="Doré">🟡 Doré — le rayonnement</option>
@@ -89,11 +89,11 @@
       <option value="Blanc">⚪ Blanc — le renouveau</option>
     </select>
 
-    <label>Aura extérieure — note SENTINELLE (facultatif, /100)</label>
+    <label>IVE extérieur — note SENTINELLE (facultatif, /100)</label>
     <input type="text" inputmode="numeric" id="bExt" placeholder="ex : 55 — laissez vide s'il n'y a pas eu de SENTINELLE" autocomplete="off" style="margin-bottom:12px;">
     <label>Potentiel visé (facultatif, /100)</label>
     <input type="text" inputmode="numeric" id="bPot" placeholder="par défaut : note obtenue + 25" autocomplete="off" style="margin-bottom:6px;">
-    <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>Aura extérieure</b> pour révéler l'<b>Indice de Vérité</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
+    <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>IVE extérieur</b> pour révéler l'<b>Indice de Vérité</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
 
     <div style="border:2px solid #1f3a5f;border-radius:12px;padding:14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -302,7 +302,7 @@ function bFinish(){
    +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ AURA INTÉRIEURE</div>'
    +'<div style="display:flex;align-items:center;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap;">'
    +'<div style="text-align:center;"><div style="width:92px;height:92px;border-radius:50%;background:radial-gradient(circle at 50% 42%,'+au.h+' 0%,'+au.h+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+au.h+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);"><div style="font-size:22px;font-weight:700;color:#fff;">'+r.idx+'<span style="font-size:9px;opacity:.8;">/100</span></div><div style="font-size:12px;color:#fff;">'+starsHTML(r.idx)+'</div></div><div style="font-size:10px;color:#c4b5fd;margin-top:4px;">éclat <b>'+ec+'</b></div></div>'
-   +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#ddd6fe;">Aura '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
+   +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#ddd6fe;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
    +'</div></div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
@@ -323,7 +323,7 @@ function bFinish(){
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:9px;">'+vmsg+'</div></div>';
   } else {
-    trajSec+='<div class="sec" style="background:#faf7ff;"><div style="font-size:11.5px;color:#6d28d9;line-height:1.5;"><b>🎯 Indice de Vérité :</b> renseignez l\'Aura extérieure (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
+    trajSec+='<div class="sec" style="background:#faf7ff;"><div style="font-size:11.5px;color:#6d28d9;line-height:1.5;"><b>🎯 Indice de Vérité :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
   }
   var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
   var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
@@ -461,7 +461,7 @@ function render(d,skipSave){
     }
     auraHTML = `
     <div class="sec" style="background:#0f1225;color:#fff;">
-      <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ VOTRE INDEX AURA <span style="font-weight:400;opacity:.7;">(estimé)</span></div>
+      <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ VOTRE IVE <span style="font-weight:400;opacity:.7;">· indice de valeur d'entreprise (estimé)</span></div>
       <div style="display:flex;align-items:center;justify-content:space-around;gap:6px;margin-top:10px;">
         <div style="text-align:center;flex:1;">
           <div style="font-size:9px;letter-spacing:1px;color:#c7d2fe;">AUJOURD'HUI</div>
@@ -469,7 +469,7 @@ function render(d,skipSave){
             <div style="font-size:20px;font-weight:700;color:#fff;">${est}<span style="font-size:10px;font-weight:400;opacity:.8;">/100</span></div>
             <div style="font-size:12px;color:#fff;">${starsHTML(est)}</div>
           </div>
-          <div style="font-size:10px;color:#eaf1fb;">Aura ${esc(d.aura.couleur)}</div>
+          <div style="font-size:10px;color:#eaf1fb;">IVE ${esc(d.aura.couleur)}</div>
         </div>
         <div style="color:#8891b5;text-align:center;"><div style="font-size:18px;">→</div><div style="font-size:8px;line-height:1.2;">piste<br>déjà là</div></div>
         <div style="text-align:center;flex:1;">
@@ -483,14 +483,14 @@ function render(d,skipSave){
       </div>
     </div>
     <div class="sec" style="background:${au.b};">
-      <div style="font-size:12.5px;font-weight:600;color:${au.t};">Aura ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
+      <div style="font-size:12.5px;font-weight:600;color:${au.t};">IVE ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
     </div>
     <div class="sec" style="background:#faf7ff;">
       <div style="font-size:11.5px;color:#6d28d9;line-height:1.55;"><b>🎯 Indice de Vérité</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
     </div>
     <div class="sec" style="background:#f0fdf4;">
-      <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre aura raconte déjà</div>
+      <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre IVE raconte déjà</div>
       <div style="font-size:12px;color:#14532d;line-height:1.55;margin-top:3px;">${esc(d.fierte)}</div>
     </div>${progHTML}`;
   }
@@ -659,7 +659,7 @@ function renderConcu(d){
   if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
   var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' 🔗</a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
   d.concurrents.forEach(function(c){
-    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' 🔗</a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura,true)+'</td></tr>';
+    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' 🔗</a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
   });
   var _n=d.concurrents.map(function(c){return (c.aura&&c.aura.note!=null)?c.aura.note:null;}).filter(function(x){return x!=null;});
   var _p=(d.prospect.aura&&d.prospect.aura.note!=null)?d.prospect.aura.note:null;
@@ -681,8 +681,8 @@ function renderConcu(d){
   }
   out.innerHTML=posHTML+'<div class="sec"><div id="cMap" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div>'
    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;">🟣 votre prospect · 🔴 concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' — 8 plus proches</div></div>'
-   +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1f3a5f;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">Index Aura</th></tr></thead><tbody>'+rows+'</tbody></table>'
-   +'<div class="hint"><b>Aura prospect</b> = son score SENTINELLE complet · <b>≈ aura concurrents</b> = estimé rapide basé sur les avis (repère comparatif). Comparatif à aujourd\'hui, sans prévisions. Recherche par mot-clé métier autour du prospect.</div></div>';
+   +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1f3a5f;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table>'
+   +'<div class="hint"><b>IVE</b> = indice objectif (note + nombre d\'avis Google + site web), calculé à l\'identique pour le prospect et les concurrents → directement comparable. À aujourd\'hui, sans prévisions. Recherche par mot-clé métier autour du prospect.</div></div>';
   try{
     if(window.cMapObj){ window.cMapObj.remove(); window.cMapObj=null; }
     var map=L.map('cMap').setView([d.prospect.lat,d.prospect.long],11); window.cMapObj=map;
