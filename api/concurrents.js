@@ -73,6 +73,38 @@ function auraFromRating(rating, count) {
 }
 function presenceFromCount(count) { return (count || 0) >= 50 ? "fort" : (count || 0) >= 12 ? "moyen" : "faible"; }
 
+// Poids des 4 dimensions selon l'archétype (identique à sentinelle.js -> cohérence)
+function weightsFor(arch) {
+  const a = (arch || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/artisan|platr|couvr|macon|btp|plomb|electr|menuis|toitur|peintr/.test(a)) return { avis: 25, reseaux: 10, site: 5, traction: 60 };
+  if (/liberal|expert|reglement|avocat|medecin|notaire|comptable|architec|credibilit/.test(a)) return { avis: 25, reseaux: 10, site: 35, traction: 30 };
+  if (/b2b|technique|sous.?trait|ingenier|industr|\betude|bureau/.test(a)) return { avis: 15, reseaux: 20, site: 45, traction: 20 };
+  if (/fragil|consolid|tresorer|difficult/.test(a)) return { avis: 30, reseaux: 15, site: 15, traction: 40 };
+  if (/croissance|structur|pilotage|multi/.test(a)) return { avis: 20, reseaux: 25, site: 30, traction: 25 };
+  if (/etabli|performant|efficac|fidelis/.test(a)) return { avis: 40, reseaux: 30, site: 10, traction: 20 };
+  if (/jeune|quete|acquisition|visibilit/.test(a)) return { avis: 30, reseaux: 30, site: 25, traction: 15 };
+  return { avis: 30, reseaux: 20, site: 25, traction: 25 };
+}
+function colorFor(note) { return note >= 80 ? "Doré" : note >= 68 ? "Vert" : note >= 55 ? "Bleu" : note >= 45 ? "Orange" : "Gris"; }
+
+// L'IA note reseaux/site/traction des concurrents (avis = déjà via Google)
+async function scoreDimensions(list, key) {
+  if (!key || !list.length) return list.map(() => ({}));
+  const lines = list.map((c, i) => `${i} = ${c.nom} (${c.commune || ""})`).join("\n");
+  const sys = `Pour CHAQUE entreprise (garde son index i), évalue via l'outil de recherche web 3 dimensions de 0 à 100 : "reseaux" (présence et vitalité sur les réseaux sociaux), "site" (existence + qualité + modernité + adéquation au métier ; 0 si pas de site), "traction" (ancienneté, activité réelle, références, bouche-à-oreille). N'évalue PAS les avis. Sois efficace (1 recherche max par entreprise) puis DONNE directement le JSON, sans rien laisser vide. SORTIE : UNIQUEMENT ce JSON, pas de balise de code : {"entreprises":[{"i":0,"reseaux":<0-100>,"site":<0-100>,"traction":<0-100>}]}`;
+  const areq = { model: MODEL, max_tokens: 2000, temperature: 0, system: sys, tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 10 }], messages: [{ role: "user", content: [{ type: "text", text: "Entreprises :\n" + lines }] }] };
+  const rr = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify(areq) });
+  const byi = {};
+  if (rr.ok) {
+    const dd = await rr.json(); let out = "";
+    for (const b of (dd.content || [])) if (b.type === "text") out += b.text;
+    out = out.replace(/```json/gi, "").replace(/```/g, "");
+    const s = out.indexOf("{"), e = out.lastIndexOf("}");
+    if (s !== -1 && e !== -1) { try { const p = JSON.parse(out.slice(s, e + 1)); for (const it of (p.entreprises || [])) byi[it.i] = it; } catch (_) {} }
+  }
+  return list.map((_, i) => byi[i] || {});
+}
+
 // ---- GOOGLE PLACES (Text Search, données Google Maps) ----
 async function googleTextSearch(query, lat, long, radius, key) {
   const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=${lat},${long}&radius=${Math.round(radius * 1000)}&language=fr&region=fr&key=${key}`;
@@ -146,6 +178,20 @@ export default async function handler(req, res) {
         const self = rows.find(x => x.isProspect);
         if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura };
         concurrents = rows.filter(x => !x.isProspect).slice(0, 8);
+        // PLEINE COHÉRENCE : aura pondérée comme le prospect (même archétype/poids ; avis=Google, reseaux/site/traction jugés par l'IA)
+        try {
+          const akey = process.env.ANTHROPIC_API_KEY;
+          const w = weightsFor(req.body.archetype || "");
+          const nv = (v, d) => (typeof v === "number" && !isNaN(v)) ? Math.max(0, Math.min(100, v)) : d;
+          const ds = await scoreDimensions(concurrents, akey);
+          concurrents = concurrents.map((c, i) => {
+            const d = ds[i] || {};
+            if (d.reseaux == null && d.site == null && d.traction == null) return c;
+            const avisDim = (c.avis && c.avis.note != null) ? auraFromRating(c.avis.note, c.avis.nombre).note : 45;
+            const note = Math.max(5, Math.min(95, Math.round((w.avis * avisDim + w.reseaux * nv(d.reseaux, 50) + w.site * nv(d.site, 50) + w.traction * nv(d.traction, 50)) / 100)));
+            return { ...c, aura: { note, couleur: colorFor(note), eclat: (c.aura && c.aura.eclat) || "moyen" } };
+          });
+        } catch (_) {}
       }
     }
 
