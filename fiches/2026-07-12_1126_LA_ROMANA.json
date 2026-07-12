@@ -1,0 +1,158 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria italienne, pizzas au feu de bois",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Fidéliser & optimiser",
+    "vigilanceNiveau": "🟡",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, qualité produits"
+  },
+  "identite": "SIREN 839 452 786, SAS créée 07/05/2018. Président Morano François (66 ans, depuis 09/2018). 6-9 salariés. Comptes confidentiels 2022 (CA < 700 k€).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      55,
+      40,
+      35,
+      50,
+      70,
+      65
+    ],
+    "potentiel": [
+      65,
+      70,
+      75,
+      65,
+      60,
+      70,
+      85,
+      80
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients, accueil chaleureux, tradition culinaire.",
+  "imagePercue": "Restaurant établi, réputé pour ses pizzas au feu de bois et pâtes fraîches. Image de convivialité et qualité, mais volatilité perçue post-reprise (2023-2024).",
+  "vigilance": [
+    {
+      "niveau": "🟡",
+      "texte": "Transition post-reprise : changement propriétaire/pizzaiolo en mars 2023 a généré des critiques sur qualité (pâte dure, attentes longues). Récupération progressive observée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Absence de site web officiel : présence réduite au Facebook et annuaires. Pas de canal de réservation/commande en ligne structuré."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients stables et positifs (4.4/5 Google, 7.9/10 agrégé). Reconnaissance locale comme institution."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Effectif stable (6-9 salariés) et structure légère. Comptes confidentiels = respect des seuils PME."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web simple avec menu, horaires, réservation en ligne (Reso/TheFork) → réduire appels, capturer demandes",
+    "Mettre en place un système de gestion des réservations & no-shows (SMS rappel) → optimiser taux de remplissage",
+    "Automatiser les avis Google/TripAdvisor (demande post-visite) → renforcer réputation post-reprise",
+    "Documenter & standardiser recettes pizzas (pâte, cuisson) → garantir qualité constante",
+    "Analyser food cost & gaspillage (invendus, retours) → améliorer marge"
+  ],
+  "avis": "Avis très positifs sur qualité pizzas (4.4/5 Google, 667 avis), accueil chaleureux, service rapide. Critiques minoritaires : prix élevé, attentes longues (surtout post-reprise 2023). Volatilité observée après changement propriétaire/pizzaiolo (mars 2023), mais tendance à la stabilisation (avis récents positifs).",
+  "presence": "Facebook actif (page avec publications, 92% recommandent). Présence sur Google, TripAdvisor, Sluurpy, Petit Futé, LaCarte.Menu. Pas de site officiel. Pas de LinkedIn, Instagram détecté.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels 2022 (CA < 700 k€, bilan < 350 k€). Effectif < 10 salariés. Pas de données publiques récentes (2023-2024).",
+    "concurrence": "Maizières-lès-Metz : 12 pizzerias référencées. La Romana classée #1 sur Restaurant Guru. Concurrence locale : Le Venezia, autres restaurants italiens/pizzerias.",
+    "visibilite": "Forte présence annuaires (Google, TripAdvisor, Sluurpy). Facebook actif mais peu de contenu marketing. Absence site web = perte de SEO & contrôle de l'image. Pas de stratégie digitale structurée.",
+    "dirigeant": "Morano François, 66 ans, président depuis 09/2018. Fondateur ou repreneur ? Non précisé publiquement. Entreprise familiale ? Non trouvé publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire appels téléphoniques, optimiser taux de remplissage, anticiper flux clients"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Collecteur d'avis automatisé (Google/TripAdvisor)",
+      "benefice": "Renforcer réputation post-reprise, générer contenu social proof, détecter insatisfactions"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur food cost & gaspillage",
+      "benefice": "Identifier invendus, optimiser portions, améliorer marge brute"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de recettes & processus",
+      "benefice": "Standardiser qualité pizzas/pâtes, former nouveaux pizzaiolos, réduire variabilité"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de menu & pricing",
+      "benefice": "Analyser rentabilité par plat, optimiser prix vs perception, tester nouvelles recettes"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Créateur de site web & réservation",
+      "benefice": "Capturer demandes en ligne, améliorer SEO, réduire dépendance annuaires"
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion réservations, avis, food cost"
+  },
+  "coutInaction": "Chaque semaine sans optimisation = appels perdus, no-shows non gérés, avis négatifs non adressés, marge érodée par gaspillage. Risque de régression post-reprise si qualité/service ne se stabilisent pas.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 45
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle réservations (appels), collecte avis sporadique, pas de suivi food cost, recettes non documentées, site absent.",
+    "avecIA": "Réservations en ligne + SMS rappel, avis collectés automatiquement, food cost analysé hebdo, recettes documentées, site web + SEO."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer votre transition post-reprise : fidéliser clients, optimiser opérations, documenter savoir-faire.",
+  "indice": {
+    "estime": 84,
+    "potentiel": 100
+  },
+  "dimensions": {
+    "avis": 82,
+    "reseaux": 55,
+    "site": 0,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "Chaleur & stabilité",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne par son authenticité italienne et son accueil chaleureux, malgré une transition récente. Elle incarne la convivialité locale et la qualité artisanale, avec un potentiel de croissance si elle consolide ses processus.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une solide réputation locale en 8 ans, reconnue comme institution pour ses pizzas au feu de bois et son accueil. Malgré une transition propriétaire délicate, elle démontre sa résilience avec des avis récents positifs et un effectif stable. Son potentiel est fort : en structurant réservations, avis et qualité, elle peut consolider sa position #1 et attirer une nouvelle clientèle digitale.",
+  "sources": "PagesJaunes (SIREN, RCS, comptes), Pappers (dirigeant, effectif), Google/Restaurant Guru (avis 4.4/5, 667 avis), TripAdvisor, Sluurpy (7.9/10), Facebook (92% recommandent), LaCarte.Menu (critiques post-reprise), RestoRanking (523 avis agrégés). Confiance : haute pour identité légale & avis ; moyenne pour financier (comptes confidentiels) ; bonne pour présence digitale.",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
