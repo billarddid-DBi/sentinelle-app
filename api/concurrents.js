@@ -89,6 +89,19 @@ function weightsFor(arch) {
 }
 function colorFor(note) { return note >= 80 ? "Doré" : note >= 68 ? "Vert" : note >= 55 ? "Bleu" : note >= 45 ? "Orange" : "Gris"; }
 
+// Poids des 4 dimensions selon le MÉTIER (stable -> une entreprise a la même grille partout). Identique dans sentinelle.js.
+function metierProfile(s) {
+  const a = (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/restaur|pizz|\bresto|brasser|\bbar\b|cafe|creperie|kebab|sushi|traiteur|boulanger|patisser|glacier/.test(a)) return { avis: 40, reseaux: 30, site: 10, traction: 20 };
+  if (/coiff|estheti|beaute|barbier|ongl|\bspa\b|salon|tatou|massage/.test(a)) return { avis: 40, reseaux: 35, site: 10, traction: 15 };
+  if (/pare.?brise|garage|carrosser|\bpneu|mecani|\bauto\b|automobile|vidange|controle.?techn/.test(a)) return { avis: 35, reseaux: 15, site: 15, traction: 35 };
+  if (/plomb|electr|platr|macon|couvr|menuis|charpent|peintr|carrel|serrur|chauffag|artisan|\bbtp\b|renov|toitur|terrass|paysag|jardin/.test(a)) return { avis: 25, reseaux: 10, site: 5, traction: 60 };
+  if (/avocat|notaire|medecin|dentist|comptable|\bexpert|architec|huissier|\bkine|osteo|geometr|assureur/.test(a)) return { avis: 25, reseaux: 10, site: 35, traction: 30 };
+  if (/bureau.?etud|ingenier|conseil|agence.?web|informatique|industr|sous.?trait|\bb2b|logiciel|scan|metrolog/.test(a)) return { avis: 15, reseaux: 20, site: 45, traction: 20 };
+  if (/immobil|courtier|\bbanque|agence.?immo/.test(a)) return { avis: 30, reseaux: 20, site: 25, traction: 25 };
+  return { avis: 30, reseaux: 20, site: 25, traction: 25 };
+}
+
 // L'IA note reseaux/site/traction des concurrents (avis = déjà via Google)
 async function scoreDimensions(list, key) {
   if (!key || !list.length) return list.map(() => ({}));
@@ -182,19 +195,21 @@ export default async function handler(req, res) {
         const self = rows.find(x => x.isProspect);
         if (self) prospectData = { avis: self.avis, presence: self.presence, aura: self.aura };
         concurrents = rows.filter(x => !x.isProspect).slice(0, 8);
-        // PLEINE COHÉRENCE : aura pondérée comme le prospect (même archétype/poids ; avis=Google, reseaux/site/traction jugés par l'IA)
+        // RIGUEUR : tout le monde (PROSPECT INCLUS) noté pareil = avis Google + poids MÉTIER (stable) + dimensions jugées identiquement.
         try {
           const akey = process.env.ANTHROPIC_API_KEY;
-          const w = weightsFor(req.body.archetype || "");
+          const w = metierProfile(kw);
           const nv = (v, d) => (typeof v === "number" && !isNaN(v)) ? Math.max(0, Math.min(100, v)) : d;
-          const ds = await scoreDimensions(concurrents, akey);
-          concurrents = concurrents.map((c, i) => {
-            const d = ds[i] || {};
-            if (d.reseaux == null && d.site == null && d.traction == null) return c;
+          const scoreList = (self ? [self] : []).concat(concurrents);
+          const ds = await scoreDimensions(scoreList, akey);
+          const mkAura = (c, d) => {
             const avisDim = (c.avis && c.avis.note != null) ? auraFromRating(c.avis.note, c.avis.nombre).note : 45;
             const note = Math.max(5, Math.min(95, Math.round((w.avis * avisDim + w.reseaux * nv(d.reseaux, 50) + w.site * nv(d.site, 50) + w.traction * nv(d.traction, 50)) / 100)));
-            return { ...c, aura: { note, couleur: colorFor(note), eclat: (c.aura && c.aura.eclat) || "moyen" } };
-          });
+            return { note, couleur: colorFor(note), eclat: (c.aura && c.aura.eclat) || "moyen" };
+          };
+          let k = 0;
+          if (self) { const d = ds[k++] || {}; if (!(d.reseaux == null && d.site == null && d.traction == null)) self.aura = mkAura(self, d); prospectData = { avis: self.avis, presence: self.presence, aura: self.aura }; }
+          concurrents = concurrents.map(function (c) { const d = ds[k++] || {}; if (d.reseaux == null && d.site == null && d.traction == null) return c; return { ...c, aura: mkAura(c, d) }; });
         } catch (_) {}
       }
     }
@@ -210,7 +225,7 @@ export default async function handler(req, res) {
     const prospectRow = {
       nom: prospect.nom, commune: prospect.commune, lat: prospect.lat, long: prospect.long,
       avis: prospectData.avis || null, presence: prospectData.presence || null,
-      aura: (prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : (prospectData.aura || null),
+      aura: prospectData.aura || ((prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : null),
       site: prospectData.site || null
     };
     res.status(200).json({ keyword: kw, radius: rad, source, prospect: prospectRow, concurrents });

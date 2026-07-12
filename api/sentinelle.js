@@ -86,6 +86,19 @@ function weightsFor(arch) {
   return { avis: 30, reseaux: 20, site: 25, traction: 25 };
 }
 
+// Poids des 4 dimensions selon le MÉTIER (stable, identique à concurrents.js)
+function metierProfile(s) {
+  const a = (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  if (/restaur|pizz|\bresto|brasser|\bbar\b|cafe|creperie|kebab|sushi|traiteur|boulanger|patisser|glacier/.test(a)) return { avis: 40, reseaux: 30, site: 10, traction: 20 };
+  if (/coiff|estheti|beaute|barbier|ongl|\bspa\b|salon|tatou|massage/.test(a)) return { avis: 40, reseaux: 35, site: 10, traction: 15 };
+  if (/pare.?brise|garage|carrosser|\bpneu|mecani|\bauto\b|automobile|vidange|controle.?techn/.test(a)) return { avis: 35, reseaux: 15, site: 15, traction: 35 };
+  if (/plomb|electr|platr|macon|couvr|menuis|charpent|peintr|carrel|serrur|chauffag|artisan|\bbtp\b|renov|toitur|terrass|paysag|jardin/.test(a)) return { avis: 25, reseaux: 10, site: 5, traction: 60 };
+  if (/avocat|notaire|medecin|dentist|comptable|\bexpert|architec|huissier|\bkine|osteo|geometr|assureur/.test(a)) return { avis: 25, reseaux: 10, site: 35, traction: 30 };
+  if (/bureau.?etud|ingenier|conseil|agence.?web|informatique|industr|sous.?trait|\bb2b|logiciel|scan|metrolog/.test(a)) return { avis: 15, reseaux: 20, site: 45, traction: 20 };
+  if (/immobil|courtier|\bbanque|agence.?immo/.test(a)) return { avis: 30, reseaux: 20, site: 25, traction: 25 };
+  return { avis: 30, reseaux: 20, site: 25, traction: 25 };
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
@@ -165,7 +178,7 @@ export default async function handler(req, res) {
           if (gr.ok) { const gd = await gr.json(); const p = (gd.results || [])[0]; if (p && p.rating != null) avisDim = auraFromRating(p.rating, p.user_ratings_total); }
         } catch (_) {}
       }
-      const w = weightsFor(fiche.archetype);
+      const w = metierProfile(fiche.activite || fiche.secteur || fiche.archetype);
       const aura = Math.round((w.avis * avisDim + w.reseaux * num(dims.reseaux, 50) + w.site * num(dims.site, 50) + w.traction * num(dims.traction, 50)) / 100);
       fiche.indice = fiche.indice || {};
       fiche.indice.estime = Math.max(5, Math.min(95, aura));
