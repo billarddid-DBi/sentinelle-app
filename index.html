@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="/icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -18,6 +19,7 @@
   body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#262626;background:#F6F3EF;margin:0;padding:16px;}
   .wrap{max-width:720px;margin:0 auto;}
   b{font-weight:600;}
+  .ti{vertical-align:-0.12em;line-height:1;}
   .hero{background:#1C1C1C;border-radius:20px;padding:24px 20px 15px;margin:0 0 14px;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.20);overflow:hidden;}
   .hero-logo{width:min(300px,74%);height:auto;display:block;margin:0 auto;}
   .hero-ekg{position:relative;height:18px;margin:11px 0 0;overflow:hidden;}
@@ -79,17 +81,17 @@
     <input type="text" id="q" placeholder="ex : La Romana, restaurant, Maizières-lès-Metz" autocomplete="off">
     <label style="margin-top:12px;">Infos terrain (facultatif)</label>
     <textarea id="field" placeholder="reprise, affaire familiale, réactivité, projet du dirigeant…"></textarea>
-    <button class="btn btn-primary" id="go">🔎 Lancer SENTINELLE</button>
-    <button class="btn btn-ghost" id="cam">📷 Scanner une carte de visite</button>
+    <button class="btn btn-primary" id="go"><i class="ti ti-search"></i> Lancer SENTINELLE</button>
+    <button class="btn btn-ghost" id="cam"><i class="ti ti-camera"></i> Scanner une carte de visite</button>
     <input type="file" id="file" accept="image/*" capture="environment" style="display:none;">
     <div class="hint">Premier avis public, sans entretien — sources publiques et estimations. Le vrai diagnostic (BOUSSOLE) se fait en entretien.</div>
-    <button class="btn btn-ghost" style="margin-top:8px;border-style:dashed;" onclick="showView('bChoice')">🧭 Diagnostic en entretien (BOUSSOLE) →</button>
-    <button class="btn btn-ghost" style="margin-top:8px;" onclick="openHistory()">📁 Mes recherches (cloud)</button>
+    <button class="btn btn-ghost" style="margin-top:8px;border-style:dashed;" onclick="showView('bChoice')"><i class="ti ti-compass"></i> Diagnostic en entretien (BOUSSOLE) →</button>
+    <button class="btn btn-ghost" style="margin-top:8px;" onclick="openHistory()"><i class="ti ti-folder"></i> Mes recherches (cloud)</button>
   </div>
 
   <!-- BOUSSOLE — écran de choix Express / Complet -->
   <div class="panel" id="bChoice" style="display:none;">
-    <div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;color:#1f3a5f;">🧭 BOUSSOLE</div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;color:#1C1C1C;"><i class="ti ti-compass"></i> BOUSSOLE</div>
     <div style="font-size:12px;color:#6b7280;margin:6px 0 12px;line-height:1.5;">Le diagnostic en entretien avec le dirigeant. Vous notez chaque critère de <b>0 à 5</b> ; l'indice se calcule en direct et se <b>justifie</b> critère par critère.</div>
 
     <label>Nom de l'entreprise (+ ville)</label>
@@ -103,9 +105,9 @@
       <option value="Orange">🟠 Orange — la chaleur</option>
       <option value="Jaune">🟡 Jaune — l'élan</option>
       <option value="Vert">🟢 Vert — l'équilibre</option>
-      <option value="Turquoise">🩵 Turquoise — le lien</option>
+      <option value="Turquoise"><i class="ti ti-heart"></i> Turquoise — le lien</option>
       <option value="Bleu">🔵 Bleu — la fiabilité</option>
-      <option value="Rose">🩷 Rose — la bienveillance</option>
+      <option value="Rose"><i class="ti ti-heart"></i> Rose — la bienveillance</option>
       <option value="Argent">⚪ Argent — l'agilité</option>
       <option value="Marron">🟤 Marron — l'ancrage sous tension</option>
       <option value="Gris">⚫ Gris — la transition</option>
@@ -119,10 +121,10 @@
     <input type="text" inputmode="numeric" id="bPot" placeholder="par défaut : note obtenue + 25" autocomplete="off" style="margin-bottom:6px;">
     <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>IVE extérieur</b> pour révéler l'<b>Indice de Vérité</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
 
-    <div style="border:2px solid #1f3a5f;border-radius:12px;padding:14px;margin-bottom:12px;">
+    <div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="font-size:16px;font-weight:700;color:#1f3a5f;">⚡ Express</div>
-        <div style="font-size:12px;font-weight:600;color:#1f3a5f;background:#eef2ff;padding:4px 10px;border-radius:10px;white-space:nowrap;">⏱ ≈ 1h30 – 2h · 1 session</div>
+        <div style="font-size:16px;font-weight:700;color:#1C1C1C;"><i class="ti ti-bolt"></i> Express</div>
+        <div style="font-size:12px;font-weight:600;color:#1C1C1C;background:#eef2ff;padding:4px 10px;border-radius:10px;white-space:nowrap;"><i class="ti ti-clock"></i> ≈ 1h30 – 2h · 1 session</div>
       </div>
       <div style="font-size:12px;color:#4b5563;margin-top:7px;line-height:1.55;"><b>40 critères</b> priorisés (5 par pilier).<br>→ Indice <b>indicatif</b> + 3 à 5 quick wins. Idéal 1er RDV.</div>
       <button class="btn btn-primary" style="margin-top:10px;" onclick="startGrille('express')">Démarrer l'Express</button>
@@ -130,8 +132,8 @@
 
     <div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-        <div style="font-size:16px;font-weight:700;color:#374151;">🔬 Complet</div>
-        <div style="font-size:12px;font-weight:600;color:#374151;background:#f3f4f6;padding:4px 10px;border-radius:10px;white-space:nowrap;">⏱ 2 à 4 sessions · plusieurs sem.</div>
+        <div style="font-size:16px;font-weight:700;color:#374151;"><i class="ti ti-microscope"></i> Complet</div>
+        <div style="font-size:12px;font-weight:600;color:#374151;background:#f3f4f6;padding:4px 10px;border-radius:10px;white-space:nowrap;"><i class="ti ti-clock"></i> 2 à 4 sessions · plusieurs sem.</div>
       </div>
       <div style="font-size:12px;color:#4b5563;margin-top:7px;line-height:1.55;"><b>200 critères</b> (5 sous-domaines × 5 critères × 8 piliers).<br>→ Indice <b>définitif</b> + plan d'actions 12 mois.</div>
       <button class="btn btn-ghost" style="margin-top:10px;" onclick="startGrille('complet')">Démarrer le Complet</button>
@@ -273,14 +275,14 @@ function startGrille(mode){
   showView('bGrille');
   var items=buildItems(mode); window.bItems=items;
   var label = (mode==='express') ? 'Express' : 'Complet';
-  var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#0f1225;color:#fff;text-align:center;padding:12px;">'
-    +'<div style="font-size:11px;color:#c7d2fe;">🧭 BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
+  var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
+    +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-compass"></i> BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="bIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100</span> <span id="bStars" style="font-size:16px;color:#f59e0b;"></span></div>'
     +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>';
   var curP=null,curS=null,open=false;
   items.forEach(function(it){
     if(it.pilier!==curP){ if(open)html+='</div>'; curP=it.pilier; curS=null;
-      html+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1f3a5f;">'+curP+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="bp_'+bkey(curP)+'">–</span>/100</div></div>'; open=true;
+      html+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1C1C1C;">'+curP+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="bp_'+bkey(curP)+'">–</span>/100</div></div>'; open=true;
     }
     if(mode==='complet' && it.sous!==curS){ curS=it.sous;
       html+='<div style="font-size:10.5px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;border-bottom:1px solid #f0e6dd;padding-bottom:3px;">'+esc(curS)+'</div>';
@@ -289,7 +291,7 @@ function startGrille(mode){
   });
   if(open)html+='</div>';
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
-    +'<button class="btn btn-primary" onclick="bFinish()">✅ Terminer & voir le diagnostic</button>'
+    +'<button class="btn btn-primary" onclick="bFinish()"><i class="ti ti-circle-check"></i> Terminer & voir le diagnostic</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">← Retour</button>';
   $('bGrille').innerHTML=html;
   bcalc();
@@ -312,7 +314,7 @@ function bcalc(){
   $('bIdx').textContent=r.idx; $('bStars').innerHTML=starsHTML(r.idx);
   BPILIERS.forEach(function(p){var e=$('bp_'+bkey(p)); if(e && r.pil[p]!=null) e.textContent=r.pil[p];});
   var fz=$('bFaibles');
-  if(r.faibles.length){var sh=r.faibles.slice(0,10),ex=r.faibles.length-sh.length;fz.style.display='block';fz.innerHTML='<b>⚠️ Points faibles (≤2/5) — '+r.faibles.length+' besoin(s) à creuser :</b><br>• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres…</i>':'');}
+  if(r.faibles.length){var sh=r.faibles.slice(0,10),ex=r.faibles.length-sh.length;fz.style.display='block';fz.innerHTML='<b><i class="ti ti-alert-triangle"></i> Points faibles (≤2/5) — '+r.faibles.length+' besoin(s) à creuser :</b><br>• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres…</i>':'');}
   else fz.style.display='none';
 }
 function bFinish(){
@@ -322,11 +324,11 @@ function bFinish(){
   var date=new Date().toLocaleDateString('fr-FR');
   var aura=($('bAuraSel')&&$('bAuraSel').value)||'Violet';
   var au=AURAS[aura]||AURAS['Violet']; var ad=AURADEF[aura]||AURADEF['Violet']; var ec=eclat(r.idx);
-  var auraBand='<div style="background:#0f1225;color:#fff;padding:14px 16px;">'
-   +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ AURA INTÉRIEURE</div>'
+  var auraBand='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;">'
+   +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE</div>'
    +'<div style="display:flex;align-items:center;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap;">'
    +'<div style="text-align:center;"><div style="width:92px;height:92px;border-radius:50%;background:radial-gradient(circle at 50% 42%,'+au.h+' 0%,'+au.h+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+au.h+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);"><div style="font-size:22px;font-weight:700;color:#fff;">'+r.idx+'<span style="font-size:9px;opacity:.8;">/100</span></div><div style="font-size:12px;color:#fff;">'+starsHTML(r.idx)+'</div></div><div style="font-size:10px;color:#c4b5fd;margin-top:4px;">éclat <b>'+ec+'</b></div></div>'
-   +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#ddd6fe;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
+   +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#F2C6B2;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
    +'</div></div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
@@ -342,16 +344,16 @@ function bFinish(){
     var vzone=['Glaciation','Refroidissement','Équilibre','Élan','Combustion'][vz];
     var vmsg=['L\'image publique dépasse très largement la réalité vécue : une dette de crédibilité à combler vite.','La réputation promet un peu plus que ce que l\'interne délivre aujourd\'hui — l\'écart se rembourse au quotidien.','Ce que vous montrez et ce que vous êtes coïncident : position saine.','La réalité dépasse l\'image : une valeur encore sous-vendue.','Pépite cachée : vous valez bien plus que ce que le public perçoit.'][vz];
     var sign=dv>0?'+':'';
-    trajSec+='<div class="sec" style="background:#faf7ff;"><div class="ktitle" style="color:#6d28d9;">🎯 Indice de Vérité <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
+    trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Vérité <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
      +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:9px;">'+vmsg+'</div></div>';
   } else {
-    trajSec+='<div class="sec" style="background:#faf7ff;"><div style="font-size:11.5px;color:#6d28d9;line-height:1.5;"><b>🎯 Indice de Vérité :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
+    trajSec+='<div class="sec" style="background:#FBF4EF;"><div style="font-size:11.5px;color:#cf4712;line-height:1.5;"><b><i class="ti ti-target"></i> Indice de Vérité :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
   }
   var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
   var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
-  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;">📈 Indice de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
+  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-trending-up"></i> Indice de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
    +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
    +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
    +'<div style="font-size:11px;color:#9ca3af;line-height:1.45;margin-top:8px;">Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.</div></div>';
@@ -371,39 +373,39 @@ function bFinish(){
     heatRows+='<div style="flex:1;background:'+energyColor(sc)+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+sc+'</div></div>';
   });
   if(hopen)heatRows+='</div>';
-  var heatSec='<div class="sec"><div class="ktitle" style="color:#2a1b4a;">🌡️ Carte d\'énergie — sous-domaines</div>'
+  var heatSec='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-temperature"></i> Carte d\'énergie — sous-domaines</div>'
    +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 8px;">Bleu = froid (à réveiller) · Rouge = en feu. Survolez une case pour le détail.</div>'
    +'<div style="overflow-x:auto;">'+heatRows+'</div>'
    +'<div style="display:flex;align-items:center;margin-top:8px;"><span style="font-size:9px;color:#6b7280;margin-right:5px;">froid</span><div style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,#1e3a8a,#3b82f6,#10b981,#f59e0b,#ef4444);"></div><span style="font-size:9px;color:#6b7280;margin-left:5px;">feu</span></div></div>';
   var sh=r.faibles.slice(0,14),ex=r.faibles.length-sh.length;
   var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   var card='<div class="card">'
-   +'<div style="background:#2a1b4a;color:#fff;padding:16px 18px;"><div style="font-size:12px;color:#c7b3ff;">🧭 BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
+   +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:12px;color:#c7b3ff;"><i class="ti ti-compass"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
    +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(nom)+'</div>'
    +'<div style="font-size:36px;font-weight:700;margin-top:4px;">'+r.idx+'<span style="font-size:15px;font-weight:400;opacity:.75;">/100</span> <span style="font-size:18px;color:#f59e0b;">'+starsHTML(r.idx)+'</span></div>'
    +'<div style="font-size:11px;color:#9d8fd0;">Chaque point se justifie par une note /5 traçable. · '+date+'</div></div>'
    +auraBand
    +trajSec
-   +'<div class="sec"><div class="ktitle" style="color:#2a1b4a;">Les 8 piliers /100</div><div style="margin-top:8px;">'+bars+'</div></div>'
+   +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;">Les 8 piliers /100</div><div style="margin-top:8px;">'+bars+'</div></div>'
    +heatSec
-   +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;">⚠️ Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
+   +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
    +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12px;color:#14532d;line-height:1.55;"><b>Posture honnête :</b> certaines faiblesses (climat social, cap, gouvernance) relèvent du <b>management</b>, pas de l\'IA — on les nomme et on oriente. L\'IA agit sur les tâches concrètes (capitalisation, devis, voix du client…).</div></div>'
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
   $('bGrille').innerHTML=card
-   +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>'
-   +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">↺ Nouvelle grille</button>'
-   +'<button class="btn btn-ghost" onclick="showView(\'form\')">🏠 Accueil</button>';
+   +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
+   +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>'
+   +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   window.scrollTo(0,0);
   // Fiche autonome (archive) : détail des notes en annexe
   var rows=details.map(function(d){var c=d.note!=null&&d.note<=2?'#fef2f2':'#fff';return '<tr style="background:'+c+';"><td>'+esc(d.pilier)+'</td><td>'+esc(d.sous)+'</td><td>'+esc(d.crit)+'</td><td style="text-align:center;font-weight:600;">'+(d.note!=null?d.note:'–')+'</td></tr>';}).join('');
-  var annexe='<div class="card" style="margin-top:14px;"><div class="sec"><div class="ktitle" style="color:#2a1b4a;">📋 Détail des notes ('+r.n+' critères)</div>'
-   +'<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;"><thead><tr style="background:#ede9fe;"><th style="text-align:left;padding:4px 6px;">Pilier</th><th style="text-align:left;padding:4px 6px;">Sous-domaine</th><th style="text-align:left;padding:4px 6px;">Critère</th><th style="padding:4px 6px;">/5</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+  var annexe='<div class="card" style="margin-top:14px;"><div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-clipboard-text"></i> Détail des notes ('+r.n+' critères)</div>'
+   +'<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;"><thead><tr style="background:#FBE7DC;"><th style="text-align:left;padding:4px 6px;">Pilier</th><th style="text-align:left;padding:4px 6px;">Sous-domaine</th><th style="text-align:left;padding:4px 6px;">Critère</th><th style="padding:4px 6px;">/5</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   var css=document.querySelector('style')?document.querySelector('style').textContent:'';
   var fiche='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td{border:1px solid #e5e7eb;padding:4px 6px;} table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card+annexe+'</div></body></html>';
   var payload={type:'boussole',nom:nom,json:{type:'boussole',mode:mode,nom:nom,date:date,indice:r.idx,etoiles:Math.max(1,Math.min(5,Math.round(r.idx/20))),aura:{couleur:aura,sens:ad.s,definition:ad.d,eclat:ec},trajectoire:{exterieure:ext,interieure:r.idx,potentiel:pot,indiceVerite:verite,indiceProgression:progression},piliers:r.pil,faibles:r.faibles,details:details},html:fiche};
   fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
-    .then(function(x){return x.json();}).then(function(x){var s=$('bSave');if(s)s.textContent=(x&&x.ok)?'✅ Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur':'⚠️ Non enregistré ('+((x&&x.error)||'erreur')+')';})
-    .catch(function(){var s=$('bSave');if(s)s.textContent='⚠️ Non enregistré (connexion)';});
+    .then(function(x){return x.json();}).then(function(x){var s=$('bSave');if(s)s.textContent=(x&&x.ok)?'<i class="ti ti-circle-check"></i> Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur':'<i class="ti ti-alert-triangle"></i> Non enregistré ('+((x&&x.error)||'erreur')+')';})
+    .catch(function(){var s=$('bSave');if(s)s.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré (connexion)';});
 }
 /* ===== fin BOUSSOLE ===== */
 
@@ -452,9 +454,9 @@ function render(d,skipSave){
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
   const qw = (d.quickwins||[]).map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ');
   const agents = (d.agents||[]).map(a=>{
-    const fire = a.tag && a.tag.indexOf('🔥')>=0;
+    const fire = a.tag && a.tag.indexOf('<i class="ti ti-flame"></i>')>=0;
     const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
-    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${esc(a.tag||'🧱')}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
+    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${esc(a.tag||'<i class="ti ti-box"></i>')}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
   }).join('');
   const r = d.radar||{labels:[],actuel:[],potentiel:[]};
   const sim = d.simulateur||{personnes:2,heures:5,cout:40};
@@ -478,22 +480,22 @@ function render(d,skipSave){
       _L.forEach(function(x){x.gain=Math.round(x.w*(100-x.s)/100);});
       var _top=_L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
       if(_top.length){
-        progHTML='<div class="sec" style="background:#faf7ff;"><div style="font-size:12.5px;font-weight:600;color:#6d28d9;">🎯 Où travailler pour monter votre note</div>'
-          +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#7c3aed;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
+        progHTML='<div class="sec" style="background:#FBF4EF;"><div style="font-size:12.5px;font-weight:600;color:#cf4712;"><i class="ti ti-target"></i> Où travailler pour monter votre note</div>'
+          +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#E8541A;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
           +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div></div>';
       }
     }
     auraHTML = `
-    <div class="sec" style="background:#0f1225;color:#fff;">
-      <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#c7b3f5;font-weight:600;">✨ VOTRE IVE <span style="font-weight:400;opacity:.7;">· indice de valeur d'entreprise (estimé)</span></div>
+    <div class="sec" style="background:#1C1C1C;color:#fff;">
+      <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> VOTRE IVE <span style="font-weight:400;opacity:.7;">· indice de valeur d'entreprise (estimé)</span></div>
       <div style="display:flex;align-items:center;justify-content:space-around;gap:6px;margin-top:10px;">
         <div style="text-align:center;flex:1;">
-          <div style="font-size:9px;letter-spacing:1px;color:#c7d2fe;">AUJOURD'HUI</div>
+          <div style="font-size:9px;letter-spacing:1px;color:#E7DBD1;">AUJOURD'HUI</div>
           <div style="width:90px;height:90px;margin:6px auto 4px;border-radius:50%;background:radial-gradient(circle at 50% 45%, ${au.h} 0%, ${au.h} 55%, #222 135%);box-shadow:0 0 18px 3px ${au.h}66;border:2px dashed rgba(255,255,255,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;">
             <div style="font-size:20px;font-weight:700;color:#fff;">${est}<span style="font-size:10px;font-weight:400;opacity:.8;">/100</span></div>
             <div style="font-size:12px;color:#fff;">${starsHTML(est)}</div>
           </div>
-          <div style="font-size:10px;color:#eaf1fb;">IVE ${esc(d.aura.couleur)}</div>
+          <div style="font-size:10px;color:#ECE3DB;">IVE ${esc(d.aura.couleur)}</div>
         </div>
         <div style="color:#8891b5;text-align:center;"><div style="font-size:18px;">→</div><div style="font-size:8px;line-height:1.2;">piste<br>déjà là</div></div>
         <div style="text-align:center;flex:1;">
@@ -510,11 +512,11 @@ function render(d,skipSave){
       <div style="font-size:12.5px;font-weight:600;color:${au.t};">IVE ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
     </div>
-    <div class="sec" style="background:#faf7ff;">
-      <div style="font-size:11.5px;color:#6d28d9;line-height:1.55;"><b>🎯 Indice de Vérité</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
+    <div class="sec" style="background:#FBF4EF;">
+      <div style="font-size:11.5px;color:#cf4712;line-height:1.55;"><b><i class="ti ti-target"></i> Indice de Vérité</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
     </div>
     <div class="sec" style="background:#f0fdf4;">
-      <div style="font-size:12.5px;font-weight:600;color:#15803d;">💚 Ce que votre IVE raconte déjà</div>
+      <div style="font-size:12.5px;font-weight:600;color:#15803d;"><i class="ti ti-heart"></i> Ce que votre IVE raconte déjà</div>
       <div style="font-size:12px;color:#14532d;line-height:1.55;margin-top:3px;">${esc(d.fierte)}</div>
     </div>${progHTML}`;
   }
@@ -522,7 +524,7 @@ function render(d,skipSave){
   $('result').innerHTML = `
   <div class="card">
     <div style="background:${col};color:#fff;padding:16px 18px;">
-      <div style="font-size:12px;letter-spacing:1px;opacity:.85;">📡 SENTINELLE · DBi360</div>
+      <div style="font-size:12px;letter-spacing:1px;opacity:.85;"><i class="ti ti-antenna-bars-5"></i> SENTINELLE · DBi360</div>
       <div style="font-size:19px;font-weight:600;margin-top:2px;">${esc(d.nom)}</div>
       <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
@@ -539,7 +541,7 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec"><div class="ktitle" style="color:${col};">📋 LE DÉTAIL DE L'ENQUÊTE</div>
+    <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-clipboard-text"></i> LE DÉTAIL DE L'ENQUÊTE</div>
       <div style="font-size:12.5px;line-height:1.6;margin-top:6px;"><b style="color:${col};">Carte d'identité</b> <span style="color:#16a34a;font-size:11px;">🟢</span><br>${esc(d.identite)}</div>
     </div>
 
@@ -555,17 +557,17 @@ function render(d,skipSave){
     </div></div>
 
     <div class="sec">
-      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;">⚠️ Vigilance & quick wins</div>
+      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Vigilance & quick wins</div>
       ${vig}
       <div class="qw"><b>Quick wins :</b> ${esc(qw)}</div>
     </div>
 
     <div class="sec"><div class="grid2" style="font-size:12px;">
-      <div><div style="font-weight:600;color:${col};">⭐ Avis clients</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avis)}</div></div>
-      <div><div style="font-weight:600;color:${col};">📣 Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
+      <div><div style="font-weight:600;color:${col};"><i class="ti ti-star"></i> Avis clients</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avis)}</div></div>
+      <div><div style="font-weight:600;color:${col};"><i class="ti ti-speakerphone"></i> Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
     </div></div>
 
-    <div class="sec"><div class="ktitle" style="color:${col};">🧠 INTELLIGENCE STRATÉGIQUE</div>
+    <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
       <div class="grid2" style="font-size:12px;margin-top:8px;">
         <div class="mini"><b style="color:${col};">Financier</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.financier)}</div></div>
         <div class="mini"><b style="color:${col};">Concurrence</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.concurrence)}</div></div>
@@ -574,11 +576,11 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec"><div class="ktitle" style="color:${col};">🤖 AGENTS IA POTENTIELS — 1ʳᵉ conclusion</div>
+    <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-robot"></i> AGENTS IA POTENTIELS — 1ʳᵉ conclusion</div>
       <div style="margin-top:8px;">${agents}</div>
     </div>
 
-    <div class="sec"><div class="ktitle" style="color:#b45309;">🎯 POUR ALLER PLUS LOIN</div>
+    <div class="sec"><div class="ktitle" style="color:#b45309;"><i class="ti ti-target"></i> POUR ALLER PLUS LOIN</div>
       <div style="background:${col};color:#fff;border-radius:12px;padding:14px 16px;text-align:center;margin-top:8px;">
         <div style="font-size:12px;opacity:.85;">${esc(d.chiffre?.label)||'Estimation illustrative'}</div>
         <div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="heroV">–</span> ${unite==='h'?'h':'€'} <span style="font-size:14px;font-weight:400;opacity:.85;">/ an</span></div>
@@ -586,7 +588,7 @@ function render(d,skipSave){
       </div>
       <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:11px 14px;margin-top:10px;font-size:12px;color:#7c2d12;line-height:1.55;"><b>Le coût de l'inaction :</b> ${esc(d.coutInaction)}</div>
       <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-top:10px;">
-        <div style="font-size:12px;font-weight:600;color:${col};margin-bottom:8px;">🎚️ Simulateur — ajustez à votre réalité</div>
+        <div style="font-size:12px;font-weight:600;color:${col};margin-bottom:8px;"><i class="ti ti-adjustments-horizontal"></i> Simulateur — ajustez à votre réalité</div>
         <div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="${sim.personnes}"><span class="val" id="sPv"></span></div>
         <div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem. / pers.</label><input type="range" id="sH" min="1" max="15" step="1" value="${sim.heures}"><span class="val" id="sHv"></span></div>
         <div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="${sim.cout}"><span class="val" id="sCv"></span></div>
@@ -595,17 +597,17 @@ function render(d,skipSave){
         <div class="mini"><div style="font-weight:600;color:#6b7280;">Aujourd'hui</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.aujourdhui)}</div></div>
         <div class="mini" style="border:2px solid #d97706;"><div style="font-weight:600;color:#b45309;">Avec l'IA</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.avecIA)}</div></div>
       </div>
-      <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
+      <div style="background:#eef2ff;border:1px solid #E7DBD1;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
     </div>
 
     ${auraHTML}
 
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
-  <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;">💾 Enregistrement sur le cloud…</div>
-  <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank">🌐 Voir le site / les avis</a>
-  <button class="btn btn-primary" style="margin-top:10px;" onclick="openConcurrence()">🗺️ Analyser la concurrence autour de vous</button>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()">↺ Nouvelle entreprise</button>`;
+  <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>
+  <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
+  <button class="btn btn-primary" style="margin-top:10px;" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence autour de vous</button>
+  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()"><i class="ti ti-refresh"></i> Nouvelle entreprise</button>`;
 
   // Radar
   try{
@@ -641,9 +643,9 @@ function saveFiche(d){
     var sim='<scr'+'ipt>(function(){function e(n){return n.toLocaleString("fr-FR");}var u="'+uu+'";function s(){var P=document.getElementById("sP"),H=document.getElementById("sH"),C=document.getElementById("sC");if(!P||!H||!C)return;var p=+P.value,h=+H.value,c=+C.value;document.getElementById("sPv").textContent=p;document.getElementById("sHv").textContent=h+" h";document.getElementById("sCv").textContent=c+" €";var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8);var V=document.getElementById("heroV"),S=document.getElementById("heroSub");if(!V)return;if(u==="h"){V.textContent=e(hrs);if(S)S.textContent="≈ "+soir+" soirées rendues — soit ≈ "+e(eur)+" €";}else{V.textContent=e(eur);if(S)S.textContent="≈ "+e(hrs)+" h ("+soir+" soirées) rendues";}}["sP","sH","sC"].forEach(function(id){var x=document.getElementById(id);if(x)x.addEventListener("input",s);});s();})();</scr'+'ipt>';
     const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div>'+sim+'</body></html>';
     fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,json:d,html:html})})
-      .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '✅ Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '⚠️ Non enregistré ('+((x&&x.error)||'erreur')+')'; })
-      .catch(e=>{ if(st) st.textContent='⚠️ Non enregistré (connexion)'; });
-  }catch(e){ if(st) st.textContent='⚠️ Non enregistré'; }
+      .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '<i class="ti ti-circle-check"></i> Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '<i class="ti ti-alert-triangle"></i> Non enregistré ('+((x&&x.error)||'erreur')+')'; })
+      .catch(e=>{ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré (connexion)'; });
+  }catch(e){ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré'; }
 }
 
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
@@ -652,12 +654,12 @@ function openConcurrence(){
   var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
   var host=document.getElementById('concuPanel');
   if(!host){ host=document.createElement('div'); host.id='concuPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
-  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">🗺️ La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+', par mot-clé. Repère public, à aujourd\'hui.</div></div>'
+  host.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;"><i class="ti ti-map-2"></i> La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+', par mot-clé. Repère public, à aujourd\'hui.</div></div>'
    +'<div class="sec">'
    +'<label>Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
    +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
    +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de votre prospect.</div>'
-   +'<button class="btn btn-primary" onclick="runConcurrence()">🔎 Trouver les 8 concurrents les plus proches</button>'
+   +'<button class="btn btn-primary" onclick="runConcurrence()"><i class="ti ti-search"></i> Trouver les 8 concurrents les plus proches</button>'
    +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div></div><div id="cOut"></div>';
   host.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -671,19 +673,19 @@ function auraCell(au,est){ if(!au||au.note==null) return '<span style="color:#9c
 function runConcurrence(){
   var kw=(document.getElementById('cKw')&&document.getElementById('cKw').value.trim())||'';
   var out=document.getElementById('cOut');
-  if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
+  if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
-   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ '+esc(d.error)+'</div>'; return; } renderConcu(d); })
-   .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">⚠️ L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>'; });
+   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } renderConcu(d); })
+   .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>'; });
 }
 function renderConcu(d){
   var out=document.getElementById('cOut');
   if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
-  var rows='<tr style="background:#ede9fe;"><td style="padding:6px 8px;font-weight:700;">🎯 <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' 🔗</a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
+  var rows='<tr style="background:#FBE7DC;"><td style="padding:6px 8px;font-weight:700;"><i class="ti ti-target"></i> <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' <i class="ti ti-external-link"></i></a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
   d.concurrents.forEach(function(c){
-    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' 🔗</a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
+    rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' <i class="ti ti-external-link"></i></a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
   });
   var _n=d.concurrents.map(function(c){return (c.aura&&c.aura.note!=null)?c.aura.note:null;}).filter(function(x){return x!=null;});
   var _p=(d.prospect.aura&&d.prospect.aura.note!=null)?d.prospect.aura.note:null;
@@ -700,19 +702,19 @@ function renderConcu(d){
     else{var _g=_p-_avg;_zone=_g>4?'Au-dessus de la moyenne':(_g<-4?'En dessous de la moyenne':'Dans la moyenne');_msg=_ab+' concurrent(s) devant · '+_be+' derrière · moyenne locale '+_avg+'.';}
     var _dots='';
     d.concurrents.forEach(function(c){if(c.aura&&c.aura.note!=null){_dots+='<div style="position:absolute;top:13px;left:'+_P(c.aura.note)+'%;width:10px;height:10px;border-radius:50%;background:#bcb9d0;transform:translateX(-50%);" title="'+esc(c.nom)+' ('+c.aura.note+')"></div>';}});
-    _dots+='<div style="position:absolute;top:10px;left:'+_P(_p)+'%;width:16px;height:16px;border-radius:50%;background:#7c3aed;box-shadow:0 0 0 4px rgba(124,58,237,.2);transform:translateX(-50%);"></div><div style="position:absolute;top:-8px;left:'+_P(_p)+'%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#7c3aed;background:#f1ecfd;padding:1px 6px;border-radius:7px;white-space:nowrap;">VOUS</div>';
-    posHTML='<div class="sec"><div style="display:flex;justify-content:space-between;align-items:baseline;"><div class="ktitle" style="color:#2a1b4a;">📍 Votre position</div><div style="font-size:12px;font-weight:600;color:#7c3aed;">'+_zone+'</div></div><div style="position:relative;height:32px;margin-top:16px;"><div style="position:absolute;top:17px;left:0;right:0;height:6px;border-radius:3px;background:linear-gradient(90deg,#e9e7f2,#d9d6ea);"></div>'+_dots+'<div style="position:absolute;bottom:-7px;left:0;font-size:9px;color:#9ca3af;">− réputation</div><div style="position:absolute;bottom:-7px;right:0;font-size:9px;color:#9ca3af;">+ réputation</div></div><div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:12px;">'+_msg+'</div></div>';
+    _dots+='<div style="position:absolute;top:10px;left:'+_P(_p)+'%;width:16px;height:16px;border-radius:50%;background:#E8541A;box-shadow:0 0 0 4px rgba(124,58,237,.2);transform:translateX(-50%);"></div><div style="position:absolute;top:-8px;left:'+_P(_p)+'%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#E8541A;background:#FCEBE3;padding:1px 6px;border-radius:7px;white-space:nowrap;">VOUS</div>';
+    posHTML='<div class="sec"><div style="display:flex;justify-content:space-between;align-items:baseline;"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-map-pin"></i> Votre position</div><div style="font-size:12px;font-weight:600;color:#E8541A;">'+_zone+'</div></div><div style="position:relative;height:32px;margin-top:16px;"><div style="position:absolute;top:17px;left:0;right:0;height:6px;border-radius:3px;background:linear-gradient(90deg,#e9e7f2,#d9d6ea);"></div>'+_dots+'<div style="position:absolute;bottom:-7px;left:0;font-size:9px;color:#9ca3af;">− réputation</div><div style="position:absolute;bottom:-7px;right:0;font-size:9px;color:#9ca3af;">+ réputation</div></div><div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:12px;">'+_msg+'</div></div>';
   }
   out.innerHTML=posHTML+'<div class="sec"><div id="cMap" style="height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div>'
-   +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;">🟣 votre prospect · 🔴 concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' — 8 plus proches</div></div>'
-   +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1f3a5f;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table>'
+   +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><span style="color:#E8541A;font-size:12px;">●</span> votre prospect · <span style="color:#bcb9d0;font-size:12px;">●</span> concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' — 8 plus proches</div></div>'
+   +'<div class="sec" style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table>'
    +'<div class="hint"><b>IVE</b> = indice objectif (note + nombre d\'avis Google + site web), calculé à l\'identique pour le prospect et les concurrents → directement comparable. À aujourd\'hui, sans prévisions. Recherche par mot-clé métier autour du prospect.</div></div>';
   try{
     if(window.cMapObj){ window.cMapObj.remove(); window.cMapObj=null; }
     var map=L.map('cMap').setView([d.prospect.lat,d.prospect.long],11); window.cMapObj=map;
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
     var pts=[[d.prospect.lat,d.prospect.long]];
-    L.circleMarker([d.prospect.lat,d.prospect.long],{radius:10,color:'#fff',weight:2,fillColor:'#7c3aed',fillOpacity:1}).addTo(map).bindPopup('<b>'+esc(d.prospect.nom)+'</b><br>votre prospect');
+    L.circleMarker([d.prospect.lat,d.prospect.long],{radius:10,color:'#fff',weight:2,fillColor:'#E8541A',fillOpacity:1}).addTo(map).bindPopup('<b>'+esc(d.prospect.nom)+'</b><br>votre prospect');
     d.concurrents.forEach(function(c){ if(c.lat&&c.long){ L.circleMarker([c.lat,c.long],{radius:7,color:'#fff',weight:1.5,fillColor:'#ef4444',fillOpacity:.95}).addTo(map).bindPopup('<b>'+esc(c.nom)+'</b><br>'+esc(c.commune||'')+' · '+c.distance+' km'); pts.push([c.lat,c.long]); } });
     if(pts.length>1) map.fitBounds(pts,{padding:[30,30]});
     setTimeout(function(){ if(window.cMapObj) window.cMapObj.invalidateSize(); },150);
@@ -725,21 +727,21 @@ function siteLink(nom,ville,site){ return (site && /^https?:\/\//i.test(site)) ?
 function openHistory(){
   var host=document.getElementById('histPanel');
   if(!host){ host=document.createElement('div'); host.id='histPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
-  host.innerHTML='<div style="background:#1f3a5f;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;">📁 Mes recherches</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Vos analyses sauvegardées dans le cloud — accessibles même sans PC.</div></div><div class="sec" id="histList"><div style="text-align:center;padding:18px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement…</div></div>';
+  host.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;"><i class="ti ti-folder"></i> Mes recherches</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Vos analyses sauvegardées dans le cloud — accessibles même sans PC.</div></div><div class="sec" id="histList"><div style="text-align:center;padding:18px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement…</div></div>';
   host.scrollIntoView({behavior:'smooth',block:'start'});
   fetch('/api/history').then(function(r){return r.json();}).then(function(d){
     var el=document.getElementById('histList'); if(!el) return;
-    if(d.error||!d.items){ el.innerHTML='<div style="color:#991b1b;font-size:13px;">⚠️ '+esc((d&&d.error)||'Indisponible')+'</div>'; return; }
+    if(d.error||!d.items){ el.innerHTML='<div style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((d&&d.error)||'Indisponible')+'</div>'; return; }
     if(!d.items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
     el.innerHTML=d.items.map(function(it){
-      var badge=it.type==='BOUSSOLE'?'background:#ede9fe;color:#6d28d9':'background:#e0f2fe;color:#075985';
+      var badge=it.type==='BOUSSOLE'?'background:#FBE7DC;color:#cf4712':'background:#e0f2fe;color:#075985';
       var open=(it.type==='SENTINELLE')?'href="javascript:void(0)" onclick="restoreFiche(\''+it.url.replace(/\.html$/,'.json')+'\')"':'href="'+it.url+'" target="_blank"';
       return '<a '+open+' style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
         +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;'+badge+';white-space:nowrap;">'+it.type+'</span>'
         +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(it.nom)+'</span>'
         +'<span style="font-size:11px;color:#9ca3af;white-space:nowrap;">'+esc(it.date)+'</span><span style="color:#9ca3af;">›</span></a>';
     }).join('')+'<button class="btn btn-ghost" style="margin-top:12px;" onclick="var p=document.getElementById(\'histPanel\');if(p)p.remove();">Fermer</button>';
-  }).catch(function(){ var el=document.getElementById('histList'); if(el) el.innerHTML='<div style="color:#991b1b;font-size:13px;">⚠️ Connexion impossible.</div>'; });
+  }).catch(function(){ var el=document.getElementById('histList'); if(el) el.innerHTML='<div style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Connexion impossible.</div>'; });
 }
 function restoreFiche(url){
   var p=document.getElementById('histPanel'); if(p) p.remove();
