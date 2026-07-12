@@ -1,0 +1,158 @@
+{
+  "nom": "IT MATELEC ET ASSOCIES",
+  "ville": "Norroy-le-Veneur (57140)",
+  "activite": "Installation et maintenance de systèmes de sécurité (alarme, vidéoprotection, contrôle d'accès, incendie)",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Stabilité confirmée",
+    "atout": "Expertise reconnue, clientèle fidèle 40 ans"
+  },
+  "identite": "SARL IT MATELEC ET ASSOCIES, SIREN 803946367, créée 01/07/2014, NAF 4652Z (commerce de gros équipements électroniques/télécommunication), 3 salariés, dirigée par Sébastien Giacomel.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      65,
+      68,
+      60,
+      62,
+      68,
+      75,
+      70
+    ],
+    "potentiel": [
+      85,
+      78,
+      80,
+      75,
+      78,
+      82,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Innovation connectée, solutions sur mesure, sérénité client, expertise technique certifiée (APSAD, EN 50131), relation de confiance long terme.",
+  "imagePercue": "Entreprise fiable et innovante, spécialiste reconnu en sécurité connectée, équipe professionnelle et réactive, présence régionale établie (Grand Est + transfrontalier).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Ancienneté solide (12 ans) avec clientèle fidèle depuis 40 ans : signal fort de pérennité et confiance."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients positifs (7 avis) : réactivité, professionnalisme, solutions adaptées, équipe compétente."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes confidentiels depuis 2018 : chiffre d'affaires et rentabilité non publics, limite la visibilité financière."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Petite structure (3 salariés) : capacité de croissance et de gestion de pics d'activité à explorer."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la prise de rendez-vous et devis (chatbot + formulaire intelligent) pour capturer les demandes 24/7",
+    "Créer un CRM léger pour tracker les clients fidèles et relancer maintenance/renouvellement",
+    "Publier régulièrement sur LinkedIn (cas clients, conseils sécurité, innovations) pour renforcer visibilité B2B"
+  ],
+  "avis": "7 avis positifs sur fournisseur.tel : clients soulignent réactivité, disponibilité, solutions adaptées, équipe professionnelle et compétente. Aucun avis négatif détecté publiquement.",
+  "presence": "Site web moderne et actif (it-matelec.fr) avec blog, formulaire devis, présentation détaillée. LinkedIn actif (101 abonnés, posts réguliers sur sécurité/innovation). Pas de présence Facebook/Instagram détectée.",
+  "site": "https://www.it-matelec.fr",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2018 (CA estimé ~220k€ en 2015, structure < 10 salariés). Délai client 42j (vs 134j secteur) : bonne trésorerie. Capital social 30k€.",
+    "concurrence": "298 concurrents du même NAF en Grand Est. Marché fragmenté (TPE/PME). Différenciation par expertise, innovation connectée et relation client.",
+    "visibilite": "Présence web solide (site + blog + LinkedIn). Avis clients positifs mais peu nombreux. Pas de certifications/labels publics détectés. Bouche-à-oreille et relation directe semblent moteurs.",
+    "dirigeant": "Sébastien Giacomel, gérant. Entreprise fondée en 2014 (12 ans). Pas d'info publique sur l'âge ou la vision stratégique."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Capteur de demandes 24/7",
+      "benefice": "Chatbot + formulaire intelligent pour qualifier les appels entrants (alarme, vidéo, contrôle accès, incendie) et proposer devis auto-généré. Réduit les appels perdus et accélère la conversion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de fidélité client",
+      "benefice": "CRM simplifié pour tracker les clients 40 ans, planifier maintenances/renouvellements, relancer automatiquement. Augmente le panier moyen et la rétention."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Amplificateur LinkedIn",
+      "benefice": "Publie 2x/semaine : cas clients, conseils sécurité, innovations produits, actualités réglementaires. Renforce crédibilité B2B et génère leads qualifiés."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de savoir-faire",
+      "benefice": "Capitalise les diagnostics, solutions, paramétrages en fiches réutilisables. Accélère les devis et réduit la dépendance aux individus."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veilleur appels d'offres",
+      "benefice": "Scrape les marchés publics (collectivités, entreprises) en Grand Est/transfrontalier. Alerte sur les appels pertinents (sécurité, vidéo, incendie)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de devis",
+      "benefice": "Génère devis professionnels en 5 min (détection, vidéo, accès, incendie) avec variantes tarifaires. Réduit le temps de chiffrage et améliore la conversion."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative et prospection"
+  },
+  "coutInaction": "Sans optimisation, IT Matelec risque de laisser des demandes sans réponse (appels perdus), de ralentir la conversion (devis manuels) et de ne pas capitaliser son expertise. La croissance reste plafonnée par la capacité de la petite équipe.",
+  "simulateur": {
+    "personnes": 3,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Appels entrants gérés manuellement, devis chiffrés à la main, suivi client sur tableur, prospection passive (bouche-à-oreille), savoir-faire non documenté.",
+    "avecIA": "Demandes captées 24/7 et pré-qualifiées, devis générés en 5 min, clients fidèles relancés automatiquement, prospection active (LinkedIn + appels d'offres), expertise documentée et réutilisable."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner votre stratégie de croissance : structurer l'équipe, automatiser les processus clés, et transformer votre expertise en avantage compétitif durable.",
+  "indice": {
+    "estime": 77,
+    "potentiel": 97
+  },
+  "dimensions": {
+    "avis": 75,
+    "reseaux": 65,
+    "site": 80,
+    "traction": 78
+  },
+  "aura": {
+    "sens": "Fiabilité & innovation",
+    "couleur": "Bleu",
+    "definition": "IT Matelec rayonne par la confiance qu'elle inspire : expertise reconnue, clients fidèles depuis 40 ans, équipe réactive et solutions connectées avant-gardistes.",
+    "eclat": "moyen"
+  },
+  "fierte": "IT Matelec a bâti une réputation solide en 12 ans : clients fidèles depuis 40 ans, avis positifs unanimes, expertise certifiée et innovation continue. Vous avez les fondations pour accélérer : structurer la prospection, automatiser les devis, et transformer votre savoir-faire en levier de croissance.",
+  "sources": "Societe.com, Pappers, Verif, Kompass, Infonet, LinkedIn, Fournisseur.tel, WebWiki, site officiel it-matelec.fr. Confiance : haute pour identité/structure, moyenne pour financier (comptes confidentiels), haute pour avis/présence web.",
+  "_auraCalc": {
+    "avis": 80,
+    "reseaux": 65,
+    "site": 80,
+    "traction": 78,
+    "poids": {
+      "avis": 15,
+      "reseaux": 20,
+      "site": 45,
+      "traction": 20
+    }
+  }
+}
