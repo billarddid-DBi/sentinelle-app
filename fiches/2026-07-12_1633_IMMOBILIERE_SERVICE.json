@@ -1,0 +1,158 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établie & fiable",
+    "atout": "Ancienneté 36 ans, avis 5/5"
+  },
+  "identite": "SIREN 350747713, EURL depuis 1989 (36 ans), siège 200 rue de Pont-à-Mousson, Montigny-lès-Metz. Gérant depuis 2005. Agence immobilière (NAF 6831Z). Comptes publics avec confidentialité déclarée.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      65,
+      70,
+      72,
+      68,
+      60,
+      70,
+      78,
+      72
+    ],
+    "potentiel": [
+      78,
+      82,
+      85,
+      80,
+      78,
+      82,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Réactivité, savoir-faire, accompagnement personnalisé, disponibilité, confiance, respect des règles de l'art.",
+  "imagePercue": "Agence de proximité établie, fiable et chaleureuse. Dirigeant (Michel) reconnu pour sa jovialité et sa disponibilité. Présence active sur annuaires et réseaux locaux. Image de sérénité et professionnalisme.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Ancienneté solide (36 ans) et stabilité : gérant en place depuis 21 ans, comptes réguliers."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients excellents (5/5 sur Mappy, 3 avis récents positifs) : satisfaction et confiance établies."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale modérée : site absent, présence limitée aux annuaires (PagesJaunes, Mappy, SeLoger, LeBonCoin). Pas de réseaux sociaux détectés."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Marché immobilier en transition : hausse des taux, baisse des transactions depuis 2022. Concurrence locale forte (Laforêt, Lagimmo, Carrara, Arsenal, etc.)."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web moderne avec portfolio de biens, estimations en ligne, formulaires de contact",
+    "Lancer présence Facebook/Instagram : photos de biens, témoignages clients, actualités marché local",
+    "Automatiser les relances de prospects et suivi de dossiers (CRM léger)",
+    "Optimiser les annonces sur SeLoger/LeBonCoin avec photos professionnelles et descriptions enrichies",
+    "Mettre en place un système de feedback clients post-transaction (avis, recommandations)"
+  ],
+  "avis": "Avis clients très positifs : 5/5 sur Mappy (3 avis récents). Sur PagesJaunes : 5/5 (3 avis). Témoignages soulignent la disponibilité, la jovialité du gérant Michel, le respect des règles de l'art, la confiance et la satisfaction propriétaires/locataires. Pas d'avis négatif détecté publiquement.",
+  "presence": "Présence sur annuaires professionnels (PagesJaunes, Mappy, SeLoger, LeBonCoin, MeilleursAgents). Pas de site web propre détecté. Pas de réseaux sociaux actifs. Horaires affichés : lun-jeu 10h-18h, ven 10h-14h + RDV. Parking réservé devant agence.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes annuels publics avec déclaration de confidentialité (L.232-25). Dernière clôture 31/12/2024. Pas de chiffre d'affaires ou bénéfice public détecté (confidentialité EURL).",
+    "concurrence": "Marché local dense : Laforêt (5/5, 48 avis, équipe structurée), Lagimmo (5/5, 48 avis), Carrara (30+ ans, 3 agences), Arsenal (depuis 2015, 6 collaborateurs), Benedic, Sophie Fuchs, Concordis, etc. Immobilière Service se distingue par l'ancienneté et la relation personnelle.",
+    "visibilite": "Faible présence digitale : aucun site web, pas de réseaux sociaux. Dépendance aux annuaires tiers. Concurrents majeurs (Laforêt, Lagimmo) ont sites modernes et présence active. Opportunité de rattrapage digital importante.",
+    "dirigeant": "Gérant depuis 19 janvier 2005 (21 ans). Identifié comme 'Michel' dans les avis clients. Réputation locale positive : jovialité, disponibilité, confiance, professionnalisme. Pas d'informations publiques sur l'âge ou les intentions de transmission."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Site web & SEO local",
+      "benefice": "Capturer les recherches 'agence immobilière Montigny' et 'vente/location Montigny', générer leads organiques, afficher portfolio de biens et avis clients."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Réseaux sociaux (Facebook/Instagram)",
+      "benefice": "Partager photos de biens, témoignages clients, actualités marché, créer engagement local et fidéliser portefeuille."
+    },
+    {
+      "tag": "🧱",
+      "nom": "CRM & automatisation suivi",
+      "benefice": "Centraliser prospects, relances, dossiers ; réduire tâches manuelles ; améliorer conversion et délais de traitement."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimisation annonces multi-portails",
+      "benefice": "Photos professionnelles, descriptions enrichies, mots-clés SEO sur SeLoger/LeBonCoin/MeilleursAgents ; augmenter visibilité et clics."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Système de collecte d'avis & recommandations",
+      "benefice": "Automatiser demandes d'avis post-transaction, afficher témoignages sur site et annuaires, renforcer crédibilité face à concurrence."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Estimation en ligne & formulaires de contact",
+      "benefice": "Qualifier leads 24/7, réduire appels non-qualifiés, accélérer prise de contact et conversion."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine sur tâches administratives et prospection"
+  },
+  "coutInaction": "Sans digitalisation, Immobilière Service risque de perdre des parts de marché face à concurrents mieux visibles (Laforêt, Lagimmo). Les prospects cherchent en ligne avant de contacter : absence de site et réseaux sociaux = perte de leads qualifiés et ralentissement de croissance.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Prospection par annuaires tiers, appels entrants limités, suivi dossiers manuel, pas de présence réseaux sociaux, avis clients non systématisés.",
+    "avecIA": "Site web + SEO local captent leads organiques, Facebook/Instagram fidélisent clients, CRM centralise prospects et automatise relances, avis collectés et affichés, annonces optimisées multi-portails."
+  },
+  "cta": "Explorez BOUSSOLE pour définir votre stratégie digitale et structurer la croissance d'Immobilière Service face à la concurrence locale.",
+  "indice": {
+    "estime": 43,
+    "potentiel": 61
+  },
+  "dimensions": {
+    "avis": 85,
+    "reseaux": 15,
+    "site": 0,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Fiabilité & proximité",
+    "couleur": "Bleu",
+    "definition": "Agence ancrée dans la confiance locale et la relation humaine, stable et professionnelle, mais en attente de modernisation digitale pour rayonner au-delà du bouche-à-oreille.",
+    "eclat": "moyen"
+  },
+  "fierte": "Immobilière Service incarne 36 ans de présence fiable et de satisfaction client dans un secteur exigeant. La confiance que Michel a bâtie auprès de propriétaires et locataires est un atout majeur, et les avis 5/5 témoignent d'un savoir-faire reconnu. Le potentiel est immense : une modernisation digitale stratégique (site, réseaux, CRM) transformerait cette excellente réputation locale en rayonnement régional, sans perdre l'âme relationnelle qui fait sa force.",
+  "sources": "PagesJaunes (SIREN 350747713, RCS Metz, avis clients), Mappy (5/5, 3 avis), SeLoger (profil agence), MeilleursAgents (présentation), LeBonCoin (annonces actives), Societe.com (données légales, gérant depuis 2005), Montigny-Entreprendre (annuaire local). Confiance : haute pour identité légale et avis clients ; modérée pour données financières (confidentialité EURL) ; absence de site web confirmée par recherche directe.",
+  "_auraCalc": {
+    "note_google": 3.1,
+    "nb_avis": 36,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 20,
+      "s": 50
+    }
+  }
+}
