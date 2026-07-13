@@ -1,0 +1,131 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-13T10:43:49.597Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "restaurant italien",
+    "archetype": "commerce établi",
+    "indiceInterieur": 68,
+    "indiceExterieur": 80,
+    "potentiel": 88,
+    "ecart": -12,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 70,
+      "Organisation": 55,
+      "Processus": 48,
+      "Informations": 40,
+      "Outils": 45,
+      "Décisions": 72,
+      "Clients": 85,
+      "Performance": 66
+    },
+    "faibles": [
+      "Capitalisation du savoir (2/5)",
+      "Suivi des devis (1/5)"
+    ],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Arrêter la fuite de savoir-faire en cuisine et en salle : formaliser les recettes, les protocoles de service et les fiches clients pour transformer l'expérience volatile en actif reproductible — et retrouver la cohérence entre l'image chaleureuse perçue et la réalité opérationnelle fragile.",
+    "economie_an": 18500,
+    "cadre": {
+      "externe": "La Romana rayonne : clients fidèles, réputation solide, ambiance authentique. Mais en coulisse, le savoir vit dans les têtes, les devis se perdent, les recettes ne sont jamais écrites. Vous avez bâti quelque chose de beau — il est temps de le fixer pour qu'il survive et prospère sans vous.",
+      "interne": "Écart de -12 : l'image (80) surpromet ce que la réalité opérationnelle (68) livre. Piliers critiques : Processus (48), Informations (40), Outils (45) — tous trois liés à l'absence de formalisation. Capitalisation du savoir et suivi des devis sont des symptômes d'une organisation encore trop artisanale. Le potentiel (88) existe : clients (85) et décisions (72) sont solides. Le levier n'est pas technologique d'abord, c'est organisationnel."
+    },
+    "verite": {
+      "externe": "Vous avez créé une maison où les clients se sentent bien accueillis et nourris. Ce que vous ne voyez pas : chaque recette spéciale vit dans la mémoire du chef, chaque devis important se perd dans les papiers, chaque nouveau serveur doit réapprendre ce que le précédent savait. Vous travaillez dur pour maintenir une qualité qui devrait être garantie par le système. C'est le prix de l'artisanat sans filet.",
+      "interne": "Refroidissement classique : la réputation (clients 85, décisions 72) masque une fragilité organisationnelle. Zéro capitalisation du savoir (2/5), suivi des devis inexistant (1/5). Le dirigeant porte l'entreprise sur ses épaules — pas de processus, pas de documentation, pas de continuité. Risque : turnover, perte de recettes, erreurs de facturation, incohérence de service. L'IA seule ne sauvera rien ; il faut d'abord un squelette humain/organisationnel."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Aucune formalisation des recettes, des portions, des protocoles de service — le savoir est volatil et personnel.",
+        "levier": "Créer un cahier de cuisine numérique (recettes, fiches techniques, photos, portions, coûts) et un guide de service (accueil, prise de commande, présentation des plats) — documents vivants, accessibles, mis à jour collectivement.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier de 2 jours avec le chef et l'équipe de salle : transcrire 15 recettes phares + 8 protocoles clés en fiches structurées (ingrédients, étapes, timing, photo). Stocker dans un classeur partagé (Google Drive ou Notion). Nommer un responsable de mise à jour mensuelle.",
+        "indicateur": "100 % des recettes phares documentées, 1 audit mensuel de conformité (goût/portion), taux de satisfaction client stable ou +5 % en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Suivi des devis inexistant (1/5) : devis écrits au dos de serviettes, jamais relancés, clients oubliés, chiffre d'affaires événementiel perdu.",
+        "levier": "Mettre en place un registre simple de devis (papier ou tableur) : date, client, montant, date de relance, statut (accepté/refusé/en attente). Relancer systématiquement à J+7 et J+14.",
+        "type": "humain",
+        "mise_en_oeuvre": "Créer un modèle de devis Word + un tableau Excel de suivi (5 colonnes : client, date, montant, statut, date relance). Désigner un responsable (30 min/semaine). Relances par SMS ou mail selon le client. Objectif : 0 devis oublié, 1 relance systématique.",
+        "indicateur": "Taux de conversion devis → commande (baseline 0 %, cible 35 %), chiffre d'affaires événementiel +8000 €/an, délai moyen de réponse client < 48 h."
+      },
+      {
+        "palier": 2,
+        "frein": "Absence d'outils numériques pour capturer et exploiter la voix du client (avis, retours, préférences) — perte d'intelligence commerciale.",
+        "levier": "Intégrer un formulaire de feedback post-service (QR code en table ou mail après événement) + agrégateur d'avis Google/TripAdvisor. Analyser mensuellement : plats préférés, points d'amélioration, clients à fidéliser.",
+        "type": "IA",
+        "mise_en_oeuvre": "Créer un QR code (Typeform ou Google Forms, 5 questions : note, plat préféré, amélioration, recommandation). Imprimer sur les tables. Exporter les réponses chaque mois dans un tableau de bord simple (Google Sheets). Utiliser un agent IA (ChatGPT ou Zapier) pour résumer les tendances et proposer des ajustements de menu/service.",
+        "indicateur": "Taux de réponse > 20 %, 1 rapport mensuel de tendances, 1 ajustement de menu/trimestre basé sur les retours, NPS > 8/10."
+      },
+      {
+        "palier": 2,
+        "frein": "Gestion des stocks et des coûts de matière première opaque — marge réelle inconnue, achats non optimisés.",
+        "levier": "Implémenter un suivi simplifié des coûts par plat (coût matière / prix de vente) et des stocks (feuille de calcul ou app légère type MarginPro). Identifier les plats à marge faible et les opportunités d'optimisation.",
+        "type": "IA",
+        "mise_en_oeuvre": "Créer un tableau Excel ou Google Sheets : plat, coût matière estimé, prix de vente, marge %. Mettre à jour 1×/mois avec les factures fournisseurs. Utiliser un agent IA pour alerter sur les écarts de coût > 10 % et proposer des ajustements tarifaires ou de recette.",
+        "indicateur": "Coût matière connu pour 100 % des plats phares, marge moyenne identifiée, 1 optimisation/trimestre, marge brute +2-3 points."
+      },
+      {
+        "palier": 1,
+        "frein": "Organisation fragile : pas de délégation claire, pas de plan de succession, risque de rupture si départ du dirigeant ou du chef.",
+        "levier": "Définir les rôles clés (chef, responsable salle, responsable achats/stocks) et documenter les responsabilités. Créer un plan de formation interne pour les nouveaux (onboarding de 1 semaine).",
+        "type": "humain",
+        "mise_en_oeuvre": "Réunion d'équipe : clarifier qui fait quoi, qui remplace qui en cas d'absence. Créer une fiche de poste par rôle (2 pages). Documenter le processus d'accueil d'un nouveau (jour 1 : accueil, jour 2-3 : protocoles, jour 4-5 : autonomie supervisée). Nommer un mentor par nouveau.",
+        "indicateur": "Fiches de poste validées, 1 nouveau intégré avec succès en 5 jours, taux de rétention équipe +10 % en 6 mois, zéro perte de savoir-faire lors de départ."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Formalisation recettes + protocoles (cahier numérique)",
+          "inaction_an": 3000,
+          "invest_1x": 800,
+          "recurrent_an": 200
+        },
+        {
+          "poste": "Suivi des devis + relances",
+          "inaction_an": 8000,
+          "invest_1x": 300,
+          "recurrent_an": 150
+        },
+        {
+          "poste": "Feedback client + analyse IA",
+          "inaction_an": 4000,
+          "invest_1x": 600,
+          "recurrent_an": 300
+        },
+        {
+          "poste": "Suivi coûts matière + optimisation",
+          "inaction_an": 2500,
+          "invest_1x": 400,
+          "recurrent_an": 100
+        },
+        {
+          "poste": "Organisation + plan de succession",
+          "inaction_an": 1000,
+          "invest_1x": 200,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 18500,
+      "invest_total": 2300,
+      "recurrent_an": 750,
+      "gain_an": 17750,
+      "roi_net_an": 17000,
+      "payback_mois": 1,
+      "fourchette": "Retour immédiat (< 1 mois) sur les devis + formalisation ; gains cumulés visibles en 3 mois."
+    },
+    "cadence": "Point mensuel de suivi (15 min, 1er lundi du mois) : taux de conversion devis, feedback clients, marge brute, conformité recettes. Prochaine BOUSSOLE dans 3 mois pour mesurer le resserrement de l'écart (objectif : intérieur 76, extérieur 80, écart -4).",
+    "synthese": {
+      "externe": "Vous avez une belle maison ; il est temps de lui donner des fondations solides. En 3 mois, vous aurez des recettes écrites, des devis relancés, et une vraie connaissance de ce que vos clients aiment. Pas de révolution — juste de l'ordre. Et ce qui suit ? Une marge plus saine, une équipe plus autonome, une entreprise qui vaut quelque chose au-delà de vous.",
+      "interne": "Refroidissement de -12 : l'image surpromet. Levier prioritaire = organisationnel (formalisation, processus humains), pas technologique. L'IA intervient en palier 2 (feedback, coûts) pour amplifier, pas pour sauver. ROI net 17000 €/an avec 2300 € d'investissement : crédible pour une TPE restaurant. Angle commercial : repositionner comme « audit de maturité opérationnelle » (pas juste IA) ; le dirigeant a besoin de structure avant d'outils. Prochaine étape : valider l'engagement sur les 2-3 leviers palier 1, puis proposer un accompagnement léger (3 mois, 2-3 jours de consulting) pour fixer le squelette."
+    }
+  }
+}
