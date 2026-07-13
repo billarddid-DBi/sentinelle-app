@@ -1,0 +1,274 @@
+{
+  "type": "boussole",
+  "mode": "Express",
+  "nom": "La Romana",
+  "date": "13/07/2026",
+  "indice": 61,
+  "etoiles": 3,
+  "aura": {
+    "couleur": "Orange",
+    "sens": "la chaleur",
+    "definition": "La proximité et la convivialité, une relation humaine forte.",
+    "eclat": "rayonnant"
+  },
+  "trajectoire": {
+    "exterieure": 84,
+    "interieure": 61,
+    "potentiel": 86,
+    "indiceVerite": -23,
+    "indiceProgression": 25
+  },
+  "piliers": {
+    "Vision": 68,
+    "Organisation": 60,
+    "Processus": 60,
+    "Informations": 60,
+    "Outils": 60,
+    "Décisions": 60,
+    "Clients": 60,
+    "Performance": 60
+  },
+  "faibles": [],
+  "details": [
+    {
+      "pilier": "Vision",
+      "sous": "Cap & objectifs",
+      "crit": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+      "note": 3
+    },
+    {
+      "pilier": "Vision",
+      "sous": "Positionnement & différenciation",
+      "crit": "L'entreprise sait précisément ce qui la distingue",
+      "note": 3
+    },
+    {
+      "pilier": "Vision",
+      "sous": "Stratégie formalisée",
+      "crit": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+      "note": 3
+    },
+    {
+      "pilier": "Vision",
+      "sous": "Adhésion & partage",
+      "crit": "L'équipe connaît la direction de l'entreprise",
+      "note": 5
+    },
+    {
+      "pilier": "Vision",
+      "sous": "Anticipation & innovation",
+      "crit": "L'entreprise surveille les évolutions de son marché",
+      "note": 3
+    },
+    {
+      "pilier": "Organisation",
+      "sous": "Rôles & responsabilités",
+      "crit": "Chacun connaît son rôle et son périmètre",
+      "note": 3
+    },
+    {
+      "pilier": "Organisation",
+      "sous": "Délégation & autonomie",
+      "crit": "Le dirigeant délègue réellement (pas tout sur lui)",
+      "note": 3
+    },
+    {
+      "pilier": "Organisation",
+      "sous": "Climat social & RH",
+      "crit": "L'ambiance de travail est saine",
+      "note": 3
+    },
+    {
+      "pilier": "Organisation",
+      "sous": "Recrutement & intégration",
+      "crit": "Le recrutement est anticipé (pas dans l'urgence)",
+      "note": 3
+    },
+    {
+      "pilier": "Organisation",
+      "sous": "Compétences & dépendance",
+      "crit": "Les compétences clés sont identifiées",
+      "note": 3
+    },
+    {
+      "pilier": "Processus",
+      "sous": "Formalisation",
+      "crit": "Les façons de faire sont écrites (procédures)",
+      "note": 3
+    },
+    {
+      "pilier": "Processus",
+      "sous": "Délais & fluidité",
+      "crit": "Les délais annoncés sont tenus",
+      "note": 3
+    },
+    {
+      "pilier": "Processus",
+      "sous": "Qualité & fiabilité",
+      "crit": "La qualité des livrables est constante",
+      "note": 3
+    },
+    {
+      "pilier": "Processus",
+      "sous": "Optimisation",
+      "crit": "Les tâches répétitives sont identifiées",
+      "note": 3
+    },
+    {
+      "pilier": "Processus",
+      "sous": "Coordination & articulation",
+      "crit": "Les outils et les process sont bien articulés",
+      "note": 3
+    },
+    {
+      "pilier": "Informations",
+      "sous": "Connaissance client & marché",
+      "crit": "On sait pourquoi on gagne un dossier ou une vente",
+      "note": 3
+    },
+    {
+      "pilier": "Informations",
+      "sous": "Capitalisation du savoir-faire",
+      "crit": "Le savoir-faire est documenté (pas que dans les têtes)",
+      "note": 3
+    },
+    {
+      "pilier": "Informations",
+      "sous": "Centralisation & accès",
+      "crit": "Les données sont centralisées (pas éparpillées)",
+      "note": 3
+    },
+    {
+      "pilier": "Informations",
+      "sous": "Circulation de l'information",
+      "crit": "L'information circule bien entre les personnes",
+      "note": 3
+    },
+    {
+      "pilier": "Informations",
+      "sous": "Fiabilité & sécurité",
+      "crit": "Les données sont fiables (peu d'erreurs)",
+      "note": 3
+    },
+    {
+      "pilier": "Outils",
+      "sous": "Équipement & performance",
+      "crit": "Les outils et équipements du quotidien sont performants",
+      "note": 3
+    },
+    {
+      "pilier": "Outils",
+      "sous": "Fluidité des tâches",
+      "crit": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+      "note": 3
+    },
+    {
+      "pilier": "Outils",
+      "sous": "Maîtrise des outils",
+      "crit": "L'équipe maîtrise bien les logiciels utilisés",
+      "note": 3
+    },
+    {
+      "pilier": "Outils",
+      "sous": "Intégration & interopérabilité",
+      "crit": "Les outils communiquent entre eux (pas de double saisie)",
+      "note": 3
+    },
+    {
+      "pilier": "Outils",
+      "sous": "Adoption des technologies",
+      "crit": "L'entreprise teste de nouvelles solutions",
+      "note": 3
+    },
+    {
+      "pilier": "Décisions",
+      "sous": "Pilotage par indicateurs",
+      "crit": "Les décisions s'appuient sur des données (pas au feeling)",
+      "note": 3
+    },
+    {
+      "pilier": "Décisions",
+      "sous": "Chiffrage & tarification",
+      "crit": "Le chiffrage / devis suit une méthode objective",
+      "note": 3
+    },
+    {
+      "pilier": "Décisions",
+      "sous": "Réactivité décisionnelle",
+      "crit": "Les décisions sont prises rapidement quand il le faut",
+      "note": 3
+    },
+    {
+      "pilier": "Décisions",
+      "sous": "Suivi des décisions",
+      "crit": "On mesure les résultats des décisions prises",
+      "note": 3
+    },
+    {
+      "pilier": "Décisions",
+      "sous": "Tableaux de bord",
+      "crit": "Des tableaux de bord existent et sont utilisés",
+      "note": 3
+    },
+    {
+      "pilier": "Clients",
+      "sous": "Réputation & image",
+      "crit": "La réputation de l'entreprise est bonne",
+      "note": 3
+    },
+    {
+      "pilier": "Clients",
+      "sous": "Prospection & développement",
+      "crit": "La prospection est structurée (pas au hasard)",
+      "note": 3
+    },
+    {
+      "pilier": "Clients",
+      "sous": "Satisfaction client",
+      "crit": "La satisfaction client est mesurée",
+      "note": 3
+    },
+    {
+      "pilier": "Clients",
+      "sous": "Fidélisation & relation",
+      "crit": "La fidélisation est travaillée (pas que la conquête)",
+      "note": 3
+    },
+    {
+      "pilier": "Clients",
+      "sous": "Portefeuille & dépendance",
+      "crit": "Le portefeuille client est équilibré",
+      "note": 3
+    },
+    {
+      "pilier": "Performance",
+      "sous": "Rentabilité",
+      "crit": "La rentabilité est suivie et maîtrisée",
+      "note": 3
+    },
+    {
+      "pilier": "Performance",
+      "sous": "Stabilité & résilience",
+      "crit": "Les résultats sont stables dans le temps",
+      "note": 3
+    },
+    {
+      "pilier": "Performance",
+      "sous": "Trésorerie & finances",
+      "crit": "La trésorerie est saine",
+      "note": 3
+    },
+    {
+      "pilier": "Performance",
+      "sous": "Productivité",
+      "crit": "La productivité est mesurée",
+      "note": 3
+    },
+    {
+      "pilier": "Performance",
+      "sous": "Croissance & pérennité",
+      "crit": "La croissance est maîtrisée et soutenable",
+      "note": 3
+    }
+  ]
+}
