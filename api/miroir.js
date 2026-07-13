@@ -6,6 +6,7 @@ const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d
 DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité.
 
 PRINCIPES IMPÉRATIFS :
+- OBJECTIVITÉ ABSOLUE (règle n°1, avant tout le reste) : chaque affirmation de "cadre" et "verite" doit être TRAÇABLE à une donnée fournie — un pilier /100, un critère noté, l'écart de Vérité. CITE la source dans la phrase : « votre pilier Informations est à 35/100 », « le critère "X" est noté 1/5 ». Tu ne disposes QUE de ces scores + la liste de critères notés : tu n'as NI le CA, NI les menus, NI le gaspillage, NI la fidélisation réels. Donc n'affirme JAMAIS une spécificité métier comme un FAIT (ex : « les menus se font au feeling », « le gaspillage n'est pas mesuré », « 10 à 15 % de CA perdu ») si elle n'est pas dans les données : formule-la en HYPOTHÈSE au CONDITIONNEL, explicitement marquée « à confirmer avec vous » (« il se peut que… »). Tout montant ou pourcentage (€, %) est une ESTIMATION prudente avec fourchette, jamais un chiffre certain. Règle simple : ou bien la phrase est sourcée par une note, ou bien c'est une piste au conditionnel — jamais une certitude sortie de nulle part.
 - SÉPARE ce qui relève de l'IA (tâches concrètes et répétitives : devis, relances, comptes rendus, voix du client, capitalisation du savoir) de ce qui relève du MANAGEMENT/humain (climat, cap, gouvernance). L'IA ne règle PAS l'humain : on le nomme et on oriente (type "humain" ou "externe"). Ne vends jamais le mauvais levier.
 - GARDE-FOU HUMAIN / ÉQUIPE (impératif) : ne JUGE JAMAIS les personnes ni l'équipe. Toute cause managériale ou humaine se formule en HYPOTHÈSE à explorer, au CONDITIONNEL (« il se peut que… », « à confronter en entretien… »), jamais en verdict ni en reproche. Distingue toujours l'ORGANISATION / le SYSTÈME (améliorable) des GENS (respectés, bénéfice du doute sur leurs intentions et leur engagement). On parle process, pas procès. Reste lucide et exigeant, MAIS juste, mesuré et bienveillant — surtout dans "verite".
 - PLAN en 2 PALIERS : palier 1 = redevenir cohérent avec son image (corriger les freins, souvent humains/organisationnels) ; palier 2 = dépasser grâce aux outils IA. Pour chaque levier : frein → levier (préconisation) → type ("IA"|"externe"|"humain") → mise en œuvre concrète → indicateur de suivi. EXACTEMENT 4 à 5 leviers priorisés (jamais plus).
@@ -47,6 +48,7 @@ export default async function handler(req, res) {
     const b = req.body || {};
     const piliers = (b.piliers && typeof b.piliers === "object") ? Object.keys(b.piliers).map(k => `${k}: ${b.piliers[k]}/100`).join(" · ") : "n.c.";
     const faibles = Array.isArray(b.faibles) ? b.faibles.slice(0, 20).join(" · ") : "aucun";
+    const criteres = (Array.isArray(b.criteres) && b.criteres.length) ? b.criteres.map(x => `${x.c} (${x.n}/5)`).join(" · ") : "n.c.";
     const user = `Entreprise : ${b.nom || "?"}
 Activité / archétype : ${b.activite || "?"} / ${b.archetype || "?"}
 Indice INTÉRIEUR (BOUSSOLE, réalité) : ${b.indiceInterieur != null ? b.indiceInterieur : "?"} /100
@@ -55,6 +57,7 @@ Indice EXTÉRIEUR (SENTINELLE, image) : ${b.indiceExterieur != null ? b.indiceEx
 Potentiel visé : ${b.potentiel != null ? b.potentiel : "?"} /100
 8 piliers : ${piliers}
 Critères faibles (≤2/5) : ${faibles}
+Critères réellement notés faibles/moyens (à CITER ; n'invente RIEN au-delà de cette liste + les piliers) : ${criteres}
 Couleur/nature IVE : ${b.aura || "?"}
 
 Rédige le MIROIR (JSON strict, schéma imposé).`;
