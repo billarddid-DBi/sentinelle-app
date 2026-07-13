@@ -1,0 +1,125 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Référence Pare-Brise Augny",
+  "date": "2026-07-13T12:25:51.718Z",
+  "contexte": {
+    "nom": "Référence Pare-Brise Augny",
+    "activite": "Réparation et remplacement de pare-brises, vitrages automobiles, calibrage ADAS",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 73,
+    "indiceExterieur": 87,
+    "potentiel": 98,
+    "ecart": -14,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Organisation": 60,
+      "Processus": 60,
+      "Informations": 60,
+      "Outils": 80,
+      "Décisions": 88,
+      "Clients": 100,
+      "Performance": 76
+    },
+    "faibles": [
+      "L'équipe maîtrise bien les logiciels utilisés (1/5)",
+      "La trésorerie est saine (1/5)"
+    ],
+    "aura": "Bleu — la fiabilité"
+  },
+  "miroir": {
+    "priorite": "Réconcilier l'image de solidité (87) avec la réalité opérationnelle (73) : renforcer la vision stratégique et l'organisation interne pour que la performance technique rejoint la réputation client.",
+    "economie_an": 34000,
+    "cadre": {
+      "externe": "Référence Pare-Brise Augny jouit d'une excellente réputation auprès de ses clients (100/100) et d'une prise de décision rapide (88/100). Cependant, la vision stratégique, l'organisation et les processus restent à consolider pour transformer cette confiance en croissance durable et rentabilité prévisible.",
+      "interne": "Écart de −14 : l'image vendue (87) dépasse la maturité réelle (73). La racine n'est pas technique (Outils 80, Clients 100) mais managériale : vision floue (60), organisation ad hoc (60), processus non documentés (60), maîtrise logicielle faible (1/5). La trésorerie fragile (1/5) signale une gestion financière réactive, non proactive. Levier commercial : consolider cette base avant de vendre la croissance."
+    },
+    "verite": {
+      "externe": "Vous avez bâti une réputation solide grâce à l'excellence client et à des décisions justes. Mais cette excellence repose encore trop sur les personnes, pas assez sur les processus et la stratégie. Tant que l'équipe ne maîtrise pas les outils (1/5), chaque départ devient un risque, et la trésorerie reste fragile. Le potentiel existe : il attend que l'organisation le soutienne.",
+      "interne": "Archétype Bleu (fiabilité) bien incarné côté client, mais fragilisé en interne. L'écart −14 révèle une surpromesse d'image : l'équipe tient par l'engagement personnel, pas par la structure. Risques : turnover, perte de savoir-faire, marge compressée. Opportunité : 3 leviers simples (vision partagée, documentation, formation logicielle) redonnent cohérence et ouvrent la croissance IA (devis automatisés, suivi ADAS, relances clients)."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Vision stratégique floue (60/100) : pas de cap clair sur 3 ans, priorités mélangées, équipe désalignée.",
+        "levier": "Définir et documenter la vision 2027 (croissance, spécialisation ADAS, rentabilité cible) en atelier dirigeant + top management (2 jours).",
+        "type": "humain",
+        "mise_en_oeuvre": "Séminaire de 2 jours avec facilitateur externe ; sortie : 1 page vision + 3 axes prioritaires + OKR annuels affichés.",
+        "indicateur": "Vision documentée, 100% de l'équipe peut la restituer en 30 secondes ; alignement mesuré trimestriellement."
+      },
+      {
+        "palier": 1,
+        "frein": "Organisation ad hoc (60/100) : rôles flous, responsabilités chevauchées, maîtrise logicielle très faible (1/5) = dépendance personnelle.",
+        "levier": "Cartographier les rôles/responsabilités (RACI) et lancer un plan de formation logicielle (CRM, devis, ADAS) : 1 référent par fonction.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 1 jour (RACI) + plan de formation 3 mois (4h/semaine par personne, e-learning + pair-à-pair) ; certification interne.",
+        "indicateur": "RACI signé, 80% de l'équipe certifiée sur logiciels métier ; taux d'erreur saisie −30%."
+      },
+      {
+        "palier": 1,
+        "frein": "Trésorerie fragile (1/5) : pas de visibilité cash, facturation réactive, délais clients non maîtrisés.",
+        "levier": "Mettre en place un suivi hebdomadaire de trésorerie (cash-flow prévisionnel 13 semaines) et automatiser les relances factures.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégration simple : connecter CRM + comptabilité ; script IA pour relances factures (email + SMS) 5j et 15j après facturation.",
+        "indicateur": "DSO réduit de 10 jours (cible : 35j) ; trésorerie prévisible 13 semaines ; gain de cash-flow immédiat."
+      },
+      {
+        "palier": 2,
+        "frein": "Processus non documentés (60/100) : chaque devis, chaque relance client, chaque compte rendu ADAS = travail manuel, sans capitalisation.",
+        "levier": "Automatiser 3 processus clés : génération de devis (IA + templates), relances clients (voix du client intégrée), comptes rendus ADAS (modèles + extraction données).",
+        "type": "IA",
+        "mise_en_oeuvre": "Phase 1 (mois 1-2) : devis (économie 5h/semaine) ; Phase 2 (mois 3-4) : relances (économie 3h/semaine) ; Phase 3 (mois 5-6) : ADAS (économie 4h/semaine).",
+        "indicateur": "Temps devis −60%, taux de conversion +8%, délai ADAS −40%, satisfaction client stable/+."
+      },
+      {
+        "palier": 2,
+        "frein": "Informations fragmentées (60/100) : pas de tableau de bord unifié, décisions sur données partielles, historique client peu exploité.",
+        "levier": "Construire un tableau de bord IA (KPI temps réel : CA/jour, devis/conversion, ADAS/satisfaction, trésorerie) ; capitaliser la voix du client.",
+        "type": "IA",
+        "mise_en_oeuvre": "Dashboard 1 mois (Power BI ou Metabase sur données CRM + compta) ; IA analyse feedback clients (NPS drivers, points faibles) ; réunion hebdo sur données.",
+        "indicateur": "Dashboard consulté 5j/7 ; décisions basées sur données (vs intuition) +70% ; NPS stable, satisfaction ADAS +5 pts."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Automatisation devis + relances factures (IA)",
+          "inaction_an": 18000,
+          "invest_1x": 3500,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Formation logicielle + RACI (humain)",
+          "inaction_an": 12000,
+          "invest_1x": 2800,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Tableau de bord + voix client (IA)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 600
+        },
+        {
+          "poste": "Suivi trésorerie + relances (IA)",
+          "inaction_an": 6000,
+          "invest_1x": 1200,
+          "recurrent_an": 400
+        }
+      ],
+      "inaction_an": 44000,
+      "invest_total": 9500,
+      "recurrent_an": 3000,
+      "gain_an": 41000,
+      "roi_net_an": 38000,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel (1h, dirigeant + prescripteur) pour suivre mise en œuvre et ajuster ; prochaine BOUSSOLE dans 6 mois (après palier 1 + début palier 2).",
+    "synthese": {
+      "externe": "Votre prochaine étape : clarifier la vision 2027 et former l'équipe sur les outils. Ces deux actions consolident votre réputation et libèrent 12h/semaine pour la croissance ADAS. En 6 mois, vous serez en position de doubler la rentabilité sans augmenter les effectifs. Le potentiel est là ; l'organisation le rattrape maintenant.",
+      "interne": "Angle commercial : l'écart −14 est une OPPORTUNITÉ. Consolider la base (vision, organisation, formation) en 3 mois, puis vendre la croissance IA (devis, ADAS, trésorerie) auprès du dirigeant comme levier de scaling sans risque. ROI 38k€/an, payback 3 mois : c'est du solide pour une PME Bleu. Prochaine étape : atelier vision (semaine 1), puis déploiement par vagues. Angle : « De la fiabilité à la scalabilité »."
+    }
+  }
+}
