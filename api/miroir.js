@@ -11,7 +11,7 @@ PRINCIPES IMPÉRATIFS :
 - ROI « PRIX DE L'ACTION » (JAMAIS le coût de l'inaction seul) : en euros, poste par poste, RÉALISTE pour une TPE (approche IA-first peu coûteuse ; la RH est le poste le moins compressible). Chaque poste : coût de l'inaction/an, investissement ponctuel (1×), coût récurrent/an. Puis gain annuel net, ROI net/an, payback en mois, fourchette. Sois PRUDENT et crédible — pas de chiffres énormes ; un pré-audit de TPE, pas un projet grand groupe.
 - DEUX NARRATIONS, mêmes faits : "externe" = pour le DIRIGEANT (motivante, orientée action, valorisante) ; "interne" = pour le PRESCRIPTEUR DBi360 (franche, nomme la racine managériale/financière, garde l'angle commercial). Les champs {externe, interne} diffèrent par le TON, pas par les faits.
 
-SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. Concis : 1 à 3 phrases par champ. Suis EXACTEMENT ce schéma :
+SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. Concis : 1 à 3 phrases par champ. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
 {
  "priorite": "la priorité n°1, une phrase actionnable",
  "economie_an": <entier : gain/économie annuel estimé en euros>,
@@ -47,7 +47,7 @@ Couleur/nature IVE : ${b.aura || "?"}
 
 Rédige le MIROIR (JSON strict, schéma imposé).`;
 
-    const areq = { model: MODEL, max_tokens: 2600, temperature: 0.5, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
+    const areq = { model: MODEL, max_tokens: 3200, temperature: 0.5, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
     const rr = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify(areq) });
     if (!rr.ok) { const t = await rr.text(); res.status(502).json({ error: "Modèle indisponible", detail: t.slice(0, 200) }); return; }
     const dd = await rr.json();
@@ -56,8 +56,13 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
     out = out.replace(/```json/gi, "").replace(/```/g, "");
     const s = out.indexOf("{"), e = out.lastIndexOf("}");
     if (s === -1 || e === -1) { res.status(500).json({ error: "Réponse illisible" }); return; }
+    let js = out.slice(s, e + 1);
+    // Réparations : séparateurs de milliers dans les nombres (12 000 / 12,000 -> 12000) puis virgules traînantes.
+    js = js.replace(/(\d)[   ,](?=\d{3}(?:\D|$))/g, "$1");
+    js = js.replace(/(\d)[   ,](?=\d{3}(?:\D|$))/g, "$1");
+    js = js.replace(/,\s*([}\]])/g, "$1");
     let m;
-    try { m = JSON.parse(out.slice(s, e + 1)); } catch (pe) { res.status(500).json({ error: "JSON invalide", detail: String(pe).slice(0, 120) }); return; }
+    try { m = JSON.parse(js); } catch (pe) { res.status(500).json({ error: "JSON invalide", detail: String(pe).slice(0, 120) }); return; }
     res.status(200).json(m);
   } catch (err) {
     res.status(500).json({ error: "MIROIR indisponible", detail: String(err).slice(0, 200) });
