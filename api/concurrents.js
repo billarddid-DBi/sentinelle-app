@@ -188,6 +188,17 @@ async function claudeFind(kw, prospect, ville, rad, key) {
   return { prospectData: parsed.prospect || {}, concurrents: geocoded };
 }
 
+// Élargit un mot-clé métier vers des termes que Google Places reconnaît (jargon FR souvent mal indexé). Extensible.
+function expandKw(kw) {
+  const a = norm(kw);
+  if (/syndic|copropri/.test(a)) return ["gestion locative", "administrateur de biens", "agence immobiliere"];
+  if (/avocat|juridique|juriste|notaire/.test(a)) return ["avocat", "cabinet juridique", "notaire"];
+  if (/comptab/.test(a)) return ["expert comptable", "cabinet comptable"];
+  if (/assurance|assureur|mutuelle/.test(a)) return ["assurance", "agent general assurance", "courtier assurance"];
+  if (/kine|osteo|podolog|infirmier|paramedic/.test(a)) return ["kinesitherapeute", "cabinet paramedical", "osteopathe"];
+  return [];
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   try {
@@ -221,13 +232,19 @@ export default async function handler(req, res) {
 
     // 2) Les CONCURRENTS ; le PROSPECT = le résultat le PLUS PROCHE du centre (même liste -> même fiche que s'il était concurrent)
     if (gkey) {
-      const g = await googleTextSearch(`${kw} près de ${prospectCommune}`, center.lat, center.long, rad, gkey);
-      if (g.status === "OK") {
+      // Collecte des lieux ; si le mot-clé métier ne "parle" pas à Google (jargon FR : syndic, copropriété…), on élargit avec des synonymes.
+      const seen = {}; const places = [];
+      const gather = async (q) => {
+        const g = await googleTextSearch(`${q} près de ${prospectCommune}`, center.lat, center.long, rad, gkey);
+        if (g.status === "OK") for (const p of (g.results || [])) { const l = (p.geometry || {}).location || {}; if (p.place_id && !seen[p.place_id] && l.lat != null) { seen[p.place_id] = 1; places.push(p); } }
+      };
+      await gather(kw);
+      if (places.length < 4) { for (const alt of expandKw(kw)) { await gather(alt); if (places.length >= 9) break; } }
+      if (places.length) {
         source = "google";
         const rows = [];
-        for (const p of g.results) {
+        for (const p of places) {
           const loc2 = (p.geometry || {}).location || {};
-          if (loc2.lat == null) continue;
           const dist = Math.round(haversine(center.lat, center.long, loc2.lat, loc2.lng) * 10) / 10;
           rows.push({ nom: p.name, commune: townFrom(p.formatted_address), lat: loc2.lat, long: loc2.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: null, site: null });
         }

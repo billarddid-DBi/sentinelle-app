@@ -26,6 +26,8 @@ DIMENSIONS DE PERFORMANCE VISIBLE (impératif, pour l'Index Aura) : note chacune
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
+PLATEFORMES DU SECTEUR (recherche web, IMPORTANT) : vérifie s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect (ex : syndics → Syndic Compare, MeilleureCopro ; restaurants → TheFork ; médecins/praticiens → Doctolib ; avocats → annuaires notés ; artisans → plateformes d'avis dédiées). Sur certains métiers (syndic, santé, juridique…), la vraie réputation se joue LÀ, pas sur Google — donc c'est un signal précieux. Renseigne "plateformes" avec UNIQUEMENT celles qui EXISTENT VRAIMENT (confirmées par la recherche web) et leur URL réelle : 0 à 3 max. Si aucune plateforme spécialisée n'existe pour ce métier, renvoie []. N'INVENTE JAMAIS de plateforme ni d'URL.
+
 SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
 {
  "nom": "Nom de l'entreprise",
@@ -41,6 +43,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "quickwins": ["action 1","action 2","action 3"],
  "avis": "synthèse des avis (ou 'Non trouvé publiquement')",
  "presence": "présence & réseaux",
+ "plateformes": [ { "nom": "nom exact de la plateforme", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…" } ],
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "…" } ],
@@ -150,7 +153,7 @@ export default async function handler(req, res) {
       max_tokens: 8000,
       temperature: 0,
       system: METHODE,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
       messages: [{ role: "user", content: userContent }]
     };
 

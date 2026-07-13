@@ -685,6 +685,8 @@ function render(d,skipSave){
       <div><div style="font-weight:600;color:${col};"><i class="ti ti-speakerphone"></i> Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
     </div></div>
 
+    ${(d.plateformes&&d.plateformes.length)?`<div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-scale"></i> Plateformes de comparaison du secteur</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où votre réputation se joue aussi — au-delà de Google.</div>${d.plateformes.map(p=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;"><i class="ti ti-external-link" style="color:${col};"></i><div style="flex:1;"><a href="${esc(p.url||'#')}" target="_blank" style="font-weight:600;color:#1f2937;text-decoration:none;">${esc(p.nom)}</a><div style="font-size:11px;color:#6b7280;">${esc(p.role||'')}</div></div></div>`).join('')}</div>`:''}
+
     <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
       <div class="grid2" style="font-size:12px;margin-top:8px;">
         <div class="mini"><b style="color:${col};">Financier</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.financier)}</div></div>
