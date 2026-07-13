@@ -253,7 +253,7 @@ export default async function handler(req, res) {
       if (isWide(kw) || places.length < 4) { for (const alt of expandKw(kw)) { await gather(alt); if (places.length >= 12) break; } }
       if (places.length) {
         source = "google";
-        const rows = [];
+        let rows = [];
         for (const p of places) {
           const loc2 = (p.geometry || {}).location || {};
           const dist = Math.round(haversine(center.lat, center.long, loc2.lat, loc2.lng) * 10) / 10;
@@ -263,6 +263,14 @@ export default async function handler(req, res) {
         let selfRow = null;
         if (rows.length && rows[0].distance <= 0.25) selfRow = rows.shift();
         else if (prospectPlace) selfRow = { nom: prospectNom, placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null };
+        // Exclure toute AUTRE occurrence du prospect (2e fiche Google au place_id différent, ou même nom).
+        const pn = norm(prospectNom || "");
+        rows = rows.filter(function (r) {
+          if (prospectPlace && r.placeId === prospectPlace.place_id) return false;
+          const rn = norm(r.nom || "");
+          if (pn.length >= 6 && rn && (rn.indexOf(pn) !== -1 || pn.indexOf(rn) !== -1)) return false;
+          return true;
+        });
         // Archétype LARGE : on garde les 8 MEILLEURS (réputation), pas les 8 plus proches. LOCAL : les 8 plus proches (tri distance déjà fait).
         if (isWide(kw)) rows.sort((a, b) => repScore(b) - repScore(a));
         concurrents = rows.slice(0, 8);
