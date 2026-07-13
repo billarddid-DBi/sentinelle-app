@@ -188,6 +188,17 @@ async function claudeFind(kw, prospect, ville, rad, key) {
   return { prospectData: parsed.prospect || {}, concurrents: geocoded };
 }
 
+// Archétype "large" : le concurrent pertinent n'est PAS le plus proche (syndic, immobilier, B2B, bureau d'études, libéral spécialisé…) -> on élargit et on classe par réputation, pas par distance. Contrairement au local (resto, coiffeur, garage, artisan de proximité).
+function isWide(kw) {
+  const a = norm(kw);
+  return /syndic|copropri|immobil|gestion.?locative|administrateur.?de.?biens|courtier|\bbanque|assurance|avocat|notaire|comptab|\bexpert|huissier|bureau.?etud|ingenier|conseil|agence.?web|informatique|logiciel|industr|sous.?trait|\bb2b|metrolog|\bscan\b|architec/.test(a);
+}
+// Score de réputation (note + volume d'avis) pour classer les concurrents "larges" par qualité, pas par proximité.
+function repScore(r) {
+  const rt = (r.avis && r.avis.note != null) ? r.avis.note : 0;
+  const n = (r.avis && r.avis.nombre) ? r.avis.nombre : 0;
+  return rt * 100 + Math.min(60, Math.log10(n + 1) * 22);
+}
 // Élargit un mot-clé métier vers des termes que Google Places reconnaît (jargon FR souvent mal indexé). Extensible.
 function expandKw(kw) {
   const a = norm(kw);
@@ -239,7 +250,7 @@ export default async function handler(req, res) {
         if (g.status === "OK") for (const p of (g.results || [])) { const l = (p.geometry || {}).location || {}; if (p.place_id && !seen[p.place_id] && l.lat != null) { seen[p.place_id] = 1; places.push(p); } }
       };
       await gather(kw);
-      if (places.length < 4) { for (const alt of expandKw(kw)) { await gather(alt); if (places.length >= 9) break; } }
+      if (isWide(kw) || places.length < 4) { for (const alt of expandKw(kw)) { await gather(alt); if (places.length >= 12) break; } }
       if (places.length) {
         source = "google";
         const rows = [];
@@ -252,6 +263,8 @@ export default async function handler(req, res) {
         let selfRow = null;
         if (rows.length && rows[0].distance <= 0.25) selfRow = rows.shift();
         else if (prospectPlace) selfRow = { nom: prospectNom, placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null };
+        // Archétype LARGE : on garde les 8 MEILLEURS (réputation), pas les 8 plus proches. LOCAL : les 8 plus proches (tri distance déjà fait).
+        if (isWide(kw)) rows.sort((a, b) => repScore(b) - repScore(a));
         concurrents = rows.slice(0, 8);
         try {
           const w = profil(kw);

@@ -26,7 +26,7 @@ DIMENSIONS DE PERFORMANCE VISIBLE (impératif, pour l'Index Aura) : note chacune
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
-PLATEFORMES DU SECTEUR (recherche web, IMPORTANT) : vérifie s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect (ex : syndics → Syndic Compare, MeilleureCopro ; restaurants → TheFork ; médecins/praticiens → Doctolib ; avocats → annuaires notés ; artisans → plateformes d'avis dédiées). Sur certains métiers (syndic, santé, juridique…), la vraie réputation se joue LÀ, pas sur Google — donc c'est un signal précieux. Renseigne "plateformes" avec UNIQUEMENT celles qui EXISTENT VRAIMENT (confirmées par la recherche web) et leur URL réelle : 0 à 3 max. Si aucune plateforme spécialisée n'existe pour ce métier, renvoie []. N'INVENTE JAMAIS de plateforme ni d'URL.
+PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »). N'INVENTE JAMAIS de plateforme ni d'URL.
 
 SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
 {
@@ -43,7 +43,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "quickwins": ["action 1","action 2","action 3"],
  "avis": "synthèse des avis (ou 'Non trouvé publiquement')",
  "presence": "présence & réseaux",
- "plateformes": [ { "nom": "nom exact de la plateforme", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…" } ],
+ "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…" } ] (0 à 5, CLASSÉES meilleure→moins bonne),
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "…" } ],
