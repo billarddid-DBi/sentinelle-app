@@ -57,6 +57,8 @@
   .simrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
   .simrow input[type=range]{flex:1.3;}
   .simrow .val{font-size:12px;font-weight:600;width:64px;text-align:right;}
+  .naBtn{font-size:10px;color:#9ca3af;border:1px solid #e6e1d8;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;flex-shrink:0;}
+  .naBtn.on{color:#fff;background:#9ca3af;border-color:#9ca3af;}
   .foot{padding:11px 16px;background:#f8fafc;font-size:10.5px;color:#6b7280;line-height:1.5;}
 </style>
 </head>
@@ -287,7 +289,7 @@ function startGrille(mode){
     if(mode==='complet' && it.sous!==curS){ curS=it.sous;
       html+='<div style="font-size:10.5px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;border-bottom:1px solid #f0e6dd;padding-bottom:3px;">'+esc(curS)+'</div>';
     }
-    html+='<div style="margin-top:10px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;">'+esc(it.crit)+'</div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bcalc()"><span class="val" id="'+it.id+'v">3</span></div></div>';
+    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.crit)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bcalc()"><span class="val" id="'+it.id+'v">3</span></div></div>';
   });
   if(open)html+='</div>';
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
@@ -300,6 +302,7 @@ function bScan(){
   var items=window.bItems||[], sum=0,n=0,pil={},faibles=[];
   items.forEach(function(it){
     var el=$(it.id); if(!el) return;
+    if(el.dataset.na==='1') return;
     var v=+el.value; var lab=$(it.id+'v'); if(lab) lab.textContent=v;
     sum+=v;n++;
     if(!pil[it.pilier]) pil[it.pilier]={s:0,n:0};
@@ -316,6 +319,13 @@ function bcalc(){
   var fz=$('bFaibles');
   if(r.faibles.length){var sh=r.faibles.slice(0,10),ex=r.faibles.length-sh.length;fz.style.display='block';fz.innerHTML='<b><i class="ti ti-alert-triangle"></i> Points faibles (≤2/5) — '+r.faibles.length+' besoin(s) à creuser :</b><br>• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres…</i>':'');}
   else fz.style.display='none';
+}
+function toggleNA(id){
+  var el=$(id),btn=$(id+'_na'),lab=$(id+'v'),row=$(id+'_row');
+  var on=el.dataset.na==='1';
+  if(on){ el.dataset.na=''; el.disabled=false; if(btn)btn.classList.remove('on'); if(row)row.style.opacity=''; if(lab)lab.textContent=el.value; }
+  else { el.dataset.na='1'; el.disabled=true; if(btn)btn.classList.add('on'); if(row)row.style.opacity='.45'; if(lab)lab.textContent='n/c'; }
+  bcalc();
 }
 function bFinish(){
   var r=bScan();
@@ -357,7 +367,7 @@ function bFinish(){
    +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
    +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
    +'<div style="font-size:11px;color:#9ca3af;line-height:1.45;margin-top:8px;">Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.</div></div>';
-  var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:el?+el.value:null};});
+  var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:(!el||el.dataset.na==='1')?null:+el.value};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
   var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
     var c=energyColor(r.pil[p]);
@@ -367,10 +377,10 @@ function bFinish(){
   var sdmap={},sdord=[];
   details.forEach(function(d){var k=d.pilier+'|'+d.sous;if(!sdmap[k]){sdmap[k]={pil:d.pilier,sous:d.sous,s:0,n:0};sdord.push(k);}if(d.note!=null){sdmap[k].s+=d.note;sdmap[k].n++;}});
   var heatRows='',curHP=null,hopen=false;
-  sdord.forEach(function(k){var o=sdmap[k];var sc=o.n?Math.round(o.s/(o.n*5)*100):0;
+  sdord.forEach(function(k){var o=sdmap[k];var na=(o.n===0);var sc=na?0:Math.round(o.s/(o.n*5)*100);
     if(o.pil!==curHP){if(hopen)heatRows+='</div>';heatRows+='<div style="display:flex;align-items:stretch;gap:3px;margin-bottom:3px;"><div style="width:58px;font-size:10px;font-weight:600;color:#4b5563;display:flex;align-items:center;">'+esc(o.pil)+'</div>';curHP=o.pil;hopen=true;}
-    var info=esc(o.sous)+' — '+sc+'/100 · '+energyWord(sc);
-    heatRows+='<div style="flex:1;background:'+energyColor(sc)+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+sc+'</div></div>';
+    var info=na?(esc(o.sous)+' — non concerné'):(esc(o.sous)+' — '+sc+'/100 · '+energyWord(sc));
+    heatRows+='<div style="flex:1;background:'+(na?'#d1d5db':energyColor(sc))+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+(na?'n/c':sc)+'</div></div>';
   });
   if(hopen)heatRows+='</div>';
   var heatSec='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-temperature"></i> Carte d\'énergie — sous-domaines</div>'
