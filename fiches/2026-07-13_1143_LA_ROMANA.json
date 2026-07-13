@@ -1,0 +1,158 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Restaurant pizzeria italienne",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établissement solide",
+    "atout": "Réputation locale forte, qualité reconnue"
+  },
+  "identite": "SIREN 839452786, SAS (Société par actions simplifiée), restaurant italien établi depuis plusieurs décennies (31 ans mentionnés), effectif < 10 salariés, comptes confidentiels (< 700 k€ CA ou < 350 k€ bilan en 2022).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      65,
+      60,
+      70,
+      55,
+      45,
+      65,
+      78,
+      72
+    ],
+    "potentiel": [
+      78,
+      75,
+      82,
+      72,
+      68,
+      78,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients (importés du sud de l'Italie), accueil chaleureux, tradition familiale, service attentionné.",
+  "imagePercue": "Institution locale bien établie, pizzeria de référence en Moselle, réputée pour ses pizzas au feu de bois et ses pâtes fraîches. Image de convivialité et de qualité, bien que des avis mentionnent une transition récente (changement de propriétaires) avec quelques variations de qualité.",
+  "vigilance": [
+    {
+      "niveau": "🟡",
+      "texte": "Transition de propriétaires récente : avis mentionnent une baisse de qualité temporaire (pâtes dures, attentes longues) après changement de direction, mais redressement observé."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale basique mais fonctionnelle : Facebook actif (92% de recommandation), site menu (menufyy), mais pas de site propre ni Instagram détecté."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients globalement très positifs (4.4-4.6/5 sur multiples plateformes, 667+ avis) avec reconnaissance de l'authenticité et du service."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Gestion opérationnelle : quelques signaux de friction (attentes longues en takeaway, organisation variable), suggérant une marge de structuration des flux."
+    }
+  ],
+  "quickwins": [
+    "Optimiser les délais de préparation (takeaway) via un système de commande en ligne avec créneau horaire",
+    "Mettre en place un CRM simple pour fidéliser les clients réguliers et relancer les anciens habitués",
+    "Automatiser la gestion des réservations (actuellement recommandées mais manuelles) pour réduire les appels et les no-shows",
+    "Créer un Instagram avec photos des plats et stories en direct pour amplifier la visibilité locale",
+    "Documenter les recettes et les processus clés pour sécuriser la qualité lors des changements d'équipe"
+  ],
+  "avis": "Très positifs globalement : 4.4/5 sur Restaurant Guru (667 avis), 4.6/5 sur TripAdvisor (84 avis), 7.9/10 sur RestoRanking (523 avis). Clients louent la qualité des pizzas au feu de bois, l'authenticité italienne, l'accueil chaleureux et les portions généreuses. Quelques avis critiques post-transition mentionnent des attentes longues et une qualité variable, mais les avis récents (2024-2025) montrent un redressement et une satisfaction retrouvée.",
+  "presence": "Facebook actif (1 070 likes, 92% de recommandation, 18 avis), site menu (menufyy.com), présence sur TripAdvisor, Google, Restaurant Guru, Sluurpy, Eat-List. Pas de site propre détecté, pas d'Instagram visible. Activité Facebook discrète mais régulière.",
+  "site": "https://la-romana.menufyy.com/",
+  "intel": {
+    "financier": "Comptes confidentiels (< 700 k€ CA ou < 350 k€ bilan en 2022). Effectif < 10 salariés. Pas de données publiques détaillées. Clôture des comptes : 30 septembre.",
+    "concurrence": "Marché local : pizzerias et restaurants italiens à Maizières et Metz (Le Venezia, Planet Pizza mentionnés). La Romana classée #1 sur TripAdvisor à Maizières, position forte localement.",
+    "visibilite": "Bonne réputation en ligne (avis nombreux et positifs), mais présence digitale basique (pas de site propre, pas de réseaux sociaux modernes). Dépendance aux agrégateurs (Google, TripAdvisor, etc.). Potentiel d'amélioration via contenu visuel et engagement social.",
+    "dirigeant": "Non trouvé publiquement. Transition récente de propriétaires mentionnée dans les avis (ancien propriétaire Massimo, nouveau propriétaire non nommé). Équipe décrite comme entièrement transalpine (italienne)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire les appels manuels, capturer les réservations 24/7, envoyer des rappels SMS/email pour diminuer les no-shows et optimiser le taux de remplissage."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Optimiseur de délais (takeaway)",
+      "benefice": "Intégrer un système de commande en ligne avec créneau horaire estimé, afficher le temps d'attente en temps réel, réduire les appels de suivi et améliorer la satisfaction."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de fidélité & relance",
+      "benefice": "CRM simple pour tracker les clients réguliers, envoyer des offres personnalisées, relancer les anciens habitués (« nous vous avons manqué »), augmenter le panier moyen."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de recettes & processus",
+      "benefice": "Capitaliser le savoir-faire (recettes, techniques, timing), sécuriser la qualité lors des changements d'équipe, former les nouveaux pizzaiolos plus rapidement."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Amplificateur Instagram & contenu visuel",
+      "benefice": "Créer un compte Instagram avec photos des plats, stories en direct, reels de préparation, hashtags locaux pour attirer les jeunes clients et amplifier le bouche-à-oreille."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur d'avis & e-réputation",
+      "benefice": "Monitorer les avis en temps réel, répondre rapidement aux critiques, identifier les points faibles (délais, qualité) et piloter les améliorations."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative & réservations"
+  },
+  "coutInaction": "Sans optimisation, le restaurant continue à perdre du temps sur les appels de réservation, les relances de no-shows et les attentes clients en takeaway. Risque de voir les anciens habitués se tourner vers la concurrence si la qualité post-transition n'est pas stabilisée et communiquée.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Réservations manuelles par téléphone, gestion des no-shows au cas par cas, attentes longues en takeaway sans visibilité, fidélité basée sur le bouche-à-oreille, avis gérés passivement.",
+    "avecIA": "Réservations en ligne 24/7 avec rappels automatiques, commandes takeaway avec créneau estimé, CRM pour relancer les clients réguliers, contenu Instagram automatisé, monitoring des avis avec alertes."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer votre croissance : optimiser les flux opérationnels, sécuriser la qualité post-transition et amplifier votre présence digitale sans surcharger l'équipe.",
+  "indice": {
+    "estime": 84,
+    "potentiel": 100
+  },
+  "dimensions": {
+    "avis": 85,
+    "reseaux": 50,
+    "site": 40,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Chaleur & convivialité",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne par son authenticité italienne, son accueil chaleureux et sa capacité à créer du lien avec sa clientèle locale, malgré une transition récente qui teste sa résilience.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide de 31 ans comme institution locale, avec une clientèle fidèle qui reconnaît l'authenticité de sa cuisine et la qualité de son service. Malgré une transition de propriétaires qui a créé des turbulences, les avis récents (2024-2025) montrent un redressement et une satisfaction retrouvée, prouvant la force du modèle et le potentiel de croissance via une meilleure structuration digitale et opérationnelle.",
+  "sources": "PagesJaunes (SIREN 839452786, SAS, comptes confidentiels), TripAdvisor (84 avis, 4.6/5), Restaurant Guru (667 avis, 4.4/5), RestoRanking (523 avis, 7.9/10), Facebook (1 070 likes, 92% recommandation), Menufyy (site menu), Eat-List, Sluurpy, Petit Futé, Societe.com (effectif < 10, CA < 700 k€ en 2022). Confiance : haute pour avis clients et identité légale, moyenne pour données financières (confidentielles).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
