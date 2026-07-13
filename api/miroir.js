@@ -21,7 +21,7 @@ SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balis
  "roi": {
    "postes": [ {"poste": "...", "inaction_an": <entier €>, "invest_1x": <entier €>, "recurrent_an": <entier €>} ],
    "inaction_an": <entier € total>, "invest_total": <entier € total>, "recurrent_an": <entier € total>,
-   "gain_an": <entier € net/an>, "roi_net_an": <entier € net après coûts>, "payback_mois": <entier>, "fourchette": "ex : 8 à 14 mois de retour"
+   "gain_an": <entier € : GAIN RÉEL NET par an = coût d'inaction évité − coût récurrent/an>, "roi_net_an": <entier € net après coûts>, "payback_mois": <entier>, "fourchette": "ex : 8 à 14 mois de retour"
  },
  "cadence": "rythme recommandé + prochaine échéance (ex : point mensuel, prochaine BOUSSOLE dans 3 mois)",
  "synthese": {"externe": "le prochain pas, ton dirigeant", "interne": "le prochain pas + angle commercial, ton prescripteur"}

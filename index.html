@@ -75,7 +75,7 @@
     <div class="hero-ekg" aria-hidden="true">
       <svg class="ekg-blip" viewBox="0 0 72 18" preserveAspectRatio="none"><polyline points="0,9 26,9 31,9 35,2 40,16 44,9 72,9" fill="none" stroke="#E8541A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>
     </div>
-    <div class="hero-sub">SENTINELLE · votre entreprise vue de l'extérieur</div>
+    <div class="hero-sub">votre entreprise vue de l'extérieur</div>
   </div>
 
   <div class="panel" id="form">
@@ -289,11 +289,17 @@ function mPlan(m,pal){
 function mRoi(m){
   var roi=m.roi||{}, postes=roi.postes||[];
   var rows=postes.map(function(p){ return '<tr style="border-top:1px solid #eef2f5;"><td style="padding:5px 6px;">'+esc(p.poste||'')+'</td><td style="text-align:right;padding:5px 6px;color:#991b1b;">'+eur(p.inaction_an)+'</td><td style="text-align:right;padding:5px 6px;">'+eur(p.invest_1x)+'</td><td style="text-align:right;padding:5px 6px;">'+eur(p.recurrent_an)+'</td></tr>'; }).join('');
+  var gain=(roi.gain_an!=null)?roi.gain_an:((roi.inaction_an!=null&&roi.recurrent_an!=null)?(roi.inaction_an-roi.recurrent_an):roi.roi_net_an);
   return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-coin"></i> ROI — le prix de l\'action</div>'
-    +'<div style="overflow-x:auto;margin-top:8px;"><table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:5px 6px;">Poste</th><th style="padding:5px 6px;">Inaction/an</th><th style="padding:5px 6px;">Invest. 1×</th><th style="padding:5px 6px;">Récurrent/an</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
-    +'<div class="grid2" style="margin-top:10px;"><div class="mini"><div class="l">Gain net / an</div><div class="v" style="color:#16a34a;">'+eur(roi.gain_an!=null?roi.gain_an:roi.roi_net_an)+'</div></div><div class="mini"><div class="l">Retour sur investissement</div><div class="v">'+esc(roi.fourchette||(roi.payback_mois!=null?roi.payback_mois+' mois':'n.c.'))+'</div></div></div>'
-    +'<div class="hint" style="margin-top:8px;">Coût de l\'inaction : <b>'+eur(roi.inaction_an)+'/an</b> · investissement de départ : <b>'+eur(roi.invest_total)+'</b> · récurrent : <b>'+eur(roi.recurrent_an)+'/an</b>.</div>'
-    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;line-height:1.5;background:#faf9f6;border:1px dashed #e6e1d8;border-radius:8px;padding:8px 10px;"><i class="ti ti-alert-triangle"></i> Estimations indicatives, <b>sans engagement de DBi360</b> — ordres de grandeur IA-first pour une TPE. Au dirigeant de faire chiffrer précisément (devis) pour valider le ROI.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;">'
+      +'<div style="background:#fef2f2;border-radius:10px;padding:9px 6px;text-align:center;"><div style="font-size:10px;color:#991b1b;font-weight:600;line-height:1.2;">Prix de l\'inaction</div><div style="font-size:15px;font-weight:700;color:#dc2626;margin-top:4px;">'+eur(roi.inaction_an)+'</div><div style="font-size:9px;color:#9ca3af;margin-top:1px;">/an, sans rien changer</div></div>'
+      +'<div style="background:#fff7ed;border-radius:10px;padding:9px 6px;text-align:center;"><div style="font-size:10px;color:#9a3412;font-weight:600;line-height:1.2;">Prix de l\'action</div><div style="font-size:15px;font-weight:700;color:#ea580c;margin-top:4px;">'+eur(roi.invest_total)+'</div><div style="font-size:9px;color:#9ca3af;margin-top:1px;">de départ + '+eur(roi.recurrent_an)+'/an</div></div>'
+      +'<div style="background:#f0fdf4;border-radius:10px;padding:9px 6px;text-align:center;"><div style="font-size:10px;color:#15803d;font-weight:600;line-height:1.2;">Gain réel net</div><div style="font-size:15px;font-weight:700;color:#16a34a;margin-top:4px;">'+eur(gain)+'</div><div style="font-size:9px;color:#9ca3af;margin-top:1px;">/an, une fois lancé</div></div>'
+    +'</div>'
+    +'<div style="font-size:11.5px;color:#4b5563;margin-top:9px;"><i class="ti ti-clock"></i> Retour sur investissement : <b>'+esc(roi.fourchette||(roi.payback_mois!=null?roi.payback_mois+' mois':'n.c.'))+'</b></div>'
+    +'<div style="font-size:10.5px;color:#9ca3af;margin:11px 0 4px;">Détail poste par poste :</div>'
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:5px 6px;">Poste</th><th style="padding:5px 6px;">Inaction/an</th><th style="padding:5px 6px;">Invest. de départ/an</th><th style="padding:5px 6px;">Récurrent/an</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.5;background:#faf9f6;border:1px dashed #e6e1d8;border-radius:8px;padding:8px 10px;"><i class="ti ti-alert-triangle"></i> Estimations indicatives, <b>sans engagement de DBi360</b> — ordres de grandeur IA-first pour une TPE. Au dirigeant de faire chiffrer précisément (devis) pour valider le ROI.</div>'
   +'</div>';
 }
 function renderMiroir(){
@@ -322,7 +328,7 @@ function renderMiroir(){
     +'<div style="display:flex;gap:6px;padding:12px 16px 0;">'+tog('externe','Version dirigeant')+tog('interne','Version interne')+'</div>'
     +'<div class="sec"><div style="font-size:12.5px;color:#334155;line-height:1.6;">'+esc(pick(m.cadre))+'</div></div>'
     +vSec+pilRecap
-    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-flame"></i> La vérité, sans détour</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
+    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-eye"></i> Ma Vision</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
     +mRoi(m)
