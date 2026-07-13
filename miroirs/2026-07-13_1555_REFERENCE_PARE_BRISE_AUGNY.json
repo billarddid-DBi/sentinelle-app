@@ -1,0 +1,108 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Référence Pare-Brise Augny",
+  "date": "2026-07-13T15:55:13.559Z",
+  "contexte": {
+    "nom": "Référence Pare-Brise Augny",
+    "activite": "Réparation et remplacement de pare-brises, vitrages automobiles, calibrage ADAS",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 91,
+    "indiceExterieur": 87,
+    "potentiel": 100,
+    "ecart": 4,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 100,
+      "Organisation": 92,
+      "Processus": 88,
+      "Informations": 84,
+      "Outils": 90,
+      "Décisions": 88,
+      "Clients": 96,
+      "Performance": 88
+    },
+    "faibles": [],
+    "aura": "Bleu — la fiabilité"
+  },
+  "miroir": {
+    "priorite": "Consolider l'excellence opérationnelle en place (91/100) en fermant les 4 points d'écart avec l'image perçue : clarifier la stratégie IA auprès des clients et partenaires, et automatiser les 3-4 tâches répétitives critiques (devis, relances, rapports ADAS) pour passer de 91 à 96+/100 sans surcharge humaine.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Référence Pare-Brise Augny est une entreprise fiable, bien organisée et performante (91/100 de maturité IA). Vous êtes en position de force : l'image que vous projetez (87/100) est cohérente avec votre réalité. Le potentiel immédiat réside dans 3-4 automatisations légères (devis, suivi client, rapports techniques) qui consolideront votre avance concurrentielle et libéreront du temps pour la relation client et l'innovation ADAS.",
+      "interne": "Entreprise solide, archétype « Commerce établi & performant » avec BOUSSOLE 91/100 et SENTINELLE 87/100 : écart faible (4 pts), signe d'une bonne cohérence interne/externe. Aucun critère faible documenté ; les 8 piliers sont tous ≥84/100. Levier commercial : positionner l'IA comme facteur de fiabilité et de rapidité (marque Bleu), non comme menace ; la marge de progression (91→100) passe par l'automatisation des tâches non-cœur et la capitalisation du savoir technique ADAS."
+    },
+    "verite": {
+      "externe": "Vous êtes déjà excellent. L'écart de 4 points entre réalité (91) et image (87) suggère que vous ne communiquez peut-être pas assez sur vos forces : organisation, processus, relation client. Les clients et partenaires ne voient probablement pas toute la rigueur et la fiabilité qui vous caractérisent. Trois pistes : (1) rendre visible votre maîtrise ADAS et vos standards qualité ; (2) automatiser les tâches administratives pour accélérer les devis et les rapports (à confirmer si c'est un point d'attente client) ; (3) capitaliser sur les retours clients et les cas techniques pour renforcer votre expertise perçue.",
+      "interne": "Entreprise en bonne santé : BOUSSOLE 91/100 reflète une organisation mature, des processus structurés (88/100), une relation client forte (96/100) et une vision claire (100/100). L'écart BOUSSOLE-SENTINELLE de 4 pts est normal et sain — pas de sur-promesse, pas de sous-performance cachée. Racine du potentiel non exploité : (1) les tâches répétitives (devis, relances, rapports) ne sont probablement pas automatisées, ce qui freine la scalabilité et la vitesse perçue ; (2) le savoir technique ADAS n'est peut-être pas capitalisé en base (à confirmer avec les équipes) ; (3) l'image externe (87) pourrait monter à 92-94 avec une meilleure visibilité sur les standards qualité et les délais. Pas de frein humain ou managérial majeur détecté — c'est une question d'outils et de communication."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Tâches administratives répétitives (devis, relances, rapports ADAS) non automatisées → ralentissent la réactivité et consomment du temps technique.",
+        "levier": "Automatiser la génération de devis et les relances clients via IA (formulaires + templates) ; externaliser ou structurer les rapports ADAS en format semi-automatisé.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un outil IA léger (type ChatGPT + Zapier ou Make) pour : (1) devis à partir des données client (type, véhicule, service) ; (2) relances de suivi 24h/48h après intervention ; (3) génération de rapports ADAS structurés. Coût : 50-100€/mois SaaS + 2-3j de configuration.",
+        "indicateur": "Temps moyen devis : passer de 30-45 min à 10-15 min ; taux de relances envoyées : 100% vs ~70% estimé ; satisfaction client sur délai de rapport : +15 pts."
+      },
+      {
+        "palier": 1,
+        "frein": "Savoir technique ADAS et retours clients non capitalisés → chaque technicien réinvente, perte de cohérence et d'apprentissage collectif.",
+        "levier": "Créer une base de cas ADAS (problèmes courants, solutions, temps standard) accessible en atelier ; documenter les retours clients mensuels.",
+        "type": "externe",
+        "mise_en_oeuvre": "Mise en place d'une base de connaissance simple (Notion, Confluence ou Wiki interne) : 1 fiche par type de panne ADAS, 1 par retour client mensuel. Responsable : un technicien senior 2h/mois. Coût : 0€ (Notion gratuit) ou 50€/mois (Confluence).",
+        "indicateur": "Base alimentée à 80%+ en 3 mois ; temps diagnostic moyen ADAS : -10% ; taux de conformité rapports : +5 pts."
+      },
+      {
+        "palier": 2,
+        "frein": "Image externe (87/100) sous-estime la fiabilité et l'excellence opérationnelle réelles (91/100) → clients et partenaires ne perçoivent pas toute la valeur.",
+        "levier": "Communiquer explicitement sur les standards qualité, les délais garantis, la maîtrise ADAS et les certifications ; valoriser la fiabilité (marque Bleu) dans la signature client et les devis.",
+        "type": "humain",
+        "mise_en_oeuvre": "Ajouter un bandeau « Certifié ADAS » ou « Délai garanti 24h » sur les devis et factures ; former les équipes à valoriser les standards en appel/email ; créer 1 page « Nos engagements qualité » sur le site. Coût : 0€ (interne).",
+        "indicateur": "Image SENTINELLE : passer de 87 à 91-92/100 en 2-3 mois (re-audit) ; NPS client : +5 pts ; taux de recommandation : +8%."
+      },
+      {
+        "palier": 2,
+        "frein": "Pas de suivi prédictif des équipements ou des tendances clients → opportunités de cross-sell et de maintenance préventive manquées.",
+        "levier": "Mettre en place un CRM léger (type HubSpot gratuit ou Pipedrive) pour tracker les interventions, les délais de retour et les tendances (ex : clients revenant tous les 18 mois).",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un CRM simple : historique client, dates d'intervention, alertes de suivi. Coût : 0-50€/mois. Formation : 1j. Gain : identifier les clients à relancer pour maintenance, anticiper les pics saisonniers.",
+        "indicateur": "Taux de clients relancés pour maintenance : 30-40% en 6 mois ; CA maintenance préventive : +12-15% ; BOUSSOLE Informations : passer de 84 à 90/100."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Automatisation devis + relances (IA SaaS + configuration)",
+          "inaction_an": 8000,
+          "invest_1x": 1200,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Base de connaissance ADAS + documentation (outil + RH)",
+          "inaction_an": 5000,
+          "invest_1x": 400,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "CRM léger + suivi prédictif (SaaS + formation)",
+          "inaction_an": 6000,
+          "invest_1x": 800,
+          "recurrent_an": 600
+        }
+      ],
+      "inaction_an": 19000,
+      "invest_total": 2400,
+      "recurrent_an": 3000,
+      "gain_an": 16000,
+      "roi_net_an": 16000,
+      "payback_mois": 2,
+      "fourchette": "Retour sur investissement en 1 à 2 mois ; gain net annuel 16000€ (économies de temps + CA additionnel maintenance)."
+    },
+    "cadence": "Point mensuel de suivi (15 min) ; re-audit BOUSSOLE dans 3 mois pour valider la montée à 94-96/100 ; re-audit SENTINELLE dans 3-4 mois pour confirmer l'amélioration de l'image à 91+/100.",
+    "synthese": {
+      "externe": "Vous êtes déjà excellent (91/100). Les 3-4 prochains pas sont simples et rapides : automatiser les devis et relances (1 mois), documenter votre savoir ADAS (2 mois), communiquer vos standards qualité (immédiat), mettre en place un CRM pour anticiper les besoins clients (2 mois). Résultat : passer à 96+/100, accélérer la relation client, libérer du temps pour l'innovation. Investissement : 2400€ une fois, 3000€/an. Retour : 16000€/an net.",
+      "interne": "Entreprise solide, archétype performant. Potentiel : 91→96-98/100 en 3-4 mois via 4 leviers légers (IA SaaS + base de connaissance + CRM + communication). Pas de frein majeur ; c'est une question d'outillage et de capitalisation. Angle commercial : positionner l'IA comme facteur de fiabilité et de vitesse (marque Bleu), non comme menace RH. Marge brute estimée à récupérer : 16000€/an (8000€ temps + 8000€ CA additionnel). Payback 2 mois. Client prêt pour une accélération douce, sans rupture."
+    }
+  }
+}
