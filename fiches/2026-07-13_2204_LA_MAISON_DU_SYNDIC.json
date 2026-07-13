@@ -1,0 +1,185 @@
+{
+  "nom": "La Maison du Syndic",
+  "ville": "Moulins-lès-Metz (57160)",
+  "activite": "Syndic de copropriété, gestion immobilière",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Consolider & sécuriser",
+    "vigilanceNiveau": "🔴",
+    "vigilanceLabel": "Crise de confiance majeure",
+    "atout": "Portefeuille établi, équipe en place"
+  },
+  "identite": "SASU (anciennement SARL) au capital de 714 000 €, SIREN 812698611, créée en 2015, NAF 6832A (Administration d'immeubles). Siège à Moulins-lès-Metz (57160), 5 établissements. Effectif : 10-19 salariés (2021), 12 personnes (2024). Dirigeant : Kamel AOUDIA (via EVEL PARTICIPATIONS IMMOBILIERES depuis 2022). Gère 308-520 copropriétés, ~1 810-3 437 lots.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      25,
+      35,
+      30,
+      28,
+      40,
+      32,
+      15,
+      20
+    ],
+    "potentiel": [
+      55,
+      65,
+      60,
+      58,
+      70,
+      62,
+      50,
+      50
+    ]
+  },
+  "valeurs": "Proximité, gestion traditionnelle, équipe à taille humaine (affichées). Réalité perçue : absence de réactivité, manque de transparence, non-respect des obligations légales.",
+  "imagePercue": "Catastrophique en ligne. Note 1/5 sur PagesJaunes (7 avis), 1/5 sur Mappy. Avis GoWork : 67 avis très mitigés (quelques satisfaits, majorité critique). Plaintes récurrentes : injoignable, pas d'AG, erreurs comptables, non-suivi des dossiers, absence de communication.",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Réputation en effondrement : 1/5 sur annuaires publics, avis massifs de clients révoqués, accusations de suppression d'avis négatifs pour se refaire une image."
+    },
+    {
+      "niveau": "🔴",
+      "texte": "Défaillances opérationnelles graves : pas d'assemblées générales, erreurs comptables, injoignabilité chronique, non-respect des obligations légales de syndic."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Santé financière fragile : résultat net négatif (-12 477 € en 2024), CA stable mais marge érodée, structure sous tension."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale faible : site via Quadral (partenaire), LinkedIn dormant (22 abonnés), aucune stratégie de communication ou de gestion de crise."
+    }
+  ],
+  "quickwins": [
+    "Mettre en place un système de réponse téléphonique et email avec SLA (délai max 24h) pour retrouver la confiance",
+    "Automatiser les convocations d'AG et la transmission des documents comptables (plateforme dédiée ou logiciel syndic)",
+    "Auditer et corriger les erreurs comptables identifiées par les clients, publier un rapport de transparence",
+    "Lancer une campagne de récupération d'avis positifs auprès des clients satisfaits (Mme Jaggi, Mme Thoquer) pour rééquilibrer la réputation",
+    "Créer un tableau de bord de suivi des dossiers clients (demandes, interventions, délais) accessible aux copropriétaires"
+  ],
+  "avis": "Avis publics très négatifs (1/5 sur PagesJaunes, Mappy). GoWork : 67 avis mitigés. Plaintes majeures : injoignabilité, pas d'AG, erreurs comptables, suivi inexistant, non-respect des obligations légales. Quelques avis positifs isolés (Mme Jaggi, Mme Thoquer) mais noyés dans la critique. Accusations de suppression d'avis et création de faux profils pour améliorer la note.",
+  "presence": "LinkedIn : 22 abonnés, inactif. Site : via Quadral (partenaire, daté). Pas de présence propre visible (Facebook, Instagram, Twitter). Aucune communication proactive, aucune gestion de crise en ligne. Présence réduite à l'annuaire (PagesJaunes, Mappy, Kompass).",
+  "plateformes": [
+    {
+      "nom": "SyndiCompare",
+      "role": "Comparateur de syndics, avis clients, tarifs, disponibilité gestionnaires",
+      "url": "https://www.syndicompare.com"
+    },
+    {
+      "nom": "Immodvisor",
+      "role": "Plateforme d'avis vérifiés pour syndics de copropriété",
+      "url": "https://www.immodvisor.com/professionnels/syndic-de-copropriete"
+    },
+    {
+      "nom": "Meilleurecopro.com",
+      "role": "Comparateur de syndics, avis clients, classements régionaux",
+      "url": "https://www.meilleurecopro.com"
+    },
+    {
+      "nom": "Changersyndic.net",
+      "role": "Comparateur indépendant, mise en concurrence, devis gratuits",
+      "url": "https://www.changersyndic.net"
+    },
+    {
+      "nom": "FNAIM (fnaim.fr)",
+      "role": "Avis clients contrôlés pour syndics adhérents FNAIM (Opinion System)",
+      "url": "https://www.fnaim.fr"
+    }
+  ],
+  "site": "https://www.quadral.fr/agence/lamaisondusyndic/",
+  "intel": {
+    "financier": "CA 2024 : 1 014 838 € (+3% vs 2023). Résultat net : -12 477 € (baisse de 456% vs 2023). Structure équilibrée en 2020 mais dégradation récente. Capital : 714 000 €. Pas de retard de paiement signalé (RubyPayeur), mais marge opérationnelle érodée.",
+    "concurrence": "Marché très concurrentiel : syndics en ligne (Manda, Matera, Homeland, Cotoit), syndics traditionnels régionaux, syndics bénévoles. La Maison du Syndic positionnée sur petites copropriétés (<16 lots) mais perd des mandats à cause de la réputation. Comparateurs (SyndiCompare, Meilleurecopro) facilitent la mise en concurrence.",
+    "visibilite": "Très faible. Pas de site propre, présence via Quadral (partenaire). Aucune stratégie SEO, pas de contenu, pas de réseaux sociaux actifs. Réputation en ligne catastrophique (1/5), aucune gestion de crise. Clients trouvent facilement les avis négatifs.",
+    "dirigeant": "Kamel AOUDIA, représentant EVEL PARTICIPATIONS IMMOBILIERES (SAS, capital 7,5M€) depuis 2022. Anciens gérants : Jean-François PREVOT (2018-2020), Raoul GUINEBERT (avant 2018). Changement de gouvernance en 2022 (passage en SAS). Pas d'info publique sur l'âge ou la vision du dirigeant actuel."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Réceptionniste IA + CRM syndic",
+      "benefice": "Capturer tous les appels/emails, répondre en <2h, créer ticket automatique, réduire l'injoignabilité chronique"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Plateforme de suivi dossiers clients",
+      "benefice": "Tableau de bord transparent (demandes, interventions, délais), accessible aux copropriétaires, traçabilité complète"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Automatisation convocations AG + documents",
+      "benefice": "Générer et envoyer AG, comptes, PV en 1 clic, respecter les délais légaux, éviter les oublis"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Audit comptable + correction erreurs",
+      "benefice": "Identifier et corriger les erreurs comptables, publier rapport de transparence, retrouver confiance"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Collecteur d'avis + gestion réputation",
+      "benefice": "Solliciter avis positifs clients satisfaits, répondre aux critiques, rééquilibrer la note en ligne"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Tableau de bord financier temps réel",
+      "benefice": "Suivi budget, appels de fonds, dépenses, transparence comptable pour copropriétaires"
+    }
+  ],
+  "archetype": "Entreprise fragilisée",
+  "posture": "Consolidation & trésorerie (prudent)",
+  "chiffre": {
+    "unite": "€",
+    "label": "Perte d'exploitation annuelle à résorber"
+  },
+  "coutInaction": "Chaque mois sans action : perte de 2-3 mandats (révocation en AG), dégradation supplémentaire de la réputation en ligne, risque de procédures judiciaires des copropriétaires, érosion continue de la marge.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Appels non pris, emails sans réponse, AG oubliées, erreurs comptables, copropriétaires frustrés, avis 1/5, mandats perdus.",
+    "avecIA": "Tous les appels captés et traités en <2h, AG convoquées automatiquement, dossiers tracés, erreurs corrigées, copropriétaires informés, avis remontant, mandats stabilisés."
+  },
+  "cta": "Explorez BOUSSOLE pour définir une stratégie de redressement opérationnel et de restauration de confiance adaptée à votre structure.",
+  "indice": {
+    "estime": 49,
+    "potentiel": 67
+  },
+  "dimensions": {
+    "avis": 5,
+    "reseaux": 8,
+    "site": 15,
+    "traction": 35
+  },
+  "aura": {
+    "sens": "Fragilité sous tension",
+    "couleur": "Gris",
+    "definition": "L'entreprise traverse une période critique : portefeuille établi mais réputation effondrée, équipe en place mais débordée et injoignable, structure financière dégradée. Énergie de crise, pas de clarté.",
+    "eclat": "faible"
+  },
+  "fierte": "Malgré la tempête actuelle, La Maison du Syndic a bâti un portefeuille solide de 300+ copropriétés et 1 800+ lots, preuve d'une expertise réelle en gestion de petites copropriétés. Quelques clients très satisfaits (Mme Jaggi, Mme Thoquer) témoignent du potentiel de professionnalisme de l'équipe. Avec une refonte opérationnelle et une vraie stratégie de communication, le redressement est possible : la base existe, il faut la rendre visible et fiable.",
+  "sources": "INPI (812698611), RubyPayeur, Verif.com, PagesJaunes, Mappy, GoWork, Autour-de-moi.com, SyndiCompare, Agimmo, Quadral, LinkedIn, Annuaire-entreprises.data.gouv.fr. Confiance : INPI et données officielles (très haute), avis clients (haute, volume important), site partenaire Quadral (moyenne, daté), données financières (haute, BODACC 2024).",
+  "_auraCalc": {
+    "note_google": 2.5,
+    "nb_avis": 159,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 30,
+      "s": 40
+    }
+  }
+}
