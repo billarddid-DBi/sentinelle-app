@@ -1,0 +1,158 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟡",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, avis solides"
+  },
+  "identite": "SIREN 839452786, SAS créée 07/05/2018, 6-9 salariés. Président François Morano (66 ans, né 05/1959). Comptes confidentiels (< 700k€ CA ou < 350k€ bilan en 2022). Établissement historique depuis 1980 (ancienne structure PIZZERIA ROMANA dissoute 2018).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      60,
+      58,
+      50,
+      45,
+      55,
+      72,
+      65
+    ],
+    "potentiel": [
+      75,
+      80,
+      78,
+      75,
+      70,
+      75,
+      85,
+      80
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients frais, accueil chaleureux, tradition culinaire, service professionnel.",
+  "imagePercue": "Restaurant établi, réputé localement, connu pour ses pizzas au feu de bois et pâtes fraîches. Image de convivialité et de qualité, mais avec des signaux de transition post-reprise (changement de propriétaire/pizzaiolo en mars 2024 mentionné dans les avis).",
+  "vigilance": [
+    {
+      "niveau": "🟡",
+      "texte": "Transition post-reprise : restaurant vendu en mars 2024, ancien pizzaiolo parti. Certains avis rapportent une baisse de qualité (pâte dure, attentes longues) immédiatement après le changement."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Volatilité des avis : mélange de très bons avis récents (4.6/5 TripAdvisor, 4.4/5 Google) et critiques négatives sur la qualité post-reprise. Stabilisation en cours."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale basique mais fonctionnelle : Facebook actif (92% recommandation), pas de site web dédié. Horaires et infos disponibles sur annuaires."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Traction solide : clientèle fidèle, restaurant plein les samedis, bouche-à-oreille positif dominant malgré la transition."
+    }
+  ],
+  "quickwins": [
+    "Stabiliser la qualité & la recette des pizzas (pâte, cuisson) post-reprise → fidéliser les anciens clients",
+    "Optimiser les plannings & les appels de commande (réduire les attentes > 1h mentionnées)",
+    "Activer Facebook pour partager les plats du jour, les spécialités, les horaires (engagement faible actuellement)",
+    "Mettre en place un système de réservation simple (samedi saturé, clients qui attendent)",
+    "Capitaliser sur les avis positifs récents (Google 4.4, TripAdvisor 4.6) → demander des avis aux clients satisfaits"
+  ],
+  "avis": "Avis très positifs globalement : 4.6/5 sur TripAdvisor (84 avis, #1 restaurant local), 4.4/5 sur Google (667 avis), 7.9/10 sur RestoRanking (523 avis). Louanges : pizzas excellentes, pâtes fraîches, accueil chaleureux, service rapide. Critiques : quelques avis négatifs post-reprise (mars 2024) mentionnent pâte dure, attentes longues, baisse de qualité. Tendance actuelle : stabilisation positive avec avis récents (février-octobre 2025) très favorables.",
+  "presence": "Facebook actif (page Pizzeria La Romana, 92% recommandation, 18 avis). Pas de site web dédié. Présent sur annuaires (PagesJaunes, Mappy, TripAdvisor, Google, RestoRanking, Sluurpy). Horaires affichés (fermé lundi & dimanche, 12h-13h30 / 19h-21h45 du mardi au samedi). Pas de présence Instagram ou LinkedIn détectée.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels en 2022 (< 700k€ CA ou < 350k€ bilan). Effectif < 10 salariés. Pas de données financières publiques récentes. Reprise en 2024 suggère une transmission ou changement de propriétaire.",
+    "concurrence": "Marché local : 12 pizzerias à Maizières-lès-Metz. La Romana classée #1 sur Restaurant Guru. Concurrents : Le Venezia (pizza feu de bois, #9), autres restaurants italiens à Metz. Avantage : historique 1980, réputation établie, qualité reconnue.",
+    "visibilite": "Bonne visibilité locale (annuaires, avis en ligne). Faible présence digitale (pas de site, Facebook basique). Opportunité : améliorer la présence web, activer les réseaux, mettre en avant les spécialités.",
+    "dirigeant": "François Morano, 66 ans (né mai 1959), président depuis 14/09/2018. Reprise/transmission en 2024 (ancien propriétaire Massimo mentionné dans avis anciens). Morano semble être le nouveau propriétaire post-reprise. Pas d'informations publiques sur sa vision ou ses intentions."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Optimiseur de réservations & plannings",
+      "benefice": "Réduire les attentes (> 1h rapportées), gérer les pics samedi, anticiper les commandes → fluidité & satisfaction client"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de qualité & recettes",
+      "benefice": "Documenter & valider la recette des pizzas (pâte, cuisson, ingrédients) post-reprise → cohérence & fidélité"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Animateur Facebook & avis",
+      "benefice": "Publier plats du jour, spécialités, horaires, photos ; demander avis aux clients → engagement & visibilité"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Collecteur d'avis & réputation",
+      "benefice": "Automatiser les demandes d'avis post-visite (email, SMS) → augmenter le volume & la note moyenne"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Analyseur de food cost & gaspillage",
+      "benefice": "Tracker les invendus (pâtes, pizzas), optimiser les portions → marge & rentabilité"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Secrétaire virtuel (appels & RDV)",
+      "benefice": "Gérer les appels de commande, les réservations, les horaires → décharger l'équipe, réduire les erreurs"
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion des réservations, avis et plannings"
+  },
+  "coutInaction": "Chaque semaine sans optimisation des réservations & plannings coûte des clients frustrés (attentes > 1h), des avis négatifs post-reprise qui freinent la croissance, et une marge érodée par le gaspillage & les inefficacités opérationnelles. La transition post-reprise risque de consolider une image dégradée si la qualité & le service ne se stabilisent pas rapidement.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Appels de commande gérés manuellement, attentes longues samedi, avis demandés au hasard, recettes documentées oralement, food cost non suivi, Facebook peu actif.",
+    "avecIA": "Réservations & commandes optimisées (file d'attente visible), plannings anticipés, avis collectés automatiquement, recettes validées & documentées, gaspillage réduit, Facebook animé quotidiennement."
+  },
+  "cta": "Explorez BOUSSOLE pour définir votre stratégie post-reprise : stabiliser la qualité, optimiser les opérations, et transformer cette transition en opportunité de croissance.",
+  "indice": {
+    "estime": 84,
+    "potentiel": 100
+  },
+  "dimensions": {
+    "avis": 82,
+    "reseaux": 35,
+    "site": 0,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Chaleur & résilience",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une chaleur méditerranéenne authentique, portée par une équipe accueillante et une clientèle fidèle. Malgré la transition post-reprise, elle démontre une résilience remarquable et une capacité à se réinventer tout en préservant son essence.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide depuis 1980 : elle est le #1 restaurant local sur Google, avec 4.6/5 sur TripAdvisor et une clientèle fidèle qui revient régulièrement. Malgré une transition de propriétaire en 2024, l'équipe a su maintenir la qualité et l'accueil chaleureux qui font sa signature. Avec les bons leviers opérationnels (réservations, qualité, avis), ce restaurant peut consolider sa position et accélérer sa croissance post-reprise.",
+  "sources": "PagesJaunes (SIREN, RCS, effectif, comptes confidentiels 2022-2023), Pappers (identité dirigeant, dates), TripAdvisor (84 avis, 4.6/5, #1 local), Google/Restaurant Guru (667 avis, 4.4/5), RestoRanking (523 avis, 7.9/10), Sluurpy (79/100), Facebook (92% recommandation), LaCarte.Menu (avis post-reprise), Menu-pizza.fr (historique 1980), 118712 (horaires), Mappy (services). Confiance : HAUTE pour avis & réputation, MOYENNE pour données financières (confidentielles), MOYENNE pour dirigeant (peu d'infos publiques).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
