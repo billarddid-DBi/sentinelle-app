@@ -83,11 +83,10 @@
     <input type="text" id="q" placeholder="ex : La Romana, restaurant, Maizières-lès-Metz" autocomplete="off">
     <label style="margin-top:12px;">Infos terrain (facultatif)</label>
     <textarea id="field" placeholder="reprise, affaire familiale, réactivité, projet du dirigeant…"></textarea>
-    <button class="btn btn-primary" id="go"><i class="ti ti-search"></i> Lancer SENTINELLE</button>
+    <button class="btn btn-primary" id="go"><i class="ti ti-activity"></i> Lancer le LIVE</button>
     <button class="btn btn-ghost" id="cam"><i class="ti ti-camera"></i> Scanner une carte de visite</button>
     <input type="file" id="file" accept="image/*" capture="environment" style="display:none;">
     <div class="hint">Premier avis public, sans entretien — sources publiques et estimations. Le vrai diagnostic (BOUSSOLE) se fait en entretien.</div>
-    <button class="btn btn-ghost" style="margin-top:8px;border-style:dashed;" onclick="showView('bChoice')"><i class="ti ti-compass"></i> Diagnostic en entretien (BOUSSOLE) →</button>
     <button class="btn btn-ghost" style="margin-top:8px;" onclick="openHistory()"><i class="ti ti-folder"></i> Mes recherches (cloud)</button>
   </div>
 
@@ -271,6 +270,8 @@ function noSentinelleMsg(nom){
     +'<div style="font-size:12px;color:#7f1d1d;line-height:1.5;margin-top:5px;">La couleur IVE vient de SENTINELLE. Faites d\'abord le pré-diagnostic public de cette entreprise, puis revenez à la BOUSSOLE.</div>'
     +'<button class="btn btn-primary" style="margin-top:10px;" onclick="showView(\'form\')"><i class="ti ti-search"></i> Faire SENTINELLE d\'abord</button></div>');
 }
+function goBoussole(){ if($('bNom')&&window.lastNom) $('bNom').value=window.lastNom; if($('bExt'))$('bExt').value=''; bMsgHide(); showView('bChoice'); window.scrollTo(0,0); }
+function miroirSoon(){ alert("MIROIR arrive bientôt.\n\nCe sera l'ordonnance finale : plan d'action priorisé + ROI chiffré, construit à partir du LIVE et de la BOUSSOLE."); }
 function startBoussole(mode){
   var nom=($('bNom')&&$('bNom').value.trim())||'';
   if(!nom){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Entrez d\'abord le nom de l\'entreprise.</div>'); return; }
@@ -418,6 +419,7 @@ function bFinish(){
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
   $('bGrille').innerHTML=card
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
+   +'<button class="btn btn-primary" onclick="miroirSoon()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   window.scrollTo(0,0);
@@ -630,8 +632,9 @@ function render(d,skipSave){
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>
+  <button class="btn btn-primary" style="margin-top:10px;" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
   <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
-  <button class="btn btn-primary" style="margin-top:10px;" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence autour de vous</button>
+  <button class="btn btn-ghost" style="margin-top:10px;" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence autour de vous</button>
   <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()"><i class="ti ti-refresh"></i> Nouvelle entreprise</button>`;
 
   // Radar
