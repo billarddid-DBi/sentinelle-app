@@ -129,6 +129,7 @@
   </div>
 
   <div id="bGrille" style="display:none;"></div>
+  <div id="miroir" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -181,7 +182,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -271,7 +272,90 @@ function noSentinelleMsg(nom){
     +'<button class="btn btn-primary" style="margin-top:10px;" onclick="showView(\'form\')"><i class="ti ti-search"></i> Faire SENTINELLE d\'abord</button></div>');
 }
 function goBoussole(){ if($('bNom')&&window.lastNom) $('bNom').value=window.lastNom; if($('bExt'))$('bExt').value=''; bMsgHide(); showView('bChoice'); window.scrollTo(0,0); }
-function miroirSoon(){ alert("MIROIR arrive bientôt.\n\nCe sera l'ordonnance finale : plan d'action priorisé + ROI chiffré, construit à partir du LIVE et de la BOUSSOLE."); }
+function eur(n){ return (n==null||isNaN(n))?'n.c.':(Math.round(n).toLocaleString('fr-FR').replace(/ | /g,' ')+' €'); }
+function mTypeBadge(t){ t=(t||'').toLowerCase(); var c=(t.indexOf('ia')!==-1&&t.indexOf('extern')===-1&&t.indexOf('humain')===-1)?['#fdeee7','#cf4712','IA']:(t.indexOf('extern')!==-1?['#e6f1fb','#1d4ed8','Externe']:['#f1f5f9','#475569','Humain']); return '<span style="font-size:10px;font-weight:600;background:'+c[0]+';color:'+c[1]+';padding:2px 7px;border-radius:8px;white-space:nowrap;">'+c[2]+'</span>'; }
+function mPlan(m,pal){
+  var items=(m.plan||[]).filter(function(x){return (+x.palier)===pal;});
+  if(!items.length) return '<div style="font-size:11.5px;color:#9ca3af;margin-top:6px;">—</div>';
+  return items.map(function(x){
+    return '<div style="border:1px solid #efe9e0;border-radius:10px;padding:10px;margin-top:8px;">'
+      +'<div style="font-size:11px;color:#991b1b;"><b>Frein :</b> '+esc(x.frein||'')+'</div>'
+      +'<div style="font-size:13px;font-weight:600;color:#1C1C1C;margin-top:4px;">'+esc(x.levier||'')+' '+mTypeBadge(x.type)+'</div>'
+      +'<div style="font-size:11.5px;color:#4b5563;line-height:1.45;margin-top:3px;">→ '+esc(x.mise_en_oeuvre||'')+'</div>'
+      +'<div style="font-size:11px;color:#1d4ed8;margin-top:4px;"><i class="ti ti-target"></i> '+esc(x.indicateur||'')+'</div>'
+    +'</div>';
+  }).join('');
+}
+function mRoi(m){
+  var roi=m.roi||{}, postes=roi.postes||[];
+  var rows=postes.map(function(p){ return '<tr style="border-top:1px solid #eef2f5;"><td style="padding:5px 6px;">'+esc(p.poste||'')+'</td><td style="text-align:right;padding:5px 6px;color:#991b1b;">'+eur(p.inaction_an)+'</td><td style="text-align:right;padding:5px 6px;">'+eur(p.invest_1x)+'</td><td style="text-align:right;padding:5px 6px;">'+eur(p.recurrent_an)+'</td></tr>'; }).join('');
+  return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-coin"></i> ROI — le prix de l\'action</div>'
+    +'<div style="overflow-x:auto;margin-top:8px;"><table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:5px 6px;">Poste</th><th style="padding:5px 6px;">Inaction/an</th><th style="padding:5px 6px;">Invest. 1×</th><th style="padding:5px 6px;">Récurrent/an</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div class="grid2" style="margin-top:10px;"><div class="mini"><div class="l">Gain net / an</div><div class="v" style="color:#16a34a;">'+eur(roi.gain_an!=null?roi.gain_an:roi.roi_net_an)+'</div></div><div class="mini"><div class="l">Retour sur investissement</div><div class="v">'+esc(roi.fourchette||(roi.payback_mois!=null?roi.payback_mois+' mois':'n.c.'))+'</div></div></div>'
+    +'<div class="hint" style="margin-top:8px;">Coût de l\'inaction : <b>'+eur(roi.inaction_an)+'/an</b> · investissement de départ : <b>'+eur(roi.invest_total)+'</b> · récurrent : <b>'+eur(roi.recurrent_an)+'/an</b>.</div>'
+    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;line-height:1.5;background:#faf9f6;border:1px dashed #e6e1d8;border-radius:8px;padding:8px 10px;"><i class="ti ti-alert-triangle"></i> Estimations indicatives, <b>sans engagement de DBi360</b> — ordres de grandeur IA-first pour une TPE. Au dirigeant de faire chiffrer précisément (devis) pour valider le ROI.</div>'
+  +'</div>';
+}
+function renderMiroir(){
+  var m=window.miroirData, b=window.lastMiroir||{}, aud=window.miroirAud||'externe';
+  if(!m) return;
+  var pick=function(o){ return o?(aud==='interne'?(o.interne||o.externe||''):(o.externe||o.interne||'')):''; };
+  var vSec='';
+  if(b.ecart!=null){ var dv=b.ecart, vz=dv<=-20?0:dv<=-8?1:dv<8?2:dv<20?3:4;
+    vSec='<div class="sec"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Le miroir de l\'écart</div>'
+      +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Image perçue <b>'+(b.indiceExterieur!=null?b.indiceExterieur:'?')+'</b> → réalité <b>'+(b.indiceInterieur!=null?b.indiceInterieur:'?')+'</b> → potentiel <b>'+(b.potentiel!=null?b.potentiel:'?')+'</b></div>'
+      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)+'</div>';
+  }
+  var pilRecap='';
+  if(b.piliers){ var order=Object.keys(b.piliers).sort(function(a,c){return b.piliers[c]-b.piliers[a];});
+    pilRecap='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Diagnostic — les 8 piliers</div><div style="margin-top:8px;">'
+      +order.map(function(p){var v=b.piliers[p];return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11.5px;"><div style="width:92px;color:#4b5563;">'+esc(p)+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:12px;"><div style="width:'+v+'%;background:'+perfColor(v)+';height:12px;border-radius:5px;"></div></div><div style="width:24px;text-align:right;font-weight:600;">'+v+'</div></div>';}).join('')
+    +'</div></div>';
+  }
+  var au=AURAS[(b.aura||'').split(' — ')[0]]||AURAS['Bleu'];
+  var tog=function(a,lbl){return '<button class="btn '+(aud===a?'btn-primary':'btn-ghost')+'" style="margin-top:0;font-size:13px;padding:8px;" onclick="setMiroirAudience(\''+a+'\')">'+lbl+'</button>';};
+  var html='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-sparkles"></i> MIROIR · L\'ORDONNANCE</div>'
+      +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(b.nom||'')+'</div>'
+      +'<div style="font-size:12.5px;color:#e7dbd1;line-height:1.5;margin-top:6px;"><b>Priorité n°1 :</b> '+esc(m.priorite||'')+'</div>'
+      +'<div style="font-size:12px;color:#9ca3af;margin-top:6px;">Gain annuel estimé : <b style="color:#4ade80;">'+eur(m.economie_an)+'</b></div></div>'
+    +'<div style="display:flex;gap:6px;padding:12px 16px 0;">'+tog('externe','Version dirigeant')+tog('interne','Version interne')+'</div>'
+    +'<div class="sec"><div style="font-size:12.5px;color:#334155;line-height:1.6;">'+esc(pick(m.cadre))+'</div></div>'
+    +vSec+pilRecap
+    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-flame"></i> La vérité, sans détour</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
+    +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
+    +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
+    +mRoi(m)
+    +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-calendar"></i> Cadence</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;">'+esc(m.cadence||'')+'</div></div>'
+    +'<div class="sec" style="background:'+au.b+';"><div class="ktitle" style="color:'+au.t+';"><i class="ti ti-arrow-right"></i> Le prochain pas</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div></div>'
+    +'<div class="foot">MIROIR = ordonnance de pré-audit, à partir du LIVE (image) et de la BOUSSOLE (réalité). Le dirigeant garde son libre arbitre.</div>'
+  +'</div>'
+  +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
+  +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>'
+  +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  $('miroir').innerHTML=html; window.scrollTo(0,0);
+}
+function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
+function saveMiroir(m){
+  try{ var b=window.lastMiroir||{};
+    var payload={type:'miroir',mode:'miroir',nom:b.nom,date:new Date().toISOString(),contexte:b,miroir:m};
+    var css=document.querySelector('style')?document.querySelector('style').textContent:'';
+    var body=$('miroir').innerHTML.replace(/<button[\s\S]*?<\/button>/g,'');
+    var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td,table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
+    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'miroir',nom:b.nom,json:payload,html:html})})
+      .then(function(r){return r.json();}).then(function(x){var s=$('mSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> MIROIR enregistré sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';});
+  }catch(e){}
+}
+function runMiroir(){
+  var b=window.lastMiroir;
+  if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
+  showView('miroir');
+  $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action + ROI</span></div></div>';
+  fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
+    .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
+    .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; renderMiroir(); saveMiroir(m); })
+    .catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps. Réessayez dans un instant.</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; });
+}
 function startBoussole(mode){
   var nom=($('bNom')&&$('bNom').value.trim())||'';
   if(!nom){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Entrez d\'abord le nom de l\'entreprise.</div>'); return; }
@@ -417,9 +501,10 @@ function bFinish(){
    +heatSec
    +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
+  window.lastMiroir={nom:nom,activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,aura:aura+' — '+(ad&&ad.s||'')};
   $('bGrille').innerHTML=card
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
-   +'<button class="btn btn-primary" onclick="miroirSoon()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
+   +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   window.scrollTo(0,0);
