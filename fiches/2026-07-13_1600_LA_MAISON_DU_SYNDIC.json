@@ -1,0 +1,158 @@
+{
+  "nom": "La Maison du Syndic",
+  "ville": "Moulins-lès-Metz (57160)",
+  "activite": "Syndic de copropriétés et gestion immobilière",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Consolider & sécuriser",
+    "vigilanceNiveau": "🔴",
+    "vigilanceLabel": "Crise de réputation majeure",
+    "atout": "Portefeuille établi, équipe structurée"
+  },
+  "identite": "SAS créée en 2015 (SIREN 812698611), 12 salariés, dirigée par Kamel AOUDIA (gérant depuis 2020), filiale du groupe EVEL. Chiffre d'affaires 2024 : 1 014 838 €, résultat net : -12 477 €. Gère 520 copropriétés (3 437 lots).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      35,
+      28,
+      25,
+      30,
+      45,
+      32,
+      15,
+      20
+    ],
+    "potentiel": [
+      60,
+      65,
+      70,
+      70,
+      75,
+      70,
+      65,
+      60
+    ]
+  },
+  "valeurs": "Proximité, accessibilité, gestion professionnelle des petites copropriétés, accueil en maison plutôt qu'en bureaux classiques.",
+  "imagePercue": "Entreprise en crise de confiance majeure : avis très négatifs dominants (1/5 sur PagesJaunes, 2.4-2.5/5 sur comparateurs), plaintes récurrentes sur l'absence de service, l'inaccessibilité, les erreurs de gestion et comptables, le non-respect des obligations légales (AG, convocations, restitution de comptes).",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Réputation en effondrement : 1/5 sur PagesJaunes (7 avis), 2.4/5 sur MeilleureCoprô (188 avis), 2.5/5 sur SyndiCompare (155 avis). Avis unanimement négatifs : absence de service, impossibilité de joindre, non-respect des obligations légales."
+    },
+    {
+      "niveau": "🔴",
+      "texte": "Résultat financier négatif en 2024 (-12 477 €) malgré CA stable (1 014 838 €). Perte de confiance client visible : turnover d'équipe, stagiaires en charge de dossiers importants, clients qui changent de syndic."
+    },
+    {
+      "niveau": "🔴",
+      "texte": "Dysfonctionnements opérationnels graves : pas de convocation d'AG, pas de restitution de comptes, erreurs comptables minimisées, absence de suivi des travaux, délais de réponse inacceptables, personnel absent ou inaccessible."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Surcharge opérationnelle : avis clients mentionnent 'énormément de clients et personne pour bosser'. Capacité de gestion dépassée par la croissance du portefeuille (520 copropriétés)."
+    }
+  ],
+  "quickwins": [
+    "Audit interne complet des processus de gestion (AG, convocations, comptabilité, suivi travaux) et mise en conformité légale immédiate",
+    "Mise en place d'un système de réponse téléphonique et email avec SLA (délai max 48h) et escalade automatique",
+    "Recrutement et formation d'équipe dédiée par portefeuille client pour réduire la surcharge et améliorer la réactivité",
+    "Plan de récupération de réputation : réponse systématique aux avis négatifs, audit client, offre de compensation/renegociation",
+    "Digitalisation des processus critiques (convocations, PV, appels de fonds) pour réduire les erreurs et améliorer la traçabilité"
+  ],
+  "avis": "Avis publics très négatifs et cohérents : 1/5 (PagesJaunes, 7 avis), 2.4/5 (MeilleureCoprô, 188 avis), 2.5/5 (SyndiCompare, 155 avis). Plaintes récurrentes : absence de service, impossibilité de joindre, non-respect des obligations légales (AG, convocations, restitution de comptes), erreurs comptables, absence de suivi des travaux, personnel absent ou incompétent. Quelques avis positifs isolés mentionnent une amélioration récente avec une nouvelle gestionnaire, mais restent minoritaires.",
+  "presence": "Site web via quadral.fr (groupe parent), présence mineure. Pas de réseaux sociaux propres détectés. Présence en ligne très discrète, aucune activité de communication ou de gestion de réputation visible.",
+  "site": "https://www.quadral.fr/le-groupe-quadral/la-maison-du-syndic/",
+  "intel": {
+    "financier": "CA 2024 : 1 014 838 € (+2,67% vs 2023). Résultat net 2024 : -12 477 € (baisse de 456% vs 2023). Bilan total : 3 569 581 €. Fonds de roulement : 291 198 €. Rentabilité financière : 21,8 €. Situation équilibrée mais résultat négatif inquiétant.",
+    "concurrence": "Marché local très concurrentiel (syndics professionnels et bénévoles). Positionnement sur petites copropriétés (<16 lots) mais portefeuille réel bien plus large (520 copropriétés). Concurrence directe : Quadral Immobilier (groupe parent), Matera, autres syndics régionaux.",
+    "visibilite": "Très faible. Pas de présence digitale propre, site via groupe parent, aucune activité réseaux sociaux. Visibilité négative dominante (avis en ligne). Pas de communication proactive, pas de contenu, pas de stratégie de marque.",
+    "dirigeant": "Kamel AOUDIA, gérant depuis décembre 2020 (mandat 3 ans jusqu'à 2023, probablement renouvelé). Président de Quadral Property et Quadral SAS. Entreprise intégrée au groupe EVEL (Engagement pour la Vie et le Logement). Pas d'information publique sur l'âge ou les intentions du dirigeant."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Audit & Conformité Légale",
+      "benefice": "Vérifier et corriger tous les processus critiques (AG, convocations, comptabilité, travaux) pour retrouver la conformité légale et la confiance client."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Système de Réponse Client (SLA)",
+      "benefice": "Garantir une réponse téléphonique et email en <48h avec escalade automatique, réduire les plaintes d'inaccessibilité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion de Réputation & Avis",
+      "benefice": "Répondre systématiquement aux avis négatifs, proposer des audits clients, négocier des contrats révisés pour inverser la tendance."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Recrutement & Formation Équipe",
+      "benefice": "Augmenter les effectifs et former l'équipe existante pour réduire la surcharge opérationnelle et améliorer la qualité de service."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Automatisation Processus Critiques",
+      "benefice": "Digitaliser convocations, PV, appels de fonds pour réduire les erreurs manuelles et améliorer la traçabilité."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Communication & Transparence",
+      "benefice": "Mettre en place une stratégie de communication proactive (newsletter, site dédié, réseaux) pour restaurer la confiance et la visibilité."
+    }
+  ],
+  "archetype": "Entreprise fragilisée",
+  "posture": "Consolidation & trésorerie (prudent)",
+  "chiffre": {
+    "unite": "€",
+    "label": "Perte opérationnelle à redresser"
+  },
+  "coutInaction": "Chaque mois sans action aggrave la crise de réputation et accélère les départs de clients. Le risque est une spirale de pertes financières, de démissions d'équipe et de faillite à court terme si la confiance n'est pas restaurée rapidement.",
+  "simulateur": {
+    "personnes": 3,
+    "heures": 40,
+    "cout": 1200
+  },
+  "avantApres": {
+    "aujourdhui": "Appels clients sans réponse, AG non convoquées, erreurs comptables, avis 1-2/5, clients qui partent, équipe démotivée, perte financière.",
+    "avecIA": "Système de réponse automatisé en <48h, processus légaux vérifiés et conformes, avis clients améliorés progressivement, rétention client, équipe recentrée sur la qualité, redressement financier."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet et un plan de redressement opérationnel adapté à votre situation de crise.",
+  "indice": {
+    "estime": 49,
+    "potentiel": 67
+  },
+  "dimensions": {
+    "avis": 5,
+    "reseaux": 0,
+    "site": 25,
+    "traction": 35
+  },
+  "aura": {
+    "sens": "Débordement & perte de contrôle",
+    "couleur": "Gris",
+    "definition": "L'entreprise rayonne une impression de chaos opérationnel et de perte de confiance : surcharge, absence de réactivité, non-respect des engagements, malgré une structure établie et un portefeuille important.",
+    "eclat": "faible"
+  },
+  "fierte": "La Maison du Syndic a bâti un portefeuille solide de 520 copropriétés et dispose d'une équipe structurée au sein d'un groupe immobilier établi. Le potentiel de redressement est réel : avec une remise à plat opérationnelle, une meilleure organisation et une communication restaurée, l'entreprise peut retrouver la confiance de ses clients et devenir un acteur fiable du marché local.",
+  "sources": "PagesJaunes (avis 1/5, 7 avis), SyndiCompare (2.5/5, 155 avis), MeilleureCoprô (2.4/5, 188 avis), Autour de Moi (avis mixtes), GoWork (67 avis), Verif.com (données financières 2024), Societe.com (statuts, dirigeants), Annuaire Entreprises (INSEE), Quadral.fr (site groupe, présentation), FNAIM (fiche agence). Confiance : très élevée sur les avis clients (volume et cohérence), données financières officielles (INSEE/RCS), structure juridique confirmée.",
+  "_auraCalc": {
+    "note_google": 2.5,
+    "nb_avis": 159,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 30,
+      "s": 40
+    }
+  }
+}
