@@ -853,8 +853,10 @@ function openHistory(){
     if(d.error||!d.items){ el.innerHTML='<div style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((d&&d.error)||'Indisponible')+'</div>'; return; }
     if(!d.items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
     el.innerHTML=d.items.map(function(it){
-      var badge=it.type==='BOUSSOLE'?'background:#FBE7DC;color:#cf4712':'background:#e0f2fe;color:#075985';
-      var open=(it.type==='SENTINELLE')?'href="javascript:void(0)" onclick="restoreFiche(\''+it.url.replace(/\.html$/,'.json')+'\')"':'href="'+it.url+'" target="_blank"';
+      var badge=it.type==='BOUSSOLE'?'background:#FBE7DC;color:#cf4712':it.type==='MIROIR'?'background:#1C1C1C;color:#E8A07E':'background:#e0f2fe;color:#075985';
+      var ju=it.url.replace(/\.html$/,'.json');
+      var fn=it.type==='BOUSSOLE'?'restoreBoussole':it.type==='MIROIR'?'restoreMiroir':'restoreFiche';
+      var open='href="javascript:void(0)" onclick="'+fn+'(\''+ju+'\')"';
       return '<a '+open+' style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
         +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;'+badge+';white-space:nowrap;">'+it.type+'</span>'
         +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(it.nom)+'</span>'
@@ -868,6 +870,34 @@ function restoreFiche(url){
   var res=document.getElementById('result'); res.innerHTML='<div style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement de la fiche…</div>';
   window.scrollTo(0,0);
   fetch(url).then(function(r){return r.json();}).then(function(d){ render(d,true); }).catch(function(){ res.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">Fiche illisible.</div>'; });
+}
+function restoreBoussole(url){
+  var p=document.getElementById('histPanel'); if(p) p.remove();
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    if($('bNom')) $('bNom').value=d.nom||'';
+    window.bAuraColor=(d.aura&&d.aura.couleur)||'Violet';
+    if($('bExt')) $('bExt').value=(d.trajectoire&&d.trajectoire.exterieure!=null)?d.trajectoire.exterieure:'';
+    if($('bPot')) $('bPot').value=(d.trajectoire&&d.trajectoire.potentiel!=null)?d.trajectoire.potentiel:'';
+    startGrille((d.mode==='complet')?'complet':'express');
+    var map={}; (d.details||[]).forEach(function(x){ map[x.pilier+'|'+x.sous+'|'+x.crit]=x; });
+    (window.bItems||[]).forEach(function(it){
+      var e=map[it.pilier+'|'+it.sous+'|'+it.crit]; var el=$(it.id); if(!el||!e) return;
+      if(e.note==null){ toggleNA(it.id); }
+      else { el.value=e.note; var lab=$(it.id+'v'); if(lab) lab.textContent=e.note; }
+    });
+    bcalc(); window.scrollTo(0,0);
+  }).catch(function(){ alert('Grille illisible.'); });
+}
+function restoreMiroir(url){
+  var p=document.getElementById('histPanel'); if(p) p.remove();
+  showView('miroir');
+  $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement du MIROIR…</div>';
+  fetch(url).then(function(r){return r.json();}).then(function(d){
+    window.lastMiroir=d.contexte||{nom:d.nom};
+    window.miroirData=d.miroir||null; window.miroirAud='externe';
+    if(!window.miroirData){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div><button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>'; return; }
+    renderMiroir();
+  }).catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div>'; });
 }
 /* ===== fin HISTORIQUE ===== */
 </script>
