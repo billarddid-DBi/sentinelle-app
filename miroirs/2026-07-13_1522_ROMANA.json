@@ -1,0 +1,108 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Romana",
+  "date": "2026-07-13T15:22:47.912Z",
+  "contexte": {
+    "nom": "Romana",
+    "activite": "Pizzeria & restaurant italien",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 86,
+    "indiceExterieur": 84,
+    "potentiel": 100,
+    "ecart": 2,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 96,
+      "Organisation": 100,
+      "Processus": 84,
+      "Informations": 70,
+      "Outils": 80,
+      "Décisions": 76,
+      "Clients": 96,
+      "Performance": 84
+    },
+    "faibles": [],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Transformer les données client et opérationnelles éparses en intelligence décisionnelle : passer de l'intuition performante à la certitude chiffrée pour consolider les 86/100 et franchir les 14 points manquants.",
+    "economie_an": 18500,
+    "cadre": {
+      "externe": "Romana est un établissement solide, bien organisé, avec une vision claire et une clientèle fidèle. Vous avez bâti une machine qui tourne. Le défi : transformer cette chaleur humaine en levier de croissance mesurable — passer de « ça marche » à « on sait pourquoi ça marche et comment l'amplifier ».",
+      "interne": "Boussole 86, Sentinelle 84 : équilibre sain, pas de décalage image/réalité. Les piliers forts (Vision 96, Organisation 100, Clients 96) masquent deux faiblesses structurelles : Informations (70) et Décisions (76). L'IA n'est pas le levier principal ici — c'est la VISIBILITÉ et la GOUVERNANCE des données qui manquent. Opportunité commerciale : repositionner DBi360 comme partenaire de consolidation, pas de transformation."
+    },
+    "verite": {
+      "externe": "Vous avez construit une organisation humaine et efficace, mais elle repose trop sur la mémoire, l'expérience et les routines. Les données clients (préférences, fréquence, panier moyen) dorment dans les tickets et les têtes. Les décisions sur les menus, les promotions, la staffing se prennent au feeling — souvent juste, mais sans preuve. Il se peut que l'équipe soit saturée par l'opérationnel et manque de temps pour capitaliser ; il se peut aussi que les outils actuels (caisse, réservation) ne parlent pas ensemble. Résultat : vous laissez 10 à 15 % de chiffre sur la table — fidélisation non optimisée, gaspillage non mesuré, potentiel client non exploité.",
+      "interne": "Piliers Informations (70) et Décisions (76) révèlent une organisation qui fonctionne par excellence opérationnelle et leadership personnel, non par data. Les données existent (tickets de caisse, réservations, avis clients) mais ne circulent pas, ne se croisent pas, ne parlent pas à la direction. Hypothèse : pas de tableau de bord unifié, pas de KPI partagés, pas de boucle feedback régulière. L'équipe est probablement compétente et engagée, mais sans visibilité structurée sur les vrais leviers (client LTV, coût matière par plat, taux de rétention, panier moyen par créneau). Opportunité : IA légère (consolidation de données, alertes, recommandations) + gouvernance (rituel mensuel, propriétaire des données). Angle commercial : « Vous avez l'organisation et la vision ; on vous donne les yeux pour piloter. »"
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Données clients et opérationnelles fragmentées (caisse, réservation, avis, feedback verbal) — pas de vue unifiée, pas de KPI partagés.",
+        "levier": "Créer un tableau de bord mensuel unifié : chiffre d'affaires par service/plat, taux de rétention client, panier moyen, coût matière, satisfaction (avis + feedback interne).",
+        "type": "humain",
+        "mise_en_oeuvre": "Désigner un propriétaire des données (manager ou assistant) ; connecter caisse + réservation + formulaire feedback simple (QR code post-service) ; runbook mensuel de 2h pour alimenter et commenter le tableau.",
+        "indicateur": "Tableau live d'ici 4 semaines ; taux de complétude des données ≥ 95 % ; participation de l'équipe aux commentaires mensuels."
+      },
+      {
+        "palier": 1,
+        "frein": "Décisions sur menus, promotions, staffing prises sans preuves chiffrées — risque de biais, opportunités manquées.",
+        "levier": "Instaurer un rituel mensuel de 1h : analyse des données + hypothèses + décisions documentées + suivi.",
+        "type": "humain",
+        "mise_en_oeuvre": "Réunion mensuelle (direction + manager opérationnel + propriétaire données) : 20 min de présentation, 30 min de débat, 10 min de décisions écrites (qui, quoi, quand, KPI attendu).",
+        "indicateur": "100 % des décisions majeures documentées avec KPI ; écart réel/prévision < 15 % après 2 mois."
+      },
+      {
+        "palier": 2,
+        "frein": "Relances clients non ciblées, opportunités de cross-sell/upsell non exploitées, gaspillage matière non mesuré.",
+        "levier": "IA légère : segmentation client (fréquence, panier, préférences) + alertes (matière à risque, client silencieux) + recommandations (menu du jour personnalisé par segment).",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégration simple caisse/réservation (API ou export) → outil IA (type Make/Zapier + ChatGPT ou solution légère SaaS) → alertes email/SMS + suggestions pour l'équipe. Coût : ~300 €/mois.",
+        "indicateur": "Taux de réactivation client silencieux (> 30 jours) ≥ 40 % ; panier moyen +5 % en 3 mois ; gaspillage matière identifié et réduit de 8 %."
+      },
+      {
+        "palier": 2,
+        "frein": "Feedback client (avis, plaintes) non centralisé, apprentissages perdus, amélioration continue ralentie.",
+        "levier": "Consolider avis (Google, TripAdvisor, formulaire interne) → synthèse IA mensuelle (thèmes, sentiments, actions) → plan d'amélioration trimestriel.",
+        "type": "IA",
+        "mise_en_oeuvre": "Formulaire QR post-service (2 questions : note + un mot) ; agrégation automatique + résumé IA ; présentation en réunion mensuelle avec 2-3 actions concrètes.",
+        "indicateur": "Taux de réponse ≥ 30 % ; note moyenne Google/TripAdvisor +0.3 point en 6 mois ; 80 % des actions décidées réalisées."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Propriétaire données / tableau de bord (0.3 ETP, temps libéré par automatisation)",
+          "inaction_an": 8000,
+          "invest_1x": 0,
+          "recurrent_an": 0
+        },
+        {
+          "poste": "Outil IA légère (segmentation, alertes, recommandations, synthèse feedback)",
+          "inaction_an": 6500,
+          "invest_1x": 500,
+          "recurrent_an": 3600
+        },
+        {
+          "poste": "Gaspillage matière non détecté (coût d'inaction : surcoûts, perte de marge)",
+          "inaction_an": 4000,
+          "invest_1x": 0,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 18500,
+      "invest_total": 500,
+      "recurrent_an": 3600,
+      "gain_an": 14900,
+      "roi_net_an": 14900,
+      "payback_mois": 1,
+      "fourchette": "Retour immédiat (< 1 mois) ; gain net stabilisé à 14900 €/an à partir du mois 2."
+    },
+    "cadence": "Point mensuel de 1h (données + décisions) ; BOUSSOLE trimestrielle pour ajuster le cap ; prochaine revue complète dans 3 mois.",
+    "synthese": {
+      "externe": "Vous avez l'organisation et la vision pour atteindre 100/100. Le prochain pas : donner à votre équipe et à vous-même la visibilité chiffrée pour piloter avec certitude. Tableau de bord mensuel + rituel de décision = transformer votre intuition en stratégie mesurable. Investissement minimal, retour immédiat.",
+      "interne": "Romana est un cas d'école : excellence opérationnelle + leadership fort, mais sans gouvernance data. L'IA seule ne résout rien ; c'est la STRUCTURE (tableau, rituel, propriétaire) qui crée la valeur, l'IA l'amplifie. Angle commercial : « Vous avez 86/100 ; on vous aide à passer à 95+ en 3 mois avec un investissement de 500 € et 0.3 ETP. » Prochaine étape : audit détaillé des données existantes (caisse, réservation, feedback) et design du tableau de bord en co-création avec le client. Opportunité de fidélisation long terme : suivi trimestriel + modules IA additionnels (pricing dynamique, prévision de demande) une fois la base consolidée."
+    }
+  }
+}
