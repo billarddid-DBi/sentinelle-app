@@ -1,0 +1,158 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, équipe, pizzas au feu de bois"
+  },
+  "identite": "SIREN 839 452 786, SAS créée 7 mai 2018, 32 Grand Rue Maizières-lès-Metz. Président François Morano (66 ans, né 1959). Effectif 6-9 salariés. Comptes confidentiels (CA < 700k€ en 2022).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      55,
+      50,
+      35,
+      30,
+      50,
+      65,
+      60
+    ],
+    "potentiel": [
+      65,
+      75,
+      70,
+      60,
+      55,
+      70,
+      80,
+      78
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients, accueil chaleureux, tradition culinaire.",
+  "imagePercue": "Restaurant italien de référence locale, réputé pour ses pizzas au feu de bois et pâtes fraîches. Image en transition suite à changement de propriétaire/pizzaiolo (mars 2024). Avis positifs dominants mais quelques déceptions sur la continuité de qualité.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Changement de propriétaire et pizzaiolo en mars 2024 : avis clients signalent une baisse de qualité (pâte moins fine, délais d'attente). Risque de perte de fidèles."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Absence de site web propre : présence digitale réduite à Facebook et annuaires. Pas de maîtrise de l'image en ligne, pas de réservation en ligne."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Critiques récurrentes sur les prix (26-35€ pour plats simples) : perception de rapport qualité-prix dégradée post-reprise."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Avis globalement positifs (4,4/5 Google, 92% Facebook) : base de clientèle fidèle et potentiel de récupération."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web simple avec menu, horaires, réservation en ligne (regagner contrôle de l'image)",
+    "Mettre en place un système de gestion des réservations & no-shows (optimiser remplissage, réduire attentes)",
+    "Lancer une campagne de fidélité (avis, photos clients) pour stabiliser la base post-reprise",
+    "Documenter & standardiser les recettes clés (pâte pizza) pour assurer la continuité qualité",
+    "Automatiser les rappels de réservation (SMS/email) pour réduire les annulations"
+  ],
+  "avis": "Avis clients mitigés mais globalement positifs. Google/RestoRanking : 4,4/5 (523 avis agrégés). Facebook : 92% de recommandation (18 avis). Sluurpy : 79/100. Points forts : pizzas au feu de bois, pâtes fraîches, accueil chaleureux, service rapide. Points faibles : délais d'attente (1h+ à emporter), qualité post-reprise (pâte moins fine), prix perçus comme élevés (26-35€), manque d'amabilité signalé dans certains avis. Avis clients mentionnent un changement de propriétaire/pizzaiolo en mars 2024 avec dégradation de la qualité.",
+  "presence": "Facebook actif (page officielle, 92% recommandation, 18 avis). Présence sur annuaires (PagesJaunes, Mappy, TripAdvisor, Sluurpy, RestoRanking, LaCarte.Menu). Pas de site web propre identifié. Pas de présence Instagram/TikTok détectée. Horaires affichés (fermé lundi, 12h-13h30 & 19h-21h45 mardi-samedi).",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels en 2022 (CA < 700k€ ou bilan < 350k€). Effectif 6-9 salariés. Pas de données financières publiques récentes. Structure stable mais petite.",
+    "concurrence": "Maizières-lès-Metz : environ 12 pizzerias/restaurants italiens. Concurrence locale : Le Venezia (pizza feu de bois), Planet Pizza. La Romana est classée #1 de cuisine italienne sur RestoRanking mais en transition.",
+    "visibilite": "Présence forte sur annuaires (Google, TripAdvisor, Sluurpy) mais pas de site propre. Pas de stratégie digitale visible (pas de blog, pas de réseaux sociaux actifs au-delà de Facebook). Dépendance aux avis tiers pour la visibilité.",
+    "dirigeant": "François Morano, 66 ans (né mai 1959), président depuis 14/09/2018. Pas d'informations publiques sur sa vision ou ses intentions. Entreprise familiale ou reprise non documentée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire les attentes (1h+ actuellement), optimiser le remplissage, capturer les coordonnées clients pour fidélité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de recettes & processus",
+      "benefice": "Standardiser la pâte pizza et les plats clés pour assurer la continuité qualité post-reprise et former les nouveaux pizzaiolos."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réputation",
+      "benefice": "Monitorer les avis en temps réel, répondre aux critiques, relancer les clients satisfaits pour avis positifs (regagner confiance)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Créateur de site web & menu en ligne",
+      "benefice": "Reprendre le contrôle de l'image, afficher le menu, permettre les réservations en ligne, réduire les appels."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Animateur de fidélité (SMS/email)",
+      "benefice": "Relancer les clients réguliers, proposer des offres, réduire les annulations, augmenter la fréquence."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de food cost & gaspillage",
+      "benefice": "Optimiser les marges (prix perçus comme élevés), réduire les invendus, justifier les tarifs par la qualité."
+    }
+  ],
+  "archetype": "Commerce établi & performant en transition",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Heures/semaine gagnées sur gestion réservations, avis, fidélité"
+  },
+  "coutInaction": "Chaque semaine sans site web & gestion des réservations = 5-10 clients perdus (avis négatifs, attentes, pas de réservation en ligne). Chaque mois sans stratégie de fidélité = 15-20% de clients réguliers qui ne reviennent pas post-reprise. Risque de consolidation de la mauvaise réputation.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Appels téléphoniques pour réservations, gestion manuelle des listes d'attente, pas de suivi des avis, pas de relance clients, recettes non documentées, perte de fidèles post-reprise.",
+    "avecIA": "Site web avec réservation en ligne, gestion automatisée des no-shows, monitoring des avis avec réponses, relance SMS/email des clients, documentation des recettes, fidélité regagnée."
+  },
+  "cta": "Explorez BOUSSOLE pour définir votre stratégie de stabilisation post-reprise et regagner la confiance de votre clientèle fidèle.",
+  "indice": {
+    "estime": 84,
+    "potentiel": 100
+  },
+  "dimensions": {
+    "avis": 75,
+    "reseaux": 35,
+    "site": 0,
+    "traction": 70
+  },
+  "aura": {
+    "sens": "Chaleur & tradition en transition",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une chaleur méditerranéenne authentique et d'une tradition culinaire établie, mais traverse une phase de consolidation post-reprise où la fidélité doit être regagnée.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide de 6+ ans comme référence locale pour les pizzas au feu de bois et la cuisine italienne authentique, avec une équipe dévouée et une base de clients fidèles. Avec une stratégie digitale moderne et une documentation des savoir-faire, le restaurant peut non seulement stabiliser sa qualité post-reprise, mais aussi doubler sa visibilité et sa capacité à fidéliser, transformant cette transition en opportunité de croissance.",
+  "sources": "PagesJaunes (SIREN, RCS, effectif), Pappers (dirigeant, dates), 118712 (horaires, effectif), Google/RestoRanking/Sluurpy/TripAdvisor/Facebook (avis & notes), LaCarte.Menu & Restaurants-de-France (avis détaillés), Petit Futé & Restaurant Guru (avis historiques). Confiance : SIREN & RCS = haute ; avis clients = moyenne (agrégés sur 523 avis) ; dirigeant = moyenne (données publiques limitées) ; financier = basse (comptes confidentiels).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
