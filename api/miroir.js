@@ -62,7 +62,7 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
     js = js.replace(/(\d)[   ,](?=\d{3}(?:\D|$))/g, "$1");
     js = js.replace(/,\s*([}\]])/g, "$1");
     let m;
-    try { m = JSON.parse(js); } catch (pe) { res.status(500).json({ error: "JSON invalide", detail: String(pe).slice(0, 120) }); return; }
+    try { m = JSON.parse(js); } catch (pe) { const pm = String(pe).match(/position (\d+)/); const pos = pm ? +pm[1] : 0; res.status(500).json({ error: "JSON invalide", detail: String(pe).slice(0, 120), around: js.slice(Math.max(0, pos - 120), pos + 60), len: js.length }); return; }
     res.status(200).json(m);
   } catch (err) {
     res.status(500).json({ error: "MIROIR indisponible", detail: String(err).slice(0, 200) });
