@@ -1,0 +1,145 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-13T11:40:20.535Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "restaurant italien",
+    "archetype": "commerce établi",
+    "indiceInterieur": 68,
+    "indiceExterieur": 80,
+    "potentiel": 88,
+    "ecart": -12,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 70,
+      "Organisation": 55,
+      "Processus": 48,
+      "Informations": 40,
+      "Outils": 45,
+      "Décisions": 72,
+      "Clients": 85,
+      "Performance": 66
+    },
+    "faibles": [
+      "Capitalisation du savoir (2/5)",
+      "Suivi des devis (1/5)"
+    ],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Réconcilier l'image de marque (80) avec la réalité opérationnelle (68) en stabilisant le suivi des devis et la transmission du savoir-faire culinaire : c'est le levier qui ramène la confiance interne et justifie la promesse externe.",
+    "economie_an": 18500,
+    "cadre": {
+      "externe": "La Romana rayonne auprès de sa clientèle (85/100) et jouit d'une belle réputation (80/100). Mais en coulisse, l'organisation et les processus peinent à suivre cette image : devis oubliés, recettes et tours de main non documentés, outils fragmentés. Vous avez bâti une maison chaleureuse ; il faut maintenant en consolider les fondations pour que chaque service soit à la hauteur de la promesse.",
+      "interne": "Écart de -12 : l'image dépasse la réalité. Clients fidèles et bouche-à-oreille masquent des faiblesses critiques en processus (48/100) et informations (40/100). Devis non tracés (1/5), savoir-faire volatil (2/5), outils disparates. Le risque : dépendance personnelle du dirigeant, turnover cuisinier = perte de recettes, clients potentiels perdus faute de suivi commercial. Opportunité : formaliser sans tuer la chaleur, outiller sans bureaucratiser."
+    },
+    "verite": {
+      "externe": "Vous avez construit la confiance par la qualité et l'accueil. Mais vos équipes ne disposent pas d'un socle commun : pas de carnet des recettes, pas de tableau de bord des demandes clients, chacun improvise. Cela fonctionne tant que vous êtes là — et s'effondre le jour où vous ne l'êtes pas. Le vrai problème n'est pas l'IA : c'est que vous n'avez pas encore industrialisé votre excellence.",
+      "interne": "Climat orange mais organisation fragile. Devis (1/5) = zéro système de suivi, relances manuelles, pertes. Capitalisation (2/5) = recettes dans les têtes, aucune doc, risque de départ clé. Organisation (55) et Processus (48) = pas de standard, chacun sa méthode. Le dirigeant est le nœud : il compense par sa présence. Levier commercial : formaliser le devis + capitaliser les recettes = crédibilité auprès des franchisés potentiels, stabilité pour croissance."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Suivi des devis inexistant (1/5) : demandes clients perdues, relances oubliées, chiffre d'affaires événementiel non capturé.",
+        "levier": "Mettre en place un registre centralisé des devis (feuille de calcul partagée ou outil léger type Airtable) avec statut (reçu, proposé, gagné, perdu) et date de relance automatique.",
+        "type": "humain",
+        "mise_en_oeuvre": "Désigner un responsable devis (30 min/jour). Modèle de devis standardisé. Relance à J+7 et J+14 si pas de réponse. Audit des 3 derniers mois : combien de devis perdus ?",
+        "indicateur": "Taux de conversion devis → commande (cible : 40 % en 3 mois). Nombre de relances effectuées. Chiffre d'affaires événementiel capturé."
+      },
+      {
+        "palier": 1,
+        "frein": "Capitalisation du savoir-faire culinaire (2/5) : recettes, portions, fournisseurs, tours de main dans les têtes. Risque de départ, perte de qualité, incapacité à former.",
+        "levier": "Documenter les 15 plats signature en fiches recettes (ingrédients, portions, étapes, timing, astuce du chef). Format papier + photo. Archiver les contacts fournisseurs clés.",
+        "type": "humain",
+        "mise_en_oeuvre": "Chef + 1 cuisinier = 4 demi-journées pour documenter. Chaque recette : photo, coûts matière, marges. Classeur physique en cuisine + copie numérique (Google Drive). Mise à jour trimestrielle.",
+        "indicateur": "% de recettes documentées (cible : 100 % des plats signature en 2 mois). Temps de formation d'un nouveau cuisinier réduit. Cohérence des plats entre services."
+      },
+      {
+        "palier": 1,
+        "frein": "Outils fragmentés (45/100) : pas de vue d'ensemble des commandes, stocks, réservations. Chacun utilise son carnet ou son téléphone.",
+        "levier": "Centraliser les flux : réservations, commandes, stocks sur un outil unique (Airtable ou Google Sheets + Zapier pour alertes). Synchroniser avec le système de caisse existant.",
+        "type": "IA",
+        "mise_en_oeuvre": "Audit des outils actuels (caisse, téléphone, papier). Choix d'un hub central (Airtable : 120 €/mois, ou Google Workspace : 6 €/user/mois). Formation 2h en équipe. Automatisation des alertes (stock bas, réservation à confirmer).",
+        "indicateur": "Nombre de sources de vérité réduit à 1. Temps de recherche d'une info client divisé par 2. Zéro oubli de réservation en 1 mois."
+      },
+      {
+        "palier": 2,
+        "frein": "Processus de prise de commande événementielle lent (48/100) : devis manuel, relances oubliées, pas de suivi du client après signature.",
+        "levier": "Automatiser le workflow devis → commande → suivi : modèle de devis généré en 5 min, relance auto à J+7, rappel client 48h avant, facture auto après service.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégration Zapier ou Make.com : formulaire devis → email auto + ajout en base. Relance auto si pas de réponse. Après service : email de satisfaction + facture. Coût : 15 €/mois.",
+        "indicateur": "Temps de création d'un devis : 5 min (vs 20 min actuellement). Taux de réponse aux devis : +30 %. Zéro relance oubliée."
+      },
+      {
+        "palier": 2,
+        "frein": "Voix du client peu structurée (Clients 85, mais pas de feedback systématique) : avis épars, pas de boucle d'amélioration.",
+        "levier": "Collecter les avis post-événement via SMS/email (1 question simple : note + commentaire). Synthèse mensuelle pour amélioration menu/service.",
+        "type": "IA",
+        "mise_en_oeuvre": "Formulaire Google Forms ou Typeform (gratuit). Lien envoyé 24h après service. Automatisation du lien dans l'email de facture. Lecture mensuelle en équipe.",
+        "indicateur": "Taux de réponse : 20 %. Thèmes d'amélioration identifiés. Ajustements menu/service basés sur feedback."
+      },
+      {
+        "palier": 2,
+        "frein": "Décisions (72/100) : pas de tableau de bord, vision mensuelle/trimestrielle floue. Difficile de piloter la croissance.",
+        "levier": "Dashboard simple : CA événementiel vs restaurant, marge brute, taux de conversion devis, coûts matière par plat, satisfaction client. Mise à jour hebdo.",
+        "type": "IA",
+        "mise_en_oeuvre": "Tableau Airtable ou Google Data Studio alimenté par la caisse + base devis. 30 min/semaine pour mise à jour. Réunion d'équipe 30 min/semaine sur les chiffres.",
+        "indicateur": "Visibilité sur CA événementiel vs restaurant. Coûts matière maîtrisés. Décisions d'ajustement menu/prix basées sur données."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Suivi des devis (système + temps responsable)",
+          "inaction_an": 8000,
+          "invest_1x": 500,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Capitalisation recettes (documentation + archivage)",
+          "inaction_an": 5000,
+          "invest_1x": 800,
+          "recurrent_an": 400
+        },
+        {
+          "poste": "Centralisation outils (Airtable + intégration)",
+          "inaction_an": 3500,
+          "invest_1x": 1200,
+          "recurrent_an": 1800
+        },
+        {
+          "poste": "Automatisation workflow devis (Zapier + formation)",
+          "inaction_an": 2000,
+          "invest_1x": 600,
+          "recurrent_an": 180
+        },
+        {
+          "poste": "Feedback client (formulaire + synthèse)",
+          "inaction_an": 1500,
+          "invest_1x": 300,
+          "recurrent_an": 0
+        },
+        {
+          "poste": "Dashboard décisionnel (Data Studio + temps)",
+          "inaction_an": 2500,
+          "invest_1x": 400,
+          "recurrent_an": 600
+        }
+      ],
+      "inaction_an": 22500,
+      "invest_total": 3800,
+      "recurrent_an": 4180,
+      "gain_an": 18320,
+      "roi_net_an": 14140,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel (30 min) sur les 6 leviers : suivi devis, recettes documentées, utilisation de l'outil centralisé, automatisations en place, feedback client, tableau de bord. Prochaine BOUSSOLE dans 3 mois (cible : 78/100 intérieur, écart ramené à -2).",
+    "synthese": {
+      "externe": "Vous avez la confiance de vos clients et une belle image. Le prochain pas : transformer cette chaleur en système robuste. En 3 mois, vous aurez un devis qui se suit tout seul, des recettes documentées (tranquillité d'esprit), une vue claire de votre chiffre d'affaires événementiel, et une équipe qui sait exactement ce qu'elle doit faire. Cela libère votre temps pour ce que vous aimez vraiment : innover et accueillir.",
+      "interne": "Écart de -12 à corriger : l'image sur-promet, la réalité sous-livre. Palier 1 (1 mois) = stabiliser : devis tracés, recettes documentées, outils unifiés. Palier 2 (2 mois) = décoller : automatisation workflow, feedback client, dashboard. ROI net 14k€/an, payback 3 mois. Angle commercial : cette formalisation sans bureaucratie ouvre la porte à la franchise ou la croissance multi-site (le client veut du scalable, pas du « ça dépend du chef »). Prochaine étape : audit des outils actuels (caisse, réservation) et désignation du responsable devis."
+    }
+  }
+}
