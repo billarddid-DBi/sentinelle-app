@@ -1,0 +1,114 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-13T13:16:05.919Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "Pizzeria & restaurant italien",
+    "archetype": "Commerce établi & performant en transition",
+    "indiceInterieur": 83,
+    "indiceExterieur": 84,
+    "potentiel": 100,
+    "ecart": -1,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 84,
+      "Organisation": 100,
+      "Processus": 92,
+      "Informations": 75,
+      "Outils": 76,
+      "Décisions": 76,
+      "Clients": 84,
+      "Performance": 72
+    },
+    "faibles": [],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Transformer les données clients et opérationnelles en décisions rapides : passer de l'intuition à la mesure pour consolider la performance et justifier la croissance.",
+    "economie_an": 18500,
+    "cadre": {
+      "externe": "La Romana est un établissement solide, bien organisé, avec une image alignée à la réalité. Vous avez construit une machine fiable. Le défi : convertir votre richesse opérationnelle (processus, équipe, clients fidèles) en levier de croissance rentable. L'IA n'est pas un luxe — c'est votre prochain étage.",
+      "interne": "Entreprise orange : chaleur, relation, proximité. Maturité IA 83/100 masque une asymétrie : excellente organisation humaine (100), mais décisions et performance bridées par manque d'informations structurées et d'outils de pilotage. Écart zéro = pas de sur-promesse, mais aussi pas de pépite cachée. Le levier : capitaliser sur la cohésion interne pour automatiser l'invisible (données, prédictions, optimisation marges)."
+    },
+    "verite": {
+      "externe": "Vous pilotez au feeling et à l'expérience — ce qui marche quand on est petit et qu'on connaît chaque client par son prénom. Mais à ce stade de maturité, l'absence de tableau de bord temps réel (ventes, marges par plat, fidélité client, prévisions) vous coûte des décisions rapides et des opportunités de croissance. Votre équipe est excellente ; elle manque de visibilité pour proposer des améliorations. C'est un problème de MANAGEMENT, pas d'IA — mais l'IA en est le catalyseur.",
+      "interne": "Pilotage aveugle sur les vrais leviers : mix produit, rentabilité par service, prédiction de demande, fidélisation. Organisation humaine au top (100) crée une fausse sécurité : on ne sent pas le besoin d'instrumenter. Mais sans données, impossible de scaler sans perdre la marge ou la qualité. Infos (75) et Décisions (76) sont les goulets. L'IA doit servir à : (1) capturer la voix du client (avis, retours, réservations) ; (2) optimiser le coût de revient et les portions ; (3) prédire la demande par jour/heure/plat. ROI court, impact immédiat sur P&L."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de tableau de bord temps réel : pas de visibilité sur les ventes par plat, marges réelles, taux de fidélité client, prévisions de demande.",
+        "levier": "Mettre en place un système de capture et d'analyse des données de vente (POS + réservations + avis clients) avec tableaux de bord hebdomadaires pour le dirigeant et l'équipe.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un outil léger (ex : Metabase, Power BI gratuit ou Looker Studio) sur les données existantes (caisse, réservations). Créer 3 dashboards : (1) ventes/marges par plat et service ; (2) fidélité et panier moyen ; (3) prévisions de charge. Formation équipe 2h.",
+        "indicateur": "Dashboard actif et consulté 2× par semaine ; 1 décision d'optimisation (prix, portion, menu) prise par mois basée sur les données."
+      },
+      {
+        "palier": 1,
+        "frein": "Gestion manuelle des avis clients et retours : perte de signal sur la satisfaction et les opportunités de fidélisation.",
+        "levier": "Automatiser la collecte et l'analyse des avis (Google, TripAdvisor, réservations) avec alertes sur les signaux négatifs et tendances.",
+        "type": "IA",
+        "mise_en_oeuvre": "Outil gratuit ou léger (ex : Mention, Brandwatch gratuit, ou script IA simple) qui agrège les avis et envoie un résumé hebdomadaire. Réponse automatisée aux avis positifs (template + signature). Escalade manuelle sur les avis < 4 étoiles.",
+        "indicateur": "Taux de réponse aux avis > 80% ; temps de réaction < 48h ; score moyen Google/TripAdvisor stable ou +0.2 pts en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Prévisions de demande manuelles et imprécises : surstock ou rupture de plats phares, gaspillage, perte de ventes.",
+        "levier": "Implémenter une prédiction simple de la demande par jour/heure/plat basée sur l'historique de vente et la météo.",
+        "type": "IA",
+        "mise_en_oeuvre": "Outil IA léger (ex : Prophet, ou API prédictive simple type Forecast.app) alimenté par 6 mois de données historiques. Sortie : quantités recommandées par plat chaque matin. Validation manuelle par le chef les 2 premières semaines, puis autonome.",
+        "indicateur": "Réduction du gaspillage de -15% en 2 mois ; taux de rupture de plats phares < 5% ; coût matière/couverts stable ou -2%."
+      },
+      {
+        "palier": 2,
+        "frein": "Absence de stratégie de fidélisation structurée : clients occasionnels non convertis en réguliers, panier moyen stagnant.",
+        "levier": "Créer un programme de fidélité simple (points ou offres) avec segmentation clients et relances automatisées par email/SMS.",
+        "type": "IA",
+        "mise_en_oeuvre": "Outil CRM léger (ex : Brevo, Mailchimp) intégré à la caisse. Segmentation auto : clients réguliers (>3 visites/an), occasionnels, dormants. Campagnes auto : email anniversaire, offre de retour pour dormants, points fidélité. Suivi : taux d'ouverture, conversion.",
+        "indicateur": "Taux de fidélité (clients revenant > 1× par trimestre) +10% en 6 mois ; panier moyen +5% ; ROI campagne > 300%."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Tableau de bord + analyse données (outil + intégration + formation)",
+          "inaction_an": 8000,
+          "invest_1x": 2500,
+          "recurrent_an": 600
+        },
+        {
+          "poste": "Collecte et analyse avis clients (outil + temps réponse)",
+          "inaction_an": 5500,
+          "invest_1x": 800,
+          "recurrent_an": 300
+        },
+        {
+          "poste": "Prédiction demande (outil + ajustement recettes)",
+          "inaction_an": 6000,
+          "invest_1x": 1200,
+          "recurrent_an": 400
+        },
+        {
+          "poste": "Fidélité clients (CRM + campagnes)",
+          "inaction_an": 4500,
+          "invest_1x": 1500,
+          "recurrent_an": 500
+        }
+      ],
+      "inaction_an": 24000,
+      "invest_total": 6000,
+      "recurrent_an": 1800,
+      "gain_an": 22200,
+      "roi_net_an": 20400,
+      "payback_mois": 3,
+      "fourchette": "3 à 4 mois de retour sur investissement initial"
+    },
+    "cadence": "Point mensuel sur les 3 dashboards + avis clients ; BOUSSOLE dans 3 mois (post-palier 1) pour valider l'impact et lancer palier 2.",
+    "synthese": {
+      "externe": "Vous avez bâti une maison solide. Maintenant, éclairez-la : donnez à votre équipe et à vous-même la visibilité pour prendre des décisions plus rapides et plus justes. En 3 mois, vous saurez exactement quel plat rapporte, quel client revient, et combien de pizzas préparer demain. C'est de la croissance sans prise de risque.",
+      "interne": "Cas textbook : maturité IA élevée (83) mais décisions et performance sous-optimales faute de données structurées. Levier commercial : positionner l'IA comme « visibilité managériale » (pas « technologie »). Palier 1 = corriger l'asymétrie (infos/décisions) en 3 mois, ROI immédiat et visible. Palier 2 = fidélisation et croissance. Vente facile : coût bas, payback court, impact P&L direct. Cible : dirigeant + chef de cuisine (2 utilisateurs clés). Suivi : BOUSSOLE à M+3, puis semestriel."
+    }
+  }
+}
