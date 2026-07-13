@@ -285,6 +285,7 @@ export default async function handler(req, res) {
             c.aura = objectiveAura(rating, count, !!sites[i], w);
           });
           if (selfRow) prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
+          if (isWide(kw)) concurrents.sort((a, b) => ((b.aura && b.aura.note) || 0) - ((a.aura && a.aura.note) || 0));
         } catch (_) {}
       }
     }
