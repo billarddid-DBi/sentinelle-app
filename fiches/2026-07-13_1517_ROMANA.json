@@ -1,0 +1,158 @@
+{
+  "nom": "Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, pizzas au feu de bois"
+  },
+  "identite": "SIREN 839452786, SAS créée 07/05/2018, 6-9 salariés, président François Morano (66 ans, né 05/1959). Comptes confidentiels (< 700k€ CA ou < 350k€ bilan en 2022). Établissement principal 32 Grand Rue, Maizières-lès-Metz.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      40,
+      35,
+      50,
+      65,
+      55
+    ],
+    "potentiel": [
+      70,
+      75,
+      75,
+      70,
+      65,
+      75,
+      85,
+      80
+    ]
+  },
+  "valeurs": "Authenticité italienne, pâte fraîche quotidienne, ingrédients importés du sud de l'Italie, accueil chaleureux, cadre convivial.",
+  "imagePercue": "Institution régionale établie depuis longtemps (31 ans mentionnés), mais en transition post-reprise. Avis très positifs sur la qualité des pizzas et pâtes, service professionnel. Quelques signaux de variabilité depuis changement de propriétaire (mars 2024 environ).",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Reprise récente du restaurant (mars 2024) : départ du pizzaiolo historique (frère du précédent propriétaire), ajustements en cours sur la qualité et les délais de service."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Avis clients mitigés post-reprise : certains clients fidèles rapportent des problèmes de pâte (dureté, adhérence) et d'attentes longues (1h+ pour emporter), malgré efforts du nouveau management."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Fondamentaux solides : Google 4.4/5, 523 avis agrégés, classée #1 pizzeria locale. Accueil et service reconnus comme professionnels et sympathiques par majorité des clients récents."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale discrète : Facebook actif (92% recommandent), mais pas de site web propre détecté. Dépendance aux annuaires tiers pour visibilité."
+    }
+  ],
+  "quickwins": [
+    "Stabiliser la recette & la qualité de la pâte : documenter le process du pizzaiolo précédent, former l'équipe, tester en continu",
+    "Optimiser les délais de service : analyser les pics (réservations samedi), ajuster les staffings et la préparation en amont",
+    "Créer un site web simple avec menu, horaires, réservation en ligne (réduire appels, capturer demandes)",
+    "Relancer la fidélité clients : programme petit-déjeuner/apéro, avis Google réguliers, newsletter WhatsApp",
+    "Documenter le savoir-faire : fiches recettes, photos process, capitaliser avant départ d'un chef"
+  ],
+  "avis": "Très positifs globalement (4.4/5 Google, 7.9/10 agrégé sur 523 avis). Pizzas et pâtes fraîches louées régulièrement. Service chaleureux et professionnel. Depuis reprise (mars 2024) : quelques clients fidèles rapportent baisse de qualité pâte et délais allongés, mais nouveaux clients satisfaits. Tendance : stabilisation en cours.",
+  "presence": "Facebook actif (92% recommandent, 18 avis). Présent sur Google, TripAdvisor, Sluurpy, LaCarte.Menu, RestoRanking. Pas de site web officiel détecté. Réseaux sociaux : publication discrète, pas de stratégie digitale visible.",
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels 2022 (< 700k€ CA). Pas de données publiques récentes. Effectif stable 6-9 salariés.",
+    "concurrence": "Marché local : ~11 restaurants à Maizières-lès-Metz. Concurrents directs : Chicken Chips (fast-food américain), La Cloche d'Or (cuisine maison), restaurants marocains/orientaux. Romana est seule pizzeria italienne authentique au feu de bois du secteur.",
+    "visibilite": "Classée #1 pizzeria locale sur Restaurant Guru. Présence forte sur annuaires (PagesJaunes, Mappy, TripAdvisor). Pas de campagne digitale visible. Bouche-à-oreille dominant.",
+    "dirigeant": "François Morano, 66 ans, président depuis 14/09/2018. Entreprise créée 07/05/2018 (reprise probable d'une structure antérieure). Pas d'informations publiques sur vision ou intentions."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Stabilisateur de recette & qualité",
+      "benefice": "Documenter & valider chaque jour la pâte (texture, hydratation, fermentation), alerter si écart. Capitaliser le savoir-faire du pizzaiolo avant départ."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de flux & délais",
+      "benefice": "Analyser les pics (samedi, groupes), proposer réservations, pré-préparer, réduire attentes. Cible : < 30 min pour emporter."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capteur de réservations & demandes",
+      "benefice": "Site web simple + formulaire réservation en ligne. Réduire appels, tracer demandes, anticiper staffing."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Collecteur d'avis & fidélité",
+      "benefice": "Relancer avis Google post-visite (SMS/email), programme petit-déjeuner/apéro, newsletter WhatsApp. Transformer clients satisfaits en ambassadeurs."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de stock & gaspillage",
+      "benefice": "Prévoir les ingrédients frais (pâte, garnitures) selon historique, réduire invendus, optimiser coût matière."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Pilote de conformité & hygiène",
+      "benefice": "Checklist quotidienne (température, nettoyage, traçabilité), alertes automatiques, dossiers conformité."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Marge brute estimée (food cost + service optimisés)"
+  },
+  "coutInaction": "Risque de perte de clients fidèles si qualité pâte ne se stabilise pas rapidement. Chaque client perdu = 200-300€ de CA annuel (fréquence 2-3x/mois). Délais allongés = mauvais avis Google = baisse de traction.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 4,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Pizzaiolo prépare pâte sans doc, délais variables, clients attendent 1h, avis Google stagnent, fidèles hésitent.",
+    "avecIA": "Pâte documentée & validée chaque jour, réservations en ligne captent demandes, délais < 30 min, avis Google remontent, clients fidèles reviennent régulièrement."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie post-reprise : stabiliser la qualité, optimiser les flux, relancer la fidélité et la marge.",
+  "indice": {
+    "estime": 84,
+    "potentiel": 100
+  },
+  "dimensions": {
+    "avis": 78,
+    "reseaux": 35,
+    "site": 0,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "Chaleur & authenticité",
+    "couleur": "Orange",
+    "definition": "Romana rayonne par son authenticité italienne et son accueil chaleureux, mais traverse une phase d'ajustement post-reprise où la confiance se reconstruit progressivement.",
+    "eclat": "moyen"
+  },
+  "fierte": "Romana a bâti une réputation solide d'institution régionale avec des pizzas au feu de bois et une pâte fraîche quotidienne qui ravissent les clients. Malgré la transition récente, l'équipe démontre sa capacité à servir avec professionnalisme et chaleur, et les fondamentaux (4.4/5 Google, #1 pizzeria locale) restent forts. Le potentiel de croissance est clair : stabiliser la qualité, optimiser les délais et relancer la fidélité pourrait porter la marge et la traction à un nouveau niveau.",
+  "sources": "PagesJaunes (SIREN, RCS, effectif), Pappers (dirigeant, dates), Google/TripAdvisor/Sluurpy/RestoRanking (avis agrégés 4.4/5, 523 avis), Facebook (92% recommandent), LaCarte.Menu (avis post-reprise), Restaurant Guru (#1 pizzeria), Mappy/118712 (coordonnées, services). Confiance : haute pour identité & avis, moyenne pour financier (comptes confidentiels).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
