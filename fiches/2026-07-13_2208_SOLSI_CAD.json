@@ -1,0 +1,185 @@
+{
+  "nom": "Solsi CAD",
+  "ville": "Hagondange (57300)",
+  "activite": "Bureau d'études en ingénierie mécanique, conception CAO, simulation numérique",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Santé financière stable",
+    "atout": "Expertise technique reconnue, portefeuille clients solide"
+  },
+  "identite": "SIREN 444 468 748, SRL créée en 2003, 20-50 salariés, dirigée par Eric Scacciatella. Filiale du groupe SOLSI (fondé 1985). Siège à Hagondange depuis 2020. Comptes partiellement confidentiels en 2024 (CA < 12M€).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      65,
+      62,
+      68,
+      55,
+      72,
+      60,
+      58,
+      64
+    ],
+    "potentiel": [
+      78,
+      76,
+      82,
+      72,
+      85,
+      75,
+      75,
+      80
+    ]
+  },
+  "valeurs": "Excellence technique, expertise multidisciplinaire, accompagnement client de bout en bout, innovation par simulation numérique.",
+  "imagePercue": "Bureau d'études établi, spécialisé en mécanique et simulation. Présence web correcte mais discrète. Peu de visibilité client en ligne (aucun avis public). Réputation basée sur le bouche-à-oreille et les références B2B.",
+  "vigilance": [
+    {
+      "niveau": "🟡",
+      "texte": "Absence totale d'avis clients publics (Google, Pages Jaunes, etc.). Aucune trace de satisfaction client en ligne malgré 20+ ans d'activité."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale faible : site daté (WordPress 4.9, dernière mise à jour 2024), pas de réseaux sociaux actifs détectés, pas de stratégie de contenu visible."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Santé financière : résultat net positif (169k€ en 2024), pas de retard de paiement signalé, trésorerie saine historiquement."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Stabilité : équipe structurée (direction commerciale, bureau d'études, comptabilité identifiés), groupe mère solide, activité continue depuis 2003."
+    }
+  ],
+  "quickwins": [
+    "Créer une stratégie de capture de leads B2B : veille appels d'offres, CRM pour suivi prospects, automatisation des devis techniques",
+    "Générer des avis clients vérifiés : relancer clients satisfaits (automobile, aéronautique, ferroviaire) sur Google/Verif, créer des cas d'usage",
+    "Moderniser le site et activer LinkedIn : blog technique (études de cas, simulations), posts LinkedIn sur innovations, webinaires sectoriels",
+    "Documenter le savoir-faire : capitaliser les projets réussis, créer des fiches techniques, portfolio visuel (avant/après simulations)",
+    "Optimiser la facturation & devis : automatiser la génération de devis, tracker les appels d'offres, réduire le délai de réponse"
+  ],
+  "avis": "Non trouvé publiquement. Aucun avis sur Google, Pages Jaunes, Verif, ou plateformes spécialisées. Seule mention : 2 avis sur GoWork (plateforme RH, non clients). Réputation repose sur références directes et bouche-à-oreille B2B.",
+  "presence": "Site www.solsi-cad.fr actif mais daté (WordPress 4.9.23, dernière mise à jour novembre 2024). Pas de réseaux sociaux détectés (LinkedIn du groupe SOLSI visible mais pas de compte SOLSI-CAD dédié). Pas de blog, pas de contenu régulier. Présence très faible en ligne.",
+  "plateformes": [
+    {
+      "nom": "Verif.com",
+      "role": "Annuaire entreprises, solvabilité, avis clients B2B",
+      "url": "https://www.verif.com/societe/SOLSI-CAD-444468748/"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire professionnel, avis clients, horaires, coordonnées",
+      "url": "https://www.pagesjaunes.fr/pros/06583803"
+    },
+    {
+      "nom": "Kompass",
+      "role": "Annuaire B2B, contacts décideurs, données entreprises",
+      "url": "https://us.kompass.com/c/solsi-cad/fr0330897/"
+    },
+    {
+      "nom": "Pappers",
+      "role": "Données financières, bilans, statuts, alertes légales",
+      "url": "https://www.pappers.fr/entreprise/solsi-cad-444468748"
+    },
+    {
+      "nom": "RubyPayeur",
+      "role": "Solvabilité, pratiques de paiement, avis fournisseurs",
+      "url": "https://rubypayeur.com/societe/solsi-cad-444468748"
+    }
+  ],
+  "site": "https://www.solsi-cad.fr",
+  "intel": {
+    "financier": "Résultat net 2024 : 169 173€. CA estimé 4,8M€ (2018). Comptes partiellement confidentiels depuis 2024 (PME). Pas de commissaires aux comptes depuis mai 2023. Trésorerie historiquement saine (346k€ en 2018). Pas d'alertes de défaillance.",
+    "concurrence": "Marché très fragmenté (87 643 entreprises en ingénierie en France). Concurrents locaux : bureaux d'études régionaux, grands groupes (Altair, Ansys, Dassault). SOLSI-CAD se positionne sur la niche PME/PMI + secteurs spécialisés (auto, aéro, ferroviaire). Avantage : expertise multidisciplinaire (CFD, FEA, rhéologie, scanning 3D).",
+    "visibilite": "Très faible en ligne. Aucun avis client public. Site peu optimisé SEO. Pas de stratégie de contenu. Présence réduite aux annuaires (Verif, Pages Jaunes, Kompass). Réputation entièrement basée sur références directes et bouche-à-oreille B2B. Groupe SOLSI plus visible (site groupe, LinkedIn).",
+    "dirigeant": "Eric Scacciatella, gérant depuis 2023 (succède à Eric Friedrich). Groupe SOLSI dirigé par Pawel Lipinski et Marie Lipinski (actionnaires). Équipe managériale identifiée : Frédéric Barbe (direction commerciale), François Schaff (responsable bureau d'études), Marylise Poisbleaud (comptabilité). Structure stable, pas de turnover visible."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Capteur d'appels d'offres & CRM",
+      "benefice": "Automatiser la veille appels d'offres (marchés publics, appels privés), centraliser les prospects, relancer à bon moment → +30% de réponses, -50% temps admin"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Générateur de devis techniques assisté",
+      "benefice": "Pré-remplir devis avec données projet, calculs standards, historique client → -70% temps devis, cohérence tarifaire, réponse en 24h"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Collecteur d'avis clients (Google, Verif, LinkedIn)",
+      "benefice": "Relancer clients satisfaits post-projet, générer avis vérifiés, créer cas d'usage → +15 avis/an, crédibilité en ligne, SEO local"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur de projets & portfolio",
+      "benefice": "Capitaliser chaque projet (avant/après, simulations, résultats), créer fiches techniques, blog → base de connaissance, contenu marketing, formation interne"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Animateur LinkedIn & contenu technique",
+      "benefice": "Publier études de cas, innovations, webinaires → visibilité auprès décideurs, lead generation B2B, positionnement d'expert"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Tracker de facturation & relance",
+      "benefice": "Automatiser suivi factures, relances, trésorerie → -15j délai paiement, visibilité cash, moins de litiges"
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par mois en admin/devis/suivi"
+  },
+  "coutInaction": "Chaque mois sans stratégie digitale = 5-10 appels d'offres manqués, 20-30h perdues en admin devis, zéro avis clients générés. Risque : invisibilité croissante face à concurrents plus visibles, perte de parts de marché PME.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 40,
+    "cout": 320
+  },
+  "avantApres": {
+    "aujourdhui": "Devis manuels (3-5h), appels d'offres découverts par hasard, aucun avis en ligne, site statique, équipe débordée par l'admin.",
+    "avecIA": "Devis générés en 30min, appels d'offres captés automatiquement, 20+ avis clients en 6 mois, site vivant avec cas d'usage, équipe focus sur projets à forte valeur."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer votre stratégie digitale B2B et transformer votre visibilité auprès des décideurs industriels.",
+  "indice": {
+    "estime": 68,
+    "potentiel": 86
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 15,
+    "site": 45,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "Fiabilité technique & discrétion",
+    "couleur": "Bleu",
+    "definition": "SOLSI-CAD rayonne par son expertise technique reconnue et sa stabilité opérationnelle, mais reste invisible en ligne — une force cachée qui attend de briller.",
+    "eclat": "moyen"
+  },
+  "fierte": "Depuis 20 ans, SOLSI-CAD construit une réputation solide auprès des plus grands donneurs d'ordre (automobile, aéronautique, ferroviaire) grâce à son excellence technique et sa capacité à résoudre les défis les plus complexes en simulation et conception. Avec une équipe structurée, une trésorerie saine et un portefeuille de compétences unique (CFD, FEA, rhéologie, scanning 3D), l'entreprise a tous les atouts pour devenir un leader visible du marché — il ne lui manque que la voix pour le dire.",
+  "sources": "Verif.com (données 2024), Pappers (comptes 2024), RubyPayeur (solvabilité), Pages Jaunes (avis), Kompass (contacts), site solsi-cad.fr (activités), RocketReach (équipe), GoWork (avis RH). Confiance : HAUTE pour identité/financier, MOYENNE pour avis (absence = absence, non négatif), MOYENNE pour présence digitale (observable).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 5,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
