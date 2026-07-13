@@ -99,23 +99,8 @@
     <label>Nom de l'entreprise (+ ville)</label>
     <input type="text" id="bNom" placeholder="ex : SOLSI-SCAN, Hagondange" autocomplete="off" style="margin-bottom:12px;">
 
-    <label>Couleur IVE (nature de l'entreprise)</label>
-    <select id="bAuraSel" style="width:100%;font-size:16px;padding:11px 12px;border:1px solid #d1d5db;border-radius:10px;font-family:inherit;background:#fff;margin-bottom:14px;">
-      <option value="Violet">🟣 Violet — l'expertise</option>
-      <option value="Doré">🟡 Doré — le rayonnement</option>
-      <option value="Rouge">🔴 Rouge — la conquête</option>
-      <option value="Orange">🟠 Orange — la chaleur</option>
-      <option value="Jaune">🟡 Jaune — l'élan</option>
-      <option value="Vert">🟢 Vert — l'équilibre</option>
-      <option value="Turquoise"><i class="ti ti-heart"></i> Turquoise — le lien</option>
-      <option value="Bleu">🔵 Bleu — la fiabilité</option>
-      <option value="Rose"><i class="ti ti-heart"></i> Rose — la bienveillance</option>
-      <option value="Argent">⚪ Argent — l'agilité</option>
-      <option value="Marron">🟤 Marron — l'ancrage sous tension</option>
-      <option value="Gris">⚫ Gris — la transition</option>
-      <option value="Noir">⚫ Noir — la traversée</option>
-      <option value="Blanc">⚪ Blanc — le renouveau</option>
-    </select>
+    <div style="font-size:12px;color:#4b5563;background:#FBF4EF;border:1px solid #f0e6dd;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.45;"><i class="ti ti-info-circle"></i> La <b>couleur IVE</b> (nature de l'entreprise) est reprise automatiquement de la fiche <b>SENTINELLE</b> de cette entreprise.</div>
+    <div id="bMsg" style="display:none;margin-bottom:14px;"></div>
 
     <label>IVE extérieur — note SENTINELLE (facultatif, /100)</label>
     <input type="text" inputmode="numeric" id="bExt" placeholder="ex : 55 — laissez vide s'il n'y a pas eu de SENTINELLE" autocomplete="off" style="margin-bottom:12px;">
@@ -129,7 +114,7 @@
         <div style="font-size:12px;font-weight:600;color:#1C1C1C;background:#eef2ff;padding:4px 10px;border-radius:10px;white-space:nowrap;"><i class="ti ti-clock"></i> ≈ 1h30 – 2h · 1 session</div>
       </div>
       <div style="font-size:12px;color:#4b5563;margin-top:7px;line-height:1.55;"><b>40 critères</b> priorisés (5 par pilier).<br>→ Indice <b>indicatif</b> + 3 à 5 quick wins. Idéal 1er RDV.</div>
-      <button class="btn btn-primary" style="margin-top:10px;" onclick="startGrille('express')">Démarrer l'Express</button>
+      <button class="btn btn-primary" style="margin-top:10px;" onclick="startBoussole('express')">Démarrer l'Express</button>
     </div>
 
     <div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;">
@@ -138,7 +123,7 @@
         <div style="font-size:12px;font-weight:600;color:#374151;background:#f3f4f6;padding:4px 10px;border-radius:10px;white-space:nowrap;"><i class="ti ti-clock"></i> 2 à 4 sessions · plusieurs sem.</div>
       </div>
       <div style="font-size:12px;color:#4b5563;margin-top:7px;line-height:1.55;"><b>200 critères</b> (5 sous-domaines × 5 critères × 8 piliers).<br>→ Indice <b>définitif</b> + plan d'actions 12 mois.</div>
-      <button class="btn btn-ghost" style="margin-top:10px;" onclick="startGrille('complet')">Démarrer le Complet</button>
+      <button class="btn btn-ghost" style="margin-top:10px;" onclick="startBoussole('complet')">Démarrer le Complet</button>
     </div>
 
     <button class="btn btn-ghost" style="margin-top:14px;color:#9ca3af;border:none;" onclick="showView('form')">← Retour à l'accueil</button>
@@ -276,6 +261,34 @@ function buildItems(mode){
   });
   return items;
 }
+function bnorm(s){ return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function bMatch(a,b){ a=bnorm(a); b=bnorm(b); if(a.length<3||b.length<3) return false; return a.indexOf(b)!==-1 || b.indexOf(a)!==-1; }
+function bMsg(html){ var m=$('bMsg'); if(!m) return; m.style.display='block'; m.innerHTML=html; }
+function bMsgHide(){ var m=$('bMsg'); if(m){ m.style.display='none'; m.innerHTML=''; } }
+function applyBAura(couleur, note){ window.bAuraColor=couleur||'Violet'; var ext=$('bExt'); if(ext && !ext.value && note!=null) ext.value=note; }
+function noSentinelleMsg(nom){
+  bMsg('<div class="panel" style="margin:0;background:#fef2f2;border-color:#fecaca;"><div style="font-size:13px;color:#991b1b;font-weight:600;"><i class="ti ti-alert-triangle"></i> Aucune fiche SENTINELLE pour « '+esc(nom)+' »</div>'
+    +'<div style="font-size:12px;color:#7f1d1d;line-height:1.5;margin-top:5px;">La couleur IVE vient de SENTINELLE. Faites d\'abord le pré-diagnostic public de cette entreprise, puis revenez à la BOUSSOLE.</div>'
+    +'<button class="btn btn-primary" style="margin-top:10px;" onclick="showView(\'form\')"><i class="ti ti-search"></i> Faire SENTINELLE d\'abord</button></div>');
+}
+function startBoussole(mode){
+  var nom=($('bNom')&&$('bNom').value.trim())||'';
+  if(!nom){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Entrez d\'abord le nom de l\'entreprise.</div>'); return; }
+  bMsgHide();
+  if(window.lastAura && window.lastAura.couleur && window.lastNom && bMatch(window.lastNom,nom)){
+    applyBAura(window.lastAura.couleur, window.lastAura.note); startGrille(mode); return;
+  }
+  bMsg('<div style="font-size:12.5px;color:#6b7280;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>Recherche de la fiche SENTINELLE…</div>');
+  fetch('/api/history?full=1').then(function(r){return r.json();}).then(function(d){
+    var items=(d.items||[]).filter(function(it){return it.type==='SENTINELLE';});
+    var hit=null; for(var i=0;i<items.length;i++){ if(bMatch(items[i].nom,nom)){ hit=items[i]; break; } }
+    if(!hit){ noSentinelleMsg(nom); return; }
+    fetch(hit.url.replace(/\.html$/,'.json')).then(function(r){return r.json();}).then(function(f){
+      applyBAura((f.aura&&f.aura.couleur)||'Violet', (f.indice&&f.indice.estime!=null)?f.indice.estime:null);
+      bMsgHide(); startGrille(mode);
+    }).catch(function(){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Fiche SENTINELLE trouvée mais illisible. Réessayez.</div>'); });
+  }).catch(function(){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Historique indisponible (connexion ?). Réessayez.</div>'); });
+}
 function startGrille(mode){
   showView('bGrille');
   var items=buildItems(mode); window.bItems=items;
@@ -335,7 +348,7 @@ function bFinish(){
   var nom=($('bNom')&&$('bNom').value.trim())||'Entreprise';
   var mode=(r.n>=200)?'Complet':(r.n<=40?'Express':'Partiel');
   var date=new Date().toLocaleDateString('fr-FR');
-  var aura=($('bAuraSel')&&$('bAuraSel').value)||'Violet';
+  var aura=window.bAuraColor||'Violet';
   var au=AURAS[aura]||AURAS['Violet']; var ad=AURADEF[aura]||AURADEF['Violet']; var ec=eclat(r.idx);
   var auraBand='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;">'
    +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE</div>'

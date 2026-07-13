@@ -36,6 +36,12 @@ export default async function handler(req, res) {
   if (!token) { res.status(500).json({ error: "GITHUB_TOKEN non configuré" }); return; }
   try {
     const a = await listDir(token, "fiches", "SENTINELLE");
+    // Mode "full" : toutes les fiches SENTINELLE (pour retrouver la couleur IVE d'une entreprise en BOUSSOLE).
+    if (req.query && req.query.full) {
+      const fiches = a.sort((x, y) => (y.date + y.heure).localeCompare(x.date + x.heure)).slice(0, 100);
+      res.status(200).json({ items: fiches });
+      return;
+    }
     const b = await listDir(token, "boussoles", "BOUSSOLE");
     const all = a.concat(b).sort((x, y) => (y.date + y.heure).localeCompare(x.date + x.heure)).slice(0, 5);
     res.status(200).json({ items: all });
