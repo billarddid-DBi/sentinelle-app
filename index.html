@@ -186,6 +186,9 @@ function eclat(idx){return idx>=75?'éclatant':idx>=60?'rayonnant':idx>=45?'vif'
 // Code couleur ÉNERGIE (standard DBi360) : bleu froid (bas) -> rouge feu (haut)
 function energyColor(v){v=Math.max(0,Math.min(100,v));var s=[[30,58,138],[59,130,246],[16,185,129],[245,158,11],[239,68,68]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
 function energyWord(v){return v<25?'glacial':v<40?'froid':v<55?'tiède':v<70?'chaud':'en feu';}
+// PERFORMANCE (piliers + carte d'énergie) : rouge=faible -> vert=fort (intuition universelle). Distinct de energyColor (trajectoire).
+function perfColor(v){v=Math.max(0,Math.min(100,v));var s=[[220,38,38],[249,115,22],[234,179,8],[101,163,13],[22,163,74]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
+function perfWord(v){return v<25?'fragile':v<45?'à renforcer':v<60?'correct':v<78?'solide':'excellent';}
 // Cadran de trajectoire (statique, export-safe) : 5 zones colorées code énergie + curseur ▼ sur la zone active
 function trajDial(zones,active){var stops=[0,25,50,75,100];return '<div style="display:flex;gap:3px;align-items:flex-end;margin-top:6px;">'+zones.map(function(z,i){var on=i===active;return '<div style="flex:1;text-align:center;">'+'<div style="font-size:11px;height:13px;color:#111;">'+(on?'▼':'')+'</div>'+'<div style="height:'+(on?18:11)+'px;background:'+energyColor(stops[i])+';border-radius:3px;'+(on?'box-shadow:0 0 0 2px #fff,0 0 0 3px '+energyColor(stops[i])+';':'opacity:.5;')+'"></div>'+'<div style="font-size:8px;margin-top:4px;line-height:1.1;color:'+(on?'#111':'#9ca3af')+';font-weight:'+(on?700:400)+';">'+z+'</div>'+'</div>';}).join('')+'</div>';}
 function starsHTML(v){var n=Math.max(1,Math.min(5,Math.round((v||0)/20)));return '★'.repeat(n)+'<span style="opacity:.3">'+'★'.repeat(5-n)+'</span>';}
@@ -370,7 +373,7 @@ function bFinish(){
   var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:(!el||el.dataset.na==='1')?null:+el.value};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
   var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
-    var c=energyColor(r.pil[p]);
+    var c=perfColor(r.pil[p]);
     return '<div style="display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;"><div style="width:96px;color:#4b5563;">'+p+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:14px;"><div style="width:'+r.pil[p]+'%;background:'+c+';height:14px;border-radius:5px;"></div></div><div style="width:26px;text-align:right;font-weight:600;">'+r.pil[p]+'</div></div>';
   }).join('');
   // Carte de chaleur des sous-domaines (code couleur énergie, HTML statique)
@@ -379,14 +382,14 @@ function bFinish(){
   var heatRows='',curHP=null,hopen=false;
   sdord.forEach(function(k){var o=sdmap[k];var na=(o.n===0);var sc=na?0:Math.round(o.s/(o.n*5)*100);
     if(o.pil!==curHP){if(hopen)heatRows+='</div>';heatRows+='<div style="display:flex;align-items:stretch;gap:3px;margin-bottom:3px;"><div style="width:58px;font-size:10px;font-weight:600;color:#4b5563;display:flex;align-items:center;">'+esc(o.pil)+'</div>';curHP=o.pil;hopen=true;}
-    var info=na?(esc(o.sous)+' — non concerné'):(esc(o.sous)+' — '+sc+'/100 · '+energyWord(sc));
-    heatRows+='<div style="flex:1;background:'+(na?'#d1d5db':energyColor(sc))+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+(na?'n/c':sc)+'</div></div>';
+    var info=na?(esc(o.sous)+' — non concerné'):(esc(o.sous)+' — '+sc+'/100 · '+perfWord(sc));
+    heatRows+='<div style="flex:1;background:'+(na?'#d1d5db':perfColor(sc))+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+(na?'n/c':sc)+'</div></div>';
   });
   if(hopen)heatRows+='</div>';
   var heatSec='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-temperature"></i> Carte d\'énergie — sous-domaines</div>'
-   +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 8px;">Bleu = froid (à réveiller) · Rouge = en feu. Survolez une case pour le détail.</div>'
+   +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 8px;">Rouge = à renforcer · Vert = point fort. Survolez une case pour le détail.</div>'
    +'<div style="overflow-x:auto;">'+heatRows+'</div>'
-   +'<div style="display:flex;align-items:center;margin-top:8px;"><span style="font-size:9px;color:#6b7280;margin-right:5px;">froid</span><div style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,#1e3a8a,#3b82f6,#10b981,#f59e0b,#ef4444);"></div><span style="font-size:9px;color:#6b7280;margin-left:5px;">feu</span></div></div>';
+   +'<div style="display:flex;align-items:center;margin-top:8px;"><span style="font-size:9px;color:#6b7280;margin-right:5px;">faible</span><div style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,#dc2626,#f97316,#eab308,#65a30d,#16a34a);"></div><span style="font-size:9px;color:#6b7280;margin-left:5px;">fort</span></div></div>';
   var sh=r.faibles.slice(0,14),ex=r.faibles.length-sh.length;
   var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   var card='<div class="card">'
