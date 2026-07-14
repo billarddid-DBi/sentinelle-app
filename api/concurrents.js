@@ -202,6 +202,13 @@ function repScore(r) {
   const n = (r.avis && r.avis.nombre) ? r.avis.nombre : 0;
   return rt * 100 + Math.min(60, Math.log10(n + 1) * 22);
 }
+// Fiche Google CANONIQUE du prospect = celle qui a le PLUS d'avis parmi les résultats dont le nom correspond. Évite les fiches secondaires/doublons (Google en renvoie plusieurs, ordre instable) -> note stable et cohérente avec SENTINELLE.
+function pickCanonical(results, nom) {
+  const q = norm(nom);
+  const matches = results.filter(function (r) { const rn = norm(r.name || ""); return rn && q && (rn.indexOf(q) !== -1 || q.indexOf(rn) !== -1); });
+  const pool = matches.length ? matches : [results[0]];
+  return pool.reduce(function (b, r) { return ((r.user_ratings_total || 0) > (b.user_ratings_total || 0)) ? r : b; }, pool[0]);
+}
 // Élargit un mot-clé métier vers des termes que Google Places reconnaît (jargon FR souvent mal indexé). Extensible.
 function expandKw(kw) {
   const a = norm(kw);
@@ -229,7 +236,7 @@ export default async function handler(req, res) {
     // 1) Le PROSPECT via Google (sa propre fiche : note, avis, site, position) — même source que les concurrents -> cohérence
     if (gkey) {
       const pg = await googleTextSearch(`${nom} ${ville}`, null, null, 0, gkey);
-      const pp = (pg.status === "OK" && pg.results.length) ? pg.results[0] : null;
+      const pp = (pg.status === "OK" && pg.results.length) ? pickCanonical(pg.results, nom) : null;
       if (pp && pp.geometry && pp.geometry.location) {
         prospectPlace = pp;
         prospectNom = pp.name;

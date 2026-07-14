@@ -119,6 +119,14 @@ function vScore(c) { c = c || 0; if (c >= 500) return 92; if (c >= 150) return 8
 function sScore(has) { return has ? 75 : 28; }
 // Compression du HAUT de l'échelle IVE (décision Didier) : bas inchangé (≤50), plus la note monte plus on la tasse (ex: 84->76). Évite les notes trop flatteuses qui tuent l'envie d'agir. IDENTIQUE dans concurrents.js.
 function compress(n) { return n <= 50 ? n : n - 0.7 * Math.pow(n - 50, 2) / 100; }
+// Fiche Google CANONIQUE du prospect = celle avec le PLUS d'avis parmi les résultats au nom correspondant (IDENTIQUE à concurrents.js -> même fiche, même IVE partout).
+function norm(s) { return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+function pickCanonical(results, nom) {
+  const q = norm(nom);
+  const matches = results.filter(function (r) { const rn = norm(r.name || ""); return rn && q && (rn.indexOf(q) !== -1 || q.indexOf(rn) !== -1); });
+  const pool = matches.length ? matches : [results[0]];
+  return pool.reduce(function (b, r) { return ((r.user_ratings_total || 0) > (b.user_ratings_total || 0)) ? r : b; }, pool[0]);
+}
 async function getWebsite(placeId, key) {
   if (!placeId || !key) return null;
   try {
@@ -202,7 +210,7 @@ export default async function handler(req, res) {
         const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
         if (gr.ok) {
           const gd = await gr.json();
-          const p = (gd.results || [])[0];
+          const p = (gd.results && gd.results.length) ? pickCanonical(gd.results, fiche.nom) : null;
           if (p) {
             const site = await getWebsite(p.place_id, gkey);
             const w = profil(fiche.activite || fiche.secteur || fiche.archetype);
