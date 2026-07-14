@@ -1,0 +1,107 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Romana",
+  "date": "2026-07-14T08:58:12.092Z",
+  "contexte": {
+    "nom": "Romana",
+    "activite": "",
+    "archetype": "",
+    "indiceInterieur": 91,
+    "indiceExterieur": 76,
+    "potentiel": 100,
+    "ecart": 15,
+    "zoneVerite": "Élan",
+    "piliers": {
+      "Vision": 88,
+      "Organisation": 96,
+      "Processus": 88,
+      "Informations": 88,
+      "Outils": 80,
+      "Décisions": 88,
+      "Clients": 96,
+      "Performance": 100
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      }
+    ],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Transformer votre avance cachée (91/100 réel vs 76/100 perçu) en crédibilité marché : automatiser les tâches répétitives (devis, factures, rapports) pour libérer du temps client et afficher une réactivité sans égale.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Romana opère à un niveau de maturité IA remarquable (91/100) : organisation solide, processus maîtrisés, clients fidèles et performance au sommet. Mais cette excellence reste invisible — le marché ne la voit qu'à 76/100. L'enjeu : transformer cette pépite en avantage concurrentiel visible et mesurable.",
+      "interne": "Cas rare et favorable : l'écart de Vérité positif (+15) révèle une entreprise qui FAIT bien mais ne le MONTRE pas. Les fondamentaux sont forts (Vision 88, Organisation 96, Clients 96, Performance 100). Le levier n'est pas la transformation, c'est la VISIBILITÉ et l'ACCÉLÉRATION des tâches répétitives (3/5 actuellement) pour consolider l'image et créer de la marge opérationnelle."
+    },
+    "verite": {
+      "externe": "Vous avez construit une machine fiable et humaine — c'est rare et précieux. Mais cette fiabilité reste un secret : vos clients la vivent, le marché l'ignore. Les tâches répétitives (devis, factures, rapports) sont rapides, mais probablement pas assez visibles ou standardisées pour devenir un argument de vente. À explorer : ces tâches sont-elles aussi fluides qu'elles le paraissent, ou y a-t-il des micro-frictions qui ralentissent la réactivité perçue ?",
+      "interne": "Romana est une anomalie positive : 91/100 de maturité réelle, écart de +15 avec l'image. Cela signifie que l'organisation (96/100), les processus (88/100) et la relation client (96/100) fonctionnent bien. Le critère faible (tâches répétitives à 3/5) n'est pas un blocage systémique, mais une opportunité : standardiser et accélérer ces tâches libérera du temps pour la vente et le conseil, tout en renforçant l'image de réactivité. Hypothèse managériale à confirmer : il se peut que l'équipe soit surchargée par l'administratif, limitant sa capacité à valoriser l'excellence opérationnelle auprès du marché."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Tâches répétitives (devis, factures, rapports) à 3/5 : rapides mais non optimisées, consommant du temps qui pourrait aller au client et à la visibilité.",
+        "levier": "Automatiser les tâches répétitives (génération de devis, facturation, rapports standardisés) via IA générative pour passer de 3/5 à 5/5 et libérer 8-12 h/semaine par collaborateur.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un assistant IA (type ChatGPT API ou Make/Zapier) pour templater et générer devis, factures, rapports clients en 2-3 clics. Déployer sur 1 mois, former l'équipe, mesurer le temps économisé.",
+        "indicateur": "Temps moyen par devis/facture/rapport (cible : −50 %), nombre de tâches traitées/jour (+30 %), satisfaction équipe sur charge administrative."
+      },
+      {
+        "palier": 1,
+        "frein": "Écart de Vérité (+15) : excellence cachée, image sous-estimée à 76/100 vs réalité 91/100. Marché ne voit pas la fiabilité et la réactivité.",
+        "levier": "Créer et diffuser des preuves de réactivité : temps de réponse, taux de satisfaction client, cas de succès — via email, site, réseaux. Transformer l'excellence opérationnelle en argument commercial visible.",
+        "type": "externe",
+        "mise_en_oeuvre": "Documenter 3-4 cas clients (avant/après, délai, impact). Publier mensuellement un indicateur de réactivité (ex : « 95 % des devis en 24 h »). Intégrer dans la signature email et le site.",
+        "indicateur": "Image perçue (SENTINELLE) passant de 76 à 85+/100 en 3 mois. Taux de conversion leads (+10-15 %). Feedback clients sur réactivité."
+      },
+      {
+        "palier": 2,
+        "frein": "Outils à 80/100 : solides, mais pas encore optimisés pour amplifier la relation client et la capitalisation du savoir.",
+        "levier": "Enrichir la stack IA : ajouter un CRM léger avec IA (pour segmenter clients, anticiper besoins) et une base de savoir (FAQ, procédures) alimentée par les rapports automatisés.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un CRM simple (HubSpot gratuit ou Pipedrive) + chatbot IA pour FAQ clients. Capitaliser les rapports générés en base de savoir. Déployer en mois 2-3.",
+        "indicateur": "Taux de réponse aux questions clients via chatbot (cible : 60 %). Temps de recherche interne (cible : −40 %). Satisfaction client sur accès à l'info."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Automatisation tâches répétitives (devis, factures, rapports)",
+          "inaction_an": 24000,
+          "invest_1x": 3000,
+          "recurrent_an": 2400
+        },
+        {
+          "poste": "Visibilité marché (création contenu, diffusion cas clients)",
+          "inaction_an": 12000,
+          "invest_1x": 1500,
+          "recurrent_an": 1800
+        },
+        {
+          "poste": "CRM + IA (segmentation, chatbot, base de savoir)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 1200
+        }
+      ],
+      "inaction_an": 44000,
+      "invest_total": 6500,
+      "recurrent_an": 5400,
+      "gain_an": 38600,
+      "roi_net_an": 38600,
+      "payback_mois": 2,
+      "fourchette": "2 à 3 mois de retour sur investissement ; gain annuel net de 38600 € (fourchette prudente : 32000 à 45000 €)"
+    },
+    "cadence": "Point mensuel (15 min) pour tracker l'automatisation et l'image perçue. Prochaine BOUSSOLE dans 3 mois (janvier 2025) pour mesurer l'écart de Vérité réduit et valider le passage de 76 à 85+/100 perçu.",
+    "synthese": {
+      "externe": "Vous avez construit quelque chose de rare : une entreprise fiable, réactive et humaine. Le prochain pas est simple : montrer ce que vous faites déjà bien. En automatisant l'administratif (devis, factures, rapports), vous gagnez du temps pour le client et la vente. En partageant vos succès, vous transformez votre excellence cachée en crédibilité marché. Trois mois pour passer de 76 à 85/100 perçu — et 38600 € de gain annuel.",
+      "interne": "Romana est un cas de figure favorable : maturité réelle haute (91/100), écart positif (+15), fondamentaux solides. L'opportunité commerciale est claire — transformer la pépite en argument de vente. Trois leviers : (1) automatiser les tâches répétitives pour libérer du temps client et afficher une réactivité sans égale ; (2) créer et diffuser des preuves de réactivité (cas clients, KPI) pour réduire l'écart de Vérité ; (3) enrichir la stack IA (CRM + chatbot + base de savoir) pour amplifier la relation client et la capitalisation. ROI net : 38600 €/an, payback 2-3 mois. Prochaine étape : audit des tâches répétitives (timing réel, points de friction) et plan de communication marché (3-4 cas clients à documenter)."
+    }
+  }
+}
