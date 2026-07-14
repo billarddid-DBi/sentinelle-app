@@ -223,7 +223,7 @@ function expandKw(kw) {
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   try {
-    const { nom, ville, radius, keyword, prospectAura } = req.body || {};
+    const { nom, ville, radius, keyword, prospectAura, prospectAvis, prospectSite } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
     const rad = 40; // biais de recherche large ; on ne filtre PAS par distance, on garde les 8 plus proches
     const kw = (keyword || "").trim();
@@ -296,7 +296,16 @@ export default async function handler(req, res) {
             c.site = c.site || sites[i] || null;
             c.aura = objectiveAura(rating, count, !!sites[i], w);
           });
-          if (selfRow) prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
+          if (selfRow) {
+            // COHÉRENCE : si SENTINELLE a déjà mesuré le prospect (lancement depuis la fiche), on RÉUTILISE ses données -> IVE identique et stable, pas de re-recherche Google (crucial pour les franchises à fiches multiples).
+            const useSen = prospectAura && typeof prospectAura.note === "number";
+            if (useSen) {
+              const av = (prospectAvis && prospectAvis.note != null) ? prospectAvis : selfRow.avis;
+              prospectData = { avis: av, presence: presenceFromCount(av && av.nombre), aura: { note: prospectAura.note, couleur: prospectAura.couleur || (selfRow.aura && selfRow.aura.couleur) || "Bleu", eclat: prospectAura.eclat || "moyen" }, site: prospectSite || selfRow.site || null };
+            } else {
+              prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
+            }
+          }
           if (isWide(kw)) concurrents.sort((a, b) => ((b.aura && b.aura.note) || 0) - ((a.aura && a.aura.note) || 0));
         } catch (_) {}
       }

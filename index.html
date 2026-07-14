@@ -564,7 +564,7 @@ function showErr(m,d){
 }
 
 function render(d,skipSave){
-  window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null;
+  window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
@@ -794,7 +794,7 @@ function runConcurrence(){
   var out=document.getElementById('cOut');
   if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
-  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null})})
+  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
    .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } renderConcu(d); })
    .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>'; });
