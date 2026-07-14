@@ -324,7 +324,7 @@ export default async function handler(req, res) {
       aura: prospectData.aura || ((prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : null),
       site: prospectData.site || null
     };
-    res.status(200).json({ keyword: kw, radius: rad, source, prospect: prospectRow, concurrents });
+    res.status(200).json({ keyword: kw, radius: rad, source, prospect: prospectRow, concurrents, _dbg: { rxAura: prospectAura || null, rxAvis: prospectAvis || null, useSen: !!(prospectAura && typeof prospectAura.note === "number") } });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur", detail: String(err).slice(0, 300) });
   }
