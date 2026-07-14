@@ -117,6 +117,8 @@ function profil(kw) {
 function qScore(r) { if (r == null) return 45; if (r >= 4.8) return 90; if (r >= 4.5) return 84; if (r >= 4.2) return 78; if (r >= 4.0) return 72; if (r >= 3.5) return 62; if (r >= 3.0) return 52; return 40; }
 function vScore(c) { c = c || 0; if (c >= 500) return 92; if (c >= 150) return 85; if (c >= 50) return 76; if (c >= 15) return 66; if (c >= 5) return 55; if (c >= 1) return 45; return 32; }
 function sScore(has) { return has ? 75 : 28; }
+// Compression du HAUT de l'échelle IVE (décision Didier) : bas inchangé (≤50), plus la note monte plus on la tasse (ex: 84->76). Évite les notes trop flatteuses qui tuent l'envie d'agir. IDENTIQUE dans concurrents.js.
+function compress(n) { return n <= 50 ? n : n - 0.7 * Math.pow(n - 50, 2) / 100; }
 async function getWebsite(placeId, key) {
   if (!placeId || !key) return null;
   try {
@@ -204,7 +206,7 @@ export default async function handler(req, res) {
           if (p) {
             const site = await getWebsite(p.place_id, gkey);
             const w = profil(fiche.activite || fiche.secteur || fiche.archetype);
-            const note = Math.max(5, Math.min(97, Math.round((w.q * qScore(p.rating != null ? p.rating : null) + w.v * vScore(p.user_ratings_total || null) + w.s * sScore(!!site)) / 100)));
+            const note = Math.max(5, Math.min(97, Math.round(compress((w.q * qScore(p.rating != null ? p.rating : null) + w.v * vScore(p.user_ratings_total || null) + w.s * sScore(!!site)) / 100))));
             fiche.indice = fiche.indice || {};
             fiche.indice.estime = note;
             fiche.indice.potentiel = Math.min(100, note + 18);
