@@ -1,0 +1,296 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Immobilière Service",
+  "date": "2026-07-14T09:54:42.580Z",
+  "contexte": {
+    "nom": "Immobilière Service",
+    "activite": "Agence immobilière - vente, location, gestion, expertise",
+    "archetype": "Commerce établi & performant (mais en déclin)",
+    "indiceInterieur": 42,
+    "indiceExterieur": 43,
+    "potentiel": 67,
+    "ecart": -1,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 40,
+      "Organisation": 52,
+      "Processus": 40,
+      "Informations": 45,
+      "Outils": 28,
+      "Décisions": 56,
+      "Clients": 40,
+      "Performance": 36
+    },
+    "faibles": [
+      "Le dirigeant sait où il veut emmener l'entreprise à 3 ans (2/5)",
+      "L'entreprise sait précisément ce qui la distingue (2/5)",
+      "La stratégie est écrite (pas que dans la tête du dirigeant) (2/5)",
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "L'entreprise surveille les évolutions de son marché (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "Les compétences clés sont identifiées (2/5)",
+      "Les façons de faire sont écrites (procédures) (2/5)",
+      "Les délais annoncés sont tenus (2/5)",
+      "La qualité des livrables est constante (2/5)",
+      "Les tâches répétitives sont identifiées (2/5)",
+      "Les outils et les process sont bien articulés (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (2/5)",
+      "Le savoir-faire est documenté (pas que dans les têtes) (2/5)",
+      "Les données sont centralisées (pas éparpillées) (2/5)",
+      "Les outils et équipements du quotidien sont performants (2/5)",
+      "Les tâches répétitives (devis, factures, rapports) sont rapides (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (1/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (1/5)",
+      "L'entreprise teste de nouvelles solutions (1/5)",
+      "On mesure les résultats des décisions prises (1/5)",
+      "Des tableaux de bord existent et sont utilisés (1/5)",
+      "La réputation de l'entreprise est bonne (1/5)",
+      "La prospection est structurée (pas au hasard) (2/5)",
+      "La fidélisation est travaillée (pas que la conquête) (1/5)",
+      "Le portefeuille client est équilibré (2/5)",
+      "La rentabilité est suivie et maîtrisée (1/5)",
+      "Les résultats sont stables dans le temps (2/5)",
+      "La trésorerie est saine (2/5)",
+      "La productivité est mesurée (2/5)",
+      "La croissance est maîtrisée et soutenable (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 1,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 1,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 1,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 1,
+        "p": "Décisions"
+      },
+      {
+        "c": "Des tableaux de bord existent et sont utilisés",
+        "n": 1,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 1,
+        "p": "Clients"
+      },
+      {
+        "c": "La fidélisation est travaillée (pas que la conquête)",
+        "n": 1,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 1,
+        "p": "Performance"
+      },
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 2,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 2,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 2,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 2,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 2,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "La prospection est structurée (pas au hasard)",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "Le portefeuille client est équilibré",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "Les résultats sont stables dans le temps",
+        "n": 2,
+        "p": "Performance"
+      }
+    ],
+    "aura": "Gris — la transition"
+  },
+  "miroir": {
+    "priorite": "Écrire la stratégie immobilière de l'agence (vision 3 ans, différenciation, cap clair) et la partager avec l'équipe pour transformer le déclin en trajectoire maîtrisée.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Immobilière Service est une agence établie, respectée localement, mais elle navigue sans cap écrit : la stratégie reste dans la tête du dirigeant, l'équipe ne sait pas où on va, les outils ne parlent pas entre eux, et les résultats dérivent. Le potentiel est là (67/100 visé), mais il faut d'abord redevenir cohérent avec soi-même.",
+      "interne": "Agence en transition : BOUSSOLE et SENTINELLE alignées (42 vs 43), donc pas de faux-semblant, mais décalage interne majeur. Vision/Stratégie/Clients à 40/100, Outils à 28/100 (le pire), Décisions à 56/100 (seul pilier « acceptable »). Tous les critères de gouvernance et de capitalisation sont à 1-2/5 : pas de stratégie écrite, pas de procédures, pas de tableaux de bord, pas de maîtrise des outils, pas de test d'innovation. C'est un système qui fonctionne sur l'inertie et la compétence individuelle, fragile à la succession et à la croissance."
+    },
+    "verite": {
+      "externe": "L'agence a bâti une réputation solide (1/5 sur la réputation suggère qu'elle n'est pas un atout différenciant, à confirmer avec vous), mais elle n'a pas formalisé ce qui la rend unique ni où elle veut aller. Il se peut que l'équipe soit engagée mais désorientée, attendant un cap clair du dirigeant. Sans stratégie écrite et partagée, les talents quittent, les clients ne comprennent pas la promesse, et les décisions restent réactives. C'est le moment de passer de « on fonctionne » à « on sait pourquoi ».",
+      "interne": "Racine : absence totale de gouvernance formalisée. Pas de stratégie écrite (2/5), pas de procédures (2/5), pas de centralisation des données (2/5), pas de tableaux de bord (1/5), pas de mesure des décisions (1/5). L'équipe maîtrise mal les outils (1/5) et ils ne communiquent pas (1/5) — double saisie, perte de temps, erreurs. Pas de test d'innovation (1/5). Le dirigeant sait peut-être où il veut aller (2/5), mais c'est un secret : l'équipe ne le sait pas (2/5). Résultat : performance à 36/100, fidélisation à 1/5, rentabilité à 1/5. Il faut d'abord écrire et partager la vision, puis outiller pour la tenir. Pas d'IA sans fondations."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Pas de stratégie écrite ni partagée (Vision 40/100, critères « dirigeant sait où il veut aller » et « équipe connaît la direction » à 2/5) — le cap reste implicite, l'équipe est désorientée.",
+        "levier": "Formaliser la vision 3 ans de l'agence (positionnement, cibles, différenciation) en 1 document écrit, l'aligner avec l'équipe en 3 réunions, et l'afficher publiquement (site, pitch client).",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + 2-3 cadres (2 j) pour écrire la vision ; présentation à l'équipe complète ; relecture trimestrielle. Coût : 0 € (interne) ou 3000 € si animation externe.",
+        "indicateur": "Document signé, 100% de l'équipe peut réciter le cap en entretien, taux de turnover stable 3 mois après."
+      },
+      {
+        "palier": 1,
+        "frein": "Les outils ne communiquent pas (1/5), l'équipe les maîtrise mal (1/5), double saisie systématique — perte de temps et d'erreurs (Outils 28/100, Processus 40/100).",
+        "levier": "Auditer l'écosystème logiciel (CRM, comptabilité, gestion de biens, signature) ; identifier les 3 flux critiques (prospect → client, bien → location, client → facture) ; intégrer ou remplacer pour fluidifier sans double saisie.",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit 1 jour (1500 €) ; sélection d'un CRM immobilier intégré (Agora, Orpi, ou équivalent) avec migration des données (2000 €) ; formation équipe 2 j (1000 €). Déploiement 2 mois.",
+        "indicateur": "Zéro double saisie sur les 3 flux critiques, temps de saisie par dossier réduit de 30%, maîtrise des outils à 4/5 en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Pas de tableaux de bord ni de mesure des décisions (1/5 pour les deux), pas de suivi de la rentabilité (1/5) — on ne sait pas pourquoi on gagne ou on perd (Décisions 56/100, Performance 36/100).",
+        "levier": "Créer 3 tableaux de bord simples : (1) pipeline de ventes/locations (nb dossiers, délai moyen, taux de conversion) ; (2) rentabilité par service (vente, location, gestion) ; (3) satisfaction client et fidélisation. Mise à jour mensuelle, revue en réunion de direction.",
+        "type": "IA",
+        "mise_en_oeuvre": "Modèle Excel ou BI léger (Power BI, Looker Studio) alimenté par le CRM (1500 € si BI, 0 € si Excel). Formation 1 j. Déploiement 1 mois.",
+        "indicateur": "Tableaux de bord actifs et consultés hebdo, 1 décision par mois prise sur données (ex : ajustement de tarif, ciblage de prospect), Performance passe à 50/100 en 6 mois."
+      },
+      {
+        "palier": 2,
+        "frein": "Les tâches répétitives ne sont pas identifiées (2/5) ni automatisées (Outils 28/100, Processus 40/100) — devis, rapports, relances, comptes rendus se font manuellement.",
+        "levier": "Identifier les 5 tâches les plus répétitives (ex : devis estimatif, rapport de visite, relance prospect, contrat de location, facture) ; automatiser avec IA (génération de texte, remplissage de formulaires, envoi de mail) ou workflow simple.",
+        "type": "IA",
+        "mise_en_oeuvre": "Audit 1 jour (500 €) ; intégration d'IA générative (ChatGPT API, Claude, ou plug-in CRM) pour 3-4 tâches (2000 €) ; templates et workflows (1000 €). Déploiement 1 mois.",
+        "indicateur": "Temps par devis réduit de 50%, 20 heures/mois gagnées, équipe redéployée sur prospection/relation client."
+      },
+      {
+        "palier": 2,
+        "frein": "Pas de capitalisation du savoir-faire (2/5), pas de procédures écrites (2/5) — le savoir reste dans les têtes, risque de perte à la succession.",
+        "levier": "Documenter les 5 processus critiques (prospection, visite, négociation, signature, gestion locative) en fiches/vidéos ; créer une base de connaissance interne (wiki ou Notion) ; former les nouveaux sur ces processus.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 3 j avec les experts métier pour écrire les procédures ; outil Notion ou wiki (200 €/an) ; formation 1 j. Déploiement 2 mois.",
+        "indicateur": "100% des processus critiques documentés, nouveaux collaborateurs autonomes en 2 semaines (vs 2 mois avant), taux de qualité constant (2/5 → 4/5)."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Audit écosystème logiciel + intégration CRM",
+          "inaction_an": 8000,
+          "invest_1x": 4500,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Tableaux de bord et mesure de performance",
+          "inaction_an": 5000,
+          "invest_1x": 1500,
+          "recurrent_an": 300
+        },
+        {
+          "poste": "Automatisation IA des tâches répétitives",
+          "inaction_an": 12000,
+          "invest_1x": 3500,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Formalisation stratégie et procédures",
+          "inaction_an": 6000,
+          "invest_1x": 3000,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 31000,
+      "invest_total": 12500,
+      "recurrent_an": 2300,
+      "gain_an": 28700,
+      "roi_net_an": 26400,
+      "payback_mois": 6,
+      "fourchette": "5 à 8 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel de suivi des 5 leviers (15 min) ; BOUSSOLE complète dans 3 mois pour mesurer le passage de 42 à 50/100 ; réunion trimestrielle de gouvernance (stratégie + tableaux de bord) pour valider la trajectoire vers 67/100.",
+    "synthese": {
+      "externe": "Vous avez une agence solide, mais elle fonctionne sur l'inertie. Le prochain pas : écrire où vous voulez aller (vision 3 ans), le dire à votre équipe, et outiller pour le tenir (CRM intégré, tableaux de bord, automatisation). En 6 mois, vous passerez de « on fonctionne » à « on sait pourquoi et où ». C'est le moment.",
+      "interne": "Agence en transition, pas en crise. BOUSSOLE/SENTINELLE alignées, donc diagnostic clair : manque de gouvernance formalisée (stratégie, procédures, données, tableaux de bord). Palier 1 = redevenir cohérent (écrire + partager la vision, intégrer les outils, mesurer). Palier 2 = dépasser avec IA (automatisation des tâches répétitives, capitalisation du savoir). ROI net 26k€/an, payback 6 mois. Angle commercial : c'est une agence « prête à grandir » — il suffit de formaliser et d'outiller. Pas de révolution, juste de la rigueur."
+    }
+  }
+}
