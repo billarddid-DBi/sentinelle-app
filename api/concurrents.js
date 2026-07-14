@@ -296,16 +296,7 @@ export default async function handler(req, res) {
             c.site = c.site || sites[i] || null;
             c.aura = objectiveAura(rating, count, !!sites[i], w);
           });
-          if (selfRow) {
-            // COHÉRENCE : si SENTINELLE a déjà mesuré le prospect (lancement depuis la fiche), on RÉUTILISE ses données -> IVE identique et stable, pas de re-recherche Google (crucial pour les franchises à fiches multiples).
-            const useSen = prospectAura && typeof prospectAura.note === "number";
-            if (useSen) {
-              const av = (prospectAvis && prospectAvis.note != null) ? prospectAvis : selfRow.avis;
-              prospectData = { avis: av, presence: presenceFromCount(av && av.nombre), aura: { note: prospectAura.note, couleur: prospectAura.couleur || (selfRow.aura && selfRow.aura.couleur) || "Bleu", eclat: prospectAura.eclat || "moyen" }, site: prospectSite || selfRow.site || null };
-            } else {
-              prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
-            }
-          }
+          if (selfRow) prospectData = { avis: selfRow.avis, presence: presenceFromCount(selfRow.avis && selfRow.avis.nombre), aura: selfRow.aura, site: selfRow.site };
           if (isWide(kw)) concurrents.sort((a, b) => ((b.aura && b.aura.note) || 0) - ((a.aura && a.aura.note) || 0));
         } catch (_) {}
       }
@@ -318,13 +309,16 @@ export default async function handler(req, res) {
       prospectData = f.prospectData; concurrents = f.concurrents; source = "web";
     }
 
+    // Le PROSPECT prend TOUJOURS ses données de SENTINELLE quand elles sont fournies (concurrence lancée depuis la fiche) -> IVE stable et identique, quelle que soit la source des concurrents (google OU repli web).
+    const useSen = prospectAura && typeof prospectAura.note === "number";
     const prospectRow = {
       nom: prospectNom, commune: prospectCommune, lat: center.lat, long: center.long,
-      avis: prospectData.avis || null, presence: prospectData.presence || null,
-      aura: prospectData.aura || ((prospectAura && typeof prospectAura.note === "number") ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : null),
-      site: prospectData.site || null
+      avis: useSen ? ((prospectAvis && prospectAvis.note != null) ? prospectAvis : (prospectData.avis || null)) : (prospectData.avis || null),
+      presence: useSen ? presenceFromCount((prospectAvis && prospectAvis.nombre) || (prospectData.avis && prospectData.avis.nombre)) : (prospectData.presence || null),
+      aura: useSen ? { note: prospectAura.note, couleur: prospectAura.couleur || "Bleu", eclat: prospectAura.eclat || "moyen" } : (prospectData.aura || null),
+      site: useSen ? (prospectSite || prospectData.site || null) : (prospectData.site || null)
     };
-    res.status(200).json({ keyword: kw, radius: rad, source, prospect: prospectRow, concurrents, _dbg: { rxAura: prospectAura || null, rxAvis: prospectAvis || null, useSen: !!(prospectAura && typeof prospectAura.note === "number") } });
+    res.status(200).json({ keyword: kw, radius: rad, source, prospect: prospectRow, concurrents });
   } catch (err) {
     res.status(500).json({ error: "Erreur serveur", detail: String(err).slice(0, 300) });
   }
