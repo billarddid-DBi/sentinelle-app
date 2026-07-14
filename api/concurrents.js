@@ -153,7 +153,8 @@ async function scoreDimensions(list, key) {
 
 // ---- GOOGLE PLACES (Text Search, données Google Maps) ----
 async function googleTextSearch(query, lat, long, radius, key) {
-  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&location=${lat},${long}&radius=${Math.round(radius * 1000)}&language=fr&region=fr&key=${key}`;
+  let url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&language=fr&region=fr&key=${key}`;
+  if (lat != null && long != null) url += `&location=${lat},${long}&radius=${Math.round(radius * 1000)}`; // biais de zone seulement pour les concurrents ; PAS pour trouver le prospect par nom (sinon fiche instable)
   const r = await fetch(url);
   if (!r.ok) return { status: "HTTP_" + r.status, results: [] };
   const d = await r.json();
@@ -227,7 +228,7 @@ export default async function handler(req, res) {
 
     // 1) Le PROSPECT via Google (sa propre fiche : note, avis, site, position) — même source que les concurrents -> cohérence
     if (gkey) {
-      const pg = await googleTextSearch(`${nom} ${ville}`, 46.6, 2.4, 500, gkey);
+      const pg = await googleTextSearch(`${nom} ${ville}`, null, null, 0, gkey);
       const pp = (pg.status === "OK" && pg.results.length) ? pg.results[0] : null;
       if (pp && pp.geometry && pp.geometry.location) {
         prospectPlace = pp;
