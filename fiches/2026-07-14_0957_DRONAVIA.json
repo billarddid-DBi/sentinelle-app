@@ -1,0 +1,175 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Entreprise saine & innovante",
+    "atout": "Leader européen, expertise reconnue"
+  },
+  "identite": "SAS Dronavia, SIREN 810254722, NAF 3030Z (Construction aéronautique et spatiale), créée 01/03/2015 (11 ans), 10-19 salariés (2023), dirigée par Ludovic Pelletey, capital social 30 016 €.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      65,
+      68,
+      62,
+      70,
+      68,
+      75,
+      70
+    ],
+    "potentiel": [
+      85,
+      80,
+      82,
+      78,
+      85,
+      82,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Innovation, sécurité des opérations aériennes, excellence technique, leadership européen, conformité réglementaire (DGAC, EASA).",
+  "imagePercue": "Entreprise innovante et fiable, leader reconnu du marché français et européen des accessoires de sécurité pour drones. Présence digitale moderne et active. Peu d'avis clients en ligne (secteur B2B spécialisé).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Comptes confidentiels mais CA < 700 k€ en 2022 : entreprise de taille modérée, saine financièrement."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Croissance d'effectif observable (6-9 en 2021 → 10-19 en 2023) : dynamique positive, recrutement en cours."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Peu d'avis clients publics (secteur B2B technique) : réputation repose sur références clients et certifications DGAC/EASA."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Aucun signal négatif : pas de procédure collective, paiements réguliers, stabilité opérationnelle confirmée."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des devis et chiffrages techniques (réduction temps commercial)",
+    "Capitaliser le savoir-faire en documentation technique (brevets, procédés, certifications)",
+    "Piloter les appels d'offres publics et marchés européens (veille + qualification)",
+    "Structurer la relation client B2B (CRM, suivi de portefeuille, Account Management)",
+    "Optimiser la production en petites séries (planification, traçabilité, qualité)"
+  ],
+  "avis": "Non trouvé publiquement (secteur B2B spécialisé, peu d'avis sur Google/Pages Jaunes). Réputation fondée sur certifications DGAC/EASA, références clients professionnels et leadership affirmé sur le marché européen.",
+  "presence": "Site web moderne et complet (dronavia.com), actif et à jour. Présence Facebook (2,4k likes), Instagram (151 followers), LinkedIn (1,3k abonnés). Contenu technique riche, actualités produits, recrutement visible. Présence discrète mais cohérente avec le secteur B2B.",
+  "plateformes": [
+    {
+      "nom": "LinkedIn (Dronavia)",
+      "role": "Visibilité B2B, recrutement, actualités produits et certifications",
+      "url": "https://fr.linkedin.com/company/dronavia"
+    },
+    {
+      "nom": "Facebook (Dronavia)",
+      "role": "Engagement communauté, contenu éducatif sur sécurité des drones",
+      "url": "https://www.facebook.com/dronavia/"
+    },
+    {
+      "nom": "Instagram (@dronaviafrance)",
+      "role": "Contenu visuel, innovation produits, brand awareness",
+      "url": "https://www.instagram.com/dronaviafrance/"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels (L.232-25 Code Commerce). CA < 700 k€ en 2022, bilan < 350 k€. Effectif > 10 salariés. Capital augmenté en 2023 (1 500 € → 1 876 €). Pas d'alerte de paiement (Rubypayeur). Santé financière stable.",
+    "concurrence": "Leader affirmé sur le marché français et européen des accessoires de sécurité pour drones. Peu de concurrents identifiés publiquement. Marché de niche, haute spécialisation technique (parachutes, coupe-circuits, balises, systèmes autonomes). Certifications DGAC/EASA = barrière à l'entrée.",
+    "visibilite": "Présence digitale cohérente et moderne. Site riche, réseaux sociaux actifs. Peu d'avis clients (normal en B2B). Visibilité repose sur expertise technique, certifications, et bouche-à-oreille professionnel. Recrutement visible (Account Manager annoncé).",
+    "dirigeant": "Ludovic Pelletey, Président fondateur (depuis 2015). Pas d'âge public trouvé. Entreprise de taille humaine, dirigeant impliqué dans l'opérationnel et la stratégie produit. Stabilité de direction confirmée."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Chiffrage & devis automatisés",
+      "benefice": "Réduire le temps commercial, standardiser les offres techniques, accélérer la qualification des opportunités."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Capitalisation technique (wiki interne)",
+      "benefice": "Documenter les procédés, brevets, certifications ; faciliter l'onboarding et la transmission du savoir-faire."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veille appels d'offres (marchés publics & européens)",
+      "benefice": "Identifier les opportunités B2B, structurer la réponse, augmenter le taux de conversion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "CRM & Account Management",
+      "benefice": "Piloter le portefeuille clients, anticiper les renouvellements, renforcer la fidélisation B2B."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planification production (petites séries)",
+      "benefice": "Optimiser les délais, réduire les stocks, améliorer la traçabilité et la qualité."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Conformité & certifications (EASA, DGAC)",
+      "benefice": "Maintenir les certifications, anticiper les évolutions réglementaires, documenter la conformité."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en gestion administrative et commerciale"
+  },
+  "coutInaction": "Sans structuration des processus commerciaux et techniques, Dronavia risque de plafonner sa croissance malgré une demande croissante. Les délais de réponse aux appels d'offres et la capitalisation du savoir-faire deviennent critiques à mesure que l'effectif augmente.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Devis manuels, recherche d'opportunités fragmentée, documentation technique dispersée, Account Management informel, planification production ad hoc.",
+    "avecIA": "Devis générés en 15 min, veille appels d'offres centralisée, wiki technique partagé, CRM structuré, planification optimisée et traçable."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre croissance et libérer du temps pour l'innovation produit et la conquête de nouveaux marchés européens.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 65,
+    "site": 85,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Innovation & fiabilité",
+    "couleur": "Argent",
+    "definition": "Dronavia rayonne par son agilité technologique et sa capacité à anticiper les normes aériennes ; une entreprise agile, précise et tournée vers l'excellence opérationnelle.",
+    "eclat": "moyen"
+  },
+  "fierte": "Dronavia a bâti en 11 ans une position de leader incontesté sur le marché européen des accessoires de sécurité pour drones, avec des certifications DGAC/EASA et une équipe de 28 spécialistes. L'entreprise démontre une croissance d'effectif soutenue (6-9 → 10-19 salariés) et une innovation continue (systèmes autonomes, conformité EASA). Le potentiel de structuration commerciale et technique est considérable : avec les bons outils, Dronavia peut accélérer sa conquête des marchés publics européens et consolider son leadership.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Pappers, Societe.com, Infonet, Rubypayeur, Pages Jaunes, Dronavia.com (site officiel), Facebook, Instagram, LinkedIn, L'Industrie Recrute, Manageo, Le Journal des Entreprises. Confiance : HAUTE (sources officielles + site entreprise + réseaux sociaux vérifiés).",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
