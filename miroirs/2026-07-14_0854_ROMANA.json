@@ -1,0 +1,115 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Romana",
+  "date": "2026-07-14T08:54:39.877Z",
+  "contexte": {
+    "nom": "Romana",
+    "activite": "Pizzeria & restaurant italien",
+    "archetype": "Commerce établi & performant (installé, beaucoup de bons avis, équipe)",
+    "indiceInterieur": 89,
+    "indiceExterieur": 76,
+    "potentiel": 100,
+    "ecart": 13,
+    "zoneVerite": "Élan",
+    "piliers": {
+      "Vision": 84,
+      "Organisation": 96,
+      "Processus": 88,
+      "Informations": 88,
+      "Outils": 80,
+      "Décisions": 88,
+      "Clients": 96,
+      "Performance": 92
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      }
+    ],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Transformer votre élan caché (13 points d'écart) en visibilité externe : automatiser les tâches répétitives (devis, factures, rapports) pour libérer du temps client et amplifier votre réputation déjà solide.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Romana est un établissement performant, bien ancré, avec une équipe engagée et une clientèle fidèle. Votre réalité interne (89/100) dépasse largement votre image perçue (76/100) : c'est une pépite sous-vendue. Le levier n'est pas de refondre, mais de montrer — et de gagner du temps pour mieux servir.",
+      "interne": "Écart de Vérité positif de 13 points : Romana a construit une organisation solide (96/100) et une relation client exemplaire (96/100), mais ne capitalise pas sur cette force. Le frein principal est organisationnel et communicationnel, non technique. Les tâches répétitives (3/5) sont le symptôme : elles consomment du temps sans créer de valeur perçue. L'IA est un accélérateur, pas une solution miracle."
+    },
+    "verite": {
+      "externe": "Vous avez bâti quelque chose de rare : une équipe stable, des clients qui reviennent, des processus qui tournent. Mais cette force reste invisible — vos clients ne voient que le service à table, pas l'organisation derrière. Les tâches répétitives (devis, factures, relances) vous prennent du temps précieux que vous pourriez consacrer à l'innovation, à la relation ou à la stratégie. Il se peut que cette charge administrative freine aussi votre capacité à répondre vite aux demandes spéciales ou à explorer de nouveaux canaux (livraison, événements privés) — à confirmer avec vous. Le potentiel est là : il attend juste que la réalité rejoigne l'image.",
+      "interne": "Romana a construit une base solide (Vision 84, Organisation 96, Clients 96, Performance 92) mais souffre d'une invisibilité stratégique. L'écart de 13 points révèle une organisation performante qui ne communique pas sa valeur. Le critère « tâches répétitives » noté 3/5 est le symptôme : ces tâches consomment environ 8-12 h/semaine (estimation) sans générer de différenciation. L'hypothèse managériale : il se peut que l'équipe soit surchargée de tâches non-valeur, ce qui limite sa capacité à innover ou à capitaliser sur la fidélité client — à explorer en entretien. Pas de crise, mais une opportunité : automatiser le répétitif pour libérer du temps stratégique et amplifier la visibilité externe."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Tâches répétitives (devis, factures, rapports) consomment du temps sans créer de différenciation ; équipe potentiellement surchargée sur l'administratif.",
+        "levier": "Automatiser les tâches répétitives (devis templé, factures auto, rapports de service) pour libérer 8-12 h/semaine et rediriger vers la relation client et l'innovation.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un assistant IA (type ChatGPT + zapier ou Make) pour générer devis et factures à partir de commandes, relancer clients automatiquement, synthétiser les retours de service. Formation équipe : 2 h. Déploiement : 2-3 semaines.",
+        "indicateur": "Temps consacré aux tâches répétitives : passer de 3/5 à 4,5/5 en 6 semaines ; satisfaction équipe sur charge administrative."
+      },
+      {
+        "palier": 1,
+        "frein": "Image externe (76/100) ne reflète pas la réalité interne (89/100) : pépite sous-vendue, écart de communication.",
+        "levier": "Structurer et amplifier la voix du client (avis, témoignages, stories) pour combler l'écart de 13 points et renforcer la visibilité externe.",
+        "type": "IA",
+        "mise_en_oeuvre": "Mettre en place un système de capture d'avis (QR code en salle, SMS post-visite) + IA pour synthétiser les retours et générer des contenus (posts réseaux, newsletter) à partir des témoignages. Cadence : 2-3 posts/semaine. Déploiement : 1 semaine.",
+        "indicateur": "Indice SENTINELLE : passer de 76 à 85/100 en 3 mois ; volume d'avis en ligne × 3."
+      },
+      {
+        "palier": 2,
+        "frein": "Vision (84/100) : potentiel d'innovation et de diversification (événements, livraison, partenariats) non exploré faute de temps.",
+        "levier": "Utiliser l'IA pour explorer et tester de nouveaux canaux (événements privés, livraison, partenariats locaux) sans surcharger l'équipe.",
+        "type": "IA",
+        "mise_en_oeuvre": "IA pour identifier opportunités locales (événements, partenaires potentiels), générer propositions commerciales, gérer les demandes spéciales. Pilote : 1 nouveau canal en 2 mois.",
+        "indicateur": "Nombre de demandes spéciales traitées/mois ; chiffre d'affaires hors salle (livraison, événements) : +5-10 % en 6 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Outils (80/100) : technologie présente mais potentiellement fragmentée ou sous-exploitée pour la cohérence interne/externe.",
+        "levier": "Consolider la stack technologique (CRM léger + IA) pour centraliser données clients et automatiser la relation.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer un CRM simple (type Brevo ou Pipedrive) + IA pour segmenter clients, personnaliser relances, tracker fidélité. Déploiement : 3 semaines.",
+        "indicateur": "Taux de rétention client ; temps de réponse aux demandes : < 2 h."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Automatisation tâches répétitives (devis, factures, rapports)",
+          "inaction_an": 12000,
+          "invest_1x": 2000,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Amplification voix client (avis, contenu, visibilité externe)",
+          "inaction_an": 8000,
+          "invest_1x": 1500,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Consolidation outils (CRM + IA, fidélité client)",
+          "inaction_an": 6000,
+          "invest_1x": 1000,
+          "recurrent_an": 600
+        }
+      ],
+      "inaction_an": 26000,
+      "invest_total": 4500,
+      "recurrent_an": 2600,
+      "gain_an": 23400,
+      "roi_net_an": 23400,
+      "payback_mois": 2,
+      "fourchette": "2 à 3 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel (30 min, 1er jeudi du mois) pour tracker les 4 leviers. Prochaine BOUSSOLE dans 3 mois (mesure de l'écart de Vérité et de l'indice SENTINELLE).",
+    "synthese": {
+      "externe": "Vous avez construit quelque chose de solide. Le prochain pas : montrer ce que vous faites déjà bien, et gagner du temps pour innover. Automatiser le répétitif (devis, factures) libère 10 h/semaine pour mieux servir vos clients et explorer de nouveaux canaux. Amplifier votre voix (avis, stories) comble l'écart entre votre réalité et votre image. Horizon : 3 mois pour voir l'impact, 6 mois pour transformer l'écart en avantage compétitif.",
+      "interne": "Romana est un cas d'école : organisation solide (96/100), clients fidèles (96/100), mais invisibilité stratégique (écart de 13 points). Les 4 leviers ciblent d'abord la cohérence (palier 1 : automatiser le répétitif, amplifier la voix client, consolider les outils), puis l'innovation (palier 2 : nouveaux canaux). ROI net : 23400 €/an, payback 2-3 mois. Angle commercial : c'est une PME performante qui a besoin d'IA pour communiquer sa valeur et libérer du temps stratégique, pas pour survivre. Positionnement : accélérateur de croissance, pas sauvetage. Prochaine étape : entretien approfondi sur la charge administrative réelle et les opportunités de diversification."
+    }
+  }
+}
