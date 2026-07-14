@@ -262,13 +262,15 @@ export default async function handler(req, res) {
           rows.push({ nom: p.name, commune: townFrom(p.formatted_address), lat: loc2.lat, long: loc2.lng, distance: dist, placeId: p.place_id, avis: p.rating != null ? { note: p.rating, nombre: p.user_ratings_total || null, resume: "" } : null, presence: presenceFromCount(p.user_ratings_total), aura: null, site: null });
         }
         rows.sort((a, b) => a.distance - b.distance);
-        let selfRow = null;
-        if (rows.length && rows[0].distance <= 0.25) selfRow = rows.shift();
-        else if (prospectPlace) selfRow = { nom: prospectNom, placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null };
-        // Exclure toute AUTRE occurrence du prospect (2e fiche Google au place_id différent, ou même nom).
+        // Données du PROSPECT = SA fiche Google trouvée par NOM (IDENTIQUE à SENTINELLE -> même IVE partout). Repli : le plus proche du centre.
+        let selfRow = prospectPlace
+          ? { nom: prospectNom, placeId: prospectPlace.place_id, avis: prospectPlace.rating != null ? { note: prospectPlace.rating, nombre: prospectPlace.user_ratings_total || null } : null }
+          : ((rows.length && rows[0].distance <= 0.25) ? rows[0] : null);
+        // Exclure TOUTES les fiches du prospect des concurrents : place_id, même emplacement (~0 km du centre), ou même nom.
         const pn = norm(prospectNom || "");
         rows = rows.filter(function (r) {
           if (prospectPlace && r.placeId === prospectPlace.place_id) return false;
+          if (r.distance <= 0.25) return false;
           const rn = norm(r.nom || "");
           if (pn.length >= 6 && rn && (rn.indexOf(pn) !== -1 || pn.indexOf(rn) !== -1)) return false;
           return true;
