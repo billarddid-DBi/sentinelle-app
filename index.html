@@ -1084,7 +1084,7 @@ function saveAura(r,card){
 /* ===== FEUILLE DE ROUTE (5e temps : le suivi vivant) ===== */
 function frSlug(s){ return (s||'entreprise').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,50)||'ENTREPRISE'; }
 function frLoad(slug){ try{ return JSON.parse(localStorage.getItem('fr_'+slug))||{}; }catch(e){ return {}; } }
-function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,ts:Date.now()})); }catch(e){} var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil'; }
+function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,chat:(window.frChat||[]).slice(-40),ts:Date.now()})); }catch(e){} var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil'; }
 var FR_MSG={
   done:["Bravo. Le plus dur, c'est de commencer — et vous venez de le faire.","C'est fait, et ça compte. Chaque étape franchie recrée de la confiance.","Excellent. Vous avancez pour de vrai, pas sur le papier."],
   progress:["Parfait, vous êtes dedans. Qu'est-ce qui freine le plus en ce moment ?","On y est presque. Notez ce qui coince, on le lèvera ensemble.","Ça bouge — c'est déjà une victoire. Dites-moi où vous en êtes."],
@@ -1104,6 +1104,7 @@ function frBuild(){
     id:id, palier:p.palier||1, type:p.type||'humain', titre:p.levier||p.frein||('Étape '+(i+1)), detail:p.mise_en_oeuvre||'', indicateur:p.indicateur||'', echeance:rhythm[i]||('Étape '+(i+1)),
     status:(saved.statuses&&saved.statuses[id])||'todo', note:(saved.notes&&saved.notes[id])||'', help:(saved.helps&&saved.helps[id])||null }; });
   window.frData={nom:b.nom,slug:slug,band:band,rythmeTxt:(band==='Blocage'?'Zone Blocage — on avance en douceur, un pas à la fois':band==='Appui'?'Zone Appui — l\'équipe est prête, on peut enchaîner':'Zone Vigilance — on sécurise à chaque étape'),steps:steps};
+  window.frChat=(saved.chat)||[]; window.frChatBusy=false;
   showView('frView'); frRender(); window.scrollTo(0,0);
 }
 function frSet(id,status){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.status=(s.status===status?'todo':status); }); frSaveLocal(); frRender(); }
@@ -1142,12 +1143,40 @@ function frRender(){
       +'</div></div>';
   });
   html+='<div class="foot">Votre progression reste sur cet appareil. Vous pouvez la sauvegarder sur le cloud à tout moment.</div></div>'
+    +'<div class="card" style="margin-top:12px;overflow:hidden;">'
+      +'<div style="background:#1C1C1C;color:#fff;padding:12px 16px;"><div style="font-size:12.5px;font-weight:600;"><i class="ti ti-message-chatbot"></i> Assistant d\'avancement</div><div style="font-size:10.5px;color:#9ca3af;margin-top:2px;">Je réponds uniquement à vos questions d\'avancement sur cette feuille de route.</div></div>'
+      +'<div id="frChatLog" style="padding:12px 14px;max-height:320px;overflow-y:auto;"></div>'
+      +'<div style="display:flex;gap:6px;padding:0 12px 12px;"><input id="frChatIn" type="text" autocomplete="off" placeholder="Une question sur une étape ?" onkeydown="if(event.key===\'Enter\'){event.preventDefault();frChatSend();}" style="flex:1;font-size:13px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="frChatSend()" aria-label="Envoyer" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 14px;font-size:15px;cursor:pointer;"><i class="ti ti-send"></i></button></div></div>'
     +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
     +'<div id="frCloudMsg" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:4px;"></div>'
     +'<button class="btn btn-ghost" onclick="frCloud()"><i class="ti ti-cloud-up"></i> Sauvegarder sur le cloud</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
-  $('frView').innerHTML=html;
+  $('frView').innerHTML=html; frChatRender();
+}
+function frChatRender(){
+  var log=$('frChatLog'); if(!log) return; var c=window.frChat||[];
+  var html= c.length ? '' : '<div style="font-size:12.5px;color:#6b7280;line-height:1.5;"><i class="ti ti-hand-love-you"></i> Je suis là pour vous aider à avancer, étape par étape. Un blocage, une priorité, par quoi commencer ? Posez votre question.</div>';
+  c.forEach(function(m){
+    if(m.role==='user') html+='<div style="text-align:right;margin:7px 0;"><span style="display:inline-block;background:#1C1C1C;color:#fff;border-radius:12px 12px 3px 12px;padding:7px 11px;font-size:12.5px;max-width:85%;text-align:left;line-height:1.45;">'+esc(m.content)+'</span></div>';
+    else html+='<div style="text-align:left;margin:7px 0;"><span style="display:inline-block;background:#f1f5f9;color:#1C1C1C;border-radius:12px 12px 12px 3px;padding:7px 11px;font-size:12.5px;max-width:88%;line-height:1.5;">'+esc(m.content).replace(/\n/g,'<br>')+'</span></div>';
+  });
+  if(window.frChatBusy) html+='<div style="text-align:left;margin:7px 0;"><span style="display:inline-block;background:#f1f5f9;color:#6b7280;border-radius:12px;padding:7px 11px;font-size:12.5px;"><span class="spin" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>DBi360 écrit…</span></div>';
+  log.innerHTML=html; log.scrollTop=log.scrollHeight;
+}
+function frChatSend(){
+  var inp=$('frChatIn'); if(!inp) return; var val=(inp.value||'').trim(); if(!val||window.frChatBusy) return;
+  inp.value='';
+  window.frChat=window.frChat||[]; window.frChat.push({role:'user',content:val});
+  window.frChatBusy=true; frChatRender(); frSaveLocal();
+  var d=window.frData||{}, ah=window.lastAH||{}, b=window.lastMiroir||{};
+  var ctx={nom:d.nom,activite:b.activite||'',iat:ah.iat,band:ah.band,peurs:(ah.peurs||[]).map(function(p){return p.txt||p.code;}),
+    steps:(d.steps||[]).map(function(s){return {titre:s.titre,statut:s.status,note:s.note||'',palier:s.palier,type:s.type,echeance:s.echeance};}),
+    messages:window.frChat.slice(-10)};
+  fetch('/api/assistant-route',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
+    .then(function(r){return r.json();})
+    .then(function(x){ window.frChatBusy=false; window.frChat.push({role:'assistant',content:(x&&x.reply)?x.reply:'Désolé, je n\'ai pas pu répondre à l\'instant. Reformulez votre question sur une étape ?'}); frChatRender(); frSaveLocal(); })
+    .catch(function(){ window.frChatBusy=false; window.frChat.push({role:'assistant',content:'Connexion lente — reposez votre question dans un instant.'}); frChatRender(); frSaveLocal(); });
 }
 function frBtn(s,status,icon,lbl,bg,col){ var on=s.status===status; return '<button type="button" onclick="frSet(\''+s.id+'\',\''+status+'\')" style="flex:1;text-align:center;font-size:11.5px;font-weight:600;padding:8px 4px;border-radius:8px;border:none;cursor:pointer;line-height:1.3;background:'+(on?bg:'#f8fafc')+';color:'+(on?col:'#94a3b8')+';'+(on?'outline:2px solid '+col+';':'')+'"><i class="ti '+icon+'" style="font-size:14px;"></i><br>'+lbl+'</button>'; }
 function frFeedback(s){
