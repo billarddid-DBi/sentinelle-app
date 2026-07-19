@@ -1,0 +1,53 @@
+{
+  "type": "aura",
+  "mode": "complet",
+  "nom": "Test SARL",
+  "date": "2026-07-19T09:46:20.759Z",
+  "iat": 46,
+  "imh": 48,
+  "indices": {
+    "Leadership": 50,
+    "Communication": 50,
+    "Écoute": 25,
+    "Transparence": 63,
+    "Confiance": 38,
+    "Coopération": 50,
+    "Adhésion": 50,
+    "Ouverture au changement": 45
+  },
+  "domaines": {
+    "Leadership": 50,
+    "Communication": 50,
+    "Confiance": 40,
+    "Coopération": 50,
+    "Climat social": 50,
+    "Maturité du changement": 45
+  },
+  "peurs": [
+    {
+      "code": "T3",
+      "txt": "Peur pour l'emploi face à l'IA",
+      "intensite": 100
+    },
+    {
+      "code": "T1",
+      "txt": "Peur de l'erreur, de se tromper",
+      "intensite": 100
+    },
+    {
+      "code": "M2",
+      "txt": "Changement subi plutôt que désiré",
+      "intensite": 100
+    },
+    {
+      "code": "T2",
+      "txt": "Peur de parler, de dire son désaccord",
+      "intensite": 75
+    },
+    {
+      "code": "S2",
+      "txt": "Surcharge / stress, frein au changement",
+      "intensite": 75
+    }
+  ]
+}
