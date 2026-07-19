@@ -1,0 +1,27 @@
+{
+  "type": "aura",
+  "mode": "complet",
+  "nom": "La Romana",
+  "date": "2026-07-19T09:57:56.725Z",
+  "iat": 50,
+  "imh": 50,
+  "indices": {
+    "Leadership": 50,
+    "Communication": 50,
+    "Écoute": 50,
+    "Transparence": 50,
+    "Confiance": 50,
+    "Coopération": 50,
+    "Adhésion": 50,
+    "Ouverture au changement": 50
+  },
+  "domaines": {
+    "Leadership": 50,
+    "Communication": 50,
+    "Confiance": 50,
+    "Coopération": 50,
+    "Climat social": 50,
+    "Maturité du changement": 50
+  },
+  "peurs": []
+}
