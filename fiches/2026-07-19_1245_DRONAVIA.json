@@ -1,0 +1,154 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Structurer la croissance",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Entreprise saine & en expansion",
+    "atout": "Leader européen, innovation, équipe spécialisée"
+  },
+  "identite": "SAS Dronavia, SIREN 810254722, NAF 3030Z (Construction aéronautique et spatiale), créée 01/03/2015 (11 ans), 10-19 salariés (2023), dirigeant Ludovic Pelletey, capital 30 016 €.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      65,
+      68,
+      62,
+      70,
+      68,
+      75,
+      70
+    ],
+    "potentiel": [
+      85,
+      80,
+      82,
+      78,
+      85,
+      82,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Innovation, sécurité aérienne, excellence technique, leadership européen, conformité réglementaire (DGAC, EASA).",
+  "imagePercue": "Entreprise innovante et fiable, leader reconnu du marché français et européen des accessoires de sécurité pour drones. Présence digitale moderne et active (site professionnel, réseaux sociaux, LinkedIn). Aucun avis négatif public détecté.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Comptes confidentiels (PME) : CA < 700 k€ et bilan < 350 k€ en 2022 ; pas d'alerte financière publique."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Croissance d'effectif observable : 6-9 salariés (2021) → 10-19 (2023) ; recrutement actif (Account Manager annoncé)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Positionnement stratégique fort : transfert Nancy → Remiremont (2019), expansion produits (Kronos M3D), certifications EASA/DGAC."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Visibilité clients B2B limitée : peu d'avis publics (attendu pour secteur industriel) ; traction confirmée par références clients et approvals réglementaires."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des devis et chiffrage technique (réduction délais cotation, traçabilité)",
+    "Centraliser la documentation produit et certifications (EASA, DGAC) pour accélérer ventes B2B",
+    "Piloter le pipeline commercial et les appels d'offres (veille, qualification, suivi)",
+    "Structurer les processus RH/onboarding (croissance rapide, savoir-faire critique)",
+    "Optimiser la capitalisation du savoir-faire technique (documentation, formation interne)"
+  ],
+  "avis": "Non trouvé publiquement sur Google/Pages Jaunes/Cylex. Attendu pour secteur B2B industriel. Réputation fondée sur certifications réglementaires (DGAC, EASA), références clients (DroneGVA, distributeurs), et présence LinkedIn active (1 393 abonnés).",
+  "presence": "Site web moderne et à jour (dronavia.com), LinkedIn actif (1 393 abonnés, posts réguliers), Facebook (2 430 likes), Instagram (151 followers). Contenu technique riche (produits, certifications, cas d'usage). Présence discrète mais cohérente avec positionnement B2B.",
+  "plateformes": [],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels (PME). CA < 700 k€ en 2022 ; bilan < 350 k€. Pas de procédure collective. Capital augmenté (1 500 € → 30 016 € en 2023), signal de structuration.",
+    "concurrence": "Marché de niche (accessoires sécurité drones). Positionnement leader européen affirmé. Peu de concurrents publics identifiés ; avantage technologique (brevets, certifications EASA/DGAC).",
+    "visibilite": "Forte auprès des professionnels (certifications, approvals réglementaires). Faible auprès du grand public (secteur B2B). Présence digitale professionnelle et active.",
+    "dirigeant": "Ludovic Pelletey, Président. Fondateur ou repreneur non précisé publiquement. Entreprise en phase de structuration et croissance (recrutement, expansion produits)."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de devis & chiffrage technique",
+      "benefice": "Réduire le délai de cotation, tracer les opportunités, accélérer la conversion B2B"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Centralisateur de documentation produit & certifications",
+      "benefice": "Capitaliser DGAC/EASA, faciliter la vente et le support client, réduire les allers-retours"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Pilote de pipeline commercial & appels d'offres",
+      "benefice": "Veille systématique, qualification des leads, suivi des projets, augmentation du taux de conversion"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Assistant RH & onboarding",
+      "benefice": "Structurer l'intégration des nouveaux (croissance rapide), documenter le savoir-faire critique"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Capitalisateur de savoir-faire technique",
+      "benefice": "Documenter les processus de conception/fabrication, former les équipes, sécuriser la propriété intellectuelle"
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative et commerciale"
+  },
+  "coutInaction": "Risque de ralentissement de la croissance : sans structuration des processus commerciaux et RH, l'expansion (recrutement, nouveaux produits) peut générer des goulots d'étranglement. Perte d'opportunités B2B faute de suivi systématique des appels d'offres.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Devis manuels, documentation dispersée, suivi des opportunités ad hoc, onboarding informel, savoir-faire peu documenté.",
+    "avecIA": "Devis automatisés et tracés, documentation centralisée et accessible, pipeline commercial piloté, intégration structurée, savoir-faire capitalisé et transmissible."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre croissance : diagnostic complet de vos processus commerciaux, RH et techniques, puis feuille de route IA adaptée à votre trajectoire.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Innovation & fiabilité",
+    "couleur": "Argent",
+    "definition": "Dronavia rayonne par son agilité technologique et sa capacité à innover dans un secteur réglementé, tout en incarnant la fiabilité que demandent les opérateurs professionnels.",
+    "eclat": "moyen"
+  },
+  "fierte": "Dronavia a bâti une position de leader européen en 11 ans, avec une équipe de 28 spécialistes et des certifications DGAC/EASA qui valident son excellence technique. L'entreprise est en phase de croissance structurée (effectif, capital, produits innovants), prête à accélérer sa conquête du marché B2B avec les bons outils de pilotage.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Societe.com, Pappers, Infonet, Pages Jaunes, Dronavia.com (site officiel), LinkedIn, Facebook, Instagram, L'Industrie Recrute, Rubypayeur, Cylex, Kompass. Confiance : haute pour identité légale et financière (sources officielles) ; moyenne pour effectif (données 2021-2023) ; haute pour positionnement et certifications (site officiel, LinkedIn).",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
