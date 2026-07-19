@@ -1,0 +1,292 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-19T19:07:04.962Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "Pizzeria italienne, restauration traditionnelle",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 60,
+    "indiceExterieur": 76,
+    "potentiel": 85,
+    "ecart": -16,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Organisation": 60,
+      "Processus": 60,
+      "Informations": 60,
+      "Outils": 60,
+      "Décisions": 60,
+      "Clients": 60,
+      "Performance": 60
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Chacun connaît son rôle et son périmètre",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      }
+    ],
+    "aura": "Orange — la chaleur",
+    "ah": {
+      "nom": "La Romana",
+      "mode": "express",
+      "iat": 60,
+      "imh": 60,
+      "band": "Vigilance",
+      "zone": "Vigilance",
+      "reco": "Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide.",
+      "indices": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Écoute": 60,
+        "Transparence": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Adhésion": 60,
+        "Ouverture au changement": 60
+      },
+      "domaines": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Climat social": 60,
+        "Maturité du changement": 60
+      },
+      "peurs": [],
+      "resistance": 40
+    }
+  },
+  "miroir": {
+    "priorite": "Écrire la stratégie et clarifier les rôles pour transformer l'élan interne en performance mesurable.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "La Romana rayonne (image 76/100) mais son moteur interne tourne à 60/100 : une belle pizzeria qui gagne, mais sans cap écrit ni délégation réelle. L'écart révèle une force cachée — il suffit de l'organiser.",
+      "interne": "Refroidissement de -16 : l'image dépasse la réalité organisationnelle. Tous les piliers à 60/100 signalent une entreprise sans structure formelle (stratégie, procédures, données) ; l'humain est sain (IAT 60, zone Vigilance) mais fragile. Levier : formaliser avant d'automatiser."
+    },
+    "verite": {
+      "externe": "Vous avez bâti une pizzeria qui plaît et qui marche — c'est rare et précieux. Mais cette réussite repose surtout sur vous et votre équipe au feeling. Pour passer à 85/100 et respirer, il faut écrire ce que vous savez, clarifier qui fait quoi, et mesurer ce qui compte. L'IA viendra après, sur des fondations solides.",
+      "interne": "Entreprise saine, pas en crise. Tous les piliers à 60/100 = absence de formalisation systématique (stratégie écrite, procédures, données centralisées, délégation). IAT 60 (Vigilance) : l'équipe n'est pas bloquée mais fragile face au changement — elle a besoin de SENS et de SÉCURITÉ avant tout outil. Résistance estimée 40/100 = modérée, à transformer en adhésion par communication claire. Aucune peur détectée sous le seuil : bon signal. Le plan doit d'abord réparer l'organisation (palier 1), puis outiller (palier 2)."
+    },
+    "humain": {
+      "posologie": "Zone Vigilance : sécuriser EN PARALLÈLE. Palier 1 = communication du cap + implication des relais. Palier 2 = outillage progressif. Rythme : point mensuel, victoire rapide sur un pilote.",
+      "peurs": [
+        {
+          "peur": "Perte de contrôle ou d'agilité en formalisant",
+          "traitement": "Montrer que écrire la stratégie libère, ne rigidifie pas. Impliquer l'équipe dans la rédaction."
+        },
+        {
+          "peur": "Surcharge de travail administratif pour l'équipe",
+          "traitement": "Cadrer explicitement : formalisation progressive, IA pour réduire la saisie, pas l'ajouter."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Stratégie et rôles restent dans la tête du dirigeant (Vision, Organisation 60/100 ; critères « stratégie écrite », « équipe connaît la direction », « chacun connaît son rôle » à 3/5).",
+        "levier": "Formaliser la stratégie 3 ans et les rôles en atelier collectif (dirigeant + équipe clé).",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 2h/mois pendant 3 mois. Sortie : 1 page stratégie + fiches rôles affichées.",
+        "indicateur": "Stratégie écrite validée ; 100% équipe peut la réciter."
+      },
+      {
+        "palier": 1,
+        "frein": "Procédures et savoir-faire éparpillés (Processus, Informations 60/100 ; critères « façons de faire écrites », « savoir-faire documenté » à 3/5).",
+        "levier": "Documenter les 5 processus clés (commande, préparation, service, paiement, feedback client) en fiches simples.",
+        "type": "humain",
+        "mise_en_oeuvre": "Chaque responsable de zone documente son process. Relecture collective. Affichage en cuisine et salle.",
+        "indicateur": "5 fiches process validées ; zéro question répétée sur « comment on fait »."
+      },
+      {
+        "palier": 2,
+        "frein": "Données éparpillées, tâches répétitives manuelles (Outils, Informations 60/100 ; critères « données centralisées », « tâches répétitives rapides » à 3/5).",
+        "levier": "Centraliser commandes/stocks/ventes dans un outil simple (ex : Odoo, Lightspeed) ; automatiser relances clients et récapitulatifs quotidiens.",
+        "type": "IA",
+        "mise_en_oeuvre": "Audit logiciel (1 mois) ; déploiement progressif (2 mois) ; formation équipe (1 mois).",
+        "indicateur": "100% des commandes en base ; 2h/jour gagnées en saisie manuelle."
+      },
+      {
+        "palier": 2,
+        "frein": "Décisions au feeling, pas de mesure de ce qui marche (Décisions, Performance 60/100 ; critères « décisions sur données », « on sait pourquoi on gagne » à 3/5).",
+        "levier": "Tableau de bord mensuel simple : CA par jour/semaine, taux de remplissage, coût matière, satisfaction client (avis).",
+        "type": "IA",
+        "mise_en_oeuvre": "Requêtes automatisées depuis l'outil. Réunion mensuelle 30 min. Ajustements trimestriels.",
+        "indicateur": "Tableau de bord alimenté ; 1 décision/mois prise sur données."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps dirigeant (délégation, moins de micro-management)",
+          "inaction_an": 12000,
+          "invest_1x": 0,
+          "recurrent_an": 0
+        },
+        {
+          "poste": "Outils (logiciel + IA pour automatisation)",
+          "inaction_an": 4000,
+          "invest_1x": 3000,
+          "recurrent_an": 2400
+        },
+        {
+          "poste": "Temps équipe (moins de saisie, plus de service)",
+          "inaction_an": 2000,
+          "invest_1x": 0,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 18000,
+      "invest_total": 3000,
+      "recurrent_an": 2400,
+      "gain_an": 15600,
+      "roi_net_an": 15600,
+      "payback_mois": 2,
+      "fourchette": "2 à 4 mois de retour sur investissement."
+    },
+    "cadence": "Point mensuel (30 min) avec l'équipe clé. Prochaine BOUSSOLE dans 3 mois (après palier 1 : stratégie + procédures écrites).",
+    "synthese": {
+      "externe": "Vous avez une belle affaire. Prochaine étape : écrire votre cap 3 ans avec l'équipe, clarifier les rôles, puis outiller pour respirer. Trois mois pour transformer l'élan en système. Vous y gagnez du temps et de la sérénité.",
+      "interne": "Refroidissement -16 : l'image dépasse l'organisation. Palier 1 (humain/formalisation) est PRIORITAIRE — IAT 60 (Vigilance) exige sécurisation avant outillage. Plan : stratégie écrite + procédures (1-2 mois), puis logiciel + IA (2-3 mois). ROI net 15600€/an, payback 2 mois. Angle commercial : « Vous avez la chaleur, on vous donne la structure. »"
+    }
+  }
+}
