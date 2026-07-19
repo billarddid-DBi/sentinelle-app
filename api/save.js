@@ -38,8 +38,8 @@ export default async function handler(req, res) {
     if (!json) { res.status(400).json({ error: "Aucune fiche à enregistrer" }); return; }
 
     // type: "boussole" -> dossier boussoles/ ; sinon SENTINELLE -> fiches/
-    const kind = (type === "boussole") ? "boussole" : (type === "miroir") ? "miroir" : "sentinelle";
-    const folder = (kind === "boussole") ? "boussoles" : (kind === "miroir") ? "miroirs" : "fiches";
+    const kind = (type === "boussole") ? "boussole" : (type === "miroir") ? "miroir" : (type === "aura") ? "aura" : "sentinelle";
+    const folder = (kind === "boussole") ? "boussoles" : (kind === "miroir") ? "miroirs" : (kind === "aura") ? "auras" : "fiches";
 
     const now = new Date();
     const stamp = now.toISOString().slice(0, 16).replace("T", "_").replace(/:/g, "");

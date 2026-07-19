@@ -128,6 +128,7 @@
 
   <div id="bGrille" style="display:none;"></div>
   <div id="miroir" style="display:none;"></div>
+  <div id="ahView" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -180,12 +181,59 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
 const bkey = s => s.replace(/[^A-Za-z]/g,'');
 const BPILIERS = ['Vision','Organisation','Processus','Informations','Outils','Décisions','Clients','Performance'];
+/* ===== AURA HUMAINE (4e temps : maturité humaine / acceptabilité du changement) ===== */
+const AH_DOMAINS = ['Leadership','Communication','Confiance','Coopération','Climat social','Maturité du changement'];
+const AH_CRITERES = [
+  {c:'L1',d:'Leadership',x:1,t:"Le dirigeant explique le POURQUOI de ses décisions (du sens, pas que des consignes)."},
+  {c:'L2',d:'Leadership',x:1,t:"Les décisions importantes sont concertées (l'avis des équipes est demandé avant de trancher)."},
+  {c:'L3',d:'Leadership',x:0,t:"La délégation est réelle : les équipes décident à leur niveau."},
+  {c:'L4',d:'Leadership',x:0,t:"Le dirigeant est perçu comme juste et cohérent (mêmes règles pour tous)."},
+  {c:'L5',d:'Leadership',x:0,t:"Le dirigeant incarne une direction claire face au changement / à l'IA."},
+  {c:'C1',d:'Communication',x:1,t:"L'information utile descend (les équipes reçoivent à temps ce dont elles ont besoin)."},
+  {c:'C2',d:'Communication',x:1,t:"L'information remonte (des canaux pour dire, alerter, proposer — et ils servent)."},
+  {c:'C3',d:'Communication',x:0,t:"Les objectifs et le sens de l'entreprise sont compris de tous."},
+  {c:'C4',d:'Communication',x:0,t:"Peu de rumeurs / non-dits (les canaux officiels priment sur les bruits de couloir)."},
+  {c:'C5',d:'Communication',x:0,t:"Les changements sont annoncés et expliqués en amont (pas de fait accompli)."},
+  {c:'T1',d:'Confiance',x:1,t:"Droit à l'erreur : on peut se tromper sans être humilié ni sanctionné."},
+  {c:'T2',d:'Confiance',x:1,t:"On ose exprimer un désaccord ou poser une question, même à la hiérarchie."},
+  {c:'T3',d:'Confiance',x:0,t:"Sécurité d'emploi ressentie : la peur de perdre son poste n'est pas dominante."},
+  {c:'T4',d:'Confiance',x:0,t:"Les équipes font confiance aux intentions de la direction."},
+  {c:'T5',d:'Confiance',x:0,t:"L'IA est perçue comme une aide plutôt qu'une menace ou une surveillance."},
+  {c:'P1',d:'Coopération',x:1,t:"Les services / personnes travaillent ensemble (pas de silos étanches)."},
+  {c:'P2',d:'Coopération',x:1,t:"Le savoir se partage (pas de rétention d'info ni de compétence)."},
+  {c:'P3',d:'Coopération',x:0,t:"L'entraide prime sur le « chacun pour soi » en cas de coup dur."},
+  {c:'P4',d:'Coopération',x:0,t:"Les tensions et conflits sont gérés (on traite le problème, pas les coupables)."},
+  {c:'P5',d:'Coopération',x:0,t:"Il existe un objectif commun ressenti (esprit collectif)."},
+  {c:'S1',d:'Climat social',x:1,t:"La charge de travail est soutenable (pas d'épuisement chronique)."},
+  {c:'S2',d:'Climat social',x:1,t:"Le niveau de stress est maîtrisé (les pics restent ponctuels)."},
+  {c:'S3',d:'Climat social',x:0,t:"La motivation et l'engagement sont présents."},
+  {c:'S4',d:'Climat social',x:0,t:"Les efforts sont reconnus et valorisés."},
+  {c:'S5',d:'Climat social',x:0,t:"L'organisation est stable (turnover faible, peu de départs qui alertent)."},
+  {c:'M1',d:'Maturité du changement',x:1,t:"Conscience du besoin de changer (chacun comprend pourquoi il faut évoluer)."},
+  {c:'M2',d:'Maturité du changement',x:1,t:"Envie de changer (un désir de participer, pas seulement de subir)."},
+  {c:'M3',d:'Maturité du changement',x:0,t:"Mémoire positive du changement (les changements passés se sont plutôt bien passés)."},
+  {c:'M4',d:'Maturité du changement',x:0,t:"Capacité à apprendre (l'organisation sait se former, monter en compétence)."},
+  {c:'M5',d:'Maturité du changement',x:0,t:"Les changements tiennent dans la durée (soutenus, ancrés)."}
+];
+const AH_INDICES = {
+  'Leadership':['L1','L2','L3','L4','L5'],
+  'Communication':['C1','C3','C5'],
+  'Écoute':['C2','T2','L2'],
+  'Transparence':['L1','C4','C5','T4'],
+  'Confiance':['T1','T3','T4','S4'],
+  'Coopération':['P1','P2','P3','P4','P5'],
+  'Adhésion':['M1','M2','S3','P5','T5'],
+  'Ouverture au changement':['T3','T5','M2','M3','M4']
+};
+const AH_IAT_W = {'Ouverture au changement':0.25,'Adhésion':0.20,'Confiance':0.20,'Leadership':0.15,'Communication':0.10,'Écoute':0.05,'Transparence':0.05};
+const AH_PEURS = {T3:"Peur pour l'emploi face à l'IA",T5:"IA vécue comme menace / surveillance",T1:"Peur de l'erreur, de se tromper",T2:"Peur de parler, de dire son désaccord",C4:"Non-dits et rumeurs",C5:"Changements subis, découverts trop tard",M2:"Changement subi plutôt que désiré",S2:"Surcharge / stress, frein au changement"};
+const ahkey = s => s.replace(/[^A-Za-z]/g,'');
 /* Référentiel des 200 critères : 8 piliers × 5 sous-domaines × 5 critères.
    Express = 1er critère de chaque sous-domaine (40) · Complet = les 200. */
 const REFERENTIEL = {
@@ -508,7 +556,8 @@ function bFinish(){
   window.lastMiroir={nom:nom,activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
   $('bGrille').innerHTML=card
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
-   +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
+   +'<button class="btn btn-primary" onclick="ahChoice()"><i class="ti ti-users-group"></i> Lancer l\'AURA Humaine →</button>'
+   +'<button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Aller directement au MIROIR</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   window.scrollTo(0,0);
@@ -898,6 +947,116 @@ function restoreMiroir(url){
     if(!window.miroirData){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div><button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>'; return; }
     renderMiroir();
   }).catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div>'; });
+}
+/* ===== AURA HUMAINE (fonctions) ===== */
+function ahChoice(){
+  var nom = (window.lastMiroir&&window.lastMiroir.nom) || ($('bNom')&&$('bNom').value.trim()) || 'Entreprise';
+  window.ahNom = nom;
+  showView('ahView');
+  $('ahView').innerHTML =
+   '<div class="panel"><div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#1C1C1C;"><i class="ti ti-users-group"></i> AURA Humaine</div>'
+   +'<div style="font-size:12px;color:#6b7280;margin:6px 0 4px;line-height:1.5;">Le 4ᵉ temps : la <b>maturité humaine</b> — la capacité de l\'organisation à <b>accepter le changement</b> (surtout l\'IA). On note le <b>système</b>, jamais les personnes.</div>'
+   +'<div style="font-size:12px;color:#1C1C1C;margin:8px 0;"><b>'+esc(nom)+'</b></div>'
+   +'<div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-weight:700;color:#1C1C1C;"><i class="ti ti-bolt"></i> Express — 12 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice indicatif, ~5-7 min. Premier contact ou &lt; 5 salariés.</div><button class="btn btn-primary" style="margin-top:10px;" onclick="ahStart(\'express\')">Démarrer l\'Express</button></div>'
+   +'<div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;"><div style="font-weight:700;color:#374151;"><i class="ti ti-list-check"></i> Complet — 30 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice définitif + IAT/IMH + cartographie des peurs.</div><button class="btn btn-ghost" style="margin-top:10px;" onclick="ahStart(\'complet\')">Démarrer le Complet</button></div>'
+   +'<button class="btn btn-ghost" style="margin-top:12px;color:#9ca3af;border:none;" onclick="showView(\'bGrille\')">← Retour au diagnostic</button></div>';
+  window.scrollTo(0,0);
+}
+function ahStart(mode){
+  showView('ahView');
+  var take = AH_CRITERES.filter(function(x){ return mode==='express' ? x.x===1 : true; });
+  window.ahItems = take.map(function(x){ return {id:'ah_'+x.c, code:x.c, dom:x.d, t:x.t}; });
+  window.ahMode = mode;
+  var label = mode==='express'?'Express':'Complet';
+  var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
+    +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-users-group"></i> AURA Humaine '+label+' · acceptabilité du changement ('+take.length+' critères)</div>'
+    +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
+    +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 ancré · <span id="ahImh">–</span> IMH</div></div>';
+  var curD=null, open=false;
+  window.ahItems.forEach(function(it){
+    if(it.dom!==curD){ if(open)html+='</div>'; curD=it.dom;
+      html+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1C1C1C;">'+esc(curD)+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="ahd_'+ahkey(curD)+'">–</span>/100</div></div>'; open=true;
+    }
+    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="4" step="1" value="2" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v">2</span></div></div>';
+  });
+  if(open)html+='</div>';
+  html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> Terminer &amp; voir la maturité humaine</button>'
+    +'<button class="btn btn-ghost" onclick="ahChoice()">← Retour</button>';
+  $('ahView').innerHTML=html;
+  ahCalc();
+}
+function ahScan(){
+  var items=window.ahItems||[], byCode={}, domSum={}, domN={};
+  items.forEach(function(it){
+    var el=$(it.id); if(!el) return;
+    if(el.dataset.na==='1'){ var l0=$(it.id+'v'); if(l0)l0.textContent='n/c'; return; }
+    var v=+el.value; var l=$(it.id+'v'); if(l)l.textContent=v;
+    var s=v*25; byCode[it.code]=s;
+    if(domSum[it.dom]==null){domSum[it.dom]=0;domN[it.dom]=0;} domSum[it.dom]+=s; domN[it.dom]++;
+  });
+  var dom={}; AH_DOMAINS.forEach(function(d){ dom[d]= domN[d]? Math.round(domSum[d]/domN[d]):null; });
+  var idx={}; Object.keys(AH_INDICES).forEach(function(k){ var cs=AH_INDICES[k].map(function(c){return byCode[c];}).filter(function(x){return x!=null;}); idx[k]= cs.length? Math.round(cs.reduce(function(a,b){return a+b;},0)/cs.length):null; });
+  var wsum=0,w=0; Object.keys(AH_IAT_W).forEach(function(k){ if(idx[k]!=null){ wsum+=AH_IAT_W[k]*idx[k]; w+=AH_IAT_W[k]; } });
+  var iat= w? Math.round(wsum/w):null;
+  var imhV=AH_DOMAINS.map(function(d){return dom[d];}).filter(function(x){return x!=null;});
+  var imh= imhV.length? Math.round(imhV.reduce(function(a,b){return a+b;},0)/imhV.length):null;
+  var peurs=[]; Object.keys(AH_PEURS).forEach(function(c){ if(byCode[c]!=null && byCode[c]<40) peurs.push({code:c,txt:AH_PEURS[c],intensite:100-byCode[c]}); });
+  peurs.sort(function(a,b){return b.intensite-a.intensite;});
+  return {byCode:byCode,dom:dom,idx:idx,iat:iat,imh:imh,peurs:peurs};
+}
+function ahCalc(){
+  var r=ahScan();
+  var a=$('ahIdx'); if(a) a.textContent=(r.iat!=null?r.iat:'–');
+  var im=$('ahImh'); if(im) im.textContent=(r.imh!=null?r.imh:'–');
+  AH_DOMAINS.forEach(function(d){ var e=$('ahd_'+ahkey(d)); if(e) e.textContent=(r.dom[d]!=null?r.dom[d]:'–'); });
+}
+function ahReco(iat){
+  if(iat==null) return {zone:'—',color:'#9ca3af',bg:'#f3f4f6',icon:'ti-help',msg:''};
+  if(iat<=40) return {zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les peurs, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
+  if(iat<=70) return {zone:'Vigilance',color:'#ea580c',bg:'#fff7ed',icon:'ti-alert-triangle',msg:"Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide."};
+  return {zone:'Appui',color:'#16a34a',bg:'#f0fdf4',icon:'ti-rocket',msg:"L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis."};
+}
+function ahFinish(){
+  var r=ahScan(), nom=window.ahNom||'Entreprise', date=new Date().toLocaleDateString('fr-FR'), reco=ahReco(r.iat);
+  var idxKeys=Object.keys(AH_INDICES);
+  var bar=function(lab,v){ if(v==null) return ''; return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11.5px;"><div style="width:150px;color:#4b5563;">'+esc(lab)+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:12px;"><div style="width:'+v+'%;background:'+perfColor(v)+';height:12px;border-radius:5px;"></div></div><div style="width:24px;text-align:right;font-weight:600;">'+v+'</div></div>'; };
+  var idxBars=idxKeys.map(function(k){return bar(k,r.idx[k]);}).join('');
+  var domBars=AH_DOMAINS.map(function(d){return bar(d,r.dom[d]);}).join('');
+  var ouv=r.idx['Ouverture au changement']; var resist= ouv!=null?(100-ouv):null;
+  var peursHTML= r.peurs.length ? r.peurs.map(function(p){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #fde0d0;font-size:12px;"><span style="color:#7c2d12;">'+esc(p.txt)+'</span><span style="color:#dc2626;font-weight:600;white-space:nowrap;">intensité '+p.intensite+'</span></div>';}).join('') : '<div style="font-size:12px;color:#6b7280;">Aucune peur saillante (tous les signaux sensibles ≥ 40).</div>';
+  var card='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-users-group"></i> AURA HUMAINE · MATURITÉ AU CHANGEMENT</div>'
+      +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(nom)+'</div>'
+      +'<div style="font-size:11px;color:#9ca3af;">'+date+' · '+(window.ahMode==='express'?'Express (12)':'Complet (30)')+' · vue dirigeant / auditeur</div></div>'
+    +'<div class="sec" style="background:'+reco.bg+';"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'
+      +'<div style="text-align:center;min-width:88px;"><div style="font-size:40px;font-weight:800;color:'+reco.color+';line-height:1;">'+(r.iat!=null?r.iat:'–')+'<span style="font-size:14px;font-weight:400;opacity:.7;">/100</span></div><div style="font-size:10px;letter-spacing:1px;color:#6b7280;">IAT · ACCEPTABILITÉ</div></div>'
+      +'<div style="flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:'+reco.color+';"><i class="ti '+reco.icon+'"></i> '+reco.zone+'</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:3px;">'+reco.msg+'</div></div></div>'
+      +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">IMH (maturité humaine large) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b>'+(resist!=null?' · Résistance au changement estimée : <b>'+resist+'/100</b>':'')+'</div></div>'
+    +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Radar des 8 indices humains</div><div style="position:relative;height:280px;margin-top:8px;"><canvas id="ahRadar"></canvas></div></div>'
+    +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Les 8 indices</div><div style="margin-top:8px;">'+idxBars+'</div></div>'
+    +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-layout-grid"></i> Les 6 domaines</div><div style="margin-top:8px;">'+domBars+'</div></div>'
+    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-mood-nervous"></i> Cartographie des peurs</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 4px;">Signaux sensibles sous 40/100 — à traiter dans le plan de communication.</div>'+peursHTML+'</div>'
+    +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-arrow-right"></i> Recommandation pour MIROIR</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;"><b>'+reco.zone+'.</b> '+reco.msg+'</div></div>'
+    +'<div class="foot">On analyse le SYSTÈME, jamais les personnes. Vue auditeur / dirigeant — l\'écart avec les équipes (questionnaire anonyme) viendra en phase 2. Indices /100 = moyenne des critères /4 × 25.</div></div>';
+  $('ahView').innerHTML = card
+   +'<div id="ahSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
+   +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
+   +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>'
+   +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  window.scrollTo(0,0);
+  try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
+  window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
+  saveAura(r,card);
+}
+function saveAura(r,card){
+  try{
+    var css=document.querySelector('style')?document.querySelector('style').textContent:'';
+    var body=card.replace(/<canvas[^>]*><\/canvas>/,'<div style="font-size:11px;color:#9ca3af;">(radar interactif dans l\'app)</div>');
+    var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
+    var payload={type:'aura',mode:window.ahMode,nom:window.ahNom,date:new Date().toISOString(),iat:r.iat,imh:r.imh,indices:r.idx,domaines:r.dom,peurs:r.peurs};
+    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'aura',nom:window.ahNom,json:payload,html:html})})
+      .then(function(x){return x.json();}).then(function(x){var s=$('ahSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> AURA enregistrée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';}).catch(function(){});
+  }catch(e){}
 }
 /* ===== fin HISTORIQUE ===== */
 </script>
