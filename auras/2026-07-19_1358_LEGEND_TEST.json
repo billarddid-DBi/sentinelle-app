@@ -1,0 +1,27 @@
+{
+  "type": "aura",
+  "mode": "express",
+  "nom": "Legend Test",
+  "date": "2026-07-19T13:58:28.084Z",
+  "iat": 63,
+  "imh": 62,
+  "indices": {
+    "Leadership": 70,
+    "Communication": 60,
+    "Écoute": 53,
+    "Transparence": 100,
+    "Confiance": 60,
+    "Coopération": 60,
+    "Adhésion": 60,
+    "Ouverture au changement": 60
+  },
+  "domaines": {
+    "Leadership": 70,
+    "Communication": 60,
+    "Confiance": 60,
+    "Coopération": 60,
+    "Climat social": 60,
+    "Maturité du changement": 60
+  },
+  "peurs": []
+}
