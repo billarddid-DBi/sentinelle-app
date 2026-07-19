@@ -1,0 +1,201 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Repro SARL",
+  "date": "2026-07-19T14:51:02.474Z",
+  "contexte": {
+    "nom": "Repro SARL",
+    "activite": "menuiserie",
+    "indiceInterieur": 40,
+    "piliers": {
+      "Vision": 40
+    },
+    "ah": {
+      "nom": "Repro SARL",
+      "mode": "complet",
+      "iat": 20,
+      "imh": 20,
+      "band": "Blocage",
+      "zone": "Blocage — STOP humain",
+      "reco": "Réparer l'humain AVANT tout projet IA : nommer les peurs, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques.",
+      "indices": {
+        "Leadership": 20,
+        "Communication": 20,
+        "Écoute": 20,
+        "Transparence": 20,
+        "Confiance": 20,
+        "Coopération": 20,
+        "Adhésion": 20,
+        "Ouverture au changement": 20
+      },
+      "domaines": {
+        "Leadership": 20,
+        "Communication": 20,
+        "Confiance": 20,
+        "Coopération": 20,
+        "Climat social": 20,
+        "Maturité du changement": 20
+      },
+      "peurs": [
+        {
+          "code": "T3",
+          "txt": "Peur pour l'emploi face à l'IA",
+          "intensite": 80
+        },
+        {
+          "code": "T5",
+          "txt": "IA vécue comme menace / surveillance",
+          "intensite": 80
+        },
+        {
+          "code": "T1",
+          "txt": "Peur de l'erreur, de se tromper",
+          "intensite": 80
+        },
+        {
+          "code": "T2",
+          "txt": "Peur de parler, de dire son désaccord",
+          "intensite": 80
+        },
+        {
+          "code": "C4",
+          "txt": "Non-dits et rumeurs",
+          "intensite": 80
+        },
+        {
+          "code": "C5",
+          "txt": "Changements subis, découverts trop tard",
+          "intensite": 80
+        },
+        {
+          "code": "M2",
+          "txt": "Changement subi plutôt que désiré",
+          "intensite": 80
+        },
+        {
+          "code": "S2",
+          "txt": "Surcharge / stress, frein au changement",
+          "intensite": 80
+        }
+      ],
+      "resistance": 80
+    }
+  },
+  "miroir": {
+    "priorite": "Reconstruire la confiance et la transparence avant toute initiative IA : dialoguer ouvertement sur le cap, les craintes, les emplois.",
+    "economie_an": 8000,
+    "cadre": {
+      "externe": "Repro SARL est à un carrefour : une maturité IA basse (40/100) rencontre une équipe en profonde inquiétude (IAT 20/100, zone Blocage). Avant tout outil, il faut rétablir le dialogue et le sens collectif.",
+      "interne": "Blocage humain critique (IAT 20, tous indices à 20/100) : l'organisation souffre d'une rupture de confiance et de communication. L'IA ne peut pas entrer dans ce vide. Palier 1 = quasi exclusivement réparer le climat et le cap ; l'IA n'arrive qu'après, minimaliste et co-construite."
+    },
+    "verite": {
+      "externe": "Votre pilier Vision est à 40/100 : l'équipe ne voit pas clair sur où vous allez, pourquoi, et ce que l'IA changera pour elle. Les peurs détectées (emploi, surveillance, erreur, parole bâillonnée, rumeurs, changements imposés, surcharge) sont des signaux : l'équipe a besoin d'être entendue et rassurée AVANT d'agir. C'est un investissement en leadership et transparence, pas un problème d'outils.",
+      "interne": "Tous les 8 indices humains à 20/100 pointent une organisation fermée : leadership absent ou perçu comme distant, communication unidirectionnelle, écoute nulle, non-dits généralisés, confiance érodée, coopération inexistante, adhésion faible, résistance au changement maximale (80%). L'IA dans ce contexte = accélérateur de crise. Hypothèse : le dirigeant n'a pas explicité le cap, les enjeux réels (économiques, concurrentiels), ni impliqué l'équipe dans la réflexion. À confirmer en entretiens collectifs."
+    },
+    "humain": {
+      "posologie": "Zone Blocage : ARRÊTER tout projet IA. Palier 1 = 100% confiance/communication/sens. Rythme lent, rassurant, répétitif. Aucune annonce sans dialogue préalable. Victoire rapide sur un sujet humain (ex : clarté du cap, engagement sur l'emploi). Palier 2 seulement si IAT remonte à ≥50.",
+      "peurs": [
+        {
+          "peur": "Peur pour l'emploi face à l'IA (intensité 80)",
+          "traitement": "Engagement écrit du dirigeant : IA = suppression de tâches pénibles, pas de postes. Co-construire le projet avec l'équipe."
+        },
+        {
+          "peur": "IA vécue comme menace / surveillance (intensité 80)",
+          "traitement": "Transparence totale sur les données collectées, l'usage, les contrôles. Montrer des cas concrets : IA aide, ne juge pas."
+        },
+        {
+          "peur": "Peur de l'erreur, de se tromper (intensité 80)",
+          "traitement": "Créer un espace de parole sécurisé : erreur = apprentissage. Diriger par l'exemple : admettre ses propres erreurs."
+        },
+        {
+          "peur": "Peur de parler, de dire son désaccord (intensité 80)",
+          "traitement": "Réunions régulières (hebdo ou bihebdo) où chacun peut s'exprimer sans crainte. Valoriser la critique constructive."
+        },
+        {
+          "peur": "Non-dits et rumeurs (intensité 80)",
+          "traitement": "Communiquer proactivement, avant que la rumeur ne naisse. Clarifier les décisions et les raisons."
+        },
+        {
+          "peur": "Changements subis, découverts trop tard (intensité 80)",
+          "traitement": "Impliquer l'équipe dès la réflexion. Pas de surprise. Chacun comprend le POURQUOI avant le QUOI."
+        },
+        {
+          "peur": "Changement subi plutôt que désiré (intensité 80)",
+          "traitement": "Co-construire le projet IA avec l'équipe. Écouter les idées, les intégrer. Le changement devient collectif."
+        },
+        {
+          "peur": "Surcharge / stress, frein au changement (intensité 80)",
+          "traitement": "Évaluer la charge réelle. Alléger avant d'ajouter. L'IA doit d'abord SOULAGER, pas charger."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de cap clair et partagé (Vision 40/100) ; rupture de confiance et communication (tous indices humains 20/100)",
+        "levier": "Réunion de clarification dirigeant-équipe : cap 2-3 ans, enjeux réels, engagement sur l'emploi, place de l'IA",
+        "type": "humain",
+        "mise_en_oeuvre": "Réunion collective 1h, puis entretiens individuels. Documenter et afficher le cap.",
+        "indicateur": "Taux de participation, feedback écrit, clarté perçue du cap (sondage simple)"
+      },
+      {
+        "palier": 1,
+        "frein": "Non-dits, rumeurs, peur de parler (Communication, Écoute, Transparence à 20/100)",
+        "levier": "Instaurer un rituel de dialogue régulier (réunion hebdo 30 min, tour de table libre, sans jugement)",
+        "type": "humain",
+        "mise_en_oeuvre": "Calendrier fixe, animé par le dirigeant ou un tiers neutre. Compte rendu affiché.",
+        "indicateur": "Nombre de contributions par personne, thèmes soulevés, sentiment de sécurité (sondage)"
+      },
+      {
+        "palier": 1,
+        "frein": "Peur de l'erreur, absence de confiance (Confiance, Adhésion 20/100) ; surcharge perçue",
+        "levier": "Identifier une tâche pénible/répétitive (ex : devis, relances) ; l'automatiser avec l'équipe, montrer le gain immédiat",
+        "type": "IA",
+        "mise_en_oeuvre": "Pilote IA minimaliste (ex : génération de devis) sur 2-3 semaines. Impliquer l'équipe dans le test.",
+        "indicateur": "Temps économisé/semaine, satisfaction de l'équipe, zéro erreur introduite"
+      },
+      {
+        "palier": 2,
+        "frein": "Maturité IA basse (40/100) ; processus métier peu structurés ou documentés",
+        "levier": "Cartographier les processus clés (devis, commande, suivi client, facturation) ; identifier les points d'automatisation IA à fort ROI",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit processus léger (2-3 jours) avec l'équipe. Prioriser 2-3 automatisations pour palier 2.",
+        "indicateur": "Processus documentés, gains estimés par processus, plan d'automatisation validé"
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps administratif (devis, relances, facturation) — automatisation IA minimaliste",
+          "inaction_an": 12000,
+          "invest_1x": 2000,
+          "recurrent_an": 2000
+        },
+        {
+          "poste": "Accompagnement humain / conduite du changement (coaching dirigeant, facilitation réunions)",
+          "inaction_an": 0,
+          "invest_1x": 3000,
+          "recurrent_an": 1000
+        },
+        {
+          "poste": "Audit processus et cartographie IA (diagnostic approfondi palier 2)",
+          "inaction_an": 0,
+          "invest_1x": 2500,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 12000,
+      "invest_total": 7500,
+      "recurrent_an": 3000,
+      "gain_an": 9000,
+      "roi_net_an": 6000,
+      "payback_mois": 10,
+      "fourchette": "8 à 14 mois de retour sur investissement, si confiance est rétablie"
+    },
+    "cadence": "Point mensuel dirigeant + équipe (30 min, bilan du dialogue et du pilote IA). Réévaluation IAT et indices humains dans 3 mois. Palier 2 seulement si IAT ≥50.",
+    "synthese": {
+      "externe": "Votre priorité immédiate : rétablir le dialogue avec l'équipe et clarifier le cap. L'IA viendra après, progressivement, en co-construction. Commencez par une réunion de clarification et un rituel hebdo d'écoute. Testez une automatisation minimaliste (ex : devis) pour montrer le bénéfice. Vous économiserez 6000 € net/an en 10 mois, mais surtout vous retrouverez une équipe mobilisée.",
+      "interne": "Blocage humain critique : IAT 20, tous indices 20/100, résistance 80%. Aucun projet IA ne peut réussir ici. Palier 1 = quasi exclusivement confiance/communication/sens (leviers humains). Dosage lent et rassurant : réunions régulières, engagement clair du dirigeant sur l'emploi, transparence totale. Pilote IA minimaliste (devis) seulement après 4-6 semaines de dialogue. Réévaluer IAT à 3 mois. ROI net 6000 €/an, payback 10 mois, mais conditionné à la reconstruction du climat. Angle commercial : c'est un accompagnement de changement, pas un projet IA — la vente du service de coaching/facilitation est centrale ici."
+    }
+  }
+}
