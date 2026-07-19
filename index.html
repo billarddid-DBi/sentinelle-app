@@ -135,6 +135,7 @@
   <div id="cockpit" style="display:none;"></div>
   <div id="compare" style="display:none;"></div>
   <div id="dirigeant" style="display:none;"></div>
+  <div id="auth" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -187,7 +188,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -1361,8 +1362,11 @@ function lancerControle(){
   ahStart('express'); window.scrollTo(0,0);
 }
 function dirigeantSpace(){
+  var acc=currentAccount();
+  if(!acc){ renderAuth('login'); return; }
+  if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
-  var nom=b.nom||(ah&&ah.nom)||(fr&&fr.nom)||'';
+  var nom=b.nom||(ah&&ah.nom)||(fr&&fr.nom)||acc.name||'';
   var hasCtx=(b.indiceInterieur!=null||ah||fr);
   if(hasCtx){ var pre=[]; try{pre=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){} if(!pre.length) cpSnapshot(); }
   var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
@@ -1378,7 +1382,10 @@ function dirigeantSpace(){
     +(arr.length>=2?big('cockpitCompare()','ti-activity-heartbeat','Mon évolution','Le chemin parcouru, contrôle après contrôle'):'')
     +big('cockpitBuild()','ti-dashboard','Mon Cockpit','La synthèse en une page');
   if(!hasCtx) html+='<div class="sec" style="color:#6b7280;font-size:12px;">Aucune donnée pour l\'instant. Faites d\'abord un diagnostic, ou ouvrez une fiche depuis « Mes recherches ».</div>';
-  html+='<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
+  html+='<div class="card" style="margin-top:12px;"><div class="sec" style="display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:20px;color:#16a34a;"></i><div style="flex:1;font-size:12px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10.5px;color:#9ca3af;">'+esc(acc.email)+' · prochaine échéance '+new Date(acc.renewal).toLocaleDateString('fr-FR')+'</div></div></div></div>';
+  html+='<button class="btn btn-ghost" onclick="authLogout()"><i class="ti ti-logout"></i> Se déconnecter</button>'
+    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function cockpitRemesure(){
@@ -1390,6 +1397,62 @@ function cockpitRemesure(){
   try{ var blob=new Blob([ics],{type:'text/calendar'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='Point_LIVE_'+cpSlug()+'.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},2000); }catch(e){}
   alert('C\'est noté : prochain point le '+d.toLocaleDateString('fr-FR')+'. Un rappel pour votre agenda a été préparé (fichier .ics à ouvrir).');
   if($('cockpit').style.display!=='none') cockpitBuild();
+}
+/* ===== COMPTES DIRIGEANT (prototype local — à brancher sur Supabase) ===== */
+var DBI_PLANS={mensuel:{key:'mensuel',label:'Mensuel',price:2.99,per:'mois'},annuel:{key:'annuel',label:'Annuel',price:24.90,per:'an'}};
+function authHash(s){ var h=5381,i=String(s).length; while(i) h=(h*33)^String(s).charCodeAt(--i); return (h>>>0).toString(16); }
+function authAll(){ try{ return JSON.parse(localStorage.getItem('dbi_accounts'))||{}; }catch(e){ return {}; } }
+function authSaveAll(o){ try{ localStorage.setItem('dbi_accounts',JSON.stringify(o)); }catch(e){} }
+function currentAccount(){ var e=null; try{e=localStorage.getItem('dbi_session');}catch(x){} if(!e) return null; var a=authAll(); return a[e]||null; }
+function authLogout(){ try{ localStorage.removeItem('dbi_session'); }catch(e){} window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
+function renderAuth(mode){
+  var pre=(window.lastMiroir&&window.lastMiroir.nom)||'';
+  var tab=function(m,l){ return '<button type="button" onclick="renderAuth(\''+m+'\')" style="flex:1;padding:9px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;background:'+(mode===m?'#1C1C1C':'#f1f5f9')+';color:'+(mode===m?'#fff':'#6b7280')+';">'+l+'</button>'; };
+  var fld=function(id,lab,type,val,ph){ return '<div style="margin-top:10px;"><label style="font-size:11px;color:#6b7280;">'+lab+'</label><input id="'+id+'" type="'+type+'" value="'+esc(val||'')+'" placeholder="'+(ph||'')+'" autocomplete="off" style="width:100%;font-size:14px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;margin-top:3px;font-family:inherit;"></div>'; };
+  var planCard=function(p,sel){ var pl=DBI_PLANS[p]; return '<label style="flex:1;cursor:pointer;"><input type="radio" name="dbiplan" value="'+p+'" '+(sel?'checked':'')+' style="display:none;" onchange="document.querySelectorAll(\'.planC\').forEach(function(x){x.style.borderColor=\'#e5e7eb\';x.style.background=\'#fff\';});this.parentNode.querySelector(\'.planC\').style.borderColor=\'#E8541A\';this.parentNode.querySelector(\'.planC\').style.background=\'#fff7ed\';"><div class="planC" style="border:2px solid '+(sel?'#E8541A':'#e5e7eb')+';background:'+(sel?'#fff7ed':'#fff')+';border-radius:10px;padding:10px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">'+pl.label+'</div><div style="font-size:16px;font-weight:700;color:#E8541A;margin-top:2px;">'+pl.price.toFixed(2).replace('.',',')+' €</div><div style="font-size:10px;color:#9ca3af;">/ '+pl.per+(p==='annuel'?' · 2 mois offerts':'')+'</div></div></label>'; };
+  var body;
+  if(mode==='signup'){
+    body=fld('auName','Nom de votre entreprise','text',pre,'Ma Menuiserie')
+      +fld('auMail','Votre email','email','','vous@entreprise.fr')
+      +fld('auPass','Mot de passe','password','','au moins 6 caractères')
+      +'<div style="font-size:11px;color:#6b7280;margin-top:14px;">Votre formule</div><div style="display:flex;gap:8px;margin-top:5px;">'+planCard('mensuel',false)+planCard('annuel',true)+'</div>'
+      +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
+      +'<button class="btn btn-primary" onclick="authSignup()"><i class="ti ti-user-plus"></i> Créer mon compte</button>';
+  } else {
+    body=fld('auMail','Votre email','email','','vous@entreprise.fr')
+      +fld('auPass','Mot de passe','password','','')
+      +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
+      +'<button class="btn btn-primary" onclick="authLogin()"><i class="ti ti-login"></i> Se connecter</button>';
+  }
+  var html='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:15px;font-weight:500;margin-top:3px;">Votre suivi de transformation, rien qu\'à vous.</div></div>'
+    +'<div style="display:flex;">'+tab('login','Se connecter')+tab('signup','Créer un compte')+'</div>'
+    +'<div class="sec">'+body+'</div>'
+    +'<div class="foot"><i class="ti ti-shield-lock"></i> Version d\'essai : vos identifiants restent sur cet appareil. La connexion sécurisée multi-appareils arrive très vite — n\'utilisez pas ici un mot de passe important.</div></div>'
+    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  $('auth').innerHTML=html; showView('auth'); window.scrollTo(0,0);
+}
+function authSignup(){
+  var name=($('auName')&&$('auName').value.trim())||'', mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
+  var plan=(document.querySelector('input[name=dbiplan]:checked')||{}).value||'annuel';
+  var msg=$('auMsg'); var err=function(m){ if(msg)msg.textContent=m; };
+  if(!name) return err('Indiquez le nom de votre entreprise.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return err('Email invalide.');
+  if(pass.length<6) return err('Mot de passe : au moins 6 caractères.');
+  var all=authAll(); if(all[mail]) return err('Un compte existe déjà avec cet email. Connectez-vous.');
+  var now=new Date(), ren=new Date(now); if(plan==='annuel') ren.setFullYear(ren.getFullYear()+1); else ren.setMonth(ren.getMonth()+1);
+  all[mail]={email:mail,name:name,pass:authHash(pass),plan:plan,price:DBI_PLANS[plan].price,since:now.toISOString(),renewal:ren.toISOString(),status:'actif'};
+  authSaveAll(all); try{ localStorage.setItem('dbi_session',mail); }catch(e){}
+  if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:name}; window.ahNom=name;
+  dirigeantSpace();
+}
+function authLogin(){
+  var mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
+  var msg=$('auMsg'); var all=authAll(), a=all[mail];
+  if(!a||a.pass!==authHash(pass)){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
+  try{ localStorage.setItem('dbi_session',mail); }catch(e){}
+  window.lastMiroir={nom:a.name}; window.ahNom=a.name; window.lastAH=null; window.frData=null;
+  dirigeantSpace();
 }
 /* ===== fin HISTORIQUE ===== */
 </script>
