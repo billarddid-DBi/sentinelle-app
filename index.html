@@ -429,8 +429,7 @@ function renderMiroir(){
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
   +'<button class="btn btn-primary" onclick="frBuild()"><i class="ti ti-route"></i> Créer ma feuille de route →</button>'
   +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
-  +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>'
-  +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+  +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>';
   $('miroir').innerHTML=html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
@@ -605,8 +604,7 @@ function bFinish(){
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
    +'<button class="btn btn-primary" onclick="ahChoice()"><i class="ti ti-users-group"></i> Lancer l\'AURA Humaine →</button>'
    +'<button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Aller directement au MIROIR</button>'
-   +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>'
-   +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+   +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>';
   window.scrollTo(0,0);
   // Fiche autonome (archive) : détail des notes en annexe
   var rows=details.map(function(d){var c=d.note!=null&&d.note<=2?'#fef2f2':'#fff';return '<tr style="background:'+c+';"><td>'+esc(d.pilier)+'</td><td>'+esc(d.sous)+'</td><td>'+esc(d.crit)+'</td><td style="text-align:center;font-weight:600;">'+(d.note!=null?d.note:'–')+'</td></tr>';}).join('');
@@ -1090,8 +1088,7 @@ function ahFinish(){
   $('ahView').innerHTML = card
    +'<div id="ahSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
    +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
-   +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>'
-   +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+   +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>';
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
   window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
@@ -1175,10 +1172,7 @@ function frRender(){
       +'<div id="frChatLog" style="padding:12px 14px;max-height:320px;overflow-y:auto;"></div>'
       +'<div style="display:flex;gap:6px;padding:0 12px 12px;"><input id="frChatIn" type="text" autocomplete="off" placeholder="Une question sur une étape ?" onkeydown="if(event.key===\'Enter\'){event.preventDefault();frChatSend();}" style="flex:1;font-size:13px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="frChatSend()" aria-label="Envoyer" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 14px;font-size:15px;cursor:pointer;"><i class="ti ti-send"></i></button></div></div>'
     +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
-    +'<div id="frCloudMsg" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:4px;"></div>'
-    +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
-    +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>'
-    +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+    +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>';
   $('frView').innerHTML=html; frChatRender();
 }
 function frChatRender(){
@@ -1300,12 +1294,9 @@ function cockpitBuild(){
     +'<div class="foot">La transformation de votre entreprise en un coup d\'œil : image, réalité, humain, plan et retour sur investissement. On refait le point à 3 mois pour mesurer le chemin parcouru.</div></div>';
   var prog=(snaps.length>=2);
   $('cockpit').innerHTML=card
-    +(prog?'<button class="btn btn-primary" onclick="cockpitCompare()"><i class="ti ti-activity-heartbeat"></i> Voir mon évolution</button>':'')
-    +'<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Mon espace dirigeant</button>'
-    +'<button class="btn '+(prog?'btn-ghost':'btn-primary')+'" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
+    +'<button class="btn btn-primary" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
     +'<button class="btn btn-ghost" onclick="cockpitRemesure()"><i class="ti ti-calendar-heart"></i> Programmer le point à 3 mois</button>'
-    +(m?'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>':'')
-    +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+    +(m?'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>':'');
   showView('cockpit'); window.scrollTo(0,0);
 }
 function cockpitPrint(){ var old=document.title; document.title='Cockpit_'+frSlug(window.lastMiroir&&window.lastMiroir.nom||'entreprise'); window.print(); setTimeout(function(){document.title=old;},1500); }
@@ -1362,9 +1353,7 @@ function cockpitCompare(){
     +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12.5px;color:#166534;line-height:1.55;"><i class="ti ti-sparkles"></i> '+esc(msg)+'</div></div>'
     +idxTable+peurRow
     +'<div class="foot">On compare votre situation actuelle à votre point de départ'+(prev?' et à votre contrôle précédent':'')+'. Lancez un contrôle après chaque vague d\'actions : c\'est ainsi qu\'on voit — et qu\'on prouve — le chemin parcouru. (Le contrôle mesure le pouls humain ; la valeur externe se re-mesure lors d\'un diagnostic complet.)</div></div>'
-    +'<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un nouveau contrôle</button>'
-    +'<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Mon espace</button>'
-    +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+    +'<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un nouveau contrôle</button>';
   $('compare').innerHTML=card; showView('compare'); window.scrollTo(0,0);
 }
 function lancerControle(){
@@ -1394,14 +1383,11 @@ function dirigeantSpace(){
   var big=function(oc,ic,t,sub){ return '<button type="button" onclick="'+oc+'" style="width:100%;text-align:left;background:#fff;border:1px solid #eee;border-radius:12px;padding:14px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:inherit;"><i class="ti '+ic+'" style="font-size:24px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#1C1C1C;">'+t+'</div><div style="font-size:11.5px;color:#6b7280;">'+sub+'</div></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>'; };
   var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom||'Votre entreprise')+'</div><div style="display:flex;gap:8px;margin-top:13px;">'+kpi(iat,'IAT humain')+kpi(av,'plan avancé','%')+kpi(nCtrl,'contrôles')+'</div></div></div>';
   html+=big('lancerControle()','ti-player-play','Lancer un contrôle','Mesurez où vous en êtes, comparez à avant')
-    +((fr||window.miroirData)?big('frBuild()','ti-route','Ma feuille de route','Notez vos actions, avancez étape par étape'):'')
-    +(arr.length>=2?big('cockpitCompare()','ti-activity-heartbeat','Mon évolution','Le chemin parcouru, contrôle après contrôle'):'')
-    +big('cockpitBuild()','ti-dashboard','Mon Cockpit','La synthèse en une page');
+    +'<div style="text-align:center;font-size:11.5px;color:#9ca3af;margin-top:10px;">Feuille de route, évolution et Cockpit sont dans la barre du bas ↓</div>';
   if(!hasCtx) html+='<div class="sec" style="color:#6b7280;font-size:12px;">Aucune donnée pour l\'instant. Faites d\'abord un diagnostic, ou ouvrez une fiche depuis « Mes recherches ».</div>';
   var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
   html+='<div class="card" style="margin-top:12px;"><div class="sec" style="display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:20px;color:#16a34a;"></i><div style="flex:1;font-size:12px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10.5px;color:#9ca3af;">'+esc(acc.email)+' · prochaine échéance '+new Date(acc.renewal).toLocaleDateString('fr-FR')+'</div></div></div></div>';
-  html+='<button class="btn btn-ghost" onclick="authLogout()"><i class="ti ti-logout"></i> Se déconnecter</button>'
-    +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
+  html+='<button class="btn btn-ghost" onclick="authLogout()"><i class="ti ti-logout"></i> Se déconnecter</button>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function cockpitRemesure(){
