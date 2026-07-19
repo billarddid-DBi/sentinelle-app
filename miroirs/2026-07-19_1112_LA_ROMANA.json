@@ -1,0 +1,258 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-19T11:12:46.525Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "Pizzeria & restaurant italien",
+    "archetype": "Commerce établi & performant (fragilisé par transition)",
+    "indiceInterieur": 60,
+    "indiceExterieur": 76,
+    "potentiel": 85,
+    "ecart": -16,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Organisation": 60,
+      "Processus": 60,
+      "Informations": 60,
+      "Outils": 60,
+      "Décisions": 60,
+      "Clients": 60,
+      "Performance": 60
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Chacun connaît son rôle et son périmètre",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      }
+    ],
+    "aura": "Orange — la chaleur"
+  },
+  "miroir": {
+    "priorite": "Transformer l'écart de confiance (-16 points) en force : écrire la stratégie, clarifier les rôles, et automatiser les tâches répétitives pour libérer l'équipe et retrouver de la cohérence interne.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "La Romana est une belle maison, bien perçue dehors (76/100), mais elle s'essouffle dedans (60/100). Vos clients vous font confiance ; votre équipe, elle, attend de la clarté. Trois ans de transition sans cap écrit, c'est trois ans de fatigue silencieuse.",
+      "interne": "Écart de Vérité négatif (-16) : l'image surpromet, la réalité peine. Tous les piliers à 60/100 (homogène, pas de catastrophe), mais TOUS les critères clés à 3/5 (vision, rôles, délégation, procédures, données, décisions). C'est un système qui tourne, mais sans ossature. Pizzeria établie, fragilisée par transition = dirigeant qui porte tout, équipe qui attend le signal."
+    },
+    "verite": {
+      "externe": "Vous avez bâti une réputation solide (76/100 d'image). Mais dedans, trois choses manquent : (1) une direction écrite — le cap est dans votre tête, pas sur le papier ; (2) une délégation réelle — il se peut que vous portiez encore trop, laissant l'équipe en attente de clarté ; (3) une capitalisation du savoir — les recettes, les process, les décisions vivent dans les têtes, pas dans le système. Résultat : fatigue, turnover latent, qualité inégale. Vous avez la matière pour passer à 85/100 ; il manque l'architecture.",
+      "interne": "Homogénéité à 60/100 sur les 8 piliers = absence de levier évident, mais aussi absence de fondation. Vision, Organisation, Processus, Informations, Outils, Décisions, Clients, Performance : tous à 3/5 sur les critères clés. C'est un diagnostic de CLARTÉ MANQUANTE, pas de compétence. Dirigeant charismatique (image 76), équipe engagée (pas de signal d'alarme RH), mais système sans ossature écrite. Transition non-formalisée = risque de décrochage silencieux. Levier IA pertinent (tâches répétitives, données), mais APRÈS avoir écrit la stratégie et les rôles — sinon l'IA automatise du chaos."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "La stratégie 3 ans est dans la tête du dirigeant (3/5), pas écrite ; l'équipe ne connaît pas la direction (3/5). Résultat : chacun improvise, la qualité varie, les décisions traînent.",
+        "levier": "Écrire la stratégie 3 ans en 2 jours (atelier dirigeant + top 3 équipe) : vision, positionnement, 3 priorités annuelles, indicateurs clés. Afficher publiquement. Revoir les rôles et périmètres (qui décide quoi, qui fait quoi).",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier stratégie (4h, facilitateur externe ou interne) → document 1 page + affichage → réunion d'équipe (30 min) pour présenter et recueillir les questions. Puis fiche de rôles par poste (1 page/personne).",
+        "indicateur": "Stratégie écrite et affichée ; 100% de l'équipe peut réciter les 3 priorités annuelles ; zéro ambiguïté sur qui décide quoi (mesure via entretien rapide)."
+      },
+      {
+        "palier": 1,
+        "frein": "Les façons de faire ne sont pas écrites (3/5) ; le savoir-faire vit dans les têtes (3/5). Chaque nouveau recruté réapprend ; chaque départ emporte du savoir. Ambiance de travail tendue (3/5) par manque de clarté.",
+        "levier": "Capitaliser les 5 à 7 process clés en fiches simples (1 page max/process) : accueil client, prise de commande, préparation cuisine, livraison, gestion des réclamations, fermeture. Impliquer l'équipe (elle sait, elle documente).",
+        "type": "humain",
+        "mise_en_oeuvre": "Ateliers par process (30 min/process, équipe concernée) → rédaction de fiches (photos, étapes numérotées, pièges à éviter) → test avec un nouveau recruté ou un remplaçant → ajustement. Stockage centralisé (drive, wiki, ou papier plastifié en cuisine).",
+        "indicateur": "5 à 7 fiches process finalisées et testées ; délais tenus à 95%+ ; qualité constante (zéro réclamation liée à un oubli de process) ; nouveau recruté autonome en 2 semaines au lieu de 4."
+      },
+      {
+        "palier": 1,
+        "frein": "Le dirigeant délègue peu (3/5) ; il porte trop. Il se peut que l'équipe attende un signal de confiance et que le climat en souffre (3/5). Recrutement dans l'urgence (3/5) = mauvais choix.",
+        "levier": "Identifier 2 à 3 tâches que vous pouvez déléguer immédiatement (ex : gestion des stocks, suivi des fournisseurs, planning des équipes). Confier à une personne clé avec formation et suivi hebdo (15 min). Anticiper les recrutements (6 mois avant).",
+        "type": "humain",
+        "mise_en_oeuvre": "Audit rapide de votre agenda (où passez-vous 50% de votre temps ?) → identifier 3 tâches à déléguer → former la personne (1 semaine) → suivi hebdo (15 min) → ajustement. Créer un calendrier de recrutement annuel (qui part ? qui arrive ? quand former ?).",
+        "indicateur": "Vous libérez 5 à 8 heures/semaine ; la personne déléguée se sent confiante (entretien rapide) ; zéro urgence de recrutement ; ambiance de travail s'améliore (mesure via petit sondage équipe)."
+      },
+      {
+        "palier": 2,
+        "frein": "Les tâches répétitives (devis, factures, relances, comptes rendus clients) sont lentes et manuelles (3/5) ; les données sont éparpillées (3/5) ; les outils ne communiquent pas (3/5). Chacun double-saisit, perd du temps, fait des erreurs.",
+        "levier": "Automatiser les tâches répétitives via IA légère : (1) génération de devis/factures à partir d'un modèle + IA (ex : ChatGPT + Zapier, ou Make) ; (2) relances clients automatiques (SMS/email après commande, après 7 jours sans retour) ; (3) centraliser les données (CRM simple ou feuille Google partagée) ; (4) connecter les outils (caisse → facture → CRM, sans double saisie).",
+        "type": "IA",
+        "mise_en_oeuvre": "Audit des tâches répétitives (1 jour) → choisir 2 à 3 à automatiser en priorité (devis + relances) → implémenter un workflow IA simple (ChatGPT + Zapier, ou Make, ou un CRM léger type Brevo) → tester sur 1 semaine → former l'équipe (30 min) → déployer. Centraliser les données clients (nom, tel, adresse, historique commandes) dans un seul outil.",
+        "indicateur": "Temps de génération d'un devis : de 15 min à 2 min ; relances automatiques lancées (mesure du taux de réponse) ; zéro double saisie (données centralisées) ; 5 à 8 heures/semaine libérées pour l'équipe."
+      },
+      {
+        "palier": 2,
+        "frein": "Les décisions s'appuient au feeling (3/5), pas sur des données. On ne sait pas précisément ce qui distingue La Romana (3/5) ; on ne surveille pas le marché (3/5). Chiffrage/devis sans méthode objective (3/5).",
+        "levier": "Mettre en place 3 à 4 indicateurs clés simples : (1) panier moyen par client (pour optimiser les offres) ; (2) taux de fidélité (% de clients qui reviennent) ; (3) coût de revient par plat (pour fixer les prix objectivement) ; (4) satisfaction client (note simple post-commande). Revoir votre positionnement : qu'est-ce qui vous rend unique ? (qualité, vitesse, ambiance, prix ?). Décider objectivement sur ces données, pas au feeling.",
+        "type": "IA",
+        "mise_en_oeuvre": "Définir les 3 à 4 KPI (1 jour) → les mesurer manuellement pendant 1 mois (pour établir une baseline) → automatiser la collecte (IA pour analyser les avis, CRM pour les données clients) → tableau de bord simple (feuille Google ou Metabase) → réunion mensuelle pour décider sur les données.",
+        "indicateur": "3 à 4 KPI mesurés et affichés ; décisions prises sur données (ex : prix ajusté, offre créée) ; panier moyen augmente de 5 à 10% ; taux de fidélité connu et amélioré."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Atelier stratégie + documentation process + clarification des rôles (palier 1)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 500
+        },
+        {
+          "poste": "Automatisation des tâches répétitives + centralisation des données (palier 2)",
+          "inaction_an": 12000,
+          "invest_1x": 3000,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Mise en place des KPI et tableau de bord (palier 2)",
+          "inaction_an": 5000,
+          "invest_1x": 1000,
+          "recurrent_an": 300
+        }
+      ],
+      "inaction_an": 25000,
+      "invest_total": 6000,
+      "recurrent_an": 2000,
+      "gain_an": 23000,
+      "roi_net_an": 23000,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois de retour sur investissement ; gain net annuel de 18000 à 25000 euros après coûts récurrents"
+    },
+    "cadence": "Point mensuel (30 min, dirigeant + 1 à 2 clés) pour suivre l'avancement des leviers et les KPI. Prochaine BOUSSOLE dans 3 mois (après palier 1 finalisé et palier 2 lancé) pour mesurer la cohérence interne et l'image.",
+    "synthese": {
+      "externe": "Vous avez la réputation et l'équipe pour passer à 85/100. Il manque trois choses simples : écrire votre cap 3 ans, clarifier qui fait quoi, et automatiser les tâches qui vous volent du temps. En 3 mois, vous retrouverez de la sérénité et de la cohérence. Vos clients verront la différence.",
+      "interne": "Écart de Vérité négatif (-16) = dirigeant charismatique mais système fragile. Palier 1 (humain/organisation) est critique : stratégie écrite, rôles clairs, délégation réelle, process documentés. Palier 2 (IA) amplifie et libère. ROI net positif dès 3 mois, gain annuel 18k-25k€. Levier commercial : montrer que la transition est formalisée, que l'équipe est stable, que les process sont robustes. Prochaine BOUSSOLE dans 3 mois pour valider la cohérence interne et la trajectoire vers 85/100."
+    }
+  }
+}
