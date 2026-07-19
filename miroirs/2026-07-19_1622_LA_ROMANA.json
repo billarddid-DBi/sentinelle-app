@@ -1,0 +1,292 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "La Romana",
+  "date": "2026-07-19T16:22:19.846Z",
+  "contexte": {
+    "nom": "La Romana",
+    "activite": "Pizzeria & restaurant italien",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 60,
+    "indiceExterieur": 76,
+    "potentiel": 85,
+    "ecart": -16,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Organisation": 60,
+      "Processus": 60,
+      "Informations": 60,
+      "Outils": 60,
+      "Décisions": 60,
+      "Clients": 60,
+      "Performance": 60
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Chacun connaît son rôle et son périmètre",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      }
+    ],
+    "aura": "Orange — la chaleur",
+    "ah": {
+      "nom": "La Romana",
+      "mode": "express",
+      "iat": 60,
+      "imh": 60,
+      "band": "Vigilance",
+      "zone": "Vigilance",
+      "reco": "Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide.",
+      "indices": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Écoute": 60,
+        "Transparence": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Adhésion": 60,
+        "Ouverture au changement": 60
+      },
+      "domaines": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Climat social": 60,
+        "Maturité du changement": 60
+      },
+      "peurs": [],
+      "resistance": 40
+    }
+  },
+  "miroir": {
+    "priorite": "Passer de l'implicite à l'explicite : documenter la stratégie, les rôles et les processus pour transformer le potentiel latent en performance mesurable.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "La Romana est un établissement solide avec une image forte (76/100) mais qui ne capitalise pas encore sur son potentiel réel (60/100). L'écart révèle une organisation qui fonctionne par habitude et confiance personnelle plutôt que par systèmes. Vous avez bâti quelque chose de bon ; il est temps de le rendre reproductible et scalable.",
+      "interne": "Cas classique de PME performante en plateau : tous les piliers à 60/100 (homogénéité suspecte), écart de Vérité négatif (-16 = image sur-promet), IAT en Vigilance (60/100). L'organisation repose sur le dirigeant et l'implicite ; aucune peur majeure détectée, mais une fragilité : absence de documentation, délégation limitée, décisions au feeling. Levier : passer du « ça marche » au « on sait pourquoi ça marche »."
+    },
+    "verite": {
+      "externe": "Vous avez construit une pizzeria qui fonctionne, mais elle fonctionne surtout parce que VOUS êtes là. Vos critères faibles (vision écrite 3/5, rôles clairs 3/5, procédures 3/5, données fiables 3/5) montrent que le savoir-faire reste dans les têtes. Si demain un manager clé part ou que vous voulez ouvrir une deuxième adresse, vous partez de zéro. L'IA peut vous aider, mais d'abord il faut que vous sachiez ce que vous faites vraiment — et pourquoi ça marche.",
+      "interne": "Homogénéité des piliers à 60/100 + tous les critères à 3/5 = diagnostic d'une organisation implicite, sans documentation systémique. Pas de crise ni de dysfonctionnement majeur (d'où l'image 76/100), mais zéro capitalisation. IAT 60/100 en Vigilance : l'équipe n'est pas hostile au changement, mais elle n'est pas non plus motrice. IMH 60/100 = leadership et communication présents mais non structurés. Résistance 40/100 = modérée, exploitable. Aucune peur détectée = confiance de base. Opportunité : transformer cette confiance en adhésion à une vision écrite, puis en outils IA qui amplifient sans menacer."
+    },
+    "humain": {
+      "posologie": "Zone Vigilance : sécuriser EN PARALLÈLE. Palier 1 = co-construire la vision écrite + clarifier les rôles avec l'équipe (communication du POURQUOI). Impliquer des relais internes. Palier 2 = IA sur pilote non menaçant (ex : gestion de commandes) avec victoire rapide. Rythme : mensuel, pas d'accélération brutale.",
+      "peurs": [
+        {
+          "peur": "Perte de flexibilité et d'âme artisanale en formalisant les processus.",
+          "traitement": "Cadrer explicitement : documentation = liberté, pas rigidité. Impliquer l'équipe dans la rédaction des procédures. Montrer que l'IA aide sur l'administratif, pas sur la créativité culinaire."
+        },
+        {
+          "peur": "Crainte que l'IA remplace les compétences humaines et l'expérience du personnel.",
+          "traitement": "Engagement clair du dirigeant : l'IA prend les tâches répétitives (devis, relances, commandes), l'équipe garde l'expertise métier. Impliquer les collaborateurs clés dans le choix des outils."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Vision et stratégie restent implicites (3/5) ; l'équipe ne connaît pas la direction à 3 ans.",
+        "levier": "Documenter la vision stratégique avec l'équipe : où aller, ce qui nous distingue, comment on mesure le succès.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + 2-3 relais clés (2h). Rédiger une page vision + 3 objectifs 3 ans. Afficher.",
+        "indicateur": "Vision écrite validée par l'équipe. 80% de l'équipe peut la réciter en entretien."
+      },
+      {
+        "palier": 1,
+        "frein": "Rôles et périmètres flous (3/5) ; délégation limitée (3/5) ; le dirigeant porte trop.",
+        "levier": "Clarifier les rôles, responsabilités et limites de délégation pour chaque poste clé.",
+        "type": "humain",
+        "mise_en_oeuvre": "Entretien 1:1 dirigeant avec chaque manager. Fiche rôle/périmètre par poste. Validation collective.",
+        "indicateur": "Fiches rôles signées. Taux de décisions prises sans le dirigeant +30% en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Procédures et savoir-faire non documentés (3/5) ; données éparpillées et peu fiables (3/5).",
+        "levier": "Documenter les 5-7 processus clés (prise de commande, gestion stock, facturation, service client, recrutement).",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit léger des processus existants. Rédaction collaborative (équipe + consultant). Centraliser données dans un outil simple (feuille partagée ou CRM léger).",
+        "indicateur": "5 processus documentés. Erreurs de données baissent de 50% en 2 mois. Temps de formation nouveau recruté -30%."
+      },
+      {
+        "palier": 2,
+        "frein": "Tâches répétitives non optimisées (devis, relances, comptes rendus 3/5) ; outils peu articulés (3/5).",
+        "levier": "Automatiser les tâches répétitives : génération devis, relances clients, synthèses commandes via IA générative.",
+        "type": "IA",
+        "mise_en_oeuvre": "Pilote : automatiser relances clients (email + SMS) sur 1 mois. Intégrer à l'outil de gestion existant. Former l'équipe.",
+        "indicateur": "Temps administratif -20h/mois. Taux de réponse clients +15%. Satisfaction équipe sur l'outil ≥7/10."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps administratif et gestion des données (saisie, erreurs, relances manuelles)",
+          "inaction_an": 12000,
+          "invest_1x": 3000,
+          "recurrent_an": 2000
+        },
+        {
+          "poste": "Turnover et formation (absence de documentation, recrutement dans l'urgence)",
+          "inaction_an": 8000,
+          "invest_1x": 1500,
+          "recurrent_an": 500
+        },
+        {
+          "poste": "Opportunités manquées (pas de données pour décider, délégation limitée, pas de pilotage)",
+          "inaction_an": 15000,
+          "invest_1x": 2000,
+          "recurrent_an": 1500
+        }
+      ],
+      "inaction_an": 35000,
+      "invest_total": 6500,
+      "recurrent_an": 4000,
+      "gain_an": 31000,
+      "roi_net_an": 27000,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel avec l'équipe (30 min). Prochaine BOUSSOLE dans 3 mois (après palier 1 : vision + rôles + 3 processus documentés). Puis mensuel pour le suivi IA.",
+    "synthese": {
+      "externe": "Votre prochaine étape : passer du « ça marche parce que je suis là » au « ça marche parce qu'on a un système ». Cela signifie : écrire votre vision à 3 ans avec l'équipe, clarifier qui fait quoi, documenter vos 5-7 processus clés. Ensuite, l'IA vous aidera à automatiser l'administratif et à prendre de meilleures décisions. Vous gagnez du temps, l'équipe respire, et vous pouvez enfin penser à grandir.",
+      "interne": "Cas d'école de PME en plateau : solide, confiante, mais implicite. IAT 60/100 en Vigilance = pas de blocage, mais besoin de sécurisation. Palier 1 = 100% humain/externe (vision + rôles + documentation) ; c'est la fondation. Palier 2 = IA générative sur l'administratif (relances, devis, synthèses). ROI net 27k€/an, payback 3 mois. Angle commercial : « Vous avez bâti quelque chose de bon ; on le rend reproductible et scalable. Ensuite, l'IA amplifie. » Porte d'entrée : atelier vision (2h, gratuit ou low-cost) pour valider l'adhésion et lancer le mouvement."
+    }
+  }
+}
