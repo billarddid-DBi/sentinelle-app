@@ -1,0 +1,292 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Dronavia",
+  "date": "2026-07-19T12:47:57.245Z",
+  "contexte": {
+    "nom": "Dronavia",
+    "activite": "",
+    "archetype": "",
+    "indiceInterieur": 70,
+    "indiceExterieur": 65,
+    "potentiel": 96,
+    "ecart": 5,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 92,
+      "Organisation": 60,
+      "Processus": 76,
+      "Informations": 60,
+      "Outils": 76,
+      "Décisions": 60,
+      "Clients": 68,
+      "Performance": 68
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Chacun connaît son rôle et son périmètre",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Des tableaux de bord existent et sont utilisés",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "La prospection est structurée (pas au hasard)",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "La satisfaction client est mesurée",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "La fidélisation est travaillée (pas que la conquête)",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "Les résultats sont stables dans le temps",
+        "n": 3,
+        "p": "Performance"
+      },
+      {
+        "c": "La trésorerie est saine",
+        "n": 3,
+        "p": "Performance"
+      }
+    ],
+    "aura": "Argent — l'agilité",
+    "ah": {
+      "nom": "Dronavia",
+      "mode": "express",
+      "iat": 83,
+      "imh": 82,
+      "band": "Appui",
+      "reco": "L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis.",
+      "indices": {
+        "Leadership": 63,
+        "Communication": 75,
+        "Écoute": 67,
+        "Transparence": 100,
+        "Confiance": 75,
+        "Coopération": 88,
+        "Adhésion": 88,
+        "Ouverture au changement": 100
+      },
+      "domaines": {
+        "Leadership": 63,
+        "Communication": 88,
+        "Confiance": 75,
+        "Coopération": 88,
+        "Climat social": 88,
+        "Maturité du changement": 88
+      },
+      "peurs": [],
+      "resistance": 0
+    }
+  },
+  "miroir": {
+    "priorite": "Transformer l'organisation et les données en colonne vertébrale décisionnelle : passer de 60/100 en Organisation, Informations et Décisions à 85+/100 en 12 mois pour débloquer l'agilité promise par votre vision et votre climat d'équipe exceptionnel.",
+    "economie_an": 48000,
+    "cadre": {
+      "externe": "Dronavia a une vision claire (92/100) et une équipe prête au changement (IAT 83/100, zéro résistance). Mais trois piliers freinent : l'Organisation (60/100 — rôles flous), les Informations (60/100 — données éparpillées) et les Décisions (60/100 — pas assez data-driven). Corriger ces trois leviers libère l'agilité que vous avez déjà dans la tête et dans le cœur de l'équipe.",
+      "interne": "Dronavia affiche une BOUSSOLE saine (70/100) et une SENTINELLE alignée (65/100, écart +5 = équilibre). Le volet humain est un atout majeur : IAT 83/100 (zone Appui), IMH 82/100, zéro résistance, transparence et ouverture au changement à 100/100. Le frein n'est PAS l'humain : c'est l'architecture organisationnelle et informationnelle (Organisation 60, Informations 60, Décisions 60 — tous les trois à 3/5 sur critères clés : rôles, délégation, procédures, données centralisées, fiabilité, décisions data-driven). Opportunité : équipe prête + vision claire = palier 2 dès le mois 4-5 si palier 1 est rapide."
+    },
+    "verite": {
+      "externe": "Vous avez construit une équipe de confiance (Confiance 75, Coopération 88, Adhésion 88) et une transparence totale (100/100). C'est rare et précieux. Mais cette confiance ne s'est pas encore traduite en clarté des rôles (3/5 : « chacun connaît son rôle »), en délégation réelle (3/5 : « le dirigeant délègue »), ni en procédures écrites (3/5). Il se peut que la croissance ait dépassé la formalisation — l'équipe se comprend, mais pas encore « sur le papier ». Pareil pour les données : elles existent (Outils 76/100), mais ne sont pas centralisées (3/5) ni fiables (3/5), donc les décisions restent au feeling (3/5 : « décisions data-driven »). Le potentiel est là ; il attend que la réalité organisationnelle et informationnelle rejoigne l'image.",
+      "interne": "Dronavia est en phase de transition : de la startup agile (vision + climat + ouverture) à l'ETI structurée. Les trois piliers à 60/100 ne sont PAS des défauts de culture, mais des DÉFAUTS DE FORMALISATION. L'équipe est prête (IAT 83, zéro résistance, Leadership 63 est le seul indice humain faible — à explorer : délégation insuffisante du dirigeant ?). Le chantier : (1) clarifier et documenter les rôles, responsabilités, procédures (Organisation) ; (2) centraliser et fiabiliser les données (Informations) ; (3) mettre en place des tableaux de bord et une culture décisionnelle data-driven (Décisions). Gain : stabilité des résultats (3/5), trésorerie saine (3/5), prospection structurée (3/5) — tous des critères de Performance/Clients à débloquer. Angle commercial : client prêt, contexte humain optimal, ROI rapide si on attaque l'architecture en parallèle."
+    },
+    "humain": {
+      "lecture": {
+        "externe": "Votre équipe est un atout stratégique : confiance, coopération, adhésion, transparence totale, ouverture au changement à 100/100. Zéro peur, zéro résistance. C'est le terreau idéal pour transformer l'organisation. Le seul point à explorer : le Leadership (63/100) — il se peut que la délégation soit encore concentrée sur vous. Libérer du leadership dans l'équipe accélèrera la clarté des rôles et la prise de décision.",
+        "interne": "IAT 83/100 (zone Appui) + IMH 82/100 + zéro résistance = organisation PRÊTE pour l'accélération. Transparence et Ouverture à 100/100 sont des signaux forts. Leadership 63/100 et Communication 75/100 suggèrent que la cascade du cap et des décisions n'est pas encore fluide — à confirmer en entretien : le dirigeant porte-t-il trop seul ? L'équipe a-t-elle les relais pour décider ? Pas de blocage, mais un ajustement managérial à faire en parallèle du palier 1."
+      },
+      "posologie": "Zone Appui (IAT 83) : ACCÉLÉRER le palier 1 (3 mois max) en capitalisant sur la confiance et l'ouverture, puis LANCER le palier 2 dès le mois 4 avec ambition. L'équipe n'a pas besoin de rassurance ; elle a besoin de clarté et d'outils. Rythme : point mensuel + BOUSSOLE à 3 mois.",
+      "peurs": [
+        {
+          "peur": "Aucune peur détectée sous le seuil",
+          "traduction": "L'équipe fait confiance au cap et au dirigeant. Zéro résistance à la transformation.",
+          "traitement": "Capitaliser : communiquer le POURQUOI (vision 92/100 est votre levier) et le COMMENT (rôles clairs, données centralisées) en parallèle. Impliquer les relais internes dès le palier 1 pour renforcer le Leadership (63/100)."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Rôles et responsabilités flous (3/5 : « chacun connaît son rôle »), délégation insuffisante (3/5), procédures non écrites (3/5) — l'organisation n'est pas formalisée malgré la confiance.",
+        "levier": "Cadrer et documenter : matrice RACI par fonction, fiches de poste, procédures clés (devis, facturation, rapports, prospection), délégation explicite par domaine. Ateliers de 2 h avec l'équipe pour co-construire.",
+        "type": "humain",
+        "mise_en_oeuvre": "Semaine 1-2 : diagnostic rapide avec dirigeant + leads ; semaine 3-6 : ateliers par domaine (ventes, ops, admin) ; semaine 7-8 : documentation et validation. Responsable : dirigeant + 1 relais interne (renforcer Leadership).",
+        "indicateur": "100 % des rôles documentés, 80 % de l'équipe valide la clarté en sondage interne."
+      },
+      {
+        "palier": 1,
+        "frein": "Données éparpillées (3/5 : « données centralisées »), peu fiables (3/5 : « données fiables »), pas de vue unique client/projet — décisions au feeling (3/5 : « décisions data-driven »).",
+        "levier": "Audit rapide des données existantes (CRM, ERP, feuilles de calcul) ; centraliser dans 1 outil pivot (CRM ou base de données simple) ; définir la qualité (règles de saisie, validation, responsable). Pas de nouvel outil coûteux : optimiser ce qui existe.",
+        "type": "externe",
+        "mise_en_oeuvre": "Semaine 1-2 : cartographie des données (où sont-elles ? qui les saisit ?) ; semaine 3-4 : nettoyage et migration vers 1 source unique ; semaine 5-6 : formation équipe + contrôle qualité. Responsable : IT/admin + 1 power user.",
+        "indicateur": "100 % des données client/projet dans 1 outil, taux d'erreur < 5 %, temps de recherche d'info divisé par 2."
+      },
+      {
+        "palier": 1,
+        "frein": "Pas de tableaux de bord (3/5 : « tableaux de bord existent »), décisions non mesurées (3/5 : « on mesure les résultats »), pas de suivi de la prospection (3/5 : « prospection structurée »), résultats instables (3/5 : « résultats stables »).",
+        "levier": "Définir 5-7 KPI clés par fonction (ventes : pipeline, taux de conversion, délai moyen ; ops : délais tenus, coût projet, satisfaction ; admin : trésorerie, DSO). Tableaux de bord simples (Excel ou BI légère) mis à jour hebdo/mensuel. Réunion mensuelle de pilotage.",
+        "type": "IA",
+        "mise_en_oeuvre": "Semaine 1-2 : atelier KPI avec dirigeant + leads (vision 92/100 guide le choix) ; semaine 3-4 : construction des tableaux (Excel ou Looker/Power BI léger) ; semaine 5+ : mise à jour et réunions mensuelles. Responsable : dirigeant + 1 analyste.",
+        "indicateur": "5-7 KPI définis et suivis mensuellement, 100 % de l'équipe accède aux tableaux, 1 décision/mois prise sur données."
+      },
+      {
+        "palier": 2,
+        "frein": "Tâches répétitives lentes (3/5 : « tâches répétitives rapides »), savoir-faire non documenté (3/5 : « savoir-faire documenté »), satisfaction client non mesurée (3/5 : « satisfaction client mesurée »).",
+        "levier": "Automatiser les tâches répétitives (devis, factures, relances, rapports) via IA générative (prompts, workflows) ; documenter le savoir-faire métier (guides, templates, FAQ) ; mettre en place un NPS ou sondage client trimestriel.",
+        "type": "IA",
+        "mise_en_oeuvre": "Mois 4-5 : audit des tâches répétitives (temps, fréquence) ; mois 6-7 : déploiement IA (ChatGPT, Make, Zapier) sur 2-3 processus pilotes ; mois 8+ : mesure satisfaction client. Responsable : équipe ops + 1 champion IA.",
+        "indicateur": "Temps de devis réduit de 50 %, 80 % des rapports auto-générés, NPS mesuré et > 40."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Formalisation Organisation (RACI, fiches, procédures, ateliers)",
+          "inaction_an": 18000,
+          "invest_1x": 4000,
+          "recurrent_an": 2000
+        },
+        {
+          "poste": "Centralisation et fiabilisation Données (audit, migration, nettoyage, formation)",
+          "inaction_an": 16000,
+          "invest_1x": 6000,
+          "recurrent_an": 3000
+        },
+        {
+          "poste": "Tableaux de bord et pilotage (KPI, BI légère, réunions)",
+          "inaction_an": 14000,
+          "invest_1x": 3000,
+          "recurrent_an": 2000
+        }
+      ],
+      "inaction_an": 48000,
+      "invest_total": 13000,
+      "recurrent_an": 7000,
+      "gain_an": 41000,
+      "roi_net_an": 41000,
+      "payback_mois": 4,
+      "fourchette": "3 à 5 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel de pilotage (30 min, KPI + blocages). Prochaine BOUSSOLE dans 3 mois (mesurer Organisation, Informations, Décisions passées à 75+/100). Palier 2 lancé à mois 4 si palier 1 atteint ses jalons.",
+    "synthese": {
+      "externe": "Vous avez la vision (92/100) et l'équipe (IAT 83, zéro résistance). Il vous manque la structure : clarifier les rôles, centraliser les données, piloter par les chiffres. C'est un chantier de 3 mois, pas une révolution. Dès le mois 4, vous pourrez accélérer avec l'IA sur les tâches répétitives et la satisfaction client. Retour sur investissement en 4 mois.",
+      "interne": "Dronavia est un cas d'école de transition : équipe prête (IAT 83, zéro résistance, transparence 100), vision claire, mais architecture organisationnelle et informationnelle à 60/100. Palier 1 = formalisation rapide (3 mois, 13 k€, gain 41 k€/an, payback 4 mois) ; palier 2 = IA générative sur tâches répétitives + NPS. Leadership 63/100 suggère un ajustement managérial à explorer (délégation). Opportunité commerciale : client prêt, contexte humain optimal, ROI rapide, potentiel 96/100 atteignable en 12 mois."
+    }
+  }
+}
