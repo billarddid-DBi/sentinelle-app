@@ -1,0 +1,27 @@
+{
+  "type": "aura",
+  "mode": "express",
+  "nom": "Dronavia",
+  "date": "2026-07-19T12:47:15.940Z",
+  "iat": 83,
+  "imh": 82,
+  "indices": {
+    "Leadership": 63,
+    "Communication": 75,
+    "Écoute": 67,
+    "Transparence": 100,
+    "Confiance": 75,
+    "Coopération": 88,
+    "Adhésion": 88,
+    "Ouverture au changement": 100
+  },
+  "domaines": {
+    "Leadership": 63,
+    "Communication": 88,
+    "Confiance": 75,
+    "Coopération": 88,
+    "Climat social": 88,
+    "Maturité du changement": 88
+  },
+  "peurs": []
+}
