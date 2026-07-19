@@ -364,6 +364,26 @@ function renderMiroir(){
       +order.map(function(p){var v=b.piliers[p];return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11.5px;"><div style="width:92px;color:#4b5563;">'+esc(p)+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:12px;"><div style="width:'+v+'%;background:'+perfColor(v)+';height:12px;border-radius:5px;"></div></div><div style="width:24px;text-align:right;font-weight:600;">'+v+'</div></div>';}).join('')
     +'</div></div>';
   }
+  var ahSec='';
+  var ah=window.lastAH;
+  if(ah && ah.iat!=null){
+    var bandCol=ah.band==='Blocage'?'#dc2626':ah.band==='Appui'?'#16a34a':'#ea580c';
+    var bandBg=ah.band==='Blocage'?'#fef2f2':ah.band==='Appui'?'#f0fdf4':'#fff7ed';
+    var hum=m.humain;
+    var peursH=(ah.peurs&&ah.peurs.length)?ah.peurs.slice(0,6).map(function(p){return '<span style="display:inline-block;background:#fff;border:1px solid '+bandCol+'44;color:#7c2d12;border-radius:12px;padding:2px 9px;font-size:11px;margin:2px 3px 0 0;">'+esc(p.txt||p.code)+'</span>';}).join(''):'<span style="font-size:11.5px;color:#16a34a;">Aucune peur majeure détectée</span>';
+    ahSec='<div class="sec" style="background:'+bandBg+';"><div class="ktitle" style="color:'+bandCol+';"><i class="ti ti-users-group"></i> Volet humain — AURA (le pouls de l\'organisation)</div>'
+      +'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;">'
+        +'<div style="text-align:center;min-width:78px;"><div style="font-size:28px;font-weight:700;color:'+bandCol+';line-height:1;">'+ah.iat+'</div><div style="font-size:9.5px;color:#6b7280;">IAT · acceptabilité</div><div style="font-size:11px;font-weight:700;color:'+bandCol+';margin-top:3px;">'+esc(ah.band)+'</div></div>'
+        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Maturité humaine (IMH) <b>'+ah.imh+'/100</b> · Résistance estimée <b>'+ah.resistance+'/100</b>'
+          +(hum?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
+      +'</div>'
+      +(hum&&hum.posologie?'<div style="margin-top:8px;font-size:12px;color:'+bandCol+';background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;"><b><i class="ti ti-adjustments-alt"></i> Dosage adapté :</b> '+esc(hum.posologie)+'</div>':'')
+      +'<div style="margin-top:8px;font-size:11px;color:#6b7280;">Peurs / résistances à traiter :</div><div style="margin-top:3px;">'+peursH+'</div>';
+    if(hum&&Array.isArray(hum.peurs)&&hum.peurs.length){
+      ahSec+='<div style="margin-top:10px;">'+hum.peurs.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.peur||'')+'</div><div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction||'')+'</i></div><div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
+    }
+    ahSec+='<div style="margin-top:8px;font-size:10px;color:#9ca3af;">On analyse le SYSTÈME, jamais les personnes.</div></div>';
+  }
   var au=AURAS[(b.aura||'').split(' — ')[0]]||AURAS['Bleu'];
   var tog=function(a,lbl){return '<button class="btn '+(aud===a?'btn-primary':'btn-ghost')+'" style="margin-top:0;font-size:13px;padding:8px;" onclick="setMiroirAudience(\''+a+'\')">'+lbl+'</button>';};
   var html='<div class="card">'
@@ -373,7 +393,7 @@ function renderMiroir(){
       +'<div style="font-size:12px;color:#9ca3af;margin-top:6px;">Gain annuel estimé : <b style="color:#4ade80;">'+eur(m.economie_an)+'</b></div></div>'
     +'<div style="display:flex;gap:6px;padding:12px 16px 0;">'+tog('externe','Version dirigeant')+tog('interne','Version interne')+'</div>'
     +'<div class="sec"><div style="font-size:12.5px;color:#334155;line-height:1.6;">'+esc(pick(m.cadre))+'</div></div>'
-    +vSec+pilRecap
+    +vSec+pilRecap+ahSec
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-eye"></i> Ma Vision</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
@@ -390,7 +410,7 @@ function renderMiroir(){
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
 function saveMiroir(m){
   try{ var b=window.lastMiroir||{};
-    var payload={type:'miroir',mode:'miroir',nom:b.nom,date:new Date().toISOString(),contexte:b,miroir:m};
+    var payload={type:'miroir',mode:'miroir',nom:b.nom,date:new Date().toISOString(),contexte:Object.assign({},b,{ah:window.lastAH||null}),miroir:m};
     var css=document.querySelector('style')?document.querySelector('style').textContent:'';
     var body=$('miroir').innerHTML.replace(/<button[\s\S]*?<\/button>/g,'');
     var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td,table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
@@ -402,8 +422,9 @@ function runMiroir(){
   var b=window.lastMiroir;
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
   showView('miroir');
-  $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action + ROI</span></div></div>';
-  fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)})
+  $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action adaptatif + ROI</span></div></div>';
+  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null});
+  fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
     .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; renderMiroir(); saveMiroir(m); })
     .catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps. Réessayez dans un instant.</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; });
