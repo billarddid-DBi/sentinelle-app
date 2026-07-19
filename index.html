@@ -235,6 +235,7 @@ const AH_INDICES = {
 const AH_IAT_W = {'Ouverture au changement':0.25,'Adhésion':0.20,'Confiance':0.20,'Leadership':0.15,'Communication':0.10,'Écoute':0.05,'Transparence':0.05};
 const AH_PEURS = {T3:"Peur pour l'emploi face à l'IA",T5:"IA vécue comme menace / surveillance",T1:"Peur de l'erreur, de se tromper",T2:"Peur de parler, de dire son désaccord",C4:"Non-dits et rumeurs",C5:"Changements subis, découverts trop tard",M2:"Changement subi plutôt que désiré",S2:"Surcharge / stress, frein au changement"};
 const ahkey = s => s.replace(/[^A-Za-z]/g,'');
+const AH_SCALE = ['absent','fragile','partiel','installé','solide','ancré'];
 /* Référentiel des 200 critères : 8 piliers × 5 sous-domaines × 5 critères.
    Express = 1er critère de chaque sous-domaine (40) · Complet = les 200. */
 const REFERENTIEL = {
@@ -1000,7 +1001,7 @@ function ahStart(mode){
     if(it.dom!==curD){ if(open)html+='</div>'; curD=it.dom;
       html+='<div class="panel" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-weight:700;color:#1C1C1C;">'+esc(curD)+'</div><div style="font-weight:600;color:#16a34a;font-size:13px;"><span id="ahd_'+ahkey(curD)+'">–</span>/100</div></div>'; open=true;
     }
-    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v">3</span></div></div>';
+    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v" style="width:88px;font-size:11px;">3 · installé</span></div></div>';
   });
   if(open)html+='</div>';
   html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> Terminer &amp; voir la maturité humaine</button>'
@@ -1013,7 +1014,7 @@ function ahScan(){
   items.forEach(function(it){
     var el=$(it.id); if(!el) return;
     if(el.dataset.na==='1'){ var l0=$(it.id+'v'); if(l0)l0.textContent='n/c'; return; }
-    var v=+el.value; var l=$(it.id+'v'); if(l)l.textContent=v;
+    var v=+el.value; var l=$(it.id+'v'); if(l)l.textContent=v+' · '+AH_SCALE[v];
     var s=v*20; byCode[it.code]=s;
     if(domSum[it.dom]==null){domSum[it.dom]=0;domN[it.dom]=0;} domSum[it.dom]+=s; domN[it.dom]++;
   });
@@ -1055,6 +1056,7 @@ function ahFinish(){
       +'<div style="text-align:center;min-width:88px;"><div style="font-size:40px;font-weight:800;color:'+reco.color+';line-height:1;">'+(r.iat!=null?r.iat:'–')+'<span style="font-size:14px;font-weight:400;opacity:.7;">/100</span></div><div style="font-size:10px;letter-spacing:1px;color:#6b7280;">IAT · ACCEPTABILITÉ</div></div>'
       +'<div style="flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:'+reco.color+';"><i class="ti '+reco.icon+'"></i> '+reco.zone+'</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:3px;">'+reco.msg+'</div></div></div>'
       +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">IMH (maturité humaine large) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b>'+(resist!=null?' · Résistance au changement estimée : <b>'+resist+'/100</b>':'')+'</div></div>'
+    +'<div class="sec" style="background:#f8fafc;"><div class="ktitle" style="color:#475569;font-size:12px;"><i class="ti ti-help-circle"></i> Que veulent dire ces indices ?</div><div style="font-size:11px;color:#6b7280;line-height:1.65;margin-top:5px;"><b style="color:#1C1C1C;">IAT</b> — Indice d\'Acceptabilité de la Transformation : la capacité de l\'entreprise à accepter le changement. C\'est le score phare (feu vert / vigilance / blocage).<br><b style="color:#1C1C1C;">IMH</b> — Indice de Maturité Humaine : la santé humaine globale, moyenne des 6 domaines.<br><b style="color:#1C1C1C;">IVE</b> — Indice de Valeur d\'Entreprise : la note globale mesurée par le LIVE et la BOUSSOLE (l\'entreprise vue de l\'extérieur et de l\'intérieur).</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Radar des 8 indices humains</div><div style="position:relative;height:280px;margin-top:8px;"><canvas id="ahRadar"></canvas></div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Les 8 indices</div><div style="margin-top:8px;">'+idxBars+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-layout-grid"></i> Les 6 domaines</div><div style="margin-top:8px;">'+domBars+'</div></div>'
