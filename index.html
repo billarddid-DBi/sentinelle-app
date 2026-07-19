@@ -60,6 +60,7 @@
   .naBtn{font-size:10px;color:#9ca3af;border:1px solid #e6e1d8;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;flex-shrink:0;}
   .naBtn.on{color:#fff;background:#9ca3af;border-color:#9ca3af;}
   .foot{padding:11px 16px;background:#f8fafc;font-size:10.5px;color:#6b7280;line-height:1.5;}
+  @media print{ body{background:#fff;} .btn,.cpNoPrint{display:none!important;} #cockpit{display:block!important;} *{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
 </style>
 </head>
 <body>
@@ -130,6 +131,7 @@
   <div id="miroir" style="display:none;"></div>
   <div id="ahView" style="display:none;"></div>
   <div id="frView" style="display:none;"></div>
+  <div id="cockpit" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -182,7 +184,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir','ahView','frView'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -406,6 +408,7 @@ function renderMiroir(){
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
   +'<button class="btn btn-primary" onclick="frBuild()"><i class="ti ti-route"></i> Créer ma feuille de route →</button>'
+  +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   $('miroir').innerHTML=html; window.scrollTo(0,0);
@@ -1151,6 +1154,7 @@ function frRender(){
       +'<div style="display:flex;gap:6px;padding:0 12px 12px;"><input id="frChatIn" type="text" autocomplete="off" placeholder="Une question sur une étape ?" onkeydown="if(event.key===\'Enter\'){event.preventDefault();frChatSend();}" style="flex:1;font-size:13px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="frChatSend()" aria-label="Envoyer" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 14px;font-size:15px;cursor:pointer;"><i class="ti ti-send"></i></button></div></div>'
     +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
     +'<div id="frCloudMsg" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:4px;"></div>'
+    +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
     +'<button class="btn btn-ghost" onclick="frCloud()"><i class="ti ti-cloud-up"></i> Sauvegarder sur le cloud</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
@@ -1221,6 +1225,61 @@ function frCloud(){
     .then(function(r){return r.json();}).then(function(x){ if(msg)msg.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> Feuille de route sauvegardée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré'; })
     .catch(function(){ if(msg)msg.innerHTML='<i class="ti ti-alert-triangle"></i> Envoi impossible (connexion ?)'; });
 }
+/* ===== COCKPIT (synthèse unifiée des 5 temps) ===== */
+function cpBand(b){ return b==='Blocage'?'#dc2626':b==='Appui'?'#16a34a':b==='Vigilance'?'#ea580c':'#9ca3af'; }
+function cpMini(lab,v){ var w=(v!=null?v:0); return '<div style="display:flex;align-items:center;gap:5px;margin:3px 0;"><span style="font-size:9.5px;width:60px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(lab)+'</span><span style="flex:1;height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;"><span style="display:block;width:'+w+'%;height:100%;background:'+perfColor(w)+';"></span></span><span style="font-size:9px;color:#94a3b8;width:18px;text-align:right;">'+(v!=null?v:'–')+'</span></div>'; }
+function cockpitBuild(){
+  var b=window.lastMiroir||{}, ah=window.lastAH, m=window.miroirData, fr=window.frData;
+  var nom=b.nom||(ah&&ah.nom)||(fr&&fr.nom)||'—';
+  if(b.indiceInterieur==null && !ah && !m){
+    $('cockpit').innerHTML='<div class="card"><div class="sec" style="text-align:center;color:#6b7280;font-size:13px;padding:26px 16px;"><i class="ti ti-dashboard" style="font-size:30px;color:#cbd5e1;"></i><div style="margin-top:10px;">Lancez d\'abord un diagnostic (LIVE → BOUSSOLE) pour composer votre Cockpit.</div></div></div><button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+    showView('cockpit'); window.scrollTo(0,0); return;
+  }
+  var reel=b.indiceInterieur, image=b.indiceExterieur, pot=b.potentiel, ecart=b.ecart;
+  var iat=ah?ah.iat:null, band=ah?ah.band:null;
+  var done=fr?fr.steps.filter(function(s){return s.status==='done';}).length:null, total=fr?fr.steps.length:null;
+  var avanc=(fr&&total)?Math.round(done/total*100):null;
+  var date=new Date().toLocaleDateString('fr-FR'), act=b.activite||(ah&&ah.activite)||'';
+  var tile=function(val,color,lab,suf){ return '<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:26px;font-weight:700;color:'+(val!=null?color:'#cbd5e1')+';line-height:1;">'+(val!=null?val+(suf||''):'–')+'</div><div style="font-size:10px;color:#6b7280;margin-top:3px;">'+lab+'</div></div>'; };
+  var arrow='<i class="ti ti-arrow-right" style="color:#cbd5e1;"></i>';
+  var col=function(v,c,l){return '<div style="text-align:center;flex:1;"><div style="font-size:19px;font-weight:600;'+(c?'color:'+c+';':'')+'">'+(v!=null?v:'–')+'</div><div style="font-size:9.5px;color:#9ca3af;">'+l+'</div></div>';};
+  var ecartSec='';
+  if(reel!=null){ ecartSec='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-target"></i> Le miroir de l\'écart</div><div style="display:flex;align-items:center;gap:4px;">'
+      +(image!=null?col(image,'','image perçue')+arrow:'')+col(reel,perfColor(reel),'réalité')+arrow+col(pot,'#16a34a','potentiel')+'</div>'
+      +(ecart!=null?'<div style="text-align:center;font-size:11px;margin-top:7px;border-radius:8px;padding:4px;background:'+(ecart<0?'#fef2f2':'#f0fdf4')+';color:'+(ecart<0?'#dc2626':'#16a34a')+';">Indice de Vérité '+(ecart>0?'+':'')+ecart+' · '+(ecart<-8?'l\'image sur-promet':ecart>8?'pépite sous-vendue':'image alignée')+'</div>':'')+'</div>'; }
+  var roiSec='';
+  if(m&&m.roi){ var r=m.roi; roiSec='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:8px;"><i class="ti ti-coins"></i> Le prix de l\'action (par an)</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;">'
+      +'<div><div style="font-size:15px;font-weight:700;color:#dc2626;">'+eur(r.inaction_an)+'</div><div style="font-size:9.5px;color:#9ca3af;">inaction</div></div>'
+      +'<div><div style="font-size:15px;font-weight:700;color:#ea580c;">'+eur(r.recurrent_an)+'</div><div style="font-size:9.5px;color:#9ca3af;">action/an</div></div>'
+      +'<div><div style="font-size:15px;font-weight:700;color:#16a34a;">'+eur(r.gain_an)+'</div><div style="font-size:9.5px;color:#9ca3af;">gain net</div></div></div></div>'; }
+  var priSec='';
+  if(m&&m.priorite){ priSec='<div class="sec" style="background:#eff6ff;"><div style="font-size:10.5px;color:#1d4ed8;font-weight:700;"><i class="ti ti-flag-3"></i> PRIORITÉ N°1</div><div style="font-size:12.5px;color:#1e3a8a;line-height:1.5;margin-top:3px;">'+esc(m.priorite)+'</div></div>'; }
+  var pilBars=b.piliers?Object.keys(b.piliers).sort(function(a,c){return b.piliers[c]-b.piliers[a];}).map(function(k){return cpMini(k,b.piliers[k]);}).join(''):'';
+  var idxBars=(ah&&ah.indices)?Object.keys(ah.indices).map(function(k){return cpMini(k,ah.indices[k]!=null?ah.indices[k]:0);}).join(''):'';
+  var matSec='';
+  if(pilBars||idxBars){ matSec='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;">'
+      +'<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;"><div style="font-size:10.5px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-tools"></i> Maturité technique</div>'+(pilBars||'<div style="font-size:10px;color:#cbd5e1;">non mesuré</div>')+'</div>'
+      +'<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;"><div style="font-size:10.5px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-users-group"></i> Maturité humaine</div>'+(idxBars||'<div style="font-size:10px;color:#cbd5e1;">non mesuré</div>')+'</div></div>'; }
+  var peurSec='';
+  if(ah&&ah.peurs&&ah.peurs.length){ peurSec='<div style="padding:9px 14px 0;"><div style="font-size:10px;color:#9ca3af;margin-bottom:4px;">Peurs à traiter</div><div style="display:flex;flex-wrap:wrap;gap:5px;">'+ah.peurs.slice(0,6).map(function(p){return '<span style="font-size:10.5px;color:#991b1b;background:#fef2f2;border-radius:10px;padding:3px 9px;">'+esc(p.txt||p.code)+'</span>';}).join('')+'</div></div>'; }
+  var avancSec='';
+  if(avanc!=null){ avancSec='<div style="padding:10px 14px 0;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:#6b7280;margin-bottom:4px;"><span><i class="ti ti-route"></i> Feuille de route</span><span>'+done+' / '+total+' étapes</span></div><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;"><div style="width:'+avanc+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
+  var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('AURA Humaine'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
+  var missSec = missing.length? '<div style="padding:10px 14px 0;"><div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;"><i class="ti ti-bulb"></i> Pour un Cockpit complet, il reste à faire : '+missing.join(' · ')+'.</div></div>' : '';
+  var card='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-dashboard"></i> COCKPIT · LA SYNTHÈSE</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;line-height:1.5;">'+date+(act?'<br>'+esc(act):'')+'</div></div></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 0;">'+tile(reel,perfColor(reel||0),'IVE · valeur')+tile(iat,cpBand(band),'IAT · humain')+tile(avanc,'#2563eb','plan · avancé','%')+'</div>'
+    +ecartSec+roiSec+priSec+matSec+peurSec+avancSec+missSec
+    +'<div class="foot">La transformation de votre entreprise en un coup d\'œil : image, réalité, humain, plan et retour sur investissement. On refait le point à 3 mois pour mesurer le chemin parcouru.</div></div>';
+  $('cockpit').innerHTML=card
+    +'<button class="btn btn-primary" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
+    +'<button class="btn btn-ghost" onclick="cockpitRemesure()"><i class="ti ti-calendar-heart"></i> Programmer le point à 3 mois</button>'
+    +(m?'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>':'')
+    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  showView('cockpit'); window.scrollTo(0,0);
+}
+function cockpitPrint(){ var old=document.title; document.title='Cockpit_'+frSlug(window.lastMiroir&&window.lastMiroir.nom||'entreprise'); window.print(); setTimeout(function(){document.title=old;},1500); }
+function cockpitRemesure(){ alert('Bientôt : je refais le diagnostic à 3 mois et j\'affiche l\'avant/après (IVE, IAT, peurs qui reculent) — la preuve de vos progrès. On câble ça juste après.'); }
 /* ===== fin HISTORIQUE ===== */
 </script>
 </body>
