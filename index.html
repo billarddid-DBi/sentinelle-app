@@ -32,12 +32,17 @@
   input[type=text],textarea{width:100%;font-size:16px;padding:12px 13px;border:1px solid #e6e1d8;border-radius:13px;font-family:inherit;background:#fbfaf7;}
   input[type=text]:focus,textarea:focus{outline:none;border-color:#E8541A;background:#fff;}
   textarea{min-height:52px;}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;font-size:16px;font-weight:600;border:none;border-radius:999px;padding:14px;cursor:pointer;margin-top:10px;}
-  .btn-primary{background:#E8541A;color:#fff;box-shadow:0 8px 18px rgba(232,84,26,.28);animation:btnPulse 2.2s ease-in-out infinite;}
-  .btn-primary:active{background:#cf4712;}
-  .btn-ghost{background:#fff;color:#1C1C1C;border:1.5px solid #e6e1d8;}
-  @keyframes btnPulse{0%,100%{box-shadow:0 6px 16px rgba(232,84,26,.24),0 0 0 0 rgba(232,84,26,.45);}70%{box-shadow:0 6px 16px rgba(232,84,26,.24),0 0 0 12px rgba(232,84,26,0);}}
-  @media (prefers-reduced-motion: reduce){ .btn-primary{animation:none;} }
+  .btn{display:flex;flex-direction:column;align-items:center;gap:0;width:fit-content;max-width:118px;margin:16px auto 0;padding:0;background:none;border:none;box-shadow:none;font-size:11.5px;font-weight:500;line-height:1.25;text-align:center;cursor:pointer;color:#5b6470;font-family:inherit;}
+  .btn i{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:23px;margin-bottom:7px;transition:transform .12s;}
+  .btn-primary{color:#1C1C1C;font-weight:600;}
+  .btn-primary i{background:#E8541A;color:#fff;font-size:27px;width:70px;height:70px;box-shadow:0 8px 18px rgba(232,84,26,.28);animation:btnPulse 2.2s ease-in-out infinite;}
+  .btn-primary:active i{transform:scale(.95);}
+  .btn-ghost i{background:#fff;color:#1C1C1C;border:1.5px solid #e6e1d8;}
+  .btn-ghost:active i{transform:scale(.95);background:#f3f0ea;}
+  @keyframes btnPulse{0%,100%{box-shadow:0 8px 18px rgba(232,84,26,.28),0 0 0 0 rgba(232,84,26,.5);}70%{box-shadow:0 8px 18px rgba(232,84,26,.28),0 0 0 14px rgba(232,84,26,0);}}
+  @media (prefers-reduced-motion: reduce){ .btn-primary i{animation:none;} }
+  .btnrow{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;}
+  .btnrow .btn{margin-top:6px;}
   .btn:disabled{opacity:.5;}
   .hint{font-size:12px;color:#9ca3af;margin-top:8px;line-height:1.5;}
   #loading{display:none;text-align:center;padding:26px 10px;color:#4b5563;font-size:14px;}
