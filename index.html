@@ -129,6 +129,7 @@
   <div id="bGrille" style="display:none;"></div>
   <div id="miroir" style="display:none;"></div>
   <div id="ahView" style="display:none;"></div>
+  <div id="frView" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -181,7 +182,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir','ahView'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView','frView'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -403,6 +404,7 @@ function renderMiroir(){
     +'<div class="foot">MIROIR = ordonnance de pré-audit, à partir du LIVE (image) et de la BOUSSOLE (réalité). Le dirigeant garde son libre arbitre.</div>'
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
+  +'<button class="btn btn-primary" onclick="frBuild()"><i class="ti ti-route"></i> Créer ma feuille de route →</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   $('miroir').innerHTML=html; window.scrollTo(0,0);
@@ -1078,6 +1080,115 @@ function saveAura(r,card){
     fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'aura',nom:window.ahNom,json:payload,html:html})})
       .then(function(x){return x.json();}).then(function(x){var s=$('ahSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> AURA enregistrée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';}).catch(function(){});
   }catch(e){}
+}
+/* ===== FEUILLE DE ROUTE (5e temps : le suivi vivant) ===== */
+function frSlug(s){ return (s||'entreprise').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,50)||'ENTREPRISE'; }
+function frLoad(slug){ try{ return JSON.parse(localStorage.getItem('fr_'+slug))||{}; }catch(e){ return {}; } }
+function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,ts:Date.now()})); }catch(e){} var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil'; }
+var FR_MSG={
+  done:["Bravo. Le plus dur, c'est de commencer — et vous venez de le faire.","C'est fait, et ça compte. Chaque étape franchie recrée de la confiance.","Excellent. Vous avancez pour de vrai, pas sur le papier."],
+  progress:["Parfait, vous êtes dedans. Qu'est-ce qui freine le plus en ce moment ?","On y est presque. Notez ce qui coince, on le lèvera ensemble.","Ça bouge — c'est déjà une victoire. Dites-moi où vous en êtes."],
+  blocked:["On ne lâche rien, et vous n'êtes pas seul. Un blocage, c'est une information, pas un échec.","Normal de buter ici. On va contourner ensemble, à votre rythme.","Ça bloque ? On respire, et on trouve un chemin plus simple. Vous n'êtes pas seul."]
+};
+function frPick(arr,id){ var h=0; for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0; return arr[h%arr.length]; }
+function frBuild(){
+  var m=window.miroirData; if(!m||!Array.isArray(m.plan)||!m.plan.length){ alert('Terminez d\'abord un MIROIR — la feuille de route en découle.'); return; }
+  var b=window.lastMiroir||{}, ah=window.lastAH;
+  var band=(ah&&ah.band)||'Vigilance';
+  var rhythm = band==='Blocage' ? ['Semaine 1','Semaine 2','Semaine 4','Semaine 6','Mois 2','Mois 3','Mois 4','Mois 5']
+             : band==='Appui'   ? ['Semaine 1','Semaine 2','Semaine 3','Semaine 4','Semaine 6','Semaine 8','Semaine 10','Semaine 12']
+             :                    ['Semaine 1','Semaine 2','Semaine 3','Semaine 5','Semaine 7','Mois 3','Mois 4','Mois 5'];
+  var slug=frSlug(b.nom), saved=frLoad(slug);
+  var plan=m.plan.slice().sort(function(a,c){return (a.palier||1)-(c.palier||1);});
+  var steps=plan.map(function(p,i){ var id='fr_'+i; return {
+    id:id, palier:p.palier||1, type:p.type||'humain', titre:p.levier||p.frein||('Étape '+(i+1)), detail:p.mise_en_oeuvre||'', indicateur:p.indicateur||'', echeance:rhythm[i]||('Étape '+(i+1)),
+    status:(saved.statuses&&saved.statuses[id])||'todo', note:(saved.notes&&saved.notes[id])||'', help:(saved.helps&&saved.helps[id])||null }; });
+  window.frData={nom:b.nom,slug:slug,band:band,rythmeTxt:(band==='Blocage'?'Zone Blocage — on avance en douceur, un pas à la fois':band==='Appui'?'Zone Appui — l\'équipe est prête, on peut enchaîner':'Zone Vigilance — on sécurise à chaque étape'),steps:steps};
+  showView('frView'); frRender(); window.scrollTo(0,0);
+}
+function frSet(id,status){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.status=(s.status===status?'todo':status); }); frSaveLocal(); frRender(); }
+function frNote(id,val){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.note=val; }); frSaveLocal(); }
+function frTypeBadge(t){ var map={IA:['#eef2ff','#4338ca','ti-robot'],humain:['#f0fdf4','#166534','ti-users'],externe:['#fff7ed','#9a3412','ti-user-plus']}; var c=map[t]||map.humain; return '<span style="display:inline-flex;align-items:center;gap:3px;background:'+c[0]+';color:'+c[1]+';border-radius:10px;padding:1px 8px;font-size:10.5px;font-weight:600;"><i class="ti '+c[2]+'"></i> '+esc(t)+'</span>'; }
+function frRender(){
+  var d=window.frData; if(!d) return;
+  var done=d.steps.filter(function(s){return s.status==='done';}).length, total=d.steps.length, pct=Math.round(done/total*100);
+  var activeIdx=-1; for(var i=0;i<d.steps.length;i++){ if(d.steps[i].status!=='done'){ activeIdx=i; break; } }
+  var html='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-route"></i> FEUILLE DE ROUTE</div>'
+      +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(d.nom||'')+'</div>'
+      +'<div style="font-size:12px;color:#E7DBD1;margin-top:6px;">'+esc(d.rythmeTxt)+'</div>'
+      +'<div style="height:7px;background:#3a3a3a;border-radius:4px;margin-top:10px;overflow:hidden;"><div style="width:'+pct+'%;height:100%;background:#4ade80;border-radius:4px;transition:width .3s;"></div></div>'
+      +'<div style="font-size:11px;color:#9ca3af;margin-top:5px;">'+done+' / '+total+' étapes'+(done>0?' — vous avez déjà posé '+(done===1?'une base':'des bases'):' — prêt à démarrer, une action à la fois')+'</div></div>';
+  var lastPal=null;
+  d.steps.forEach(function(s,idx){
+    if(s.palier!==lastPal){ lastPal=s.palier; html+='<div style="padding:12px 16px 2px;font-size:11px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;">'+(s.palier===1?'Palier 1 · redevenir cohérent':'Palier 2 · dépasser grâce à l\'IA')+'</div>'; }
+    var isActive=(idx===activeIdx);
+    var dotBg = s.status==='done'?'#dcfce7':s.status==='progress'?'#fef9c3':s.status==='blocked'?'#fee2e2':'#f1f5f9';
+    var dotCol= s.status==='done'?'#16a34a':s.status==='progress'?'#a16207':s.status==='blocked'?'#dc2626':'#94a3b8';
+    var dotIcon=s.status==='done'?'ti-check':s.status==='progress'?'ti-player-play':s.status==='blocked'?'ti-alert-triangle':'ti-point';
+    var isLast=(idx===d.steps.length-1);
+    html+='<div style="display:flex;gap:10px;padding:0 16px;">'
+      +'<div style="display:flex;flex-direction:column;align-items:center;padding-top:4px;"><div style="width:26px;height:26px;border-radius:50%;background:'+dotBg+';color:'+dotCol+';display:flex;align-items:center;justify-content:center;font-size:14px;'+(isActive?'outline:2px solid #E8541A;outline-offset:1px;':'')+'"><i class="ti '+dotIcon+'"></i></div>'+(isLast?'':'<div style="width:2px;flex:1;background:#e5e7eb;margin-top:2px;"></div>')+'</div>'
+      +'<div style="flex:1;padding-bottom:16px;">'
+        +'<div style="font-size:11px;color:'+(isActive?'#c2410c':'#94a3b8')+';display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+(isActive?'<b>Étape en cours</b> · ':'')+esc(s.echeance)+' '+frTypeBadge(s.type)+'</div>'
+        +'<div style="font-size:14px;font-weight:500;color:#1C1C1C;margin-top:3px;line-height:1.4;">'+esc(s.titre)+'</div>'
+        +(s.detail?'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;line-height:1.45;">'+esc(s.detail)+'</div>':'')
+        +'<div style="display:flex;gap:6px;margin-top:10px;">'
+          +frBtn(s,'done','ti-check','C\'est fait','#dcfce7','#16a34a')
+          +frBtn(s,'progress','ti-adjustments-alt','Ça avance','#fef9c3','#a16207')
+          +frBtn(s,'blocked','ti-alert-triangle','Ça bloque','#fee2e2','#dc2626')
+        +'</div>'
+        +frFeedback(s)
+      +'</div></div>';
+  });
+  html+='<div class="foot">Votre progression reste sur cet appareil. Vous pouvez la sauvegarder sur le cloud à tout moment.</div></div>'
+    +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
+    +'<div id="frCloudMsg" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:4px;"></div>'
+    +'<button class="btn btn-ghost" onclick="frCloud()"><i class="ti ti-cloud-up"></i> Sauvegarder sur le cloud</button>'
+    +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>'
+    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  $('frView').innerHTML=html;
+}
+function frBtn(s,status,icon,lbl,bg,col){ var on=s.status===status; return '<button type="button" onclick="frSet(\''+s.id+'\',\''+status+'\')" style="flex:1;text-align:center;font-size:11.5px;font-weight:600;padding:8px 4px;border-radius:8px;border:none;cursor:pointer;line-height:1.3;background:'+(on?bg:'#f8fafc')+';color:'+(on?col:'#94a3b8')+';'+(on?'outline:2px solid '+col+';':'')+'"><i class="ti '+icon+'" style="font-size:14px;"></i><br>'+lbl+'</button>'; }
+function frFeedback(s){
+  if(s.status==='todo') return '';
+  var bg=s.status==='done'?'#f0fdf4':s.status==='progress'?'#fefce8':'#fef2f2';
+  var col=s.status==='done'?'#166534':s.status==='progress'?'#854d0e':'#991b1b';
+  var out='<div style="background:'+bg+';border-radius:10px;padding:9px 11px;margin-top:8px;font-size:12.5px;color:'+col+';line-height:1.5;">'+esc(frPick(FR_MSG[s.status],s.id))+'</div>';
+  if(s.status==='progress'||s.status==='blocked'){
+    out+='<textarea id="'+s.id+'_note" onchange="frNote(\''+s.id+'\',this.value)" placeholder="Ce qui coince, en un mot…" style="width:100%;margin-top:6px;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;resize:vertical;min-height:38px;box-sizing:border-box;font-family:inherit;">'+esc(s.note||'')+'</textarea>';
+  }
+  if(s.status==='blocked'){
+    out+='<div id="'+s.id+'_help">';
+    if(s.help){ out+=frHelpHTML(s.help); }
+    else { out+='<button type="button" onclick="frHelp(\''+s.id+'\')" style="width:100%;margin-top:8px;text-align:center;font-size:12px;font-weight:600;padding:9px;border-radius:8px;border:none;cursor:pointer;background:#1C1C1C;color:#E8A07E;"><i class="ti ti-message-circle"></i> Demander un coup de main à DBi360</button>'; }
+    out+='</div>';
+  }
+  return out;
+}
+function frHelpHTML(h){
+  var pistes=Array.isArray(h.pistes)?h.pistes.map(function(p){return '<li style="margin-top:3px;">'+esc(p)+'</li>';}).join(''):'';
+  return '<div style="background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:12.5px;line-height:1.55;color:#334155;">'
+    +'<div style="color:#9a3412;"><i class="ti ti-heart-handshake"></i> '+esc(h.message||'')+'</div>'
+    +(pistes?'<ul style="margin:6px 0 0;padding-left:18px;color:#1C1C1C;">'+pistes+'</ul>':'')
+    +(h.encouragement?'<div style="margin-top:6px;color:#166534;font-weight:500;">'+esc(h.encouragement)+'</div>':'')+'</div>';
+}
+function frHelp(id){
+  var d=window.frData; if(!d) return; var s=null; d.steps.forEach(function(x){ if(x.id===id) s=x; }); if(!s) return;
+  var el=$(id+'_help'); if(el) el.innerHTML='<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:8px;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>DBi360 réfléchit avec vous…</div>';
+  var ah=window.lastAH||{}, b=window.lastMiroir||{};
+  fetch('/api/coup-de-main',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,activite:b.activite||'',etape:{titre:s.titre,detail:s.detail,palier:s.palier,type:s.type,indicateur:s.indicateur},note:s.note||'',iat:ah.iat,band:ah.band,peurs:(ah.peurs||[]).map(function(p){return p.txt||p.code;})})})
+    .then(function(r){return r.json();})
+    .then(function(x){ if(!x||x.error){ if(el)el.innerHTML='<div style="font-size:12px;color:#991b1b;margin-top:8px;"><i class="ti ti-alert-triangle"></i> Indisponible un instant. <button type="button" onclick="frHelp(\''+id+'\')" style="border:none;background:none;color:#E8541A;text-decoration:underline;cursor:pointer;">Réessayer</button></div>'; return; } s.help=x; frSaveLocal(); frRender(); })
+    .catch(function(){ if(el)el.innerHTML='<div style="font-size:12px;color:#991b1b;margin-top:8px;"><i class="ti ti-alert-triangle"></i> Connexion lente. <button type="button" onclick="frHelp(\''+id+'\')" style="border:none;background:none;color:#E8541A;text-decoration:underline;cursor:pointer;">Réessayer</button></div>'; });
+}
+function frCloud(){
+  var d=window.frData; if(!d) return; var msg=$('frCloudMsg'); if(msg)msg.innerHTML='<span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Envoi sur le cloud…';
+  var done=d.steps.filter(function(s){return s.status==='done';}).length;
+  var payload={type:'feuille',nom:d.nom,date:new Date().toISOString(),band:d.band,avancement:done+'/'+d.steps.length,steps:d.steps};
+  fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'feuille',nom:d.nom,json:payload})})
+    .then(function(r){return r.json();}).then(function(x){ if(msg)msg.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> Feuille de route sauvegardée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré'; })
+    .catch(function(){ if(msg)msg.innerHTML='<i class="ti ti-alert-triangle"></i> Envoi impossible (connexion ?)'; });
 }
 /* ===== fin HISTORIQUE ===== */
 </script>
