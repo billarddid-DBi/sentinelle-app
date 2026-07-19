@@ -132,6 +132,7 @@
   <div id="ahView" style="display:none;"></div>
   <div id="frView" style="display:none;"></div>
   <div id="cockpit" style="display:none;"></div>
+  <div id="compare" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -184,7 +185,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -1235,6 +1236,7 @@ function cockpitBuild(){
     $('cockpit').innerHTML='<div class="card"><div class="sec" style="text-align:center;color:#6b7280;font-size:13px;padding:26px 16px;"><i class="ti ti-dashboard" style="font-size:30px;color:#cbd5e1;"></i><div style="margin-top:10px;">Lancez d\'abord un diagnostic (LIVE → BOUSSOLE) pour composer votre Cockpit.</div></div></div><button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
     showView('cockpit'); window.scrollTo(0,0); return;
   }
+  var snaps=cpSnapshot()||[];
   var reel=b.indiceInterieur, image=b.indiceExterieur, pot=b.potentiel, ecart=b.ecart;
   var iat=ah?ah.iat:null, band=ah?ah.band:null;
   var done=fr?fr.steps.filter(function(s){return s.status==='done';}).length:null, total=fr?fr.steps.length:null;
@@ -1266,20 +1268,90 @@ function cockpitBuild(){
   if(avanc!=null){ avancSec='<div style="padding:10px 14px 0;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:#6b7280;margin-bottom:4px;"><span><i class="ti ti-route"></i> Feuille de route</span><span>'+done+' / '+total+' étapes</span></div><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;"><div style="width:'+avanc+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
   var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('AURA Humaine'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
   var missSec = missing.length? '<div style="padding:10px 14px 0;"><div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;"><i class="ti ti-bulb"></i> Pour un Cockpit complet, il reste à faire : '+missing.join(' · ')+'.</div></div>' : '';
+  var nextP=null; try{nextP=localStorage.getItem('cp_next_'+cpSlug());}catch(e){}
+  var followSec='';
+  if(nextP){ followSec='<div style="padding:9px 14px 0;"><div style="font-size:11px;color:#1d4ed8;background:#eff6ff;border-radius:8px;padding:6px 10px;text-align:center;"><i class="ti ti-calendar-check"></i> Prochain point prévu : '+new Date(nextP).toLocaleDateString('fr-FR')+'</div></div>'; }
+  else if(snaps.length===1){ followSec='<div style="padding:9px 14px 0;"><div style="font-size:10.5px;color:#6b7280;text-align:center;"><i class="ti ti-device-floppy"></i> Mesure enregistrée. Refaites le diagnostic plus tard pour voir votre progression.</div></div>'; }
+  else if(snaps.length>=2){ followSec='<div style="padding:9px 14px 0;"><div style="font-size:11px;color:#166534;background:#f0fdf4;border-radius:8px;padding:6px 10px;text-align:center;"><i class="ti ti-trending-up"></i> '+snaps.length+' mesures enregistrées — votre progression est disponible.</div></div>'; }
   var card='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-dashboard"></i> COCKPIT · LA SYNTHÈSE</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;line-height:1.5;">'+date+(act?'<br>'+esc(act):'')+'</div></div></div>'
     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 0;">'+tile(reel,perfColor(reel||0),'IVE · valeur')+tile(iat,cpBand(band),'IAT · humain')+tile(avanc,'#2563eb','plan · avancé','%')+'</div>'
-    +ecartSec+roiSec+priSec+matSec+peurSec+avancSec+missSec
+    +ecartSec+roiSec+priSec+matSec+peurSec+avancSec+missSec+followSec
     +'<div class="foot">La transformation de votre entreprise en un coup d\'œil : image, réalité, humain, plan et retour sur investissement. On refait le point à 3 mois pour mesurer le chemin parcouru.</div></div>';
+  var prog=(snaps.length>=2);
   $('cockpit').innerHTML=card
-    +'<button class="btn btn-primary" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
+    +(prog?'<button class="btn btn-primary" onclick="cockpitCompare()"><i class="ti ti-trending-up"></i> Voir ma progression</button>':'')
+    +'<button class="btn '+(prog?'btn-ghost':'btn-primary')+'" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
     +'<button class="btn btn-ghost" onclick="cockpitRemesure()"><i class="ti ti-calendar-heart"></i> Programmer le point à 3 mois</button>'
     +(m?'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>':'')
     +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   showView('cockpit'); window.scrollTo(0,0);
 }
 function cockpitPrint(){ var old=document.title; document.title='Cockpit_'+frSlug(window.lastMiroir&&window.lastMiroir.nom||'entreprise'); window.print(); setTimeout(function(){document.title=old;},1500); }
-function cockpitRemesure(){ alert('Bientôt : je refais le diagnostic à 3 mois et j\'affiche l\'avant/après (IVE, IAT, peurs qui reculent) — la preuve de vos progrès. On câble ça juste après.'); }
+function cpSlug(){ var b=window.lastMiroir||{}, ah=window.lastAH; return frSlug(b.nom||(ah&&ah.nom)||'entreprise'); }
+function cpSnapshot(){
+  var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
+  if(b.indiceInterieur==null && !ah) return [];
+  var snap={d:new Date().toISOString().slice(0,10), t:Date.now(),
+    ive:(b.indiceInterieur!=null?b.indiceInterieur:null), image:(b.indiceExterieur!=null?b.indiceExterieur:null), pot:(b.potentiel!=null?b.potentiel:null),
+    iat:(ah?ah.iat:null), imh:(ah?ah.imh:null), resist:(ah?ah.resistance:null),
+    piliers:(b.piliers||null), indices:(ah?ah.indices:null), peurs:(ah&&ah.peurs?ah.peurs.length:null),
+    av:((fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):null)};
+  var key='cp_snaps_'+cpSlug(), arr=[]; try{arr=JSON.parse(localStorage.getItem(key))||[];}catch(e){}
+  arr=arr.filter(function(x){return x.d!==snap.d;}); arr.push(snap); arr.sort(function(a,c){return a.t-c.t;});
+  if(arr.length>12) arr=arr.slice(-12);
+  try{localStorage.setItem(key,JSON.stringify(arr));}catch(e){}
+  return arr;
+}
+function cpDelta(lab,before,after,higherBetter){
+  if(before==null||after==null) return '';
+  var diff=after-before, flat=(diff===0), good=higherBetter?(diff>0):(diff<0);
+  var col=flat?'#9ca3af':(good?'#16a34a':'#dc2626'), ic=flat?'ti-minus':(diff>0?'ti-arrow-up-right':'ti-arrow-down-right');
+  return '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12px;"><div style="flex:1;color:#4b5563;">'+esc(lab)+'</div><div style="color:#9ca3af;width:26px;text-align:right;">'+before+'</div><i class="ti ti-arrow-right" style="color:#cbd5e1;font-size:12px;"></i><div style="font-weight:600;width:26px;">'+after+'</div><div style="width:50px;text-align:right;color:'+col+';font-weight:600;font-size:11px;"><i class="ti '+ic+'"></i> '+(diff>0?'+':'')+diff+'</div></div>';
+}
+function cockpitCompare(){
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
+  if(arr.length<2){ alert('Il faut au moins deux mesures à des dates différentes pour voir votre progression. Je garde celle-ci en mémoire — refaites le diagnostic dans quelques semaines et revenez ici.'); return; }
+  var a=arr[0], z=arr[arr.length-1];
+  var nom=(window.lastMiroir&&window.lastMiroir.nom)||(window.lastAH&&window.lastAH.nom)||'—';
+  var days=Math.round((z.t-a.t)/86400000), months=Math.round(days/30);
+  var lapse= months>=1 ? ('il y a ~'+months+' mois') : ('il y a '+days+' jour'+(days>1?'s':''));
+  var big=function(lab,bef,aft,hb){ if(bef==null||aft==null) return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:11px;color:#cbd5e1;">'+lab+'</div><div style="font-size:12px;color:#cbd5e1;margin-top:4px;">non mesuré</div></div>';
+    var diff=aft-bef, good=hb?(diff>0):(diff<0), col=diff===0?'#9ca3af':(good?'#16a34a':'#dc2626');
+    return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:10px;color:#6b7280;">'+lab+'</div><div style="font-size:13px;margin-top:3px;"><span style="color:#9ca3af;">'+bef+'</span> <i class="ti ti-arrow-right" style="font-size:11px;color:#cbd5e1;"></i> <b style="font-size:20px;">'+aft+'</b></div><div style="font-size:12px;font-weight:700;color:'+col+';margin-top:2px;">'+(diff>0?'+':'')+diff+'</div></div>'; };
+  var pilRows='',idxRows='';
+  if(a.piliers&&z.piliers) pilRows=Object.keys(z.piliers).filter(function(k){return a.piliers[k]!=null;}).map(function(k){return cpDelta(k,a.piliers[k],z.piliers[k],true);}).join('');
+  if(a.indices&&z.indices) idxRows=Object.keys(z.indices).filter(function(k){return a.indices[k]!=null;}).map(function(k){return cpDelta(k,a.indices[k],z.indices[k],true);}).join('');
+  var iatDiff=(a.iat!=null&&z.iat!=null)?z.iat-a.iat:null;
+  var msg;
+  if(iatDiff!=null&&iatDiff>=10) msg='En '+lapse.replace('il y a ~','').replace('il y a ','')+', votre acceptabilité humaine a bondi de '+a.iat+' à '+z.iat+' : l\'équipe rejoint le mouvement. Continuez, ça paie.';
+  else if(z.ive!=null&&a.ive!=null&&z.ive-a.ive>=6) msg='Votre valeur d\'entreprise progresse ('+a.ive+' → '+z.ive+'). La réalité rejoint l\'image — le travail porte ses fruits.';
+  else if((iatDiff!=null&&iatDiff<0)||(z.ive!=null&&a.ive!=null&&z.ive<a.ive)) msg='Certains indices reculent : ce n\'est pas un échec, c\'est une info. Regardons ensemble ce qui a bougé et réajustons le cap — vous n\'êtes pas seul.';
+  else msg='La transformation avance en douceur. Chaque point gagné est une base de plus. On garde le rythme.';
+  var trav=(a.av!=null&&z.av!=null)?cpDelta('Avancement du plan (%)',a.av,z.av,true):'';
+  var peurRow=(a.peurs!=null&&z.peurs!=null)?cpDelta('Nombre de peurs actives',a.peurs,z.peurs,false):'';
+  var card='<div class="card">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-trending-up"></i> PROGRESSION</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;">du '+new Date(a.t).toLocaleDateString('fr-FR')+' au '+new Date(z.t).toLocaleDateString('fr-FR')+' · '+lapse+'</div></div>'
+    +'<div style="display:flex;gap:8px;padding:12px 14px 0;">'+big('IVE · valeur',a.ive,z.ive,true)+big('IAT · humain',a.iat,z.iat,true)+big('IMH · maturité',a.imh,z.imh,true)+'</div>'
+    +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12.5px;color:#166534;line-height:1.55;"><i class="ti ti-sparkles"></i> '+esc(msg)+'</div></div>'
+    +(pilRows?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-tools"></i> Maturité technique — les 8 piliers</div>'+pilRows+'</div>':'')
+    +(idxRows?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-users-group"></i> Maturité humaine — les 8 indices</div>'+idxRows+'</div>':'')
+    +((trav||peurRow)?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-flag"></i> Terrain</div>'+peurRow+trav+'</div>':'')
+    +'<div class="foot">Comparaison entre votre première mesure et la plus récente. Refaites le diagnostic régulièrement : c\'est la meilleure façon de voir — et de prouver — le chemin parcouru.</div></div>'
+    +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-arrow-left"></i> Retour au Cockpit</button>'
+    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  $('compare').innerHTML=card; showView('compare'); window.scrollTo(0,0);
+}
+function cockpitRemesure(){
+  var b=window.lastMiroir||{}, nom=b.nom||(window.lastAH&&window.lastAH.nom)||'votre entreprise';
+  var d=new Date(); d.setMonth(d.getMonth()+3);
+  try{ localStorage.setItem('cp_next_'+cpSlug(), d.toISOString().slice(0,10)); }catch(e){}
+  var dt=d.toISOString().slice(0,10).replace(/-/g,'');
+  var ics='BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//DBi360//LIVE//FR\nBEGIN:VEVENT\nUID:'+Date.now()+'@live-dbi360\nDTSTART;VALUE=DATE:'+dt+'\nSUMMARY:Point LIVE — re-mesure de '+nom+'\nDESCRIPTION:Refaire le diagnostic LIVE / BOUSSOLE / AURA pour mesurer les progrès et actualiser le Cockpit.\nEND:VEVENT\nEND:VCALENDAR';
+  try{ var blob=new Blob([ics],{type:'text/calendar'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='Point_LIVE_'+cpSlug()+'.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},2000); }catch(e){}
+  alert('C\'est noté : prochain point le '+d.toLocaleDateString('fr-FR')+'. Un rappel pour votre agenda a été préparé (fichier .ics à ouvrir).');
+  if($('cockpit').style.display!=='none') cockpitBuild();
+}
 /* ===== fin HISTORIQUE ===== */
 </script>
 </body>
