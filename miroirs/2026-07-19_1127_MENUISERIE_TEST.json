@@ -1,0 +1,184 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Menuiserie Test",
+  "date": "2026-07-19T11:27:42.138Z",
+  "contexte": {
+    "nom": "Menuiserie Test",
+    "activite": "menuiserie",
+    "archetype": "Artisan",
+    "indiceInterieur": 52,
+    "indiceExterieur": 71,
+    "potentiel": 80,
+    "ecart": -19,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Informations": 40,
+      "Process": 55,
+      "Clients": 50,
+      "Data": 30,
+      "Outils": 45,
+      "Compétences": 50,
+      "Culture IA": 35
+    },
+    "faibles": [
+      "Données clients non exploitées (2/5)",
+      "Aucun outil IA (1/5)"
+    ],
+    "criteres": [
+      {
+        "c": "Exploitation données clients",
+        "n": 2,
+        "p": "Data"
+      },
+      {
+        "c": "Outils IA en place",
+        "n": 1,
+        "p": "Outils"
+      }
+    ],
+    "aura": "Orange — image flatteuse",
+    "ah": {
+      "nom": "Menuiserie Test",
+      "mode": "complet",
+      "iat": 34,
+      "imh": 41,
+      "band": "Blocage",
+      "reco": "Réparer l'humain avant tout projet IA",
+      "indices": {
+        "Leadership": 45,
+        "Communication": 38,
+        "Écoute": 30,
+        "Transparence": 42,
+        "Confiance": 28,
+        "Coopération": 50,
+        "Adhésion": 35,
+        "Ouverture au changement": 30
+      },
+      "domaines": {},
+      "peurs": [
+        {
+          "code": "T3",
+          "txt": "Peur pour l'emploi face à l'IA",
+          "intensite": 100
+        },
+        {
+          "code": "T1",
+          "txt": "Peur de l'erreur, de se tromper",
+          "intensite": 75
+        },
+        {
+          "code": "T2",
+          "txt": "Peur de parler, de dire son désaccord",
+          "intensite": 75
+        }
+      ],
+      "resistance": 70
+    }
+  },
+  "miroir": {
+    "priorite": "Avant tout outil IA : restaurer la confiance et la transparence interne (IAT 34/100 en Blocage) — le dirigeant doit clarifier explicitement que l'IA renforce les compétences, ne supprime pas les postes, et co-construire avec l'équipe le cap des 3 prochains mois.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Votre menuiserie affiche une belle image (71/100), mais la réalité interne (52/100) montre un écart de 19 points : des données clients ignorées, aucun outil IA, et surtout une équipe en vigilance face au changement. Le potentiel existe (80/100 est accessible), mais il faut d'abord recréer la confiance.",
+      "interne": "Refroidissement classique : image commerciale saine, mais organisation interne fragmentée (Informations 40, Data 30, Culture IA 35). L'équipe est en Blocage (IAT 34) avec résistance forte (70%) — peurs d'emploi et de parole dominantes. Palier 1 = quasi exclusivement humain/communication ; l'IA arrive après, sur un pilote rassurant."
+    },
+    "verite": {
+      "externe": "Vous avez bâti une bonne réputation, mais l'intérieur ne suit pas : vos données clients ne vous parlent pas (2/5), vous n'avez aucun outil pour les écouter ou vous organiser. Et votre équipe a peur — peur que l'IA la remplace, peur de se tromper, peur de dire ce qu'elle pense. C'est normal, mais c'est le frein n°1. Avant de parler d'outils, il faut que vous, dirigeant, disiez clairement : « On garde nos gens, on les rend plus forts. » Et que vous le prouviez par des actes.",
+      "interne": "Écart de Vérité négatif (-19) : image survendue, réalité sous-équipée et humainement fragile. Les trois peurs détectées (emploi 100, erreur 75, parole 75) révèlent un climat de défiance — il se peut que la communication du dirigeant soit insuffisante, ou que l'équipe ait vécu des changements mal expliqués. Confiance à 28/100 et Écoute à 30/100 confirment : l'organisation n'écoute pas, ne parle pas. Palier 1 doit être 80% humain (leadership, transparence, implication), 20% IA (un seul pilote non menaçant). Rythme lent, rassurant, avec relais internes."
+    },
+    "humain": {
+      "lecture": {
+        "externe": "Votre équipe est en Blocage (34/100) : elle ne croit pas au changement, elle a peur. C'est un signal d'alerte, mais aussi une opportunité. Si vous clarifiez le cap, impliquez les gens dans les décisions, et montrez que l'IA les aide à faire mieux (pas à disparaître), vous pouvez passer de 34 à 60+ en 3 mois. La confiance se gagne en parlant vrai et en écoutant.",
+        "interne": "IMH 41/100, résistance 70% : organisation en défiance. Confiance 28, Écoute 30, Parole 75 (peur de dire) = climat fermé. Leadership 45 et Communication 38 suggèrent que le dirigeant communique peu ou mal sur la vision/le changement. Adhésion 35 et Ouverture 30 = équipe figée. Palier 1 = réparer le climat AVANT tout projet IA. Leviers : cadrage clair du dirigeant (« l'IA renforce, ne supprime »), implication des relais (un référent par atelier ?), écoute active (réunions d'équipe, questions ouvertes), transparence sur les données/les décisions. Rythme : point hebdo avec l'équipe, pas de surprise."
+      },
+      "posologie": "Zone Blocage (IAT 34) → RÉPARER L'HUMAIN EN PRIORITÉ avant tout outil IA. Palier 1 = 3 mois quasi exclusivement confiance/communication/implication (leviers humain/externe) ; l'IA n'arrive qu'en palier 2, sur un pilote non menaçant (ex : devis auto-générés, relances email) avec l'équipe comme co-constructrice.",
+      "peurs": [
+        {
+          "peur": "Peur pour l'emploi face à l'IA (intensité 100)",
+          "traduction": "« L'IA va me remplacer, je vais perdre mon poste. »",
+          "traitement": "Cadrage explicite du dirigeant en réunion d'équipe : « L'IA fait les tâches répétitives (devis, relances, comptes rendus). Vous, vous faites le cœur : la relation client, la qualité, l'innovation. On gagne du temps pour vous, pas on vous enlève votre travail. » Engagement écrit (ex : « zéro suppression de poste liée à l'IA »). Impliquer l'équipe dans le choix des outils (« qu'est-ce qui vous pèse le plus ? »)."
+        },
+        {
+          "peur": "Peur de l'erreur, de se tromper (intensité 75)",
+          "traduction": "« Si je dis oui à l'IA et que ça rate, ce sera de ma faute. »",
+          "traitement": "Normaliser l'erreur : « On va tester sur un petit projet, on va apprendre ensemble, les erreurs sont normales. » Désigner un pilote non critique (ex : génération de devis, pas la production). Réunion mensuelle de bilan : qu'est-ce qui marche, qu'est-ce qu'on ajuste ? Pas de blâme, juste de l'apprentissage."
+        },
+        {
+          "peur": "Peur de parler, de dire son désaccord (intensité 75)",
+          "traduction": "« Si je dis ce que je pense, on va me le reprocher. »",
+          "traitement": "Créer un espace de parole sûr : réunions d'équipe régulières (hebdo ou bi-hebdo) où le dirigeant pose des questions ouvertes (« Qu'est-ce qui vous bloque ? Qu'est-ce que vous aimeriez ? ») et ÉCOUTE sans juger. Relais internes (un référent par atelier) qui remonte les préoccupations. Feedback du dirigeant : « J'ai entendu vos craintes, voici ce qu'on fait. » Transparence sur les décisions."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Confiance effondrée (28/100), peur d'emploi dominante (100), équipe en Blocage (IAT 34) — aucune IA ne fonctionnera sans restaurer le climat.",
+        "levier": "Cadrage clair du dirigeant : réunion d'équipe (semaine 1) pour affirmer que l'IA renforce les compétences, zéro suppression de poste, et que l'équipe sera impliquée dans les choix. Engagement écrit affiché.",
+        "type": "humain",
+        "mise_en_oeuvre": "Réunion d'équipe 1h (dirigeant + tous les collaborateurs). Ordre du jour : vision 2025 (80/100), rôle de l'IA (tâches répétitives), engagement sur l'emploi, questions ouvertes. Compte rendu écrit affiché. Point hebdo (15 min) pour les 3 prochains mois.",
+        "indicateur": "Confiance remonte de 28 à 45+ en 6 semaines (sondage court : 3 questions). Participation aux réunions hebdo ≥80%. Zéro turnover lié à la peur de l'IA."
+      },
+      {
+        "palier": 1,
+        "frein": "Parole bloquée (peur 75), Écoute à 30/100 — l'organisation n'entend pas ses gens.",
+        "levier": "Instaurer une boucle d'écoute régulière : réunions d'équipe bi-hebdomadaires (15-20 min) où le dirigeant pose 2-3 questions ouvertes (« Qu'est-ce qui vous pèse ? Qu'est-ce que vous aimeriez améliorer ? ») et synthétise les réponses.",
+        "type": "humain",
+        "mise_en_oeuvre": "Calendrier fixe (ex : lundi 9h et jeudi 17h). Dirigeant facilite, ne juge pas. Un collaborateur prend note (rotation). Synthèse écrite partagée (« Vous avez dit X, on va faire Y »). Relais interne (1 référent par atelier) pour les questions sensibles.",
+        "indicateur": "Écoute passe de 30 à 50+. Adhésion au changement passe de 35 à 55+. Nombre de suggestions/questions en réunion ≥5 par séance."
+      },
+      {
+        "palier": 1,
+        "frein": "Données clients non exploitées (2/5), aucun outil IA (1/5) — mais l'équipe n'est pas prête pour un projet tech complexe.",
+        "levier": "Lancer un pilote IA très simple et rassurant : génération automatisée de devis (à partir d'un formulaire client). Non menaçant (l'équipe valide avant envoi), gain de temps visible (2-3h/semaine), succès rapide pour recréer la confiance.",
+        "type": "IA",
+        "mise_en_oeuvre": "Semaine 4-6 : audit rapide des données clients existantes (CRM, emails, fichiers). Sélectionner un outil IA léger (ex : Make, Zapier + ChatGPT, ou un IA spécialisée menuiserie si elle existe). Pilote sur 10 devis/mois. L'équipe reçoit le devis généré, le valide, l'envoie. Feedback mensuel.",
+        "indicateur": "10 devis générés sans erreur en mois 1. Temps de devis réduit de 30% (de 45 min à 30 min). Équipe valide 95%+ des devis sans modification majeure. Adhésion au pilote ≥70%."
+      },
+      {
+        "palier": 1,
+        "frein": "Communication interne à 38/100, Transparence à 42/100 — l'équipe ne sait pas où va l'entreprise, ni pourquoi on change.",
+        "levier": "Afficher la vision 2025 (80/100) et le plan de transformation en 2 paliers : mur visible en atelier + réunion d'explication (dirigeant explique le « pourquoi » et le « comment »). Mettre à jour chaque mois.",
+        "type": "externe",
+        "mise_en_oeuvre": "Affiche A3 en atelier : « Vision 2025 : 80/100 de maturité IA. Palier 1 (3 mois) : confiance + pilote devis. Palier 2 (3 mois) : relances clients, comptes rendus auto-générés. » Réunion d'équipe (1h) pour expliquer. Mise à jour mensuelle (« On a atteint X, on passe à Y »).",
+        "indicateur": "Transparence passe de 42 à 60+. Leadership perçu passe de 45 à 60+. 100% de l'équipe peut expliquer les 2 paliers en semaine 4."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps devis (automatisation partielle, pilote + palier 2)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Relances clients (email auto-générées, palier 2)",
+          "inaction_an": 6000,
+          "invest_1x": 1500,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Comptes rendus chantier (génération auto, palier 2)",
+          "inaction_an": 4000,
+          "invest_1x": 1000,
+          "recurrent_an": 600
+        }
+      ],
+      "inaction_an": 18000,
+      "invest_total": 4500,
+      "recurrent_an": 2600,
+      "gain_an": 15400,
+      "roi_net_an": 12800,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois de retour sur investissement (palier 1 + 2)"
+    },
+    "cadence": "Point mensuel (dirigeant + équipe) pour valider la progression de confiance et l'avancement du pilote. Prochaine BOUSSOLE (réaudit complet) dans 3 mois (fin palier 1) pour mesurer l'IAT, la confiance et décider du passage au palier 2.",
+    "synthese": {
+      "externe": "Vous avez une belle base (image 71/100), mais l'intérieur doit rattraper. Le vrai levier, c'est votre équipe : si vous clarifiez le cap (« l'IA renforce, ne supprime »), écoutez ses craintes, et lancez un petit succès (devis auto-générés), vous passerez de 52 à 70+ en 3 mois. Puis, avec la confiance retrouvée, vous pourrez accélérer sur les relances et les comptes rendus. Le ROI est là : 15400 € de gain/an pour 4500 € d'investissement. Prochaine étape : réunion d'équipe cette semaine pour dire la vérité et impliquer les gens.",
+      "interne": "Refroidissement classique (écart -19) : image flatteuse, réalité fragmentée + humain en Blocage. L'IAT 34 commande le rythme : palier 1 = quasi exclusivement humain (cadrage, écoute, transparence) ; l'IA n'est qu'un catalyseur sur un pilote rassurant (devis). Les trois peurs (emploi 100, erreur 75, parole 75) doivent être traitées par des actes concrets de conduite du changement, pas par des outils. Angle commercial : c'est une opportunité de fidélisation interne + différenciation (« menuiserie qui écoute ses gens ») + gain rapide (payback 3 mois). Prochaine étape : audit humain approfondi (entretiens 1-à-1) pour confirmer les causes (communication insuffisante du dirigeant ? vécu de changement mal géré ?), puis coaching du dirigeant sur le leadership/la communication avant de déployer."
+    }
+  }
+}
