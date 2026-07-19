@@ -1,0 +1,57 @@
+{
+  "type": "feuille",
+  "nom": "La Romana",
+  "date": "2026-07-19T16:24:02.445Z",
+  "band": "Vigilance",
+  "avancement": "2/4",
+  "steps": [
+    {
+      "id": "fr_0",
+      "palier": 1,
+      "type": "humain",
+      "titre": "Documenter la vision stratégique avec l'équipe : où aller, ce qui nous distingue, comment on mesure le succès.",
+      "detail": "Atelier dirigeant + 2-3 relais clés (2h). Rédiger une page vision + 3 objectifs 3 ans. Afficher.",
+      "indicateur": "Vision écrite validée par l'équipe. 80% de l'équipe peut la réciter en entretien.",
+      "echeance": "Semaine 1",
+      "status": "done",
+      "note": "",
+      "help": null
+    },
+    {
+      "id": "fr_1",
+      "palier": 1,
+      "type": "humain",
+      "titre": "Clarifier les rôles, responsabilités et limites de délégation pour chaque poste clé.",
+      "detail": "Entretien 1:1 dirigeant avec chaque manager. Fiche rôle/périmètre par poste. Validation collective.",
+      "indicateur": "Fiches rôles signées. Taux de décisions prises sans le dirigeant +30% en 3 mois.",
+      "echeance": "Semaine 2",
+      "status": "progress",
+      "note": "",
+      "help": null
+    },
+    {
+      "id": "fr_2",
+      "palier": 1,
+      "type": "externe",
+      "titre": "Documenter les 5-7 processus clés (prise de commande, gestion stock, facturation, service client, recrutement).",
+      "detail": "Audit léger des processus existants. Rédaction collaborative (équipe + consultant). Centraliser données dans un outil simple (feuille partagée ou CRM léger).",
+      "indicateur": "5 processus documentés. Erreurs de données baissent de 50% en 2 mois. Temps de formation nouveau recruté -30%.",
+      "echeance": "Semaine 3",
+      "status": "done",
+      "note": "",
+      "help": null
+    },
+    {
+      "id": "fr_3",
+      "palier": 2,
+      "type": "IA",
+      "titre": "Automatiser les tâches répétitives : génération devis, relances clients, synthèses commandes via IA générative.",
+      "detail": "Pilote : automatiser relances clients (email + SMS) sur 1 mois. Intégrer à l'outil de gestion existant. Former l'équipe.",
+      "indicateur": "Temps administratif -20h/mois. Taux de réponse clients +15%. Satisfaction équipe sur l'outil ≥7/10.",
+      "echeance": "Semaine 5",
+      "status": "todo",
+      "note": "",
+      "help": null
+    }
+  ]
+}
