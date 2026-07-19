@@ -18,13 +18,13 @@ PRINCIPES IMPÉRATIFS :
 - ROI « PRIX DE L'ACTION » (JAMAIS le coût de l'inaction seul) : en euros, poste par poste, RÉALISTE pour une TPE (approche IA-first peu coûteuse ; la RH est le poste le moins compressible). Chaque poste : coût de l'inaction/an, investissement ponctuel (1×), coût récurrent/an. Puis gain annuel net, ROI net/an, payback en mois, fourchette. Sois PRUDENT et crédible — pas de chiffres énormes ; un pré-audit de TPE, pas un projet grand groupe.
 - DEUX NARRATIONS, mêmes faits : "externe" = pour le DIRIGEANT (motivante, orientée action, valorisante) ; "interne" = pour le PRESCRIPTEUR DBi360 (franche, nomme la racine managériale/financière, garde l'angle commercial). Les champs {externe, interne} diffèrent par le TON, pas par les faits.
 
-SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. BREF IMPÉRATIVEMENT (sinon le service expire et la réponse est perdue) : 1 phrase MAX par champ texte ; le PLAN = EXACTEMENT 4 leviers ; "postes" du ROI = 3 MAX ; "humain.peurs" = 2 MAX, chaque champ 1 phrase courte. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
+SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. LONGUEUR STRICTE (sinon la réponse est COUPÉE et perdue) : CHAQUE valeur texte = 15 MOTS MAXIMUM ; "mise_en_oeuvre", "traitement" et "indicateur" = 12 mots max. Le PLAN = EXACTEMENT 4 leviers ; "postes" du ROI = 3 MAX ; "humain.peurs" = 2 MAX. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
 {
  "priorite": "la priorité n°1, une phrase actionnable",
  "economie_an": <entier : gain/économie annuel estimé en euros>,
  "cadre": {"externe": "1-2 phrases de cadrage pour le dirigeant", "interne": "1-2 phrases de cadrage pour le prescripteur"},
  "verite": {"externe": "la vérité honnête, ton dirigeant (la racine du problème, souvent hors IA) — sur l'humain/l'équipe : au conditionnel, jamais un jugement", "interne": "la même vérité, ton prescripteur, plus direct — mais sur les FAITS et l'ORGANISATION, jamais un procès des personnes ; hypothèses managériales au conditionnel"},
- "humain": {"lecture": {"externe": "état humain pour le dirigeant à partir de l'IAT, 1 phrase motivante", "interne": "lecture franche pour le prescripteur, 1 phrase"}, "posologie": "rythme/dose adaptés à la zone IAT (réparer d'abord / en parallèle / accélérer), 1 phrase", "peurs": [ {"peur": "la peur (libellé court)", "traitement": "l'acte concret de conduite du changement, 1 phrase (pas un outil IA)"} ]},
+ "humain": {"posologie": "rythme/dose adaptés à la zone IAT (réparer d'abord / en parallèle / accélérer), 15 mots max", "peurs": [ {"peur": "la peur (libellé court)", "traitement": "acte concret de conduite du changement, 12 mots max"} ]},
  "plan": [ {"palier": 1, "frein": "...", "levier": "...", "type": "IA", "mise_en_oeuvre": "...", "indicateur": "..."} ],
  "roi": {
    "postes": [ {"poste": "...", "inaction_an": <entier €>, "invest_1x": <entier €>, "recurrent_an": <entier €>} ],
@@ -82,7 +82,7 @@ ${ahBlock}
 
 Rédige le MIROIR (JSON strict, schéma imposé).`;
 
-    const areq = { model: MODEL, max_tokens: 2400, temperature: 0.4, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
+    const areq = { model: MODEL, max_tokens: 3000, temperature: 0.4, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
     async function attempt() {
       const rr = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify(areq) });
       if (!rr.ok) { const t = await rr.text(); return { httpErr: t.slice(0, 200) }; }
