@@ -1,0 +1,175 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, pizzas au feu de bois"
+  },
+  "identite": "SIREN 839452786, SAS créée 07/05/2018, 6-9 salariés, président Morano François (66 ans, né 05/1959 depuis 14/09/2018). Comptes confidentiels (< 700k€ CA ou < 350k€ bilan en 2022).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      48,
+      52,
+      45,
+      50,
+      52,
+      68,
+      60
+    ],
+    "potentiel": [
+      72,
+      68,
+      72,
+      65,
+      70,
+      72,
+      82,
+      78
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients, accueil chaleureux, tradition culinaire.",
+  "imagePercue": "Institution locale établie, pizzas réputées au feu de bois, mais signaux de transition post-reprise (changement propriétaire/pizzaiolo) avec avis contrastés sur la continuité qualité.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Reprise récente du restaurant (propriétaire changé) : clients fidèles rapportent baisse qualité pâte, délais d'attente allongés, pizzaiolo historique parti."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Avis polarisés : excellentes notes récentes (4.6/5 TripAdvisor, 4.4/5 Restaurant Guru) mais critiques anciennes sur pâte dure, attentes 1h+ à emporter."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale active (Facebook, multiples plateformes d'avis), réservations recommandées, accès handicapés, parking, terrasse."
+    }
+  ],
+  "quickwins": [
+    "Stabiliser la recette & le savoir-faire pizzaiolo (documentation, formation interne, contrôle qualité)",
+    "Optimiser les plannings & flux de commandes (réduire attentes, gérer pics)",
+    "Capitaliser sur la réputation : avis clients, réseaux sociaux, fidélité (programme, réservations)",
+    "Maîtriser les coûts matière (approvisionnement Italie, gaspillage, portions)"
+  ],
+  "avis": "Avis très positifs dominants : 4.6/5 sur TripAdvisor (84 avis), 4.4/5 sur Restaurant Guru (667 avis), 7.9/10 sur RestoRanking (523 avis). Clients louent pizzas excellentes, pâtes fraîches, accueil sympathique, cadre convivial. Critiques anciennes (post-reprise) : attentes longues, pâte dure, qualité inégale. Avis récents (2024-2025) très positifs, suggérant stabilisation.",
+  "presence": "Facebook actif (1070 likes, 92% recommandation), présent sur TripAdvisor, Restaurant Guru, RestoRanking, LaCarte.Menu, Eat-List, Petit Futé. Pas de site web propre détecté. Horaires réguliers (fermé lundi, 12h-13h30 / 19h-21h45 du mardi au samedi).",
+  "plateformes": [
+    {
+      "nom": "TripAdvisor",
+      "role": "Classement & avis restaurants, #1 de 5 à Maizières-lès-Metz",
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g1194434-d5003044-Reviews-La_Romana-Maizieres_les_Metz_Moselle_Grand_Est.html"
+    },
+    {
+      "nom": "Restaurant Guru",
+      "role": "Avis & classement pizzerias, #1 de 12 pizzerias à Maizières-lès-Metz",
+      "url": "https://restaurantguru.com/Pizzeria-Romana-Maizieres-les-Metz"
+    },
+    {
+      "nom": "RestoRanking",
+      "role": "Agrégateur avis restaurants, synthèse multi-sources",
+      "url": "https://restoranking.fr/r/la-romana-7_157552/"
+    },
+    {
+      "nom": "Eat-List",
+      "role": "Répertoire restaurants français, mise en relation directe",
+      "url": "https://www.eat-list.fr/maizieres-les-metz-57210/restaurant-italien-71/la-romana-173198"
+    },
+    {
+      "nom": "LaCarte.Menu",
+      "role": "Menus & avis restaurants, commande en ligne",
+      "url": "https://lacarte.menu/restaurants/maizieres-les-metz/la-romana-22"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels (SAS < 10 salariés, < 700k€ CA). Pas de données publiques détaillées. Clôture 30/09 annuelle.",
+    "concurrence": "Maizières-lès-Metz : La Cloche d'Or (français maison), Chicken Chips (fast-food américain), restaurants marocains/turcs. Région Metz : nombreuses pizzerias (Pizza E Passione Semécourt, Le Venezia). La Romana leader local (avis & classements).",
+    "visibilite": "Forte présence multi-plateformes (5 annuaires majeurs), Facebook actif, pas de site propre. Bouche-à-oreille & réservations dominants. Pas de campagne digitale visible.",
+    "dirigeant": "Morano François, 66 ans (né 05/1959), président depuis 14/09/2018. Fondateur/repreneur non précisé publiquement. Entreprise familiale probable (équipe transalpine mentionnée)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & no-shows",
+      "benefice": "Réduire attentes, optimiser flux clients, fidéliser (rappels SMS, gestion tables)"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Contrôle qualité pizzas & pâtes",
+      "benefice": "Documenter recettes, tracer ingrédients, valider cuisson, éviter écarts post-reprise"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire avis & réseaux sociaux",
+      "benefice": "Capitaliser sur 4.6/5, répondre critiques, fidéliser clients, générer bouche-à-oreille"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur coûts matière & approvisionnement",
+      "benefice": "Maîtriser marge (produits Italie, portions, gaspillage), prévisions stock"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Planificateur équipes & services",
+      "benefice": "Réduire délais, gérer pics (samedi), éviter surcharge, qualité service constant"
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps perdu en gestion manuelle réservations, avis, plannings, contrôle qualité"
+  },
+  "coutInaction": "Chaque semaine sans optimisation : clients perdus par attentes longues, avis négatifs non gérés, recettes non documentées (risque qualité), marge érodée par coûts matière mal maîtrisés. Risque de régression post-reprise.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Réservations papier/téléphone, avis éparpillés non suivis, pizzaiolo nouveau sans doc recette, plannings manuels, attentes 45-60 min samedi, clients fidèles partis.",
+    "avecIA": "Réservations automatisées + rappels SMS, avis centralisés & réponses rapides, recettes documentées & contrôle qualité, plannings optimisés, délais < 30 min, fidélité renforcée."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer la transition post-reprise, sécuriser la qualité et relancer la croissance.",
+  "indice": {
+    "estime": 76,
+    "potentiel": 94
+  },
+  "dimensions": {
+    "avis": 85,
+    "reseaux": 65,
+    "site": 0,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "Chaleur & stabilité",
+    "couleur": "Orange",
+    "definition": "La Romana rayonne d'une chaleur méditerranéenne authentique, établie localement, mais traverse une phase de consolidation post-reprise où la fidélité des clients et la qualité doivent être réaffirmées.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide de 31 ans (selon avis) comme institution locale, avec des pizzas au feu de bois et une cuisine italienne authentique qui ravissent ses clients. Malgré la transition récente, les avis 2024-2025 montrent une stabilisation et un potentiel fort pour retrouver son élan en maîtrisant les processus et en capitalisant sur sa base fidèle.",
+  "sources": "PagesJaunes (SIREN, RCS, forme juridique), Pappers (dirigeant, effectif, CA confidentiel), TripAdvisor (84 avis, 4.6/5), Restaurant Guru (667 avis, 4.4/5), RestoRanking (523 avis, 7.9/10), Facebook (1070 likes, 92% recommandation), LaCarte.Menu, Eat-List, Petit Futé, 118712.fr (horaires). Confiance : HAUTE pour identité & avis, MOYENNE pour financier (comptes confidentiels).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
