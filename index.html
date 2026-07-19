@@ -87,6 +87,7 @@
     <input type="file" id="file" accept="image/*" capture="environment" style="display:none;">
     <div class="hint">Premier avis public, sans entretien — sources publiques et estimations. Le vrai diagnostic (BOUSSOLE) se fait en entretien.</div>
     <button class="btn btn-ghost" style="margin-top:8px;" onclick="openHistory()"><i class="ti ti-folder"></i> Mes recherches (cloud)</button>
+    <button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Espace dirigeant (suivi &amp; contrôles)</button>
   </div>
 
   <!-- BOUSSOLE — écran de choix Express / Complet -->
@@ -133,6 +134,7 @@
   <div id="frView" style="display:none;"></div>
   <div id="cockpit" style="display:none;"></div>
   <div id="compare" style="display:none;"></div>
+  <div id="dirigeant" style="display:none;"></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -185,7 +187,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
 }
@@ -996,8 +998,9 @@ function ahStart(mode){
   window.ahItems = take.map(function(x){ return {id:'ah_'+x.c, code:x.c, dom:x.d, t:x.t}; });
   window.ahMode = mode;
   var label = mode==='express'?'Express':'Complet';
+  var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · pouls humain ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> AURA Humaine '+label+' · acceptabilité du changement ('+take.length+' critères)');
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
-    +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-users-group"></i> AURA Humaine '+label+' · acceptabilité du changement ('+take.length+' critères)</div>'
+    +'<div style="font-size:11px;color:#E7DBD1;">'+titre+'</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
     +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 solide · 5 ancré · <span id="ahImh">–</span> IMH</div></div>';
   var curD=null, open=false;
@@ -1008,8 +1011,8 @@ function ahStart(mode){
     html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v" style="width:88px;font-size:11px;">3 · installé</span></div></div>';
   });
   if(open)html+='</div>';
-  html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> Terminer &amp; voir la maturité humaine</button>'
-    +'<button class="btn btn-ghost" onclick="ahChoice()">← Retour</button>';
+  html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
+    +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
   $('ahView').innerHTML=html;
   ahCalc();
 }
@@ -1075,6 +1078,7 @@ function ahFinish(){
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
   window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
+  if(window.ahControleMode){ window.ahControleMode=false; cpSnapshot(true); cockpitCompare(); return; }
   saveAura(r,card);
 }
 function saveAura(r,card){
@@ -1280,7 +1284,8 @@ function cockpitBuild(){
     +'<div class="foot">La transformation de votre entreprise en un coup d\'œil : image, réalité, humain, plan et retour sur investissement. On refait le point à 3 mois pour mesurer le chemin parcouru.</div></div>';
   var prog=(snaps.length>=2);
   $('cockpit').innerHTML=card
-    +(prog?'<button class="btn btn-primary" onclick="cockpitCompare()"><i class="ti ti-trending-up"></i> Voir ma progression</button>':'')
+    +(prog?'<button class="btn btn-primary" onclick="cockpitCompare()"><i class="ti ti-activity-heartbeat"></i> Voir mon évolution</button>':'')
+    +'<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Mon espace dirigeant</button>'
     +'<button class="btn '+(prog?'btn-ghost':'btn-primary')+'" onclick="cockpitPrint()"><i class="ti ti-file-download"></i> Exporter en PDF</button>'
     +'<button class="btn btn-ghost" onclick="cockpitRemesure()"><i class="ti ti-calendar-heart"></i> Programmer le point à 3 mois</button>'
     +(m?'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>':'')
@@ -1289,7 +1294,7 @@ function cockpitBuild(){
 }
 function cockpitPrint(){ var old=document.title; document.title='Cockpit_'+frSlug(window.lastMiroir&&window.lastMiroir.nom||'entreprise'); window.print(); setTimeout(function(){document.title=old;},1500); }
 function cpSlug(){ var b=window.lastMiroir||{}, ah=window.lastAH; return frSlug(b.nom||(ah&&ah.nom)||'entreprise'); }
-function cpSnapshot(){
+function cpSnapshot(force){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
   if(b.indiceInterieur==null && !ah) return [];
   var snap={d:new Date().toISOString().slice(0,10), t:Date.now(),
@@ -1298,7 +1303,8 @@ function cpSnapshot(){
     piliers:(b.piliers||null), indices:(ah?ah.indices:null), peurs:(ah&&ah.peurs?ah.peurs.length:null),
     av:((fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):null)};
   var key='cp_snaps_'+cpSlug(), arr=[]; try{arr=JSON.parse(localStorage.getItem(key))||[];}catch(e){}
-  arr=arr.filter(function(x){return x.d!==snap.d;}); arr.push(snap); arr.sort(function(a,c){return a.t-c.t;});
+  if(!force) arr=arr.filter(function(x){return x.d!==snap.d;});
+  arr.push(snap); arr.sort(function(a,c){return a.t-c.t;});
   if(arr.length>12) arr=arr.slice(-12);
   try{localStorage.setItem(key,JSON.stringify(arr));}catch(e){}
   return arr;
@@ -1311,36 +1317,69 @@ function cpDelta(lab,before,after,higherBetter){
 }
 function cockpitCompare(){
   var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
-  if(arr.length<2){ alert('Il faut au moins deux mesures à des dates différentes pour voir votre progression. Je garde celle-ci en mémoire — refaites le diagnostic dans quelques semaines et revenez ici.'); return; }
-  var a=arr[0], z=arr[arr.length-1];
+  if(arr.length<2){ alert('Il faut au moins deux mesures pour voir votre évolution : la situation initiale, et un contrôle. Lancez un contrôle après avoir avancé sur vos actions.'); return; }
+  var init=arr[0], cur=arr[arr.length-1], prev=(arr.length>=3)?arr[arr.length-2]:null;
   var nom=(window.lastMiroir&&window.lastMiroir.nom)||(window.lastAH&&window.lastAH.nom)||'—';
-  var days=Math.round((z.t-a.t)/86400000), months=Math.round(days/30);
-  var lapse= months>=1 ? ('il y a ~'+months+' mois') : ('il y a '+days+' jour'+(days>1?'s':''));
-  var big=function(lab,bef,aft,hb){ if(bef==null||aft==null) return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:11px;color:#cbd5e1;">'+lab+'</div><div style="font-size:12px;color:#cbd5e1;margin-top:4px;">non mesuré</div></div>';
-    var diff=aft-bef, good=hb?(diff>0):(diff<0), col=diff===0?'#9ca3af':(good?'#16a34a':'#dc2626');
-    return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:10px;color:#6b7280;">'+lab+'</div><div style="font-size:13px;margin-top:3px;"><span style="color:#9ca3af;">'+bef+'</span> <i class="ti ti-arrow-right" style="font-size:11px;color:#cbd5e1;"></i> <b style="font-size:20px;">'+aft+'</b></div><div style="font-size:12px;font-weight:700;color:'+col+';margin-top:2px;">'+(diff>0?'+':'')+diff+'</div></div>'; };
-  var pilRows='',idxRows='';
-  if(a.piliers&&z.piliers) pilRows=Object.keys(z.piliers).filter(function(k){return a.piliers[k]!=null;}).map(function(k){return cpDelta(k,a.piliers[k],z.piliers[k],true);}).join('');
-  if(a.indices&&z.indices) idxRows=Object.keys(z.indices).filter(function(k){return a.indices[k]!=null;}).map(function(k){return cpDelta(k,a.indices[k],z.indices[k],true);}).join('');
-  var iatDiff=(a.iat!=null&&z.iat!=null)?z.iat-a.iat:null;
+  var nCtrl=arr.length-1, days=Math.round((cur.t-init.t)/86400000), lapse=days>=30?('~'+Math.round(days/30)+' mois'):(days+' j');
+  var head=function(lab,get){ var vi=get(init),vc=get(cur),vp=prev?get(prev):null;
+    if(vi==null&&vc==null) return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:10px;color:#cbd5e1;">'+lab+'</div><div style="font-size:11px;color:#cbd5e1;margin-top:4px;">–</div></div>';
+    var tot=(vi!=null&&vc!=null)?vc-vi:null, col=(tot==null||tot===0)?'#6b7280':(tot>0?'#16a34a':'#dc2626');
+    var seq=(vi!=null?vi:'–')+' <i class="ti ti-arrow-right" style="font-size:10px;color:#cbd5e1;"></i> '+(prev?((vp!=null?vp:'–')+' <i class="ti ti-arrow-right" style="font-size:10px;color:#cbd5e1;"></i> '):'')+'<b style="font-size:17px;">'+(vc!=null?vc:'–')+'</b>';
+    return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:10px;color:#6b7280;">'+lab+'</div><div style="font-size:12px;margin-top:3px;color:#334155;">'+seq+'</div><div style="font-size:15px;font-weight:700;color:'+col+';margin-top:2px;">'+(tot!=null?(tot>0?'+':'')+tot:'–')+'</div>'+((prev&&vp!=null&&vc!=null)?'<div style="font-size:9px;color:#9ca3af;">dernier '+((vc-vp)>0?'+':'')+(vc-vp)+'</div>':'')+'</div>'; };
+  var heads='<div style="display:flex;gap:8px;padding:12px 14px 0;">'+head('IAT · humain',function(s){return s.iat;})+head('IMH · maturité',function(s){return s.imh;})+head('Plan · avancé',function(s){return s.av;})+'</div>';
+  var colHdr='<div style="display:flex;font-size:9.5px;color:#9ca3af;padding-bottom:2px;"><div style="flex:1;"></div><div style="width:34px;text-align:right;">Init.</div>'+(prev?'<div style="width:34px;text-align:right;">Préc.</div>':'')+'<div style="width:34px;text-align:right;">Actu.</div></div>';
+  var triRow=function(lab,vi,vp,vc,hb){ var ref=(prev&&vp!=null)?vp:vi; var col=(ref!=null&&vc!=null)?((hb?(vc-ref>=0):(vc-ref<=0))?'#16a34a':'#dc2626'):'#334155';
+    return '<div style="display:flex;align-items:center;font-size:11.5px;padding:5px 0;border-top:1px solid #f1f5f9;"><div style="flex:1;color:#4b5563;">'+esc(lab)+'</div><div style="width:34px;text-align:right;color:#9ca3af;">'+(vi!=null?vi:'–')+'</div>'+(prev?'<div style="width:34px;text-align:right;color:#9ca3af;">'+(vp!=null?vp:'–')+'</div>':'')+'<div style="width:34px;text-align:right;font-weight:700;color:'+col+';">'+(vc!=null?vc:'–')+'</div></div>'; };
+  var idxTable='';
+  if(cur.indices){ var ks=Object.keys(cur.indices);
+    idxTable='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:4px;"><i class="ti ti-users-group"></i> Les 8 indices humains</div>'+colHdr
+      +ks.map(function(k){return triRow(k, init.indices?init.indices[k]:null, prev&&prev.indices?prev.indices[k]:null, cur.indices[k], true);}).join('')+'</div>'; }
+  var peurRow=(init.peurs!=null&&cur.peurs!=null)?('<div class="sec">'+colHdr.replace('Init.','Init.')+triRow('Peurs actives (moins = mieux)',init.peurs,prev?prev.peurs:null,cur.peurs,false)+'</div>'):'';
+  var ref=prev||init, iatD=(ref.iat!=null&&cur.iat!=null)?cur.iat-ref.iat:null;
   var msg;
-  if(iatDiff!=null&&iatDiff>=10) msg='En '+lapse.replace('il y a ~','').replace('il y a ','')+', votre acceptabilité humaine a bondi de '+a.iat+' à '+z.iat+' : l\'équipe rejoint le mouvement. Continuez, ça paie.';
-  else if(z.ive!=null&&a.ive!=null&&z.ive-a.ive>=6) msg='Votre valeur d\'entreprise progresse ('+a.ive+' → '+z.ive+'). La réalité rejoint l\'image — le travail porte ses fruits.';
-  else if((iatDiff!=null&&iatDiff<0)||(z.ive!=null&&a.ive!=null&&z.ive<a.ive)) msg='Certains indices reculent : ce n\'est pas un échec, c\'est une info. Regardons ensemble ce qui a bougé et réajustons le cap — vous n\'êtes pas seul.';
-  else msg='La transformation avance en douceur. Chaque point gagné est une base de plus. On garde le rythme.';
-  var trav=(a.av!=null&&z.av!=null)?cpDelta('Avancement du plan (%)',a.av,z.av,true):'';
-  var peurRow=(a.peurs!=null&&z.peurs!=null)?cpDelta('Nombre de peurs actives',a.peurs,z.peurs,false):'';
+  if(iatD!=null&&iatD>=8) msg='Depuis '+(prev?'le dernier contrôle':'le départ')+', l\'acceptabilité progresse ('+ref.iat+' → '+cur.iat+'). Vos actions portent, l\'équipe suit. Continuez.';
+  else if(iatD!=null&&iatD<0) msg='L\'acceptabilité a un peu reculé depuis '+(prev?'le dernier contrôle':'le départ')+'. Ce n\'est pas un échec, c\'est une info : regardons quelle action relancer. Vous n\'êtes pas seul.';
+  else msg='La situation se stabilise. Chaque contrôle rend vos progrès visibles — gardez le rythme des actions.';
   var card='<div class="card">'
-    +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-trending-up"></i> PROGRESSION</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;">du '+new Date(a.t).toLocaleDateString('fr-FR')+' au '+new Date(z.t).toLocaleDateString('fr-FR')+' · '+lapse+'</div></div>'
-    +'<div style="display:flex;gap:8px;padding:12px 14px 0;">'+big('IVE · valeur',a.ive,z.ive,true)+big('IAT · humain',a.iat,z.iat,true)+big('IMH · maturité',a.imh,z.imh,true)+'</div>'
+    +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-activity-heartbeat"></i> ÉVOLUTION · CONTRÔLE N°'+nCtrl+'</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;">situation initiale le '+new Date(init.t).toLocaleDateString('fr-FR')+' · '+lapse+' de recul</div></div>'
+    +heads
     +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12.5px;color:#166534;line-height:1.55;"><i class="ti ti-sparkles"></i> '+esc(msg)+'</div></div>'
-    +(pilRows?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-tools"></i> Maturité technique — les 8 piliers</div>'+pilRows+'</div>':'')
-    +(idxRows?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-users-group"></i> Maturité humaine — les 8 indices</div>'+idxRows+'</div>':'')
-    +((trav||peurRow)?'<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:2px;"><i class="ti ti-flag"></i> Terrain</div>'+peurRow+trav+'</div>':'')
-    +'<div class="foot">Comparaison entre votre première mesure et la plus récente. Refaites le diagnostic régulièrement : c\'est la meilleure façon de voir — et de prouver — le chemin parcouru.</div></div>'
-    +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-arrow-left"></i> Retour au Cockpit</button>'
+    +idxTable+peurRow
+    +'<div class="foot">On compare votre situation actuelle à votre point de départ'+(prev?' et à votre contrôle précédent':'')+'. Lancez un contrôle après chaque vague d\'actions : c\'est ainsi qu\'on voit — et qu\'on prouve — le chemin parcouru. (Le contrôle mesure le pouls humain ; la valeur externe se re-mesure lors d\'un diagnostic complet.)</div></div>'
+    +'<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un nouveau contrôle</button>'
+    +'<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Mon espace</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   $('compare').innerHTML=card; showView('compare'); window.scrollTo(0,0);
+}
+function lancerControle(){
+  var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
+  if(b.indiceInterieur==null && !ah && !fr){ alert('Faites d\'abord un diagnostic (au moins une AURA Humaine) pour avoir une situation de départ à comparer.'); return; }
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
+  if(!arr.length) cpSnapshot(); // fige la situation initiale si pas encore de photo
+  window.ahControleMode=true;
+  window.ahNom=b.nom||(ah&&ah.nom)||window.ahNom||'Mon entreprise';
+  ahStart('express'); window.scrollTo(0,0);
+}
+function dirigeantSpace(){
+  var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
+  var nom=b.nom||(ah&&ah.nom)||(fr&&fr.nom)||'';
+  var hasCtx=(b.indiceInterieur!=null||ah||fr);
+  if(hasCtx){ var pre=[]; try{pre=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){} if(!pre.length) cpSnapshot(); }
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
+  var last=arr.length?arr[arr.length-1]:null;
+  var iat=ah?ah.iat:(last?last.iat:null);
+  var av=(fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):(last?last.av:null);
+  var nCtrl=arr.length>1?arr.length-1:0;
+  var kpi=function(v,lab,suf){ return '<div style="flex:1;text-align:center;"><div style="font-size:23px;font-weight:700;color:#fff;">'+(v!=null?v+(suf||''):'–')+'</div><div style="font-size:9.5px;color:#9ca3af;">'+lab+'</div></div>'; };
+  var big=function(oc,ic,t,sub){ return '<button type="button" onclick="'+oc+'" style="width:100%;text-align:left;background:#fff;border:1px solid #eee;border-radius:12px;padding:14px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:inherit;"><i class="ti '+ic+'" style="font-size:24px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#1C1C1C;">'+t+'</div><div style="font-size:11.5px;color:#6b7280;">'+sub+'</div></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>'; };
+  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom||'Votre entreprise')+'</div><div style="display:flex;gap:8px;margin-top:13px;">'+kpi(iat,'IAT humain')+kpi(av,'plan avancé','%')+kpi(nCtrl,'contrôles')+'</div></div></div>';
+  html+=big('lancerControle()','ti-player-play','Lancer un contrôle','Mesurez où vous en êtes, comparez à avant')
+    +((fr||window.miroirData)?big('frBuild()','ti-route','Ma feuille de route','Notez vos actions, avancez étape par étape'):'')
+    +(arr.length>=2?big('cockpitCompare()','ti-activity-heartbeat','Mon évolution','Le chemin parcouru, contrôle après contrôle'):'')
+    +big('cockpitBuild()','ti-dashboard','Mon Cockpit','La synthèse en une page');
+  if(!hasCtx) html+='<div class="sec" style="color:#6b7280;font-size:12px;">Aucune donnée pour l\'instant. Faites d\'abord un diagnostic, ou ouvrez une fiche depuis « Mes recherches ».</div>';
+  html+='<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
+  $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function cockpitRemesure(){
   var b=window.lastMiroir||{}, nom=b.nom||(window.lastAH&&window.lastAH.nom)||'votre entreprise';
