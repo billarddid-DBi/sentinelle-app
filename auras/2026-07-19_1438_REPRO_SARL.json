@@ -1,0 +1,68 @@
+{
+  "type": "aura",
+  "mode": "complet",
+  "nom": "Repro SARL",
+  "date": "2026-07-19T14:38:08.085Z",
+  "iat": 20,
+  "imh": 20,
+  "indices": {
+    "Leadership": 20,
+    "Communication": 20,
+    "Écoute": 20,
+    "Transparence": 20,
+    "Confiance": 20,
+    "Coopération": 20,
+    "Adhésion": 20,
+    "Ouverture au changement": 20
+  },
+  "domaines": {
+    "Leadership": 20,
+    "Communication": 20,
+    "Confiance": 20,
+    "Coopération": 20,
+    "Climat social": 20,
+    "Maturité du changement": 20
+  },
+  "peurs": [
+    {
+      "code": "T3",
+      "txt": "Peur pour l'emploi face à l'IA",
+      "intensite": 80
+    },
+    {
+      "code": "T5",
+      "txt": "IA vécue comme menace / surveillance",
+      "intensite": 80
+    },
+    {
+      "code": "T1",
+      "txt": "Peur de l'erreur, de se tromper",
+      "intensite": 80
+    },
+    {
+      "code": "T2",
+      "txt": "Peur de parler, de dire son désaccord",
+      "intensite": 80
+    },
+    {
+      "code": "C4",
+      "txt": "Non-dits et rumeurs",
+      "intensite": 80
+    },
+    {
+      "code": "C5",
+      "txt": "Changements subis, découverts trop tard",
+      "intensite": 80
+    },
+    {
+      "code": "M2",
+      "txt": "Changement subi plutôt que désiré",
+      "intensite": 80
+    },
+    {
+      "code": "S2",
+      "txt": "Surcharge / stress, frein au changement",
+      "intensite": 80
+    }
+  ]
+}
