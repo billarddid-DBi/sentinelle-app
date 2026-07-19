@@ -1035,10 +1035,10 @@ function ahCalc(){
   AH_DOMAINS.forEach(function(d){ var e=$('ahd_'+ahkey(d)); if(e) e.textContent=(r.dom[d]!=null?r.dom[d]:'–'); });
 }
 function ahReco(iat){
-  if(iat==null) return {zone:'—',color:'#9ca3af',bg:'#f3f4f6',icon:'ti-help',msg:''};
-  if(iat<=40) return {zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les peurs, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
-  if(iat<=70) return {zone:'Vigilance',color:'#ea580c',bg:'#fff7ed',icon:'ti-alert-triangle',msg:"Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide."};
-  return {zone:'Appui',color:'#16a34a',bg:'#f0fdf4',icon:'ti-rocket',msg:"L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis."};
+  if(iat==null) return {key:'—',zone:'—',color:'#9ca3af',bg:'#f3f4f6',icon:'ti-help',msg:''};
+  if(iat<=40) return {key:'Blocage',zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les peurs, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
+  if(iat<=70) return {key:'Vigilance',zone:'Vigilance',color:'#ea580c',bg:'#fff7ed',icon:'ti-alert-triangle',msg:"Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide."};
+  return {key:'Appui',zone:'Appui',color:'#16a34a',bg:'#f0fdf4',icon:'ti-rocket',msg:"L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis."};
 }
 function ahFinish(){
   var r=ahScan(), nom=window.ahNom||'Entreprise', date=new Date().toLocaleDateString('fr-FR'), reco=ahReco(r.iat);
@@ -1070,7 +1070,7 @@ function ahFinish(){
    +'<button class="btn btn-ghost" onclick="showView(\'form\')"><i class="ti ti-home"></i> Accueil</button>';
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
-  window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
+  window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
   saveAura(r,card);
 }
 function saveAura(r,card){
