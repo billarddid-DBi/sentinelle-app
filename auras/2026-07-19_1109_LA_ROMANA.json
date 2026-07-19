@@ -1,0 +1,43 @@
+{
+  "type": "aura",
+  "mode": "complet",
+  "nom": "La Romana",
+  "date": "2026-07-19T11:09:43.686Z",
+  "iat": 52,
+  "imh": 48,
+  "indices": {
+    "Leadership": 50,
+    "Communication": 42,
+    "Écoute": 50,
+    "Transparence": 38,
+    "Confiance": 44,
+    "Coopération": 35,
+    "Adhésion": 55,
+    "Ouverture au changement": 65
+  },
+  "domaines": {
+    "Leadership": 50,
+    "Communication": 55,
+    "Confiance": 50,
+    "Coopération": 35,
+    "Climat social": 30,
+    "Maturité du changement": 70
+  },
+  "peurs": [
+    {
+      "code": "T1",
+      "txt": "Peur de l'erreur, de se tromper",
+      "intensite": 75
+    },
+    {
+      "code": "C5",
+      "txt": "Changements subis, découverts trop tard",
+      "intensite": 75
+    },
+    {
+      "code": "S2",
+      "txt": "Surcharge / stress, frein au changement",
+      "intensite": 75
+    }
+  ]
+}
