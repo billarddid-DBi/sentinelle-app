@@ -1,0 +1,185 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria italienne, restauration traditionnelle",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & fidélisation",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, classement #1"
+  },
+  "identite": "SIREN 839 452 786, SAS créée mai 2018, NAF 5610A, 6-9 salariés, dirigeant François MORANO. Pizzeria italienne établie depuis 1980, spécialisée en pizzas au feu de bois et pâtes fraîches maison.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      45,
+      50,
+      60,
+      50,
+      55,
+      70,
+      65
+    ],
+    "potentiel": [
+      75,
+      70,
+      75,
+      80,
+      75,
+      80,
+      90,
+      85
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients, accueil chaleureux, cuisine maison, tradition familiale.",
+  "imagePercue": "Institution locale bien établie, classée #1 en ligne, mais réputation fragilisée depuis changement de propriétaire (mars 2024). Avis positifs anciens vs. critiques récentes sur qualité et délais.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Changement de propriétaire et pizzaiolo en mars 2024 : clients réguliers rapportent baisse de qualité (pâte dure, pizzas collées), attentes longues (1h+), organisation dégradée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Avis mitigés post-reprise : certains clients satisfaits, d'autres déçus. Risque de perte de fidélité des habitués si qualité ne se stabilise pas rapidement."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Absence de site web officiel : présence limitée à Facebook et annuaires. Pas de contrôle direct de la communication digitale."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Positif : classement #1 sur TripAdvisor (4,6/5, 84 avis), 4,4/5 sur Google (667 avis), forte présence sur annuaires spécialisés."
+    }
+  ],
+  "quickwins": [
+    "Stabiliser la recette de la pâte à pizza et former le nouveau pizzaiolo aux standards anciens (test qualité quotidien)",
+    "Optimiser les plannings de production pour réduire les attentes (prévision des pics, gestion des commandes à emporter)",
+    "Relancer la fidélité des clients réguliers : programme de fidélité simple, communication directe (SMS/email) sur les améliorations",
+    "Créer un site web simple avec menu, horaires, réservation en ligne (réduire les appels, capturer les demandes)",
+    "Mettre à jour les avis Google/TripAdvisor : répondre aux critiques récentes, montrer les corrections apportées"
+  ],
+  "avis": "Réputation très positive globalement : 4,6/5 TripAdvisor (84 avis), 4,4/5 Google (667 avis), classée #1 restaurant local. Avis anciens louent pizzas excellentes, accueil chaleureux, pâtes fraîches. Avis récents (post-mars 2024) critiquent baisse de qualité, pâte dure, attentes longues, organisation dégradée. Clients réguliers expriment déception après changement de propriétaire.",
+  "presence": "Facebook actif (1 070 likes, 92% recommandation, 307 visites récentes). Présence forte sur TripAdvisor, Google, Restaurant Guru, Sluurpy, Petit Futé, LaCarte.Menu. Pas de site web officiel trouvé. Pas de présence Instagram/LinkedIn détectée.",
+  "plateformes": [
+    {
+      "nom": "TripAdvisor",
+      "role": "Avis et classement restaurants, référence majeure pour tourisme",
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g1194434-d5003044-Reviews-La_Romana-Maizieres_les_Metz_Moselle_Grand_Est.html"
+    },
+    {
+      "nom": "Google Maps / Google Avis",
+      "role": "Avis clients, note, horaires, photos, réservation",
+      "url": "https://www.google.com/maps"
+    },
+    {
+      "nom": "Restaurant Guru",
+      "role": "Agrégateur d'avis restaurants, classement par note et volume",
+      "url": "https://restaurantguru.com/Pizzeria-Romana-Maizieres-les-Metz"
+    },
+    {
+      "nom": "Sluurpy",
+      "role": "Avis et notation restaurants français, guide gastronomique",
+      "url": "https://www.sluurpy.fr/maizières-les-metz/restaurant/2083841/la-romana"
+    },
+    {
+      "nom": "Petit Futé",
+      "role": "Guide touristique et avis restaurants, référence locale",
+      "url": "https://www.petitfute.co.uk/v22080-maizieres-les-metz-57280/c1165-restaurants/c1031-cuisines-du-monde/c1036-cuisine-mediterraneenne/c82-restaurant-italien-et-pizzeria/626409-pizzeria-romana.html"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes non publics (confidentialité SAS). Effectif stable 6-9 salariés. Pas de signaux de difficultés financières détectés publiquement.",
+    "concurrence": "5 restaurants à Maizières-lès-Metz : La Romana #1, puis La Cloche d'Or, Chicken Chips, restaurants marocains/turcs. Concurrence faible en pizzeria italienne haut de gamme localement.",
+    "visibilite": "Très bonne : classée #1 TripAdvisor, forte présence annuaires, Facebook actif. Absence site web limite contrôle de l'image. Avis récents négatifs visibles en ligne (risque de réputation).",
+    "dirigeant": "François MORANO, dirigeant SAS depuis mai 2018. Reprise/changement de propriétaire en mars 2024 (ancien propriétaire Massimo parti). Pas d'info publique sur vision/intentions du nouveau dirigeant."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Stabilisateur de recette & qualité",
+      "benefice": "Documenter et valider quotidiennement la recette de pâte (hydratation, fermentation, cuisson) pour retrouver le standard ancien et rassurer les clients réguliers."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de plannings & flux",
+      "benefice": "Prévoir les pics (midi/soir/week-end), gérer les commandes à emporter en temps réel, réduire les attentes de 1h à 20-30 min."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Relanceur de fidélité clients",
+      "benefice": "Identifier les clients réguliers (historique pré-reprise), les relancer par SMS/email avec offre de bienvenue, recueillir feedback sur améliorations."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire d'avis & réputation",
+      "benefice": "Répondre aux avis négatifs récents (Google, TripAdvisor), montrer les corrections apportées, encourager les clients satisfaits à laisser avis."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Créateur de site web simple",
+      "benefice": "Site vitrine avec menu, horaires, photos, formulaire réservation/contact. Réduire les appels, capturer les demandes, améliorer SEO local."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Formateur équipe service",
+      "benefice": "Renforcer l'accueil et le service (point fort historique) : scripts d'accueil, gestion des attentes, upsell desserts/boissons."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en optimisation plannings + gestion avis + fidélité"
+  },
+  "coutInaction": "Risque de perte progressive de la clientèle régulière (habitués depuis 1980) si la qualité ne se stabilise pas rapidement. Chute de note en ligne (avis négatifs visibles) peut impacter les nouveaux clients et le classement TripAdvisor.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 50
+  },
+  "avantApres": {
+    "aujourdhui": "Pizzaiolo nouveau, recette instable, attentes longues (1h+), clients réguliers déçus, avis mitigés en ligne, pas de site web, gestion avis réactive.",
+    "avecIA": "Recette documentée et validée quotidiennement, plannings optimisés (attentes 20-30 min), clients réguliers relancés et fidélisés, avis gérés proactivement, site web simple en place, équipe formée."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie de stabilisation post-reprise et définir les priorités opérationnelles avec le dirigeant.",
+  "indice": {
+    "estime": 76,
+    "potentiel": 94
+  },
+  "dimensions": {
+    "avis": 82,
+    "reseaux": 65,
+    "site": 0,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "Rayonnement fragilisé",
+    "couleur": "Orange",
+    "definition": "Institution locale bien établie et aimée, mais en transition délicate post-reprise. Énergie chaleureuse et authentique, mais incertitude opérationnelle visible.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana incarne une belle histoire : 40+ ans de tradition italienne, classée #1 en ligne, avec une clientèle fidèle qui reconnaît la qualité de ses pizzas et l'accueil chaleureux. Le nouveau dirigeant hérite d'une base solide et d'une réputation enviable ; avec les bons leviers (stabilisation recette, fidélité clients, présence web), le restaurant peut retrouver son éclat et consolider sa position de leader local.",
+  "sources": "TripAdvisor (84 avis, 4,6/5), Google/Restaurant Guru (667 avis, 4,4/5), Sluurpy (79/100), RestoRanking (7,9/10), Facebook (1 070 likes), Petit Futé, LaCarte.Menu, Societe.com (SIREN 839 452 786), PagesJaunes (effectif, NAF). Confiance : très élevée pour avis clients et données publiques ; modérée pour intentions dirigeant (non sourcées).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
