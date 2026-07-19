@@ -95,7 +95,7 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
 
     let r = await attempt();
     if (r.bad) r = await attempt(); // 2e tentative si JSON illisible/tronqué
-    if (r.m) { res.status(200).json(r.m); return; }
+    if (r.m) { if (!ah && r.m.humain) delete r.m.humain; res.status(200).json(r.m); return; }
     if (r.httpErr) { res.status(502).json({ error: "Modèle indisponible", detail: r.httpErr }); return; }
     res.status(500).json({ error: "MIROIR : réponse illisible après 2 essais. Réessayez." });
   } catch (err) {

@@ -39,8 +39,9 @@ export default async function handler(req, res) {
       .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
       .slice(-10)
       .map(m => ({ role: m.role, content: m.content.slice(0, 1200) }));
-    // L'API exige un premier message de rôle "user".
+    // L'API exige un premier message de rôle "user" ; et pour obtenir une réponse (pas un prefill vide), le dernier doit aussi être "user".
     while (msgs.length && msgs[0].role !== "user") msgs.shift();
+    while (msgs.length && msgs[msgs.length - 1].role !== "user") msgs.pop();
     if (!msgs.length) { res.status(400).json({ error: "Aucune question" }); return; }
 
     const system = SYS + "\n\nCONTEXTE ACTUEL DE LA FEUILLE DE ROUTE :\n" + buildContext(b);
