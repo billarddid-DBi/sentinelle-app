@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console DBi360 — Maquette</title>
+<style>
+  :root{
+    --noir:#1C1C1C; --orange:#E8541A; --orange-d:#c4430f;
+    --bg:#f4f5f7; --card:#ffffff; --line:#e6e8ec; --txt:#22262b; --muted:#6b7280;
+    --ok:#16a34a; --stag:#d9a400; --reg:#dc2626; --sil:#6b7280;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+  a{color:inherit}
+  /* ---- header ---- */
+  header{background:var(--noir);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20}
+  header .logo{font-weight:800;letter-spacing:.5px}
+  header .logo b{color:var(--orange)}
+  header .sub{color:#9aa0a6;font-size:12px}
+  header .spacer{flex:1}
+  header .admin{font-size:12px;color:#cfd3d7;display:flex;align-items:center;gap:8px}
+  header .admin .dot{width:8px;height:8px;border-radius:50%;background:var(--orange)}
+  /* ---- layout ---- */
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 24px 60px}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow)}
+  .kpi .n{font-size:26px;font-weight:800}
+  .kpi .l{color:var(--muted);font-size:12px;margin-top:2px}
+  .kpi.alert .n{color:var(--reg)}
+  /* ---- toolbar ---- */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
+  .toolbar input,.toolbar select{padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font-size:13px}
+  .toolbar input{min-width:200px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+  .seg button{border:0;background:#fff;padding:8px 12px;cursor:pointer;font-size:12px;color:var(--muted)}
+  .seg button.active{background:var(--noir);color:#fff}
+  .spacer{flex:1}
+  /* ---- table ---- */
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap}
+  th{background:#fafbfc;color:var(--muted);font-weight:600;font-size:12px;cursor:pointer;user-select:none}
+  th.sorted::after{content:" ▾";color:var(--orange)}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:#fbf6f3}
+  .co{font-weight:700}
+  .sec{color:var(--muted);font-size:12px}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}
+  .pill .d{width:8px;height:8px;border-radius:50%}
+  .p-ok{background:#e7f6ec;color:var(--ok)} .p-ok .d{background:var(--ok)}
+  .p-stag{background:#fbf3d9;color:#a07e00} .p-stag .d{background:var(--stag)}
+  .p-reg{background:#fbe4e4;color:var(--reg)} .p-reg .d{background:var(--reg)}
+  .p-sil{background:#eceef0;color:var(--sil)} .p-sil .d{background:var(--sil)}
+  .trend{font-weight:700}
+  .up{color:var(--ok)} .down{color:var(--reg)} .flat{color:var(--muted)}
+  /* progress */
+  .bar{position:relative;width:110px;height:8px;background:#eceef0;border-radius:999px;overflow:hidden;display:inline-block;vertical-align:middle}
+  .bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--orange);border-radius:999px}
+  .bar-l{font-size:11px;color:var(--muted);margin-left:6px}
+  /* ---- alerts ---- */
+  .grid2{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+  .alerts h3{margin:0;padding:12px 14px;background:var(--noir);color:#fff;font-size:13px;border-radius:12px 12px 0 0}
+  .alert-item{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .alert-item:hover{background:#fbf6f3}
+  .alert-item .d{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:none}
+  .alert-item .t{font-weight:700}
+  .alert-item .m{color:var(--muted);font-size:12px}
+  /* ---- modal detail ---- */
+  .overlay{position:fixed;inset:0;background:rgba(20,22,24,.55);display:none;z-index:40;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 16px}
+  .overlay.open{display:flex}
+  .sheet{background:var(--bg);width:100%;max-width:900px;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .sheet .top{background:var(--noir);color:#fff;padding:16px 20px;display:flex;align-items:center;gap:14px}
+  .sheet .top .x{margin-left:auto;cursor:pointer;font-size:22px;line-height:1;color:#bfc4c9}
+  .sheet .body{padding:20px}
+  .sheet h2{margin:0;font-size:18px}
+  .sheet .meta{color:#9aa0a6;font-size:12px;margin-top:3px}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+  @media(max-width:700px){.cards{grid-template-columns:repeat(2,1fr)}}
+  .mini{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px}
+  .mini .v{font-size:22px;font-weight:800}
+  .mini .k{color:var(--muted);font-size:11px}
+  .mini .delta{font-size:12px;font-weight:700;margin-left:6px}
+  .section-t{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:18px 0 8px}
+  .block{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 0}
+  .row{padding:9px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+  .row:last-child{border-bottom:0}
+  .row .status{width:9px;height:9px;border-radius:50%;flex:none}
+  .s-done{background:var(--ok)} .s-progress{background:var(--orange)} .s-todo{background:#cbd0d6} .s-blocked{background:var(--reg)}
+  .row .rt{flex:1}
+  .row .rt b{font-weight:600}
+  .row .rt small{color:var(--muted);display:block}
+  .row .ech{font-size:11px;color:var(--muted);white-space:nowrap}
+  /* sparkline trajectory */
+  .traj{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-bottom:8px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:12px;height:3px;border-radius:2px;display:inline-block}
+  .evt{font-size:12px;color:var(--muted);padding:6px 14px;border-bottom:1px solid var(--line)}
+  .evt:last-child{border:0}
+  .evt b{color:var(--txt)}
+  .foot{color:var(--muted);font-size:11px;text-align:center;margin-top:26px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">DB<b>i</b>360 · Console</div>
+  <div class="sub">Pilotage des comptes clients</div>
+  <div class="spacer"></div>
+  <div class="admin"><span class="dot"></span> Didier — Admin · <span id="clock"></span></div>
+</header>
+
+<div class="wrap">
+  <!-- KPIs -->
+  <div class="kpis" id="kpis"></div>
+
+  <!-- SUIVI FINANCIER DES ABONNEMENTS -->
+  <div class="panel" style="margin-bottom:20px;padding:0">
+    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 2,99 € · Annuel 24,90 €</span></h3>
+    <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
+    <div style="overflow-x:auto"><table><thead><tr>
+      <th>Client</th><th>Formule</th><th>Prix</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th>
+    </tr></thead><tbody id="financeRows"></tbody></table></div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <!-- toolbar -->
+      <div class="toolbar">
+        <input id="q" placeholder="Rechercher un client…" oninput="render()">
+        <select id="secteur" onchange="render()"><option value="">Tous secteurs</option></select>
+        <div class="seg" id="statutSeg">
+          <button data-s="" class="active" onclick="setStatut(this)">Tous</button>
+          <button data-s="regression" onclick="setStatut(this)">Régression</button>
+          <button data-s="stagnation" onclick="setStatut(this)">Stagnation</button>
+          <button data-s="silence" onclick="setStatut(this)">Silence</button>
+        </div>
+      </div>
+      <!-- table -->
+      <div class="panel">
+        <table>
+          <thead><tr>
+            <th data-k="nom" onclick="sortBy('nom')">Client</th>
+            <th data-k="derniere" onclick="sortBy('derniere')">Dernière activité</th>
+            <th data-k="iat" onclick="sortBy('iat')">IAT</th>
+            <th data-k="ive" onclick="sortBy('ive')">IVE</th>
+            <th data-k="av" onclick="sortBy('av')">Avancement</th>
+            <th data-k="nb" onclick="sortBy('nb')">Contrôles</th>
+            <th data-k="statut" onclick="sortBy('statut')">Statut</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- alerts -->
+    <div class="panel alerts" style="padding:0">
+      <h3>⚠︎ À rappeler ( <span id="alertCount">0</span> )</h3>
+      <div id="alertList"></div>
+    </div>
+  </div>
+  <div class="foot">Maquette — données factices. Branchée à Supabase, la liste vient de la vue <code>v_console_clients</code>.</div>
+</div>
+
+<!-- ===== DETAIL SHEET ===== -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="top">
+      <div>
+        <h2 id="dTitle">—</h2>
+        <div class="meta" id="dMeta">—</div>
+      </div>
+      <div class="x" onclick="closeSheet()">×</div>
+    </div>
+    <div class="body">
+      <div class="cards" id="dCards"></div>
+
+      <div class="section-t">Trajectoire des contrôles</div>
+      <div class="traj">
+        <div class="legend">
+          <span><i style="background:var(--orange)"></i>IAT (humain)</span>
+          <span><i style="background:#1C1C1C"></i>IVE (technique)</span>
+          <span><i style="background:#16a34a"></i>Avancement %</span>
+        </div>
+        <div id="chart"></div>
+      </div>
+
+      <div class="section-t">Feuille de route en cours</div>
+      <div class="block" id="dSteps"></div>
+
+      <div class="section-t">Historique d'activité</div>
+      <div class="block" id="dEvents"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ DONNÉES FACTICES ============ */
+/* Un client = trajectoire (snapshots), feuille de route (steps), events. */
+const CLIENTS = [
+  {id:1, nom:"La Romana", secteur:"Restauration", ville:"Maizières-lès-Metz",
+   snaps:[{d:"2026-03-02",iat:38,ive:41,av:5},{d:"2026-04-10",iat:46,ive:49,av:22},{d:"2026-05-20",iat:55,ive:57,av:40},{d:"2026-07-01",iat:63,ive:64,av:58}],
+   derniere:"2026-07-14", nb:4,
+   steps:[
+     {t:"Cadrer les cas d'usage IA prioritaires",s:"done",ech:"2026-04",d:"Menu + avis clients"},
+     {t:"Former l'équipe salle à l'assistant",s:"done",ech:"2026-05",d:""},
+     {t:"Automatiser les réponses aux avis",s:"progress",ech:"2026-07",d:"Brouillons IA validés par le gérant"},
+     {t:"Mesurer le ROI temps gagné",s:"todo",ech:"2026-08",d:""}
+   ],
+   events:[{d:"2026-07-14",t:"Contrôle réalisé (IAT 63)"},{d:"2026-07-08",t:"Feuille de route mise à jour"},{d:"2026-06-30",t:"Connexion"},{d:"2026-05-20",t:"Contrôle réalisé (IAT 55)"}]},
+
+  {id:2, nom:"Référence Pare-Brise", secteur:"Automobile", ville:"Augny",
+   snaps:[{d:"2026-04-05",iat:44,ive:52,av:12},{d:"2026-05-15",iat:52,ive:60,av:35},{d:"2026-06-25",iat:52,ive:60,av:36}],
+   derniere:"2026-06-25", nb:3,
+   steps:[
+     {t:"Chatbot prise de RDV",s:"done",ech:"2026-05",d:""},
+     {t:"Relances SMS automatiques",s:"progress",ech:"2026-06",d:"En test"},
+     {t:"Tableau de bord activité",s:"blocked",ech:"2026-07",d:"Attente accès logiciel garage"}
+   ],
+   events:[{d:"2026-06-25",t:"Contrôle réalisé (IAT 52 = stable)"},{d:"2026-06-10",t:"Connexion"},{d:"2026-05-15",t:"Contrôle réalisé (IAT 52)"}]},
+
+  {id:3, nom:"Immobilière Service", secteur:"Immobilier", ville:"Metz",
+   snaps:[{d:"2026-03-18",iat:50,ive:55,av:20},{d:"2026-05-02",iat:58,ive:62,av:44},{d:"2026-06-14",iat:51,ive:59,av:45}],
+   derniere:"2026-06-14", nb:3,
+   events:[{d:"2026-06-14",t:"Contrôle réalisé (IAT 51 — baisse)"},{d:"2026-05-30",t:"Connexion"}],
+   steps:[
+     {t:"Rédaction d'annonces par IA",s:"done",ech:"2026-04",d:""},
+     {t:"Tri automatique des leads",s:"progress",ech:"2026-06",d:"Adoption partielle"},
+     {t:"Estimation assistée",s:"todo",ech:"2026-08",d:""}
+   ]},
+
+  {id:4, nom:"CL Plâtrerie", secteur:"BTP", ville:"Metz",
+   snaps:[{d:"2026-02-20",iat:33,ive:37,av:8},{d:"2026-04-01",iat:41,ive:45,av:25}],
+   derniere:"2026-05-01", nb:2,
+   events:[{d:"2026-05-01",t:"Connexion"},{d:"2026-04-01",t:"Contrôle réalisé (IAT 41)"}],
+   steps:[
+     {t:"Devis assistés par IA",s:"progress",ech:"2026-05",d:"Modèle en cours"},
+     {t:"Suivi de chantier photo",s:"todo",ech:"2026-07",d:""}
+   ]},
+
+  {id:5, nom:"Dronavia", secteur:"Industrie", ville:"Woippy",
+   snaps:[{d:"2026-05-10",iat:60,ive:66,av:30},{d:"2026-06-20",iat:68,ive:71,av:52},{d:"2026-07-15",iat:74,ive:76,av:70}],
+   derniere:"2026-07-18", nb:3,
+   events:[{d:"2026-07-18",t:"Connexion"},{d:"2026-07-15",t:"Contrôle réalisé (IAT 74)"},{d:"2026-07-02",t:"Feuille de route mise à jour"}],
+   steps:[
+     {t:"Documentation technique IA",s:"done",ech:"2026-05",d:""},
+     {t:"Support client niveau 1 IA",s:"done",ech:"2026-06",d:""},
+     {t:"Analyse qualité images drones",s:"progress",ech:"2026-07",d:"Prometteur"},
+     {t:"Déployer sur toute l'équipe",s:"todo",ech:"2026-09",d:""}
+   ]},
+
+  {id:6, nom:"IT Matelec & Associés", secteur:"Services", ville:"Metz",
+   snaps:[{d:"2026-04-22",iat:47,ive:53,av:18}],
+   derniere:"2026-04-25", nb:1,
+   events:[{d:"2026-04-25",t:"Connexion"},{d:"2026-04-22",t:"BOUSSOLE réalisée"}],
+   steps:[
+     {t:"Premier diagnostic BOUSSOLE",s:"done",ech:"2026-04",d:""},
+     {t:"Choisir 1er cas d'usage",s:"todo",ech:"2026-05",d:"En attente de rappel"}
+   ]}
+];
+
+/* ============ CALCULS (miment la vue SQL v_console_clients) ============ */
+const TODAY = new Date("2026-07-19");
+function daysSince(d){return Math.round((TODAY-new Date(d))/864e5);}
+function enrich(c){
+  const n=c.snaps.length, last=c.snaps[n-1], prev=n>1?c.snaps[n-2]:null;
+  const dIat = prev? last.iat-prev.iat : null;
+  const dIve = prev? last.ive-prev.ive : null;
+  let statut="ok";
+  const silent = daysSince(c.derniere)>45;
+  if(silent) statut="silence";
+  else if((dIat!=null&&dIat<0)||(dIve!=null&&dIve<0)) statut="regression";
+  else if(dIat===0&&dIve===0) statut="stagnation";
+  // Abonnement : pour l'instant, tous les clients en formule Annuel 24,90 €/an (souscription = 1re mesure).
+  const since=c.snaps[0].d;
+  const ren=new Date(since); ren.setFullYear(ren.getFullYear()+1);
+  const renewalDays=Math.round((ren-TODAY)/864e5);
+  const pay = renewalDays<0 ? "retard" : (renewalDays<=30 ? "proche" : "ajour");
+  return {...c, iat:last.iat, ive:last.ive, av:last.av, dIat, dIve, statut, jours:daysSince(c.derniere),
+    plan:"annuel", price:24.90, since, renewal:ren.toISOString().slice(0,10), renewalDays, pay};
+}
+const EUR=n=>n.toFixed(2).replace('.',',')+' €';
+let DATA = CLIENTS.map(enrich);
+
+/* ============ ÉTAT UI ============ */
+let statutFilter="", sortKey="statut", sortDir=1;
+const STAT_ORDER={regression:0,silence:1,stagnation:2,ok:3};
+const STAT_LABEL={ok:"OK",stagnation:"Stagnation",regression:"Régression",silence:"Silence"};
+
+/* secteurs */
+[...new Set(CLIENTS.map(c=>c.secteur))].sort().forEach(s=>{
+  const o=document.createElement("option");o.value=s;o.textContent=s;secteur.appendChild(o);
+});
+
+function setStatut(btn){
+  document.querySelectorAll("#statutSeg button").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active"); statutFilter=btn.dataset.s; render();
+}
+function sortBy(k){ if(sortKey===k)sortDir*=-1; else{sortKey=k;sortDir=1;} render(); }
+
+function trendHtml(delta){
+  if(delta==null) return '<span class="trend flat">–</span>';
+  if(delta>0) return '<span class="trend up">▲ +'+delta+'</span>';
+  if(delta<0) return '<span class="trend down">▼ '+delta+'</span>';
+  return '<span class="trend flat">▬ 0</span>';
+}
+function pill(s){return '<span class="pill p-'+({ok:"ok",stagnation:"stag",regression:"reg",silence:"sil"}[s])+'"><span class="d"></span>'+STAT_LABEL[s]+'</span>';}
+function bar(v){return '<span class="bar"><i style="width:'+v+'%"></i></span><span class="bar-l">'+v+'%</span>';}
+function fmtDays(j){return j===0?"aujourd'hui":j===1?"hier":"il y a "+j+" j";}
+
+/* ============ SUIVI FINANCIER ============ */
+function renderFinance(){
+  const actifs=DATA.length;
+  const arr=DATA.reduce((s,d)=>s+(d.plan==="annuel"?d.price:d.price*12),0);
+  const mrr=arr/12;
+  const proche=DATA.filter(d=>d.pay==="proche").length;
+  const retard=DATA.filter(d=>d.pay==="retard").length;
+  document.getElementById("financeKpis").innerHTML=[
+    [actifs,"Abonnés actifs"],
+    [EUR(mrr),"MRR (revenu mensuel)"],
+    [EUR(arr),"ARR (revenu annuel)"],
+    [proche,"Échéances < 30 j"],
+    [retard,"En retard"]
+  ].map(k=>'<div class="kpi"><div class="n" style="font-size:22px">'+k[0]+'</div><div class="l">'+k[1]+'</div></div>').join("");
+  const payPill={ajour:['p-ok','À jour'],proche:['p-stag','Échéance proche'],retard:['p-reg','En retard']};
+  document.getElementById("financeRows").innerHTML=DATA.slice().sort((a,b)=>a.renewalDays-b.renewalDays).map(d=>{
+    const p=payPill[d.pay];
+    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+'</td><td>'+EUR(d.price)+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td></tr>';
+  }).join("");
+}
+
+/* ============ RENDER ============ */
+function render(){
+  renderFinance();
+  // KPIs
+  const reg=DATA.filter(d=>d.statut==="regression").length;
+  const sil=DATA.filter(d=>d.statut==="silence").length;
+  const stag=DATA.filter(d=>d.statut==="stagnation").length;
+  kpis.innerHTML=[
+    ["n",DATA.length,"Clients actifs"],
+    ["alert",reg,"En régression"],
+    ["alert",sil,"Silencieux (>45 j)"],
+    ["n",stag,"En stagnation"]
+  ].map(k=>'<div class="kpi '+(k[0]==="alert"?"alert":"")+'"><div class="n">'+k[1]+'</div><div class="l">'+k[2]+'</div></div>').join("");
+
+  // filtres
+  const q=document.getElementById("q").value.toLowerCase();
+  const sec=document.getElementById("secteur").value;
+  let list=DATA.filter(d=>
+    (!q||d.nom.toLowerCase().includes(q)) &&
+    (!sec||d.secteur===sec) &&
+    (!statutFilter||d.statut===statutFilter)
+  );
+  // tri
+  list.sort((a,b)=>{
+    let av,bv;
+    switch(sortKey){
+      case "nom":av=a.nom;bv=b.nom;break;
+      case "derniere":av=a.jours;bv=b.jours;break;
+      case "statut":av=STAT_ORDER[a.statut];bv=STAT_ORDER[b.statut];break;
+      default:av=a[sortKey];bv=b[sortKey];
+    }
+    return (av>bv?1:av<bv?-1:0)*sortDir;
+  });
+  document.querySelectorAll("th").forEach(th=>th.classList.toggle("sorted",th.dataset.k===sortKey));
+
+  rows.innerHTML=list.map(d=>`
+    <tr onclick="openDetail(${d.id})">
+      <td><div class="co">${d.nom}</div><div class="sec">${d.secteur} · ${d.ville}</div></td>
+      <td>${fmtDays(d.jours)}<div class="sec">${d.derniere}</div></td>
+      <td><b>${d.iat}</b> ${trendHtml(d.dIat)}</td>
+      <td><b>${d.ive}</b> ${trendHtml(d.dIve)}</td>
+      <td>${bar(d.av)}</td>
+      <td>${d.nb}</td>
+      <td>${pill(d.statut)}</td>
+    </tr>`).join("") || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:26px">Aucun client ne correspond.</td></tr>';
+
+  // alertes = tout ce qui n'est pas OK, trié par gravité puis silence
+  const al=DATA.filter(d=>d.statut!=="ok").sort((a,b)=>STAT_ORDER[a.statut]-STAT_ORDER[b.statut]);
+  alertCount.textContent=al.length;
+  const msg={regression:"IAT/IVE en baisse au dernier contrôle",stagnation:"Aucune progression depuis 2 contrôles",silence:d=>"Pas d'activité depuis "+d.jours+" jours"};
+  alertList.innerHTML=al.map(d=>{
+    const cls={regression:"var(--reg)",stagnation:"var(--stag)",silence:"var(--sil)"}[d.statut];
+    const m=typeof msg[d.statut]==="function"?msg[d.statut](d):msg[d.statut];
+    return `<div class="alert-item" onclick="openDetail(${d.id})">
+      <span class="d" style="background:${cls}"></span>
+      <div><div class="t">${d.nom} <span style="font-weight:400;color:var(--muted);font-size:12px">· ${STAT_LABEL[d.statut]}</span></div>
+      <div class="m">${m}</div></div></div>`;
+  }).join("") || '<div style="padding:14px;color:var(--muted)">Rien à signaler 🎉</div>';
+}
+
+/* ============ DETAIL ============ */
+function openDetail(id){
+  const c=DATA.find(x=>x.id===id);
+  dTitle.textContent=c.nom;
+  dMeta.textContent=c.secteur+" · "+c.ville+" · "+c.nb+" contrôle(s) · dernière activité "+fmtDays(c.jours);
+  const last=c.snaps[c.snaps.length-1];
+  dCards.innerHTML=[
+    ["IAT (humain)",last.iat,c.dIat],
+    ["IVE (technique)",last.ive,c.dIve],
+    ["Avancement",last.av+"%",null],
+    ["Statut",STAT_LABEL[c.statut],null]
+  ].map(k=>{
+    let delta="";
+    if(k[2]!=null) delta=' <span class="delta '+(k[2]>0?"up":k[2]<0?"down":"flat")+'">'+(k[2]>0?"▲ +"+k[2]:k[2]<0?"▼ "+k[2]:"0")+'</span>';
+    return '<div class="mini"><div class="v">'+k[1]+delta+'</div><div class="k">'+k[0]+'</div></div>';
+  }).join("");
+
+  drawChart(c.snaps);
+
+  dSteps.innerHTML=(c.steps||[]).map(s=>`
+    <div class="row"><span class="status s-${s.s}"></span>
+    <div class="rt"><b>${s.t}</b>${s.d?'<small>'+s.d+'</small>':''}</div>
+    <span class="ech">${({done:"Fait",progress:"En cours",todo:"À faire",blocked:"Bloqué"})[s.s]} · ${s.ech}</span></div>`).join("");
+
+  dEvents.innerHTML=(c.events||[]).map(e=>`<div class="evt"><b>${e.d}</b> — ${e.t}</div>`).join("");
+
+  overlay.classList.add("open");
+}
+function closeSheet(){overlay.classList.remove("open");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+
+/* simple SVG multi-line chart (IAT / IVE / avancement) */
+function drawChart(snaps){
+  const W=760,H=180,pad=28;
+  const xs=snaps.map((s,i)=>pad+(snaps.length===1?W/2-pad:i*(W-2*pad)/(snaps.length-1)));
+  const y=v=>H-pad-(v/100)*(H-2*pad);
+  const line=(key,color)=>{
+    const pts=snaps.map((s,i)=>xs[i]+","+y(s[key])).join(" ");
+    const dots=snaps.map((s,i)=>`<circle cx="${xs[i]}" cy="${y(s[key])}" r="3.5" fill="${color}"/>`).join("");
+    return `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>${dots}`;
+  };
+  const grid=[0,25,50,75,100].map(v=>`<line x1="${pad}" y1="${y(v)}" x2="${W-pad}" y2="${y(v)}" stroke="#eceef0"/><text x="4" y="${y(v)+3}" font-size="9" fill="#9aa0a6">${v}</text>`).join("");
+  const labels=snaps.map((s,i)=>`<text x="${xs[i]}" y="${H-8}" font-size="9" fill="#9aa0a6" text-anchor="middle">${s.d.slice(5)}</text>`).join("");
+  document.getElementById("chart").innerHTML=
+    `<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:100%">${grid}${labels}${line("ive","#1C1C1C")}${line("iat","#E8541A")}${line("av","#16a34a")}</svg>`;
+}
+
+/* clock */
+function tick(){const d=new Date();clock.textContent=d.toLocaleDateString("fr-FR");}
+tick();
+render();
+</script>
+</body>
+</html>
