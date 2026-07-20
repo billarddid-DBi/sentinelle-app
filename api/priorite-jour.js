@@ -8,6 +8,7 @@ RÈGLES :
 - Elle doit servir le CAP fourni (l'objectif/le palier) ET répondre à la réalité du jour. Règle d'arbitrage : si le climat est tendu OU une peur est forte → priorise l'HUMAIN (rassurer, écouter) AVANT la technique. Si tout va bien → fais avancer la prochaine étape concrète.
 - Relie l'action à un objectif : "objectif" = étiquette COURTE (ex : "Palier 1 · Confiance", "Adhésion", "Écoute").
 - "pourquoi" = UNE phrase qui explique pourquoi CETTE action AUJOURD'HUI (relie le climat du jour au cap).
+- CRISE GRAVE (garde-fou) : si le contexte indique une crise (champ "crise" non vide, redressement/liquidation, trésorerie durablement critique, détresse), NE PROPOSE PAS d'optimisation, d'automatisation, de prospection ni de croissance. L'action du jour doit alors être : sécuriser le cash / la marge (ex : refuser une commande à perte, appeler un client clé), OU un geste vrai envers l'équipe, OU — souvent le plus juste — RENVOYER VERS UN HUMAIN : « appelle ton expert-comptable / ton administrateur judiciaire », ou « prends soin de toi : APESA, CIP France ». Reste sobre, sans faux espoir. L'app ne pilote pas une sortie de redressement.
 - Ton chaleureux, jamais culpabilisant. Process, pas procès. On agit sur le système/l'ambiance, jamais sur les personnes nommément. Vocabulaire entreprise, jamais médical.
 - TRÈS COURT : "action" ≤ 18 mots, "pourquoi" ≤ 18 mots, "objectif" ≤ 5 mots.
 
@@ -38,6 +39,7 @@ Peurs présentes : ${peurs}
 --- ÉTAT DE CE MATIN ---
 Climat de l'équipe ressenti : ${b.climat || "non renseigné"}
 Pouls trésorerie ressenti : ${b.treso || "non renseigné"}
+SIGNAUX DE CRISE GRAVE : ${b.crise || "aucun"}
 --- FEUILLE DE ROUTE ---
 ${etapes}
 

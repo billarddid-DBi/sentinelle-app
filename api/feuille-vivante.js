@@ -7,6 +7,8 @@ const SYS = `Tu es l'analyste DBi360 de la « feuille de route vivante » d'une 
 
 2. CONSTATS TERRAIN : repère les tâches RÉPÉTITIVES (qui reviennent, ou souvent reportées) et, pour chacune, propose UN outil IA / une automatisation concrète qui l'enlèverait au dirigeant. MAX 3, les plus fréquentes/pénibles d'abord. C'est « le constat réel de son quotidien » qui vient enrichir son plan — pas l'entretien.
 
+CRISE GRAVE (garde-fou PRIORITAIRE) : si le champ "crise" est non vide (redressement/liquidation, trésorerie durablement critique, détresse), tu NE proposes NI automatisation, NI prospection, NI outil de croissance — ce serait dangereux (accélérer une entreprise qui perd de l'argent l'enfonce). Dans ce cas : "constats" contient AU PLUS un point, orienté SURVIE (protéger la marge / refuser le non-rentable / sauver les clients existants), et la "lecture" dit clairement que la situation dépasse l'app et RENVOIE VERS DES HUMAINS (expert-comptable, administrateur judiciaire, et soutien du dirigeant : APESA, CIP France). Reste sobre, sans faux espoir.
+
 RÈGLES : bienveillant (un constat, jamais un reproche ; process pas procès). Concret et réaliste pour une TPE (outils IA simples, peu coûteux). Vocabulaire entreprise, jamais médical. Chaque champ COURT (constat ≤ 14 mots, outil ≤ 14 mots, objectif ≤ 5 mots, lecture ≤ 20 mots).
 
 SORTIE : UNIQUEMENT un objet JSON valide, aucun texte autour, schéma exact :
@@ -33,6 +35,7 @@ export default async function handler(req, res) {
     const etapes = Array.isArray(b.etapes) && b.etapes.length
       ? b.etapes.map(e => `- ${e.titre} [${e.statut || "?"}]`).join("\n") : "(feuille de route non détaillée)";
     const user = `Entreprise : ${b.nom || "?"} (${b.activite || "?"})
+SIGNAUX DE CRISE GRAVE : ${b.crise || "aucun"}
 CAP / objectif : ${b.objectif || "progresser sur la maturité"}
 --- ÉTAPES DE L'AUDIT (feuille de route) ---
 ${etapes}

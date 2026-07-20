@@ -1408,6 +1408,20 @@ function pmFeu(t){ if(!t.climat) return {bg:'#4b5563',lbl:'?',ic:'ti-help'};
   if(t.climat===3) return {bg:'#dc2626',lbl:'Attention',ic:'ti-alert-triangle'};
   if(t.climat===2||t.treso>=2) return {bg:'#ea580c',lbl:'Vigilance',ic:'ti-alert-circle'};
   return {bg:'#16a34a',lbl:'RAS',ic:'ti-check'}; }
+var PM_CRISIS_KW=['redressement','liquidation','dépôt de bilan','depot de bilan','cessation de paiement','administrateur judiciaire','mandataire judiciaire','huissier','urssaf','saisie','licencier','à perte','a perte','découvert','decouvert','dépôt de bilan','faillite','surendettement'];
+function pmCrisis(){
+  var o=pmLoad(), days=o.days||{}, tr=0,cl=0,dt=new Date();
+  for(var i=0;i<7;i++){ var k=dt.toISOString().slice(0,10), d=days[k]; if(d){ if(d.treso===3)tr++; if(d.climat===3)cl++; } dt.setDate(dt.getDate()-1); }
+  var cap=pmCap(), iatLow=(cap&&cap.iat!=null&&cap.iat<=25);
+  var texts=[].concat((o.tasks||[]).map(function(x){return x.t;}),(o.decisions||[]).map(function(x){return x.t;}),[(window.lastMiroir&&window.lastMiroir.activite)||'']).join(' ').toLowerCase();
+  var hits=PM_CRISIS_KW.filter(function(w){return texts.indexOf(w)>-1;});
+  var sig=[]; if(tr>=5)sig.push('trésorerie durablement serrée'); if(cl>=5)sig.push('climat social durablement tendu'); if(iatLow)sig.push('acceptabilité au plus bas'); if(hits.length)sig.push('signaux de difficulté grave');
+  var crisis = hits.length>0 || (tr>=5 && (cl>=5 || iatLow));
+  return crisis?{signals:sig,hits:hits}:null;
+}
+function pmCrisisBanner(c){
+  return '<div class="card" style="margin-top:11px;border:1.5px solid #fecaca;overflow:hidden;"><div style="background:#7f1d1d;color:#fff;padding:11px 15px;"><div style="font-size:13px;font-weight:600;"><i class="ti ti-lifebuoy"></i> On sort du cadre de l\'app</div></div><div class="sec" style="font-size:12px;color:#4b5563;line-height:1.55;">Les signaux détectés ('+c.signals.join(' · ')+') montrent une difficulté qui <b>dépasse ce qu\'un outil peut régler</b>. Le plus important maintenant, ce sont des <b>humains</b> :<div style="margin-top:9px;font-size:12px;color:#1C1C1C;line-height:1.8;"><i class="ti ti-briefcase" style="color:#7f1d1d;"></i> <b>Expert-comptable</b> / <b>administrateur judiciaire</b> — le financier &amp; le juridique.<br><i class="ti ti-heart-handshake" style="color:#7f1d1d;"></i> <b>APESA</b> — soutien psychologique d\'urgence (gratuit, confidentiel).<br><i class="ti ti-users" style="color:#7f1d1d;"></i> <b>CIP France</b> — entretien gratuit avec des professionnels.</div><div style="margin-top:9px;font-size:11.5px;color:#7f1d1d;font-weight:600;">Tu n\'es pas seul. Ceci passe avant tout le reste — l\'app attendra.</div></div></div>';
+}
 function pmMot(streak){ var snaps=pmSnaps();
   if(streak>=3) return streak+' matins d\'affilée — tu tiens le cap, l\'équipe suit.';
   if(snaps.length>=2 && snaps[snaps.length-1].iat>snaps[0].iat) return 'Ton acceptabilité progresse depuis le début. Le travail paie — continue.';
@@ -1434,7 +1448,8 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
     climat:(['','bonne','moyenne','tendue'][t.climat||0])||'', treso:(['','ça rentre','tendue','serrée'][t.treso||0])||'',
     band:cap?cap.band:'', iat:cap?cap.iat:null, objectif:cap?(cap.palier+' (IAT '+cap.iat+' → objectif '+cap.obj+')'):'',
     peurs:(ah&&ah.peurs?ah.peurs.map(function(p){return p.txt||p.code;}):[]),
-    etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]) };
+    etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]),
+    crise:(function(){var c=pmCrisis();return c?c.signals.join(' · '):'';})() };
   var done=function(prio){ window.pmFetching=false; var oo=pmLoad(); pmDay(oo).prio=prio; pmSave(oo); if($('dirigeant').style.display==='block') dirigeantSpace(); };
   fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
     .then(function(r){return r.json();})
@@ -1457,6 +1472,7 @@ function dirigeantSpace(){
       +'<div style="text-align:center;"><div style="width:36px;height:36px;border-radius:50%;background:'+feu.bg+';display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;"><i class="ti '+feu.ic+'"></i></div><div style="font-size:9px;color:#9ca3af;margin-top:2px;">'+feu.lbl+'</div></div>'
     +'</div>'
     +'<div style="font-size:11.5px;color:#E7DBD1;margin-top:9px;border-top:1px solid #333;padding-top:8px;line-height:1.45;"><i class="ti ti-flame" style="color:#E8A07E;"></i> '+esc(pmMot(streak))+'</div></div></div>';
+  var crisis=pmCrisis(); if(crisis) html+=pmCrisisBanner(crisis);
   html+='<div style="display:flex;gap:9px;margin-top:11px;">'
     +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Climat équipe</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetClimat',1,t.climat,'ti-mood-smile','#166534','#dcfce7')+dot('pmSetClimat',2,t.climat,'ti-mood-neutral','#a16207','#fef9c3')+dot('pmSetClimat',3,t.climat,'ti-mood-sad','#991b1b','#fee2e2')+'</div></div>'
     +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Pouls tréso</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetTreso',1,t.treso,'ti-trending-up','#166534','#dcfce7')+dot('pmSetTreso',2,t.treso,'ti-minus','#a16207','#fef9c3')+dot('pmSetTreso',3,t.treso,'ti-trending-down','#991b1b','#fee2e2')+'</div></div></div>';
@@ -1527,7 +1543,8 @@ function vivanteFetch(force){
   var ctx={ nom:b.nom||'', activite:b.activite||'', objectif:cap?(cap.palier+' (IAT '+cap.iat+' → '+cap.obj+')'):'',
     etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]),
     taches:(o.tasks||[]).slice(-40).map(function(t){return {t:t.t,statut:t.done?'fait':'à faire',reports:t.reports||0};}),
-    decisions:(o.decisions||[]).map(function(d){return {t:d.t,jours:pmDaysBetween(d.created)};}) };
+    decisions:(o.decisions||[]).map(function(d){return {t:d.t,jours:pmDaysBetween(d.created)};}),
+    crise:(function(){var c=pmCrisis();return c?c.signals.join(' · '):'';})() };
   var done=function(v){ window.vivFetching=false; var oo=pmLoad(); oo.vivante=v; pmSave(oo); if($('vivante')&&$('vivante').style.display==='block') vivanteView(); };
   fetch('/api/feuille-vivante',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
     .then(function(r){return r.json();})
@@ -1544,6 +1561,7 @@ function vivanteView(){
   if(!v){ vivanteFetch(); }
   var cap=pmCap(), fr=window.frData;
   var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:10px;letter-spacing:1.5px;color:#E8A07E;"><i class="ti ti-route"></i> FEUILLE DE ROUTE</div><span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:9px;background:#14532d;color:#4ade80;"><i class="ti ti-point-filled"></i> vivante</span></div><div style="font-size:15px;font-weight:500;margin-top:3px;">'+esc(b_nom())+'</div></div></div>';
+  var crisisV=pmCrisis(); if(crisisV){ html+=pmCrisisBanner(crisisV); }
   if(v){
     var cp=Math.max(0,Math.min(100,v.repartition.cap||0)), po=100-cp;
     html+='<div class="panel" style="margin-top:11px;padding:11px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Ton énergie (estimée sur ton quotidien)</div><div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:7px;"><div style="width:'+cp+'%;background:#16a34a;"></div><div style="width:'+po+'%;background:#ea580c;"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;"><span style="color:#166534;">'+cp+'% cap</span><span style="color:#9a3412;">'+po+'% quotidien / pompier</span></div>'+(v.lecture?'<div style="font-size:11.5px;color:#4b5563;margin-top:8px;line-height:1.45;">'+esc(v.lecture)+'</div>':'')+'</div>';
