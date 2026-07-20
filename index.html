@@ -74,7 +74,11 @@
   .tab i{font-size:22px;display:block;margin-bottom:1px;}
   .tab.on{color:#E8541A;}
   body.hastab .wrap{padding-bottom:76px;}
-  @media print{ #tabbar{display:none!important;} }
+  #capfab{position:fixed;right:16px;bottom:88px;width:54px;height:54px;border-radius:50%;background:#E8541A;color:#fff;display:none;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 20px rgba(232,84,26,.4);z-index:70;cursor:pointer;}
+  #capfab.show{display:flex;}
+  #capbar{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;}
+  #capbar.show{display:flex;}
+  @media print{ #tabbar,#capfab,#capbar{display:none!important;} }
 </style>
 </head>
 <body>
@@ -155,7 +159,14 @@
   <div id="compare" style="display:none;"></div>
   <div id="dirigeant" style="display:none;"></div>
   <div id="auth" style="display:none;"></div>
+  <div id="soir" style="display:none;"></div>
   <div id="tabbar"></div>
+  <div id="capfab" onclick="capOpen()" aria-label="Note rapide"><i class="ti ti-plus"></i></div>
+  <div id="capbar" onclick="if(event.target===this)capClose()"><div style="background:#fff;width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;padding:14px 16px 20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div style="font-size:13px;font-weight:600;color:#1C1C1C;"><i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide</div><button type="button" onclick="capClose()" style="border:none;background:none;font-size:20px;color:#9ca3af;cursor:pointer;"><i class="ti ti-x"></i></button></div>
+    <div style="display:flex;gap:8px;align-items:center;"><input id="capIn" type="text" placeholder="une tâche, une idée…" onkeydown="if(event.key===\'Enter\')capAdd()" style="flex:1;font-size:14px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button id="capMicBtn" type="button" onclick="capMic()" aria-label="Dicter" style="width:44px;height:44px;border-radius:50%;border:1px solid #e6e1d8;background:#fff;cursor:pointer;font-size:20px;flex-shrink:0;"><i class="ti ti-microphone"></i></button></div>
+    <button type="button" onclick="capAdd()" style="width:100%;margin-top:10px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">Ajouter à ma to-do</button>
+  </div></div>
 
   <div id="err"></div>
   <div id="loading"><div class="spin"></div><div id="loadmsg">Enquête publique en cours…</div></div>
@@ -208,7 +219,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   var hero=$('hero'); if(hero) hero.style.display=(v==='home'||v==='form'||v==='auth')?'block':'none';
   var hp=$('histPanel'); if(hp&&v!=='form') hp.remove();
   renderTabbar(v);
@@ -1374,7 +1385,15 @@ function lancerControle(){
 }
 /* ===== POINT DU MATIN (accueil dirigeant) ===== */
 function pmKey(){ return 'pm_'+cpSlug(); }
-function pmLoad(){ try{ var o=JSON.parse(localStorage.getItem(pmKey())); if(o){o.days=o.days||{};o.priorites=o.priorites||[];o.decisions=o.decisions||[];return o;} }catch(e){} return {days:{},priorites:[],decisions:[]}; }
+function pmTodayStr(){ return new Date().toISOString().slice(0,10); }
+function pmDaysBetween(a){ return Math.max(0,Math.round((new Date(pmTodayStr())-new Date(a))/864e5)); }
+function pmUid(p){ return (p||'x')+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function pmLoad(){ var o={days:{},tasks:[],decisions:[]}; try{ var s=JSON.parse(localStorage.getItem(pmKey())); if(s)o=s; }catch(e){}
+  o.days=o.days||{}; o.tasks=o.tasks||[]; o.decisions=o.decisions||[]; var td=pmTodayStr();
+  if(o.priorites&&o.priorites.length){ o.priorites.forEach(function(p){ o.tasks.push({id:pmUid('t'),t:p.t,created:td,due:td,done:!!p.done,reports:0}); }); }
+  o.priorites=undefined;
+  o.decisions=o.decisions.map(function(d){ return (typeof d==='string')?{id:pmUid('d'),t:d,created:td,resolved:false}:{id:d.id||pmUid('d'),t:d.t,created:d.created||td,resolved:!!d.resolved}; });
+  return o; }
 function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} }
 function pmDay(o){ var k=new Date().toISOString().slice(0,10); if(!o.days[k]) o.days[k]={}; return o.days[k]; }
 function pmStreak(o){ var n=0,dt=new Date(),k0=dt.toISOString().slice(0,10); if(!(o.days[k0]&&o.days[k0].climat)) dt.setDate(dt.getDate()-1); for(;;){ var k=dt.toISOString().slice(0,10); if(o.days[k]&&o.days[k].climat){n++;dt.setDate(dt.getDate()-1);} else break; } return n; }
@@ -1394,11 +1413,19 @@ function pmMot(streak){ var snaps=pmSnaps();
 function pmSetClimat(n){ var o=pmLoad(); pmDay(o).climat=n; pmSave(o); dirigeantSpace(); }
 function pmSetTreso(n){ var o=pmLoad(); pmDay(o).treso=n; pmSave(o); dirigeantSpace(); }
 function pmGeste(s){ var o=pmLoad(); pmDay(o).geste=s; pmSave(o); dirigeantSpace(); }
-function pmAddPriorite(){ var el=$('pmPrioIn'); if(!el||!el.value.trim()) return; var o=pmLoad(); o.priorites.push({t:el.value.trim(),done:false}); if(o.priorites.length>6)o.priorites=o.priorites.slice(-6); pmSave(o); dirigeantSpace(); }
-function pmTogglePrio(i){ var o=pmLoad(); if(o.priorites[i]){o.priorites[i].done=!o.priorites[i].done;pmSave(o);} dirigeantSpace(); }
-function pmDelPrio(i){ var o=pmLoad(); o.priorites.splice(i,1); pmSave(o); dirigeantSpace(); }
-function pmAddDecision(){ var el=$('pmDecIn'); if(!el||!el.value.trim()) return; var o=pmLoad(); o.decisions.push({t:el.value.trim()}); if(o.decisions.length>6)o.decisions=o.decisions.slice(-6); pmSave(o); dirigeantSpace(); }
-function pmDelDecision(i){ var o=pmLoad(); o.decisions.splice(i,1); pmSave(o); dirigeantSpace(); }
+function pmRerender(){ if($('soir')&&$('soir').style.display==='block') checkSoir(); else if($('dirigeant')&&$('dirigeant').style.display==='block') dirigeantSpace(); }
+function pmRollover(){ var o=pmLoad(),td=pmTodayStr(),ch=false; o.tasks.forEach(function(t){ if(!t.done&&t.due&&t.due<td){ t.due=td; t.reports=(t.reports||0)+1; ch=true; } }); if(ch)pmSave(o); }
+function pmTodayTasks(o){ var td=pmTodayStr(); return o.tasks.filter(function(t){ return (!t.done&&t.due===td)||(t.done&&t.doneAt===td); }); }
+function pmAddTask(text){ if(!text||!text.trim())return; var o=pmLoad(); o.tasks.push({id:pmUid('t'),t:text.trim(),created:pmTodayStr(),due:pmTodayStr(),done:false,reports:0}); pmSave(o); }
+function pmToggleTask(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); pmRerender(); }
+function pmDelTask(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){return t.id!==id;}); pmSave(o); pmRerender(); }
+function pmQuickAdd(){ var el=$('pmTaskIn'); if(!el)return; pmAddTask(el.value); el.value=''; pmRerender(); }
+function pmAddDecision(){ var el=$('pmDecIn'); if(!el||!el.value.trim())return; var o=pmLoad(); o.decisions.push({id:pmUid('d'),t:el.value.trim(),created:pmTodayStr(),resolved:false}); pmSave(o); pmRerender(); }
+function pmResolveDecision(id){ var o=pmLoad(); o.decisions=o.decisions.filter(function(d){return d.id!==id;}); pmSave(o); pmRerender(); }
+function capOpen(){ var c=$('capbar'); if(c){ c.className='show'; var i=$('capIn'); if(i){i.value='';setTimeout(function(){i.focus();},60);} } }
+function capClose(){ var c=$('capbar'); if(c)c.className=''; }
+function capAdd(){ var i=$('capIn'); if(!i||!i.value.trim()){capClose();return;} pmAddTask(i.value); capClose(); pmRerender(); }
+function capMic(){ var SR=window.SpeechRecognition||window.webkitSpeechRecognition; var i=$('capIn'); if(!SR){ if(i)i.focus(); return; } try{ var r=new SR(); r.lang='fr-FR'; r.interimResults=false; var mb=$('capMicBtn'); if(mb)mb.style.color='#E8541A'; r.onresult=function(e){ if(i) i.value=(i.value?i.value+' ':'')+e.results[0][0].transcript; }; r.onend=function(){ if(mb)mb.style.color=''; }; r.onerror=function(){ if(mb)mb.style.color=''; }; r.start(); }catch(e){} }
 function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching) return; window.pmFetching=true;
   var ah=window.lastAH, fr=window.frData, b=window.lastMiroir||{}, cap=pmCap();
   var ctx={ nom:b.nom||(ah&&ah.nom)||'', activite:b.activite||'',
@@ -1418,6 +1445,7 @@ function dirigeantSpace(){
   if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
   if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
+  pmRollover();
   var o=pmLoad(), t=pmDay(o), streak=pmStreak(o), feu=pmFeu(t), cap=pmCap();
   var dateStr=new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
   var dot=function(fn,n,cur,ic,onCol,onBg){ var on=cur===n; return '<button type="button" onclick="'+fn+'('+n+')" style="width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;background:'+(on?onBg:'#f1f5f9')+';color:'+(on?onCol:'#9ca3af')+';'+(on?'outline:2px solid '+onCol+';':'')+'"><i class="ti '+ic+'"></i></button>'; };
@@ -1441,14 +1469,38 @@ function dirigeantSpace(){
   } else { prioBody='<div style="text-align:center;font-size:12px;color:#6b7280;padding:8px;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>L\'IA prépare ta priorité du jour…</div>'; }
   html+='<div class="card" style="margin-top:11px;border:2px solid #f6c6ae;"><div class="sec">'+prioBody+'</div></div>';
   if(cap){ html+='<div class="panel" style="margin-top:11px;padding:11px 13px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-flag-3"></i> Cap du trimestre</span>'+(cap.steps?'<span style="font-size:11px;font-weight:600;color:#4b5563;">'+cap.done+'/'+cap.steps+' étapes</span>':'')+'</div><div style="font-size:12px;color:#1C1C1C;margin-top:4px;">'+cap.palier+' — IAT '+cap.iat+' <i class="ti ti-arrow-right" style="font-size:11px;color:#cbd5e1;"></i> objectif '+cap.obj+'</div><div style="height:7px;background:#eef2f7;border-radius:4px;margin-top:6px;overflow:hidden;"><div style="width:'+cap.pct+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
-  var prioList=(o.priorites||[]).map(function(p,i){ return '<div style="display:flex;align-items:center;gap:7px;font-size:12px;margin-top:5px;"><button type="button" onclick="pmTogglePrio('+i+')" style="border:none;background:none;cursor:pointer;color:'+(p.done?'#16a34a':'#cbd5e1')+';font-size:16px;padding:0;"><i class="ti '+(p.done?'ti-square-check':'ti-square')+'"></i></button><span style="flex:1;'+(p.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(p.t)+'</span><button type="button" onclick="pmDelPrio('+i+')" style="border:none;background:none;cursor:pointer;color:#cbd5e1;font-size:14px;padding:0;"><i class="ti ti-x"></i></button></div>'; }).join('');
-  var decList=(o.decisions||[]).map(function(p,i){ return '<div style="display:flex;align-items:center;gap:7px;font-size:12px;margin-top:5px;"><i class="ti ti-gavel" style="color:#ea580c;"></i><span style="flex:1;color:#1C1C1C;">'+esc(p.t)+'</span><button type="button" onclick="pmDelDecision('+i+')" title="tranché" style="border:none;background:none;cursor:pointer;color:#16a34a;font-size:15px;padding:0;"><i class="ti ti-check"></i></button></div>'; }).join('');
-  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-checkbox"></i> Mes priorités du jour</div>'+(prioList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Aucune pour l\'instant.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmPrioIn" type="text" placeholder="ex : relancer le devis Durand" onkeydown="if(event.key===\'Enter\')pmAddPriorite()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddPriorite()" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
-  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-gavel"></i> Décisions en attente</div>'+(decList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Rien à trancher.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmDecIn" type="text" placeholder="ex : choisir le fournisseur" onkeydown="if(event.key===\'Enter\')pmAddDecision()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddDecision()" style="border:none;background:#1C1C1C;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
+  var today=pmTodayTasks(o);
+  var taskList=today.map(function(x){ var rep=(x.reports>0)?' <span style="font-size:9px;color:#ea580c;background:#fff7ed;padding:1px 6px;border-radius:8px;">reportée '+x.reports+'×</span>':''; return '<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;margin-top:5px;"><button type="button" onclick="pmToggleTask(\''+x.id+'\')" style="border:none;background:none;cursor:pointer;color:'+(x.done?'#16a34a':'#cbd5e1')+';font-size:17px;padding:0;"><i class="ti '+(x.done?'ti-square-check':'ti-square')+'"></i></button><span style="flex:1;'+(x.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(x.t)+rep+'</span><button type="button" onclick="pmDelTask(\''+x.id+'\')" style="border:none;background:none;cursor:pointer;color:#e5e7eb;font-size:14px;padding:0;"><i class="ti ti-x"></i></button></div>'; }).join('');
+  var decList=(o.decisions||[]).map(function(d){ var age=pmDaysBetween(d.created); return '<div style="display:flex;align-items:center;gap:7px;font-size:12.5px;margin-top:5px;"><i class="ti ti-gavel" style="color:#ea580c;"></i><span style="flex:1;color:#1C1C1C;">'+esc(d.t)+(age>=1?' <span style="font-size:9px;color:'+(age>=5?'#dc2626':'#9ca3af')+';">'+age+' j</span>':'')+'</span><button type="button" onclick="pmResolveDecision(\''+d.id+'\')" title="tranchée" style="border:none;background:none;cursor:pointer;color:#16a34a;font-size:15px;padding:0;"><i class="ti ti-check"></i></button></div>'; }).join('');
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-list-check"></i> Ma to-do du jour</div>'+(taskList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Rien pour l\'instant — ajoute au fil de la journée (bouton + en bas).</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmTaskIn" type="text" placeholder="ajouter une tâche…" onkeydown="if(event.key===\'Enter\')pmQuickAdd()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmQuickAdd()" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-gavel"></i> Décisions en attente</div>'+(decList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Rien à trancher.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmDecIn" type="text" placeholder="une décision à prendre…" onkeydown="if(event.key===\'Enter\')pmAddDecision()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddDecision()" style="border:none;background:#1C1C1C;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
+  var evening=(new Date().getHours()>=17);
+  html+='<button class="btn '+(evening?'btn-primary':'btn-ghost')+'" onclick="checkSoir()"><i class="ti ti-moon-stars"></i> Check de ma journée</button>';
   html+='<button class="btn btn-ghost" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un contrôle</button>';
   var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
   html+='<div class="panel" style="margin-top:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:19px;color:#16a34a;"></i><div style="flex:1;font-size:11.5px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10px;color:#9ca3af;">'+esc(acc.email)+'</div></div><button type="button" onclick="authLogout()" style="border:none;background:none;color:#9ca3af;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">Déconnexion</button></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
+}
+function checkSoir(){
+  window.currentSpace='dirigeant';
+  var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  pmRollover(); var o=pmLoad(), today=pmTodayTasks(o), doneN=today.filter(function(t){return t.done;}).length, todoN=today.filter(function(t){return !t.done;}).length, cap=pmCap();
+  var taskRows=today.length?today.map(function(t){ return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:6px;"><i class="ti '+(t.done?'ti-square-check':'ti-square')+'" style="color:'+(t.done?'#16a34a':'#cbd5e1')+';font-size:16px;"></i><span style="flex:1;'+(t.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(t.t)+'</span>'+(t.done?'':'<span style="font-size:9.5px;color:#a16207;background:#fef9c3;padding:1px 7px;border-radius:8px;">→ demain</span>')+'</div>'; }).join(''):'<div style="font-size:12px;color:#cbd5e1;margin-top:6px;">Aucune tâche aujourd\'hui.</div>';
+  var decRows=(o.decisions||[]).length?o.decisions.map(function(d){ var age=pmDaysBetween(d.created); return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:6px;"><i class="ti ti-gavel" style="color:#ea580c;"></i><span style="flex:1;color:#1C1C1C;">'+esc(d.t)+'</span><span style="font-size:9.5px;color:'+(age>=5?'#dc2626':'#9ca3af')+';">'+age+' j</span></div>'; }).join(''):'<div style="font-size:12px;color:#cbd5e1;margin-top:6px;">Rien en attente.</div>';
+  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="font-size:10px;letter-spacing:1.5px;color:#E8A07E;"><i class="ti ti-moon-stars"></i> CHECK DE MA JOURNÉE</div><div style="font-size:16px;font-weight:500;margin-top:2px;">'+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div><div style="font-size:11.5px;color:#E7DBD1;margin-top:6px;">Pose ta journée. Rien ne se perd — tout est là pour demain.</div></div></div>';
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-list-check"></i> Mes tâches — '+doneN+' faites · '+todoN+' à reporter</div>'+taskRows+'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;">Ce qui n\'est pas fait part automatiquement à demain. Pas grave — c\'est sécurisé.</div></div>';
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-gavel"></i> Décisions en attente</div>'+decRows+'</div>';
+  if(cap){ html+='<div class="panel" style="margin-top:11px;padding:11px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-flag-3"></i> Mon cap</div><div style="font-size:12px;color:#1C1C1C;margin-top:4px;">'+cap.palier+(cap.steps?' — '+cap.done+'/'+cap.steps+' étapes':'')+' · IAT '+cap.iat+' → '+cap.obj+'</div></div>'; }
+  html+='<button class="btn btn-primary" onclick="soirValider()"><i class="ti ti-circle-check"></i> Valider demain · rentrer léger</button>';
+  html+='<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>';
+  $('soir').innerHTML=html; showView('soir'); window.scrollTo(0,0);
+}
+function soirValider(){
+  var o=pmLoad(),tm=new Date(); tm.setDate(tm.getDate()+1); var tmk=tm.toISOString().slice(0,10), n=0;
+  o.tasks.forEach(function(t){ if(!t.done&&t.due===pmTodayStr()){ t.due=tmk; t.reports=(t.reports||0)+1; n++; } });
+  pmSave(o);
+  alert('Journée posée. '+n+' tâche'+(n>1?'s':'')+' t\'attend'+(n>1?'ent':'')+' demain, au calme. Bonne soirée.');
+  dirigeantSpace();
 }
 function cockpitRemesure(){
   var b=window.lastMiroir||{}, nom=b.nom||(window.lastAH&&window.lastAH.nom)||'votre entreprise';
@@ -1524,6 +1576,7 @@ function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ lo
 function goFeuille(){ if(window.frData){ showView('frView'); } else { frBuild(); } }
 function renderTabbar(v){
   var tb=$('tabbar'); if(!tb) return; var sp=window.currentSpace;
+  var fab=$('capfab'); if(fab) fab.className=(sp==='dirigeant'&&v!=='home'&&v!=='auth')?'show':'';
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
     ? [['dirigeantSpace()','ti-home','Accueil',['dirigeant']],['goFeuille()','ti-list-check','Feuille',['frView']],['cockpitCompare()','ti-activity-heartbeat','Évolution',['compare']],['cockpitBuild()','ti-dashboard','Cockpit',['cockpit']]]
