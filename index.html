@@ -1372,29 +1372,82 @@ function lancerControle(){
   window.ahNom=b.nom||(ah&&ah.nom)||window.ahNom||'Mon entreprise';
   ahStart('express'); window.scrollTo(0,0);
 }
+/* ===== POINT DU MATIN (accueil dirigeant) ===== */
+function pmKey(){ return 'pm_'+cpSlug(); }
+function pmLoad(){ try{ var o=JSON.parse(localStorage.getItem(pmKey())); if(o){o.days=o.days||{};o.priorites=o.priorites||[];o.decisions=o.decisions||[];return o;} }catch(e){} return {days:{},priorites:[],decisions:[]}; }
+function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} }
+function pmDay(o){ var k=new Date().toISOString().slice(0,10); if(!o.days[k]) o.days[k]={}; return o.days[k]; }
+function pmStreak(o){ var n=0,dt=new Date(),k0=dt.toISOString().slice(0,10); if(!(o.days[k0]&&o.days[k0].climat)) dt.setDate(dt.getDate()-1); for(;;){ var k=dt.toISOString().slice(0,10); if(o.days[k]&&o.days[k].climat){n++;dt.setDate(dt.getDate()-1);} else break; } return n; }
+function pmSnaps(){ try{ return JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[]; }catch(e){ return []; } }
+function pmCap(){ var snaps=pmSnaps(), ah=window.lastAH, iat=ah?ah.iat:(snaps.length?snaps[snaps.length-1].iat:null); if(iat==null) return null;
+  var obj=iat<=40?50:iat<=70?70:85, palier=iat<=70?'Palier 1 · Confiance':'Palier 2 · Déploiement', base=iat<=40?0:iat<=70?40:70;
+  var pct=Math.max(5,Math.min(100,Math.round((iat-base)/(obj-base)*100))), fr=window.frData;
+  return {palier:palier,iat:iat,obj:obj,pct:pct,steps:(fr&&fr.steps)?fr.steps.length:0,done:(fr&&fr.steps)?fr.steps.filter(function(s){return s.status==='done';}).length:0,band:(iat<=40?'Blocage':iat<=70?'Vigilance':'Appui')}; }
+function pmFeu(t){ if(!t.climat) return {bg:'#4b5563',lbl:'?',ic:'ti-help'};
+  if(t.climat===3) return {bg:'#dc2626',lbl:'Attention',ic:'ti-alert-triangle'};
+  if(t.climat===2||t.treso>=2) return {bg:'#ea580c',lbl:'Vigilance',ic:'ti-alert-circle'};
+  return {bg:'#16a34a',lbl:'RAS',ic:'ti-check'}; }
+function pmMot(streak){ var snaps=pmSnaps();
+  if(streak>=3) return streak+' matins d\'affilée — tu tiens le cap, l\'équipe suit.';
+  if(snaps.length>=2 && snaps[snaps.length-1].iat>snaps[0].iat) return 'Ton acceptabilité progresse depuis le début. Le travail paie — continue.';
+  return 'Un petit pas aujourd\'hui vaut mieux qu\'un grand saut demain. On y va.'; }
+function pmSetClimat(n){ var o=pmLoad(); pmDay(o).climat=n; pmSave(o); dirigeantSpace(); }
+function pmSetTreso(n){ var o=pmLoad(); pmDay(o).treso=n; pmSave(o); dirigeantSpace(); }
+function pmGeste(s){ var o=pmLoad(); pmDay(o).geste=s; pmSave(o); dirigeantSpace(); }
+function pmAddPriorite(){ var el=$('pmPrioIn'); if(!el||!el.value.trim()) return; var o=pmLoad(); o.priorites.push({t:el.value.trim(),done:false}); if(o.priorites.length>6)o.priorites=o.priorites.slice(-6); pmSave(o); dirigeantSpace(); }
+function pmTogglePrio(i){ var o=pmLoad(); if(o.priorites[i]){o.priorites[i].done=!o.priorites[i].done;pmSave(o);} dirigeantSpace(); }
+function pmDelPrio(i){ var o=pmLoad(); o.priorites.splice(i,1); pmSave(o); dirigeantSpace(); }
+function pmAddDecision(){ var el=$('pmDecIn'); if(!el||!el.value.trim()) return; var o=pmLoad(); o.decisions.push({t:el.value.trim()}); if(o.decisions.length>6)o.decisions=o.decisions.slice(-6); pmSave(o); dirigeantSpace(); }
+function pmDelDecision(i){ var o=pmLoad(); o.decisions.splice(i,1); pmSave(o); dirigeantSpace(); }
+function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching) return; window.pmFetching=true;
+  var ah=window.lastAH, fr=window.frData, b=window.lastMiroir||{}, cap=pmCap();
+  var ctx={ nom:b.nom||(ah&&ah.nom)||'', activite:b.activite||'',
+    climat:(['','bonne','moyenne','tendue'][t.climat||0])||'', treso:(['','ça rentre','tendue','serrée'][t.treso||0])||'',
+    band:cap?cap.band:'', iat:cap?cap.iat:null, objectif:cap?(cap.palier+' (IAT '+cap.iat+' → objectif '+cap.obj+')'):'',
+    peurs:(ah&&ah.peurs?ah.peurs.map(function(p){return p.txt||p.code;}):[]),
+    etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]) };
+  var done=function(prio){ window.pmFetching=false; var oo=pmLoad(); pmDay(oo).prio=prio; pmSave(oo); if($('dirigeant').style.display==='block') dirigeantSpace(); };
+  fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
+    .then(function(r){return r.json();})
+    .then(function(x){ done((x&&x.action)?{action:x.action,objectif:x.objectif||'Ton cap',pourquoi:x.pourquoi||'',type:x.type||'humain'}:{action:'Prends la température de l\'équipe ce matin, un mot à chacun.',objectif:'Écoute',pourquoi:'Rien ne vaut le contact direct pour sentir l\'ambiance.',type:'humain'}); })
+    .catch(function(){ done({action:'Avance d\'un pas sur ta feuille de route aujourd\'hui.',objectif:'Ton cap',pourquoi:'La régularité fait la transformation.',type:'humain'}); }); }
 function dirigeantSpace(){
   window.currentSpace='dirigeant';
   var acc=currentAccount();
   if(!acc){ renderAuth('login'); return; }
   if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
-  var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
-  var nom=b.nom||(ah&&ah.nom)||(fr&&fr.nom)||acc.name||'';
-  var hasCtx=(b.indiceInterieur!=null||ah||fr);
-  if(hasCtx){ var pre=[]; try{pre=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){} if(!pre.length) cpSnapshot(); }
-  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
-  var last=arr.length?arr[arr.length-1]:null;
-  var iat=ah?ah.iat:(last?last.iat:null);
-  var av=(fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):(last?last.av:null);
-  var nCtrl=arr.length>1?arr.length-1:0;
-  var kpi=function(v,lab,suf){ return '<div style="flex:1;text-align:center;"><div style="font-size:23px;font-weight:700;color:#fff;">'+(v!=null?v+(suf||''):'–')+'</div><div style="font-size:9.5px;color:#9ca3af;">'+lab+'</div></div>'; };
-  var big=function(oc,ic,t,sub){ return '<button type="button" onclick="'+oc+'" style="width:100%;text-align:left;background:#fff;border:1px solid #eee;border-radius:12px;padding:14px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:12px;font-family:inherit;"><i class="ti '+ic+'" style="font-size:24px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#1C1C1C;">'+t+'</div><div style="font-size:11.5px;color:#6b7280;">'+sub+'</div></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>'; };
-  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom||'Votre entreprise')+'</div><div style="display:flex;gap:8px;margin-top:13px;">'+kpi(iat,'IAT humain')+kpi(av,'plan avancé','%')+kpi(nCtrl,'contrôles')+'</div></div></div>';
-  html+='<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un contrôle</button>'
-    +'<div style="text-align:center;font-size:11.5px;color:#9ca3af;margin-top:14px;">Feuille de route, évolution et Cockpit sont dans la barre du bas ↓</div>';
-  if(!hasCtx) html+='<div class="sec" style="color:#6b7280;font-size:12px;">Aucune donnée pour l\'instant. Faites d\'abord un diagnostic, ou ouvrez une fiche depuis « Mes recherches ».</div>';
+  var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
+  if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
+  var o=pmLoad(), t=pmDay(o), streak=pmStreak(o), feu=pmFeu(t), cap=pmCap();
+  var dateStr=new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+  var dot=function(fn,n,cur,ic,onCol,onBg){ var on=cur===n; return '<button type="button" onclick="'+fn+'('+n+')" style="width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;background:'+(on?onBg:'#f1f5f9')+';color:'+(on?onCol:'#9ca3af')+';'+(on?'outline:2px solid '+onCol+';':'')+'"><i class="ti '+ic+'"></i></button>'; };
+  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:15px 17px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+      +'<div><div style="font-size:18px;font-weight:600;">Bonjour <i class="ti ti-coffee" style="color:#E8A07E;"></i></div><div style="font-size:11px;color:#9ca3af;margin-top:1px;">'+esc(nom)+' · '+dateStr+'</div></div>'
+      +'<div style="text-align:center;"><div style="width:36px;height:36px;border-radius:50%;background:'+feu.bg+';display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;"><i class="ti '+feu.ic+'"></i></div><div style="font-size:9px;color:#9ca3af;margin-top:2px;">'+feu.lbl+'</div></div>'
+    +'</div>'
+    +'<div style="font-size:11.5px;color:#E7DBD1;margin-top:9px;border-top:1px solid #333;padding-top:8px;line-height:1.45;"><i class="ti ti-flame" style="color:#E8A07E;"></i> '+esc(pmMot(streak))+'</div></div></div>';
+  html+='<div style="display:flex;gap:9px;margin-top:11px;">'
+    +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Climat équipe</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetClimat',1,t.climat,'ti-mood-smile','#166534','#dcfce7')+dot('pmSetClimat',2,t.climat,'ti-mood-neutral','#a16207','#fef9c3')+dot('pmSetClimat',3,t.climat,'ti-mood-sad','#991b1b','#fee2e2')+'</div></div>'
+    +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Pouls tréso</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetTreso',1,t.treso,'ti-trending-up','#166534','#dcfce7')+dot('pmSetTreso',2,t.treso,'ti-minus','#a16207','#fef9c3')+dot('pmSetTreso',3,t.treso,'ti-trending-down','#991b1b','#fee2e2')+'</div></div></div>';
+  if(!t.prio && t.climat){ pmPrioFetch(); }
+  var prioBody;
+  if(t.prio){ var gdone=t.geste==='done';
+    prioBody='<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:9px;background:#eef2ff;color:#4338ca;padding:2px 7px;border-radius:8px;font-weight:600;"><i class="ti ti-sparkles"></i> PRIORISÉ PAR L\'IA</span></div>'
+      +'<div style="display:flex;align-items:center;gap:12px;margin-top:9px;"><div style="width:52px;height:52px;border-radius:50%;background:'+(gdone?'#16a34a':'#E8541A')+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;'+(gdone?'':'animation:btnPulse 2.2s ease-in-out infinite;')+'"><i class="ti '+(gdone?'ti-check':'ti-message-2-heart')+'"></i></div><div style="flex:1;"><div style="font-size:13.5px;font-weight:600;color:#1C1C1C;line-height:1.3;">'+esc(t.prio.action)+'</div><div style="font-size:10.5px;color:#4338ca;margin-top:3px;"><i class="ti ti-target-arrow"></i> fait avancer : '+esc(t.prio.objectif)+'</div></div></div>'
+      +'<div style="display:flex;gap:7px;margin-top:10px;"><button type="button" onclick="pmGeste(\'done\')" style="flex:1;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:600;padding:8px;border-radius:9px;background:'+(gdone?'#dcfce7':'#f8fafc')+';color:'+(gdone?'#166534':'#94a3b8')+';">C\'est fait</button><button type="button" onclick="pmGeste(\'todo\')" style="flex:1;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;padding:8px;border-radius:9px;background:'+(t.geste==='todo'?'#fef9c3':'#f8fafc')+';color:'+(t.geste==='todo'?'#a16207':'#94a3b8')+';">Pas encore</button></div>'
+      +(t.prio.pourquoi?'<div style="font-size:10px;color:#9ca3af;margin-top:7px;line-height:1.4;">Pourquoi aujourd\'hui : '+esc(t.prio.pourquoi)+'</div>':'');
+  } else if(!t.climat){ prioBody='<div style="text-align:center;font-size:12px;color:#6b7280;padding:6px;"><i class="ti ti-arrow-up" style="color:#E8541A;"></i> Renseigne ton climat ci-dessus pour recevoir ta priorité du jour.</div>';
+  } else { prioBody='<div style="text-align:center;font-size:12px;color:#6b7280;padding:8px;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>L\'IA prépare ta priorité du jour…</div>'; }
+  html+='<div class="card" style="margin-top:11px;border:2px solid #f6c6ae;"><div class="sec">'+prioBody+'</div></div>';
+  if(cap){ html+='<div class="panel" style="margin-top:11px;padding:11px 13px;"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-flag-3"></i> Cap du trimestre</span>'+(cap.steps?'<span style="font-size:11px;font-weight:600;color:#4b5563;">'+cap.done+'/'+cap.steps+' étapes</span>':'')+'</div><div style="font-size:12px;color:#1C1C1C;margin-top:4px;">'+cap.palier+' — IAT '+cap.iat+' <i class="ti ti-arrow-right" style="font-size:11px;color:#cbd5e1;"></i> objectif '+cap.obj+'</div><div style="height:7px;background:#eef2f7;border-radius:4px;margin-top:6px;overflow:hidden;"><div style="width:'+cap.pct+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
+  var prioList=(o.priorites||[]).map(function(p,i){ return '<div style="display:flex;align-items:center;gap:7px;font-size:12px;margin-top:5px;"><button type="button" onclick="pmTogglePrio('+i+')" style="border:none;background:none;cursor:pointer;color:'+(p.done?'#16a34a':'#cbd5e1')+';font-size:16px;padding:0;"><i class="ti '+(p.done?'ti-square-check':'ti-square')+'"></i></button><span style="flex:1;'+(p.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(p.t)+'</span><button type="button" onclick="pmDelPrio('+i+')" style="border:none;background:none;cursor:pointer;color:#cbd5e1;font-size:14px;padding:0;"><i class="ti ti-x"></i></button></div>'; }).join('');
+  var decList=(o.decisions||[]).map(function(p,i){ return '<div style="display:flex;align-items:center;gap:7px;font-size:12px;margin-top:5px;"><i class="ti ti-gavel" style="color:#ea580c;"></i><span style="flex:1;color:#1C1C1C;">'+esc(p.t)+'</span><button type="button" onclick="pmDelDecision('+i+')" title="tranché" style="border:none;background:none;cursor:pointer;color:#16a34a;font-size:15px;padding:0;"><i class="ti ti-check"></i></button></div>'; }).join('');
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-checkbox"></i> Mes priorités du jour</div>'+(prioList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Aucune pour l\'instant.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmPrioIn" type="text" placeholder="ex : relancer le devis Durand" onkeydown="if(event.key===\'Enter\')pmAddPriorite()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddPriorite()" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
+  html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-gavel"></i> Décisions en attente</div>'+(decList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Rien à trancher.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmDecIn" type="text" placeholder="ex : choisir le fournisseur" onkeydown="if(event.key===\'Enter\')pmAddDecision()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddDecision()" style="border:none;background:#1C1C1C;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
+  html+='<button class="btn btn-ghost" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un contrôle</button>';
   var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
-  html+='<div class="card" style="margin-top:12px;"><div class="sec" style="display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:20px;color:#16a34a;"></i><div style="flex:1;font-size:12px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10.5px;color:#9ca3af;">'+esc(acc.email)+' · prochaine échéance '+new Date(acc.renewal).toLocaleDateString('fr-FR')+'</div></div></div></div>';
-  html+='<button class="btn btn-ghost" onclick="authLogout()"><i class="ti ti-logout"></i> Se déconnecter</button>';
+  html+='<div class="panel" style="margin-top:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:19px;color:#16a34a;"></i><div style="flex:1;font-size:11.5px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10px;color:#9ca3af;">'+esc(acc.email)+'</div></div><button type="button" onclick="authLogout()" style="border:none;background:none;color:#9ca3af;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">Déconnexion</button></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function cockpitRemesure(){
