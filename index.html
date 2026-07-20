@@ -161,6 +161,7 @@
   <div id="auth" style="display:none;"></div>
   <div id="soir" style="display:none;"></div>
   <div id="journal" style="display:none;"></div>
+  <div id="vivante" style="display:none;"></div>
   <div id="tabbar"></div>
   <div id="capfab" onclick="capOpen()" aria-label="Note rapide"><i class="ti ti-plus"></i></div>
   <div id="capbar" onclick="if(event.target===this)capClose()"><div style="background:#fff;width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;padding:14px 16px 20px;">
@@ -220,7 +221,7 @@ const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;
 
 /* ===== BOUSSOLE ===== */
 function showView(v){
-  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   var hero=$('hero'); if(hero) hero.style.display=(v==='home'||v==='form'||v==='auth')?'block':'none';
   var hp=$('histPanel'); if(hp&&v!=='form') hp.remove();
   renderTabbar(v);
@@ -1477,6 +1478,7 @@ function dirigeantSpace(){
   html+='<div class="panel" style="margin-top:11px;padding:12px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;"><i class="ti ti-gavel"></i> Décisions en attente</div>'+(decList||'<div style="font-size:11.5px;color:#cbd5e1;margin-top:5px;">Rien à trancher.</div>')+'<div style="display:flex;gap:6px;margin-top:8px;"><input id="pmDecIn" type="text" placeholder="une décision à prendre…" onkeydown="if(event.key===\'Enter\')pmAddDecision()" style="flex:1;font-size:12px;padding:7px 9px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="pmAddDecision()" style="border:none;background:#1C1C1C;color:#fff;border-radius:8px;padding:0 12px;cursor:pointer;"><i class="ti ti-plus"></i></button></div></div>';
   var evening=(new Date().getHours()>=17);
   html+='<button class="btn '+(evening?'btn-primary':'btn-ghost')+'" onclick="checkSoir()"><i class="ti ti-moon-stars"></i> Check de ma journée</button>';
+  html+='<button class="btn btn-ghost" onclick="vivanteView()"><i class="ti ti-route"></i> Ma feuille de route vivante</button>';
   html+='<button class="btn btn-ghost" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un contrôle</button>';
   var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
   html+='<div class="panel" style="margin-top:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:19px;color:#16a34a;"></i><div style="flex:1;font-size:11.5px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10px;color:#9ca3af;">'+esc(acc.email)+'</div></div><button type="button" onclick="authLogout()" style="border:none;background:none;color:#9ca3af;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">Déconnexion</button></div>';
@@ -1518,6 +1520,57 @@ function journalView(){
   html+='<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>';
   $('journal').innerHTML=html; showView('journal'); window.scrollTo(0,0);
 }
+function vivanteFetch(force){
+  if(window.vivFetching) return; var o=pmLoad();
+  if(!force && o.vivante && o.vivante.date===pmTodayStr()) return;
+  window.vivFetching=true; var cap=pmCap(), fr=window.frData, b=window.lastMiroir||{};
+  var ctx={ nom:b.nom||'', activite:b.activite||'', objectif:cap?(cap.palier+' (IAT '+cap.iat+' → '+cap.obj+')'):'',
+    etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]),
+    taches:(o.tasks||[]).slice(-40).map(function(t){return {t:t.t,statut:t.done?'fait':'à faire',reports:t.reports||0};}),
+    decisions:(o.decisions||[]).map(function(d){return {t:d.t,jours:pmDaysBetween(d.created)};}) };
+  var done=function(v){ window.vivFetching=false; var oo=pmLoad(); oo.vivante=v; pmSave(oo); if($('vivante')&&$('vivante').style.display==='block') vivanteView(); };
+  fetch('/api/feuille-vivante',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
+    .then(function(r){return r.json();})
+    .then(function(x){ done((x&&x.repartition)?{date:pmTodayStr(),repartition:x.repartition,lecture:x.lecture||'',constats:(x.constats||[])}:{date:pmTodayStr(),repartition:{cap:40,pompier:60},lecture:'Analyse indisponible pour le moment.',constats:[]}); })
+    .catch(function(){ done({date:pmTodayStr(),repartition:{cap:40,pompier:60},lecture:'Analyse indisponible (connexion ?).',constats:[]}); });
+}
+function vivanteGraft(i){ var o=pmLoad(); if(!o.vivante||!o.vivante.constats[i])return; var c=o.vivante.constats[i]; o.grafts=o.grafts||[]; o.grafts.push({id:pmUid('g'),constat:c.constat,outil:c.outil,objectif:c.objectif,type:c.type||'IA',addedAt:pmTodayStr()}); o.vivante.constats.splice(i,1); pmSave(o); vivanteView(); }
+function vivanteDismiss(i){ var o=pmLoad(); if(o.vivante&&o.vivante.constats[i]){ o.vivante.constats.splice(i,1); pmSave(o);} vivanteView(); }
+function vivanteView(){
+  window.currentSpace='dirigeant';
+  var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  var o=pmLoad(); o.grafts=o.grafts||[];
+  var v=(o.vivante && o.vivante.date===pmTodayStr())?o.vivante:null;
+  if(!v){ vivanteFetch(); }
+  var cap=pmCap(), fr=window.frData;
+  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:10px;letter-spacing:1.5px;color:#E8A07E;"><i class="ti ti-route"></i> FEUILLE DE ROUTE</div><span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:9px;background:#14532d;color:#4ade80;"><i class="ti ti-point-filled"></i> vivante</span></div><div style="font-size:15px;font-weight:500;margin-top:3px;">'+esc(b_nom())+'</div></div></div>';
+  if(v){
+    var cp=Math.max(0,Math.min(100,v.repartition.cap||0)), po=100-cp;
+    html+='<div class="panel" style="margin-top:11px;padding:11px 13px;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Ton énergie (estimée sur ton quotidien)</div><div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:7px;"><div style="width:'+cp+'%;background:#16a34a;"></div><div style="width:'+po+'%;background:#ea580c;"></div></div><div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;"><span style="color:#166534;">'+cp+'% cap</span><span style="color:#9a3412;">'+po+'% quotidien / pompier</span></div>'+(v.lecture?'<div style="font-size:11.5px;color:#4b5563;margin-top:8px;line-height:1.45;">'+esc(v.lecture)+'</div>':'')+'</div>';
+  } else {
+    html+='<div class="panel" style="margin-top:11px;padding:16px;text-align:center;color:#6b7280;font-size:12px;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>L\'IA lit ton quotidien…</div>';
+  }
+  if(fr&&fr.steps&&fr.steps.length){
+    html+='<div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-top:15px;padding:0 2px;"><i class="ti ti-clipboard-check"></i> Issu de ton audit</div>';
+    fr.steps.slice(0,6).forEach(function(s){ var ic=s.status==='done'?['#dcfce7','#16a34a','ti-check']:s.status==='progress'?['#fef9c3','#a16207','ti-player-play']:s.status==='blocked'?['#fee2e2','#dc2626','ti-alert-triangle']:['#f1f5f9','#94a3b8','ti-point'];
+      html+='<div style="display:flex;align-items:center;gap:9px;padding:7px 2px;"><div style="width:24px;height:24px;border-radius:50%;background:'+ic[0]+';color:'+ic[1]+';display:flex;align-items:center;justify-content:center;font-size:13px;"><i class="ti '+ic[2]+'"></i></div><div style="font-size:12.5px;color:#1C1C1C;flex:1;">'+esc(s.titre)+'</div></div>'; });
+  }
+  if(v&&v.constats&&v.constats.length){
+    html+='<div style="display:flex;align-items:center;gap:6px;margin-top:16px;padding:0 2px;"><span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:10px;background:#eef2ff;color:#4338ca;"><i class="ti ti-radar"></i> CONSTATS TERRAIN · IA</span><span style="font-size:10px;color:#9ca3af;">tirés de ton quotidien</span></div>';
+    v.constats.forEach(function(c,i){ html+='<div style="background:#fff;border:1px solid #c7d2fe;border-radius:12px;padding:11px 12px;margin-top:9px;"><div style="font-size:12.5px;color:#1C1C1C;font-weight:500;">'+esc(c.constat)+'</div><div style="font-size:11px;color:#4b5563;margin-top:3px;line-height:1.45;"><i class="ti ti-bulb" style="color:#E8541A;"></i> Outil : '+esc(c.outil)+(c.objectif?' <span style="color:#4338ca;">· '+esc(c.objectif)+'</span>':'')+'</div><div style="display:flex;gap:7px;margin-top:9px;"><button type="button" onclick="vivanteGraft('+i+')" style="flex:1;border:none;cursor:pointer;font-family:inherit;font-size:11.5px;font-weight:600;padding:7px;border-radius:9px;background:#E8541A;color:#fff;">Ajouter à mon plan</button><button type="button" onclick="vivanteDismiss('+i+')" style="border:none;cursor:pointer;font-family:inherit;font-size:11.5px;padding:7px 12px;border-radius:9px;background:#f8fafc;color:#94a3b8;">Plus tard</button></div></div>'; });
+  } else if(v){
+    html+='<div class="panel" style="margin-top:11px;padding:12px;font-size:11.5px;color:#6b7280;text-align:center;">Pas encore de tâche répétitive détectée. Continue à noter ton quotidien — l\'IA repérera ce qui revient.</div>';
+  }
+  if(o.grafts.length){
+    html+='<div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;margin-top:16px;padding:0 2px;"><i class="ti ti-plus"></i> Ajoutés à ton plan (terrain)</div>';
+    o.grafts.forEach(function(g){ html+='<div style="display:flex;align-items:center;gap:9px;padding:7px 2px;"><div style="width:24px;height:24px;border-radius:50%;background:#eef2ff;color:#4338ca;display:flex;align-items:center;justify-content:center;font-size:13px;"><i class="ti ti-robot"></i></div><div style="flex:1;"><div style="font-size:12.5px;color:#1C1C1C;">'+esc(g.outil)+'</div><div style="font-size:9.5px;color:#9ca3af;">constat terrain · ajouté le '+g.addedAt.split('-').reverse().slice(0,2).join('/')+'</div></div></div>'; });
+  }
+  html+='<div class="foot">Ton audit ne vieillit plus : il apprend de ton quotidien réel. (Estimations IA — à ton jugement.)</div>';
+  html+='<button class="btn btn-ghost" onclick="vivanteFetch(true);vivanteView()"><i class="ti ti-refresh"></i> Actualiser l\'analyse</button>';
+  html+='<button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>';
+  $('vivante').innerHTML=html; showView('vivante'); window.scrollTo(0,0);
+}
+function b_nom(){ var acc=currentAccount(); return (window.lastMiroir&&window.lastMiroir.nom)||(acc&&acc.name)||''; }
 function cockpitRemesure(){
   var b=window.lastMiroir||{}, nom=b.nom||(window.lastAH&&window.lastAH.nom)||'votre entreprise';
   var d=new Date(); d.setMonth(d.getMonth()+3);
