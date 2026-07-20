@@ -1,0 +1,27 @@
+{
+  "type": "aura",
+  "mode": "express",
+  "nom": "Référence Pare-Brise",
+  "date": "2026-07-20T19:01:27.878Z",
+  "iat": 84,
+  "imh": 80,
+  "indices": {
+    "Leadership": 80,
+    "Communication": 80,
+    "Écoute": 73,
+    "Transparence": 80,
+    "Confiance": 100,
+    "Coopération": 70,
+    "Adhésion": 80,
+    "Ouverture au changement": 80
+  },
+  "domaines": {
+    "Leadership": 80,
+    "Communication": 80,
+    "Confiance": 80,
+    "Coopération": 70,
+    "Climat social": 90,
+    "Maturité du changement": 80
+  },
+  "peurs": []
+}
