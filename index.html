@@ -462,6 +462,7 @@ function renderMiroir(){
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
   +'<button class="btn btn-primary" onclick="frBuild()"><i class="ti ti-route"></i> Créer ma feuille de route →</button>'
   +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
+  +'<button class="btn btn-ghost" onclick="sendHandoff()"><i class="ti ti-send"></i> Envoyer au dirigeant (cloud)</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>';
   $('miroir').innerHTML=html; window.scrollTo(0,0);
 }
@@ -1632,6 +1633,19 @@ async function loadUser(){
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
+    try{
+      var h=await window.sb.rpc('claim_my_handoffs');
+      if(!h.error && h.data){
+        var d=h.data, nm=(window.currentUser&&window.currentUser.name)||'';
+        if(d.lastMiroir) window.lastMiroir=Object.assign({},d.lastMiroir,{nom:nm||d.lastMiroir.nom});
+        if(d.lastAH){ window.lastAH=d.lastAH; if(nm)window.lastAH.nom=nm; }
+        if(d.miroirData) window.miroirData=d.miroirData;
+        var slg=cpSlug();
+        localStorage.setItem('diag_'+slg,JSON.stringify({lastMiroir:window.lastMiroir,lastAH:window.lastAH,miroirData:window.miroirData}));
+        if(window.lastAH || (window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)) cpSnapshot();
+        window.__gotHandoff=true; syncPush(true);
+      }
+    }catch(x){}
     return window.currentUser;
   }catch(e){ window.currentUser=null; return null; }
 }
@@ -1646,6 +1660,10 @@ async function syncPull(){
       if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(b.snaps));
       if(b.fr) localStorage.setItem('fr_'+slug,JSON.stringify(b.fr));
       if(b.next) localStorage.setItem('cp_next_'+slug,b.next);
+      if(b.diag){ localStorage.setItem('diag_'+slug,JSON.stringify(b.diag)); var nm=(window.currentUser&&window.currentUser.name)||'';
+        if(b.diag.lastMiroir) window.lastMiroir=Object.assign({},b.diag.lastMiroir,{nom:nm||b.diag.lastMiroir.nom});
+        if(b.diag.lastAH){ window.lastAH=b.diag.lastAH; if(nm)window.lastAH.nom=nm; }
+        if(b.diag.miroirData) window.miroirData=b.diag.miroirData; }
     } else {
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
@@ -1658,12 +1676,24 @@ function syncPush(now){
     try{
       var slug=cpSlug();
       var g=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
-      var blob={ pm:g('pm_'+slug), snaps:g('cp_snaps_'+slug), fr:g('fr_'+slug), next:(localStorage.getItem('cp_next_'+slug)||null) };
+      var blob={ pm:g('pm_'+slug), snaps:g('cp_snaps_'+slug), fr:g('fr_'+slug), next:(localStorage.getItem('cp_next_'+slug)||null), diag:g('diag_'+slug) };
       window.sb.from('pm_data').upsert({ entreprise_id:window.dbEnt, data:blob },{ onConflict:'entreprise_id' }).then(function(res){ if(res && res.error) console.warn('syncPush', res.error.message); });
     }catch(e){ console.warn('syncPush', e && e.message); }
   }, now?0:1200);
 }
 async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
+async function sendHandoff(){
+  var email=prompt("Email du dirigeant qui recevra ce diagnostic dans son espace :");
+  if(!email||!email.trim()) return;
+  await window.sbReady; if(!window.sb){ alert('Service cloud indisponible.'); return; }
+  var data={ lastMiroir:window.lastMiroir||null, lastAH:window.lastAH||null, miroirData:window.miroirData||null };
+  var nom=(window.lastMiroir&&window.lastMiroir.nom)||'';
+  try{
+    var r=await window.sb.rpc('create_handoff',{ p_email:email.trim().toLowerCase(), p_nom:nom, p_data:data });
+    if(r.error){ alert('Envoi impossible : '+r.error.message); return; }
+    alert('Diagnostic envoyé à '+email.trim()+'.\nLe dirigeant le retrouvera en créant/ouvrant son compte avec cet email.');
+  }catch(e){ alert('Envoi impossible : '+(e&&e.message)); }
+}
 function renderAuth(mode){
   window.currentSpace='dirigeant';
   var pre=(window.lastMiroir&&window.lastMiroir.nom)||'';
