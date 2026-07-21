@@ -1,0 +1,178 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, coupe-circuits, balises) ; solutions industrielles de drones",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Croissance maîtrisée",
+    "atout": "Leader européen, innovation, intégration verticale"
+  },
+  "identite": "SAS Dronavia, SIREN 810 254 722, NAF 3030Z (Construction aéronautique et spatiale), créée 01/03/2015 (11 ans), 28 salariés (site officiel) / 6-9 salariés (INSEE 2021), dirigeant Ludovic Pelletey (Président), capital social 30 016 €.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      76,
+      74,
+      70,
+      72
+    ],
+    "potentiel": [
+      88,
+      85,
+      88,
+      82,
+      88,
+      86,
+      85,
+      85
+    ]
+  },
+  "valeurs": "Sécurité des drones professionnels, innovation anticipant les normes EASA, fabrication française en-house, simplification du travail des pilotes, conformité réglementaire.",
+  "imagePercue": "Entreprise innovante, pionnière en sécurité drone, leader européen reconnu, fabrication locale de qualité, partenaire de confiance des grands constructeurs (DJI). Présence digitale professionnelle et active.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Croissance observable : effectif en hausse (28 vs 6-9 en 2021), nouveaux produits (Kronos 2025), expansion industrielle (Scout DI, Valmet). Dynamique positive."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Comptes confidentiels (PME) : CA < 700k€ en 2022, mais données publiques montrent activité soutenue, pas de procédure collective, paiements fournisseurs normalisés."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Discordance effectif : site officiel annonce 28 salariés, INSEE 2021 indique 6-9. À clarifier en entretien (croissance rapide ou décalage de mise à jour)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Positionnement B2B/réglementaire solide : certifications DGAC/EASA, conformité MOC 2511/M2, partenaires officiels mondiaux. Marché captif et croissant (normes 2024)."
+    }
+  ],
+  "quickwins": [
+    "Mettre à jour la fiche Google My Business avec effectif actuel (28 salariés), certifications EASA/MOC 2511/M2, et lien vers page partenaires officiels — signal de crédibilité pour les prospects B2B.",
+    "Publier 1 cas client par mois sur LinkedIn (Valmet, DJI, secteur industriel) : capitaliser sur les succès visibles (Scout DI, Kronos) pour renforcer la traction auprès des opérateurs professionnels.",
+    "Créer une page FAQ/ressources sur le site : normes EASA 2024, conformité C5/C6, documents de certification — réduire le temps de qualification des prospects et accélérer les cycles de vente."
+  ],
+  "avis": "Non trouvé publiquement. Aucun avis sur Google/Pages Jaunes/annuaires généralistes. Réputation construite via certifications officielles (DGAC, EASA), partenariats (DJI, Valmet), publications techniques et présence LinkedIn (1 437 followers, posts réguliers).",
+  "presence": "Site officiel moderne et à jour (dronavia.com), LinkedIn actif (1 437 followers, posts récents sur Kronos M3D, Industrial Solutions), Facebook (2 430 likes, activité discrète), YouTube (chaîne avec contenu technique). Pas de Twitter/Instagram détecté. Présence B2B forte, peu de contenu grand public.",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité drone (MOC 2511, MOC M2)",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et homologation des accessoires de sécurité drone en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "DJI Enterprise Partner Network",
+      "role": "Réseau officiel de partenaires pour accessoires et solutions compatibles DJI",
+      "url": "https://www.dji.com/fr/enterprise"
+    },
+    {
+      "nom": "Drone-Malin (annuaire Grand-Est)",
+      "role": "Annuaire régional des entreprises de drone et services aériens",
+      "url": "https://www.drone-malin.com"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels (PME). CA < 700k€ en 2022, bilan < 350k€. Capital social 30 016 € (augmenté de 376€ en sept. 2023). Pas de procédure collective. Paiements fournisseurs normalisés (23 jours de retard moyen, amélioration observée).",
+    "concurrence": "Marché de niche (sécurité drone). Concurrents potentiels : Drone Volt (drones complets, Roissy), Dronelis (services aériens + inspection), Drone Act (multirotor). Dronavia différencié par spécialisation sécurité + conformité réglementaire stricte. Peu de concurrence directe en accessoires certifiés EASA.",
+    "visibilite": "Très faible en grand public (0 avis Google). Forte en B2B/réglementaire : certifications EASA/DGAC, partenaires officiels DJI, publications techniques, LinkedIn. Traction via normes 2024 (obligation de conformité C5/C6).",
+    "dirigeant": "Ludovic Pelletey, Président. Fondateur ou repreneur en 2015 (transfert de Nancy-Essey à Remiremont en 2019). Profil d'ingénieur/innovateur (conception en-house, brevets, anticipation normes). Pas d'info publique sur l'âge ou la vision long terme."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Prospection B2B automatisée (opérateurs professionnels)",
+      "benefice": "Identifier et qualifier les opérateurs drone en France/Europe soumis aux normes EASA 2024 ; envoyer des alertes de conformité + cas d'usage Kronos/Scout DI. Réduire le cycle de vente (qualification manuelle → scoring auto)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion des demandes de certification/documentation",
+      "benefice": "Centraliser les demandes de MOC, certificats DGAC, documents de conformité ; générer automatiquement les dossiers client (réduction 70% du temps admin). Accélérer la mise en conformité des partenaires."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veille appels d'offres publics (marchés publics, appels d'offres industriels)",
+      "benefice": "Détecter les appels d'offres drone/sécurité aérienne (collectivités, industrie, défense) ; alerter l'équipe commerciale. Capitaliser sur la croissance réglementaire (2024+)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion des partenaires officiels (resellers, distributeurs)",
+      "benefice": "Centraliser les demandes d'accréditation, contrats, formations partenaires ; suivre les ventes par canal. Structurer le réseau de distribution en croissance."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capitalisation du savoir-faire technique (brevets, innovations)",
+      "benefice": "Documenter les innovations (Kronos, MOC 2512, Geocaging) ; générer des fiches techniques, cas d'usage, tutoriels. Accélérer l'onboarding des nouveaux salariés et la formation partenaires."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Suivi de la traction commerciale (pipeline, contrats, références)",
+      "benefice": "Centraliser les contrats clients (DJI, Valmet, opérateurs), les références, les cas de succès. Mesurer la croissance réelle et identifier les leviers de scaling."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique (ingénierie/industrie, grands comptes)",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en prospection, qualification et gestion administrative"
+  },
+  "coutInaction": "Chaque mois sans automatisation = perte de visibilité sur les appels d'offres conformité EASA 2024 (marché captif en croissance), gestion manuelle des dossiers partenaires (frein au scaling du réseau), et risque de ne pas capitaliser sur les innovations (Kronos, Scout DI) auprès des prospects.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Prospection manuelle (LinkedIn, emails), qualification par appels, gestion des dossiers certification en Excel, suivi partenaires ad hoc. Cycle de vente long, perte d'opportunités réglementaires.",
+    "avecIA": "Alertes automatiques appels d'offres + scoring prospects, dossiers certification générés en 5 min, suivi partenaires centralisé, capitalisation des cas d'usage. Cycle de vente réduit, scaling du réseau accéléré."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses et co-construire votre feuille de route IA : prospection, documentation, partenaires, traction.",
+  "indice": {
+    "estime": 68,
+    "potentiel": 86
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 82
+  },
+  "aura": {
+    "sens": "L'expertise & l'innovation",
+    "couleur": "Bleu",
+    "definition": "Fiabilité industrielle, leadership réglementaire, fabrication française de qualité, partenaire de confiance des grands constructeurs. Énergie stable, orientée vers la conformité et l'excellence technique.",
+    "eclat": "moyen"
+  },
+  "fierte": "Dronavia a bâti une position unique en Europe : leader reconnu en sécurité drone, certifié EASA/DGAC, partenaire officiel de DJI, avec une équipe de 28 spécialistes qui conçoivent et fabriquent en-house. Vous avez anticipé les normes 2024 et lancé Kronos, une gamme qui répond à une obligation réglementaire croissante — c'est une force majeure. Le potentiel est énorme : le marché de la conformité drone explose, vos innovations sont protégées, et votre réseau de partenaires peut se multiplier. Vous êtes bien positionnés pour passer à l'échelle.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Societe.com, Pappers, LinkedIn, site officiel dronavia.com, Quai Alpha (juin 2024), L'Industrie Recrute, Pages Jaunes, RCS Épinal, BODACC. Données financières confidentielles (PME). Effectif : discordance entre site (28) et INSEE 2021 (6-9) — à clarifier.",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 25,
+      "v": 15,
+      "s": 60
+    }
+  }
+}
