@@ -727,9 +727,16 @@ function render(d,skipSave){
   window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
+  const SS = !!window.selfServe; // dirigeant autonome : constat offert, prescription verrouillée
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
-  const qw = (d.quickwins||[]).map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ');
-  const agents = (d.agents||[]).map(a=>{
+  const qwAll = d.quickwins||[];
+  const qw = SS
+    ? (qwAll.length? `<b>Action offerte :</b> ${esc(qwAll[0])}`+(qwAll.length>1?`<div style="margin-top:7px;color:#94a3b8;"><i class="ti ti-lock"></i> ${qwAll.length-1} autre${qwAll.length>2?'s':''} action${qwAll.length>2?'s':''} rapide${qwAll.length>2?'s':''} identifiée${qwAll.length>2?'s':''} — débloquée${qwAll.length>2?'s':''} avec la BOUSSOLE</div>`:'') : '')
+    : `<b>Quick wins :</b> ${qwAll.map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ')}`;
+  const agents = SS
+    ? (d.agents||[]).map((a,i)=>`<div class="row" style="opacity:.75;"><span class="chip" style="background:#f1f5f9;color:#94a3b8;"><i class="ti ti-lock"></i></span><div style="color:#94a3b8;"><b>Outil IA n°${i+1}</b> — identifié pour votre métier, prêt à être révélé</div></div>`).join('')
+      +`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#7c2d12;line-height:1.5;"><i class="ti ti-lock"></i> <b>${(d.agents||[]).length} outil${(d.agents||[]).length>1?'s':''} IA déjà sélectionné${(d.agents||[]).length>1?'s':''} pour vous</b> — dont un qui cible votre point de vigilance principal. Révélés avec la BOUSSOLE.</div>`
+    : (d.agents||[]).map(a=>{
     const fire = a.tag && a.tag.indexOf('<i class="ti ti-flame"></i>')>=0;
     const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
     return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${esc(a.tag||'<i class="ti ti-box"></i>')}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
@@ -835,7 +842,7 @@ function render(d,skipSave){
     <div class="sec">
       <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Vigilance & quick wins</div>
       ${vig}
-      <div class="qw"><b>Quick wins :</b> ${esc(qw)}</div>
+      <div class="qw">${qw}</div>
     </div>
 
     <div class="sec"><div class="grid2" style="font-size:12px;">
@@ -854,7 +861,7 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-robot"></i> AGENTS IA POTENTIELS — 1ʳᵉ conclusion</div>
+    <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-robot"></i> ${SS?'VOS OUTILS IA — sélectionnés pour vous':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
       <div style="margin-top:8px;">${agents}</div>
     </div>
 
@@ -883,10 +890,13 @@ function render(d,skipSave){
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>
-  <button class="btn btn-primary" style="margin-top:10px;" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
+  ${SS
+    ? `<button class="btn btn-primary" style="margin-top:10px;" onclick="paywallView()"><i class="ti ti-lock-open"></i> Débloquer mes outils IA et mon plan</button>
+  <button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button>`
+    : `<button class="btn btn-primary" style="margin-top:10px;" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
   <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
   <button class="btn btn-ghost" style="margin-top:10px;" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence autour de vous</button>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()"><i class="ti ti-refresh"></i> Nouvelle entreprise</button>`;
+  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()"><i class="ti ti-refresh"></i> Nouvelle entreprise</button>`}`;
 
   // Radar
   try{
@@ -1807,9 +1817,22 @@ function lancerMaSentinelle(){
   var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
   if(!q.trim()){ dirigeantSpace(); return; }
   window.currentSpace='dirigeant';
+  window.selfServe=true; // mode dirigeant autonome : résultat teasé (le constat offert, la prescription verrouillée)
   showView('form');
   if($('q')) $('q').value=q;
   run({ text:q });
+}
+function paywallView(){
+  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div>'
+    +'<div class="sec"><div style="font-size:13px;color:#374151;line-height:1.6;">Votre note est <b>enregistrée</b> — c\'est votre point de départ. Avec l\'abonnement, vous débloquez :</div>'
+    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.7;margin-top:8px;"><i class="ti ti-lock-open" style="color:#16a34a;"></i> Vos <b>outils IA</b> recommandés, en clair<br><i class="ti ti-lock-open" style="color:#16a34a;"></i> Toutes vos <b>actions rapides</b><br><i class="ti ti-lock-open" style="color:#16a34a;"></i> La <b>BOUSSOLE</b> : la mesure interne réelle de votre entreprise<br><i class="ti ti-lock-open" style="color:#16a34a;"></i> Votre <b>feuille de route</b> + le suivi de votre note dans le temps</div>'
+    +'<div style="display:flex;gap:8px;margin-top:14px;">'
+      +'<div style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div></div>'
+      +'<div style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · 2 mois offerts</div></div>'
+    +'</div>'
+    +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Votre note et votre diagnostic sont bien enregistrés — vous serez prévenu par email dès l\'activation, vous ne perdez rien.</div>'
+    +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button></div></div>';
+  $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function authResetState(){
   // Changement de compte : on repart de zéro (sinon les données de la session précédente contaminent la nouvelle)
@@ -1830,7 +1853,7 @@ async function authLogin(){
 }
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
 function goHome(){ window.currentSpace=null; if($('histPanel'))$('histPanel').remove(); showView('home'); window.scrollTo(0,0); }
-function enterDiagnostic(){ window.currentSpace='consultant'; showView('form'); window.scrollTo(0,0); }
+function enterDiagnostic(){ window.currentSpace='consultant'; window.selfServe=false; showView('form'); window.scrollTo(0,0); }
 function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ location.href='console.html'; } }
 function goFeuille(){ if(window.frData){ showView('frView'); } else { frBuild(); } }
 function renderTabbar(v){
