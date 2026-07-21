@@ -333,16 +333,22 @@ async function loadFacturation(){
 }
 function renderFactures(){
   var tb=document.getElementById('factRows'); if(!tb) return;
-  var SL={emise:['p-stag','Émise'],envoyee:['p-stag','Envoyée'],payee:['p-ok','Payée'],annulee:['p-reg','Annulée']};
   tb.innerHTML=FACTURES.map(function(f){
-    var s=SL[f.statut]||SL.emise;
+    // Pastille de paiement CLIQUABLE : orange "En attente" tant que pas payée → clic = payée (vert)
+    var pill;
+    if(f.statut==='annulee'){
+      pill='<span class="pill p-reg"><span class="d"></span>Annulée</span>';
+    } else if(f.statut==='payee'){
+      pill='<span class="pill p-ok" title="Payée le '+esc((f.payee_le||'').slice(0,10))+'"><span class="d"></span>✓ Payée</span>';
+    } else {
+      pill='<span class="pill p-stag" onclick="factPay('+f.id+')" style="cursor:pointer" title="Clique quand le virement est reçu"><span class="d"></span>⏳ En attente'+(f.statut==='envoyee'?' · envoyée':'')+'</span>';
+    }
     return '<tr><td class="co">'+esc(f.numero)+'</td><td>'+esc((f.client&&f.client.nom)||'—')+'</td>'
       +'<td class="sec">'+esc(f.periode_debut)+' → '+esc(f.periode_fin)+(f.type==='prorata'?' <span style="color:var(--orange)">(prorata)</span>':'')+'</td>'
       +'<td>'+(f.plan==='annuel'?'Annuel':'Mensuel')+'</td><td><b>'+EUR(+f.montant)+'</b></td>'
-      +'<td><span class="pill '+s[0]+'"><span class="d"></span>'+s[1]+'</span></td>'
+      +'<td>'+pill+'</td>'
       +'<td style="white-space:nowrap"><button onclick="factPrint('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">📄 PDF</button> '
-      +(f.statut!=='annulee'?'<button id="fsend'+f.id+'" onclick="factSend('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✉️ '+(f.statut==='emise'?'Envoyer':'Renvoyer')+'</button> ':'')
-      +(f.statut!=='payee'&&f.statut!=='annulee'?'<button onclick="factPay('+f.id+')" style="padding:4px 10px;border:1px solid #16a34a;color:#16a34a;background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✓ Payée</button>':'')
+      +(f.statut!=='annulee'?'<button id="fsend'+f.id+'" onclick="factSend('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✉️ '+(f.statut==='emise'?'Envoyer':'Renvoyer')+'</button>':'')
       +'</td></tr>';
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px">Aucune facture. Clique « 🧾 Facturer » sur un abonné ci-dessus pour émettre la première.</td></tr>';
 }
