@@ -75,7 +75,8 @@
   .tab i{font-size:22px;display:block;margin-bottom:1px;}
   .tab.on{color:#E8541A;}
   body.hastab .wrap{padding-bottom:76px;}
-  #capfab{position:fixed;right:16px;bottom:88px;width:54px;height:54px;border-radius:50%;background:#E8541A;color:#fff;display:none;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 20px rgba(232,84,26,.4);z-index:70;cursor:pointer;}
+  #capfab{position:fixed;right:16px;bottom:88px;height:46px;border-radius:23px;background:#E8541A;color:#fff;display:none;align-items:center;justify-content:center;gap:6px;padding:0 16px 0 13px;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(232,84,26,.4);z-index:70;cursor:pointer;}
+  #capfab i{font-size:19px;}
   #capfab.show{display:flex;}
   #capbar{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;}
   #capbar.show{display:flex;}
@@ -183,7 +184,7 @@
   <div id="journal" style="display:none;"></div>
   <div id="vivante" style="display:none;"></div>
   <div id="tabbar"></div>
-  <div id="capfab" onclick="capOpen()" aria-label="Note rapide"><i class="ti ti-plus"></i></div>
+  <div id="capfab" onclick="capOpen()" aria-label="Noter une tâche"><i class="ti ti-pencil-plus"></i> Noter une tâche</div>
   <div id="capbar" onclick="if(event.target===this)capClose()"><div style="background:#fff;width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;padding:14px 16px 20px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div style="font-size:13px;font-weight:600;color:#1C1C1C;"><i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide</div><button type="button" onclick="capClose()" style="border:none;background:none;font-size:20px;color:#9ca3af;cursor:pointer;"><i class="ti ti-x"></i></button></div>
     <div style="display:flex;gap:8px;align-items:center;"><input id="capIn" type="text" placeholder="une tâche, une idée…" onkeydown="if(event.key===\'Enter\')capAdd()" style="flex:1;font-size:14px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button id="capMicBtn" type="button" onclick="capMic()" aria-label="Dicter" style="width:44px;height:44px;border-radius:50%;border:1px solid #e6e1d8;background:#fff;cursor:pointer;font-size:20px;flex-shrink:0;"><i class="ti ti-microphone"></i></button></div>
