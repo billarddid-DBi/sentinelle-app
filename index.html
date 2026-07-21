@@ -705,15 +705,27 @@ $('file').onchange = e => {
 };
 
 async function run(payload){
-  // VERROU : une entreprise = une SENTINELLE gratuite. Si déjà en base → on prévient.
+  // VERROU : une entreprise (un ÉTABLISSEMENT) = une SENTINELLE gratuite. L'adresse départage les enseignes multiples.
+  window.__scanAdresse=null;
   try{
     if(payload.text && window.sbReady){
       await window.sbReady;
       if(window.sb){
-        var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text});
+        var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:''});
         if(!ck.error && ck.data && ck.data.found){
           var dd=new Date(ck.data.date).toLocaleDateString('fr-FR');
-          if(!confirm('⚠️ « '+ck.data.nom+' »'+(ck.data.ville?' ('+ck.data.ville+')':'')+' a déjà été diagnostiquée le '+dd+'.\n\nLa SENTINELLE gratuite ne se fait qu\'une seule fois par entreprise.\n\nRefaire quand même (passe-droit conseiller) ?')) return;
+          var rep=prompt('⚠️ « '+ck.data.nom+' »'+(ck.data.ville?' ('+ck.data.ville+')':'')+' a déjà été diagnostiquée le '+dd+'.\n\n• Si c\'est un AUTRE établissement (chaîne, franchise, 2e magasin) : tapez son adresse (ex : 12 rue de la Gare) puis OK.\n• Pour REFAIRE quand même (passe-droit conseiller) : tapez REFAIRE.\n• Sinon : Annuler.');
+          if(rep===null || !rep.trim()) return;
+          if(rep.trim().toUpperCase()!=='REFAIRE'){
+            var adr=rep.trim();
+            var ck2=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:adr});
+            if(!ck2.error && ck2.data && ck2.data.found){
+              alert('Cet établissement ('+adr+') a déjà été diagnostiqué le '+new Date(ck2.data.date).toLocaleDateString('fr-FR')+'.');
+              return;
+            }
+            window.__scanAdresse=adr;
+            payload.text=payload.text+', '+adr;
+          }
         }
       }
     }
@@ -954,7 +966,7 @@ function saveFiche(d){
     try{
       window.sbReady.then(function(){
         if(!window.sb) return;
-        window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html})
+        window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html,p_adresse:(window.__scanAdresse||'')})
           .then(function(r){ if(r&&r.error) console.warn('sentinelle_save', r.error.message); });
       });
     }catch(e){}
