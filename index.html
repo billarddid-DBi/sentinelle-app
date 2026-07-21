@@ -1511,7 +1511,7 @@ function capOpen(){
   var c=$('capbar'); if(!c) return;
   var info=(capMode()==='info');
   var ti=$('capTitle'), pi=$('capIn'), bi=$('capBtn');
-  if(ti) ti.innerHTML=info?'<i class="ti ti-info-circle" style="color:#E8541A;"></i> Info sur mon entreprise':'<i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide';
+  if(ti) ti.innerHTML=info?'<i class="ti ti-info-circle" style="color:#E8541A;"></i> Que pouvez-vous nous dire sur cette entreprise ?':'<i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide';
   if(pi) pi.placeholder=info?'ex : on refait la vitrine en septembre…':'une tâche, une idée…';
   if(bi) bi.textContent=info?'Enregistrer cette info':'Ajouter à ma to-do';
   c.className='show'; if(pi){pi.value='';setTimeout(function(){pi.focus();},60);}
@@ -1880,7 +1880,7 @@ function renderTabbar(v){
   var fab=$('capfab');
   if(fab){
     fab.className=(sp==='dirigeant'&&['dirigeant','soir','journal','vivante','frView','compare','cockpit','form'].indexOf(v)>-1)?'show':'';
-    fab.innerHTML=(typeof capMode==='function'&&capMode()==='info')?'<i class="ti ti-info-circle"></i> Noter une info sur mon entreprise':'<i class="ti ti-pencil-plus"></i> Noter une tâche';
+    fab.innerHTML=(typeof capMode==='function'&&capMode()==='info')?'<i class="ti ti-info-circle"></i> Que pouvez-vous nous dire sur cette entreprise ?':'<i class="ti ti-pencil-plus"></i> Noter une tâche';
   }
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
