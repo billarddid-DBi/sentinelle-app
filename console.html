@@ -341,6 +341,7 @@ function renderFactures(){
       +'<td>'+(f.plan==='annuel'?'Annuel':'Mensuel')+'</td><td><b>'+EUR(+f.montant)+'</b></td>'
       +'<td><span class="pill '+s[0]+'"><span class="d"></span>'+s[1]+'</span></td>'
       +'<td style="white-space:nowrap"><button onclick="factPrint('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">📄 PDF</button> '
+      +(f.statut!=='annulee'?'<button id="fsend'+f.id+'" onclick="factSend('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✉️ '+(f.statut==='emise'?'Envoyer':'Renvoyer')+'</button> ':'')
       +(f.statut!=='payee'&&f.statut!=='annulee'?'<button onclick="factPay('+f.id+')" style="padding:4px 10px;border:1px solid #16a34a;color:#16a34a;background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✓ Payée</button>':'')
       +'</td></tr>';
   }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px">Aucune facture. Clique « 🧾 Facturer » sur un abonné ci-dessus pour émettre la première.</td></tr>';
@@ -404,6 +405,25 @@ async function factNew(entId){
     p_emetteur:REGL, p_lignes:[{libelle:lib,montant:k.montant}] });
   if(r.error){ alert('Émission impossible : '+r.error.message); return; }
   FACTURES.unshift(r.data); renderFactures(); factPrint(r.data.id);
+}
+async function factSend(id){
+  var f=FACTURES.find(function(x){return x.id===id;}); if(!f) return;
+  var dest=(f.client&&f.client.email)||'';
+  if(!dest){ alert('Pas d\'email de facturation pour ce client. Ajoute-le puis ré-émets ou modifie la fiche entreprise.'); return; }
+  if(!confirm('Envoyer '+f.numero+' ('+EUR(+f.montant)+') par email à :\n\n'+dest+' ?')) return;
+  var btn=document.getElementById('fsend'+id); if(btn){ btn.disabled=true; btn.textContent='⏳ Envoi…'; }
+  try{
+    var s=await SB.auth.getSession();
+    var token=(s.data&&s.data.session)?s.data.session.access_token:null;
+    var r=await fetch('/api/facture-email',{ method:'POST',
+      headers:{ 'content-type':'application/json', 'authorization':'Bearer '+token },
+      body:JSON.stringify({ factureId:id }) });
+    var j=await r.json();
+    if(!r.ok){ alert('Envoi impossible : '+(j.error||r.status)+(j.detail?'\n'+j.detail:'')); if(btn){btn.disabled=false;btn.textContent='✉️ Envoyer';} return; }
+    if(f.statut==='emise') f.statut='envoyee';
+    renderFactures();
+    alert('Facture '+f.numero+' envoyée à '+j.envoyee_a+' ✓');
+  }catch(e){ alert('Envoi impossible : '+(e&&e.message)); if(btn){btn.disabled=false;btn.textContent='✉️ Envoyer';} }
 }
 async function factPay(id){
   var f=FACTURES.find(function(x){return x.id===id;}); if(!f) return;
