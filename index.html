@@ -188,6 +188,7 @@ window.sbReady = (async function(){
   }catch(e){ console.warn('Supabase indisponible :', e && e.message); }
   return false;
 })();
+window.sbReady.then(function(ok){ if(ok && typeof loadUser==='function') loadUser(); });
 const SECTEURS = {
   btp:'#3f5a6b', artisan:'#3f5a6b', commerce:'#8a5a2b', boulangerie:'#8a5a2b',
   restaurant:'#8a4231', industrie:'#37474f', sante:'#0f766e', juridique:'#1f3a5f',
@@ -1469,6 +1470,7 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
     .catch(function(){ done({action:'Avance d\'un pas sur ta feuille de route aujourd\'hui.',objectif:'Ton cap',pourquoi:'La régularité fait la transformation.',type:'humain'}); }); }
 function dirigeantSpace(){
   window.currentSpace='dirigeant';
+  if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
   var acc=currentAccount();
   if(!acc){ renderAuth('login'); return; }
   if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
@@ -1616,8 +1618,20 @@ var DBI_PLANS={mensuel:{key:'mensuel',label:'Mensuel',price:2.99,per:'mois'},ann
 function authHash(s){ var h=5381,i=String(s).length; while(i) h=(h*33)^String(s).charCodeAt(--i); return (h>>>0).toString(16); }
 function authAll(){ try{ return JSON.parse(localStorage.getItem('dbi_accounts'))||{}; }catch(e){ return {}; } }
 function authSaveAll(o){ try{ localStorage.setItem('dbi_accounts',JSON.stringify(o)); }catch(e){} }
-function currentAccount(){ var e=null; try{e=localStorage.getItem('dbi_session');}catch(x){} if(!e) return null; var a=authAll(); return a[e]||null; }
-function authLogout(){ try{ localStorage.removeItem('dbi_session'); }catch(e){} window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
+function currentAccount(){ return window.currentUser||null; }
+async function loadUser(){
+  await window.sbReady;
+  if(!window.sb){ window.currentUser=null; return null; }
+  try{
+    var s=await window.sb.auth.getSession();
+    var u=(s.data&&s.data.session)?s.data.session.user:null;
+    if(!u){ window.currentUser=null; return null; }
+    var m=u.user_metadata||{};
+    window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), plan:(m.plan||'annuel'), price:(m.price!=null?m.price:24.90), since:(m.since||u.created_at), renewal:(m.renewal||null) };
+    return window.currentUser;
+  }catch(e){ window.currentUser=null; return null; }
+}
+async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
 function renderAuth(mode){
   window.currentSpace='dirigeant';
   var pre=(window.lastMiroir&&window.lastMiroir.nom)||'';
@@ -1646,26 +1660,32 @@ function renderAuth(mode){
     +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
   $('auth').innerHTML=html; showView('auth'); window.scrollTo(0,0);
 }
-function authSignup(){
+async function authSignup(){
   var name=($('auName')&&$('auName').value.trim())||'', mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
   var plan=(document.querySelector('input[name=dbiplan]:checked')||{}).value||'annuel';
   var msg=$('auMsg'); var err=function(m){ if(msg)msg.textContent=m; };
   if(!name) return err('Indiquez le nom de votre entreprise.');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return err('Email invalide.');
   if(pass.length<6) return err('Mot de passe : au moins 6 caractères.');
-  var all=authAll(); if(all[mail]) return err('Un compte existe déjà avec cet email. Connectez-vous.');
+  if(msg)msg.innerHTML='<span style="color:#6b7280;"><span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Création du compte…</span>';
+  await window.sbReady; if(!window.sb){ err('Service indisponible, réessayez.'); return; }
   var now=new Date(), ren=new Date(now); if(plan==='annuel') ren.setFullYear(ren.getFullYear()+1); else ren.setMonth(ren.getMonth()+1);
-  all[mail]={email:mail,name:name,pass:authHash(pass),plan:plan,price:DBI_PLANS[plan].price,since:now.toISOString(),renewal:ren.toISOString(),status:'actif'};
-  authSaveAll(all); try{ localStorage.setItem('dbi_session',mail); }catch(e){}
-  if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:name}; window.ahNom=name;
+  var res=await window.sb.auth.signUp({ email:mail, password:pass, options:{ data:{ entreprise:name, plan:plan, price:DBI_PLANS[plan].price, since:now.toISOString(), renewal:ren.toISOString() } } });
+  if(res.error){ err(/already registered|already exists/i.test(res.error.message)?'Un compte existe déjà avec cet email. Connectez-vous.':res.error.message); return; }
+  await loadUser();
+  if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
+  window.lastMiroir={nom:name}; window.ahNom=name; window.lastAH=null; window.frData=null;
   dirigeantSpace();
 }
-function authLogin(){
+async function authLogin(){
   var mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
-  var msg=$('auMsg'); var all=authAll(), a=all[mail];
-  if(!a||a.pass!==authHash(pass)){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
-  try{ localStorage.setItem('dbi_session',mail); }catch(e){}
-  window.lastMiroir={nom:a.name}; window.ahNom=a.name; window.lastAH=null; window.frData=null;
+  var msg=$('auMsg');
+  if(msg)msg.innerHTML='<span style="color:#6b7280;"><span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Connexion…</span>';
+  await window.sbReady; if(!window.sb){ if(msg)msg.textContent='Service indisponible, réessayez.'; return; }
+  var res=await window.sb.auth.signInWithPassword({ email:mail, password:pass });
+  if(res.error){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
+  await loadUser();
+  window.lastMiroir={nom:(window.currentUser&&window.currentUser.name)||''}; window.ahNom=window.lastMiroir.nom; window.lastAH=null; window.frData=null;
   dirigeantSpace();
 }
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
