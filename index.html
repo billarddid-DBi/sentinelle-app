@@ -186,9 +186,9 @@
   <div id="tabbar"></div>
   <div id="capfab" onclick="capOpen()" aria-label="Noter une tâche"><i class="ti ti-pencil-plus"></i> Noter une tâche</div>
   <div id="capbar" onclick="if(event.target===this)capClose()"><div style="background:#fff;width:100%;max-width:720px;margin:0 auto;border-radius:18px 18px 0 0;padding:14px 16px 20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div style="font-size:13px;font-weight:600;color:#1C1C1C;"><i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide</div><button type="button" onclick="capClose()" style="border:none;background:none;font-size:20px;color:#9ca3af;cursor:pointer;"><i class="ti ti-x"></i></button></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;"><div id="capTitle" style="font-size:13px;font-weight:600;color:#1C1C1C;"><i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide</div><button type="button" onclick="capClose()" style="border:none;background:none;font-size:20px;color:#9ca3af;cursor:pointer;"><i class="ti ti-x"></i></button></div>
     <div style="display:flex;gap:8px;align-items:center;"><input id="capIn" type="text" placeholder="une tâche, une idée…" onkeydown="if(event.key===\'Enter\')capAdd()" style="flex:1;font-size:14px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button id="capMicBtn" type="button" onclick="capMic()" aria-label="Dicter" style="width:44px;height:44px;border-radius:50%;border:1px solid #e6e1d8;background:#fff;cursor:pointer;font-size:20px;flex-shrink:0;"><i class="ti ti-microphone"></i></button></div>
-    <button type="button" onclick="capAdd()" style="width:100%;margin-top:10px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">Ajouter à ma to-do</button>
+    <button id="capBtn" type="button" onclick="capAdd()" style="width:100%;margin-top:10px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">Ajouter à ma to-do</button>
   </div></div>
 
   <div id="err"></div>
@@ -1499,14 +1499,29 @@ function pmRerender(){ if($('journal')&&$('journal').style.display==='block') jo
 function pmRollover(){ var o=pmLoad(),td=pmTodayStr(),ch=false; o.tasks.forEach(function(t){ if(!t.done&&t.due&&t.due<td){ t.due=td; t.reports=(t.reports||0)+1; ch=true; } }); if(ch)pmSave(o); }
 function pmTodayTasks(o){ var td=pmTodayStr(); return o.tasks.filter(function(t){ return (!t.done&&t.due===td)||(t.done&&t.doneAt===td); }); }
 function pmAddTask(text){ if(!text||!text.trim())return; var o=pmLoad(); o.tasks.push({id:pmUid('t'),t:text.trim(),created:pmTodayStr(),due:pmTodayStr(),done:false,reports:0}); pmSave(o); }
+function pmAddInfo(text){ if(!text||!text.trim())return; var o=pmLoad(); if(!o.infos)o.infos=[]; o.infos.push({id:pmUid('i'),t:text.trim(),created:pmTodayStr(),statut:'nouvelle'}); pmSave(o); }
+// Stade du dirigeant : 'info' tant qu'il n'a que la SENTINELLE (pas encore de MIROIR/feuille), 'tache' ensuite
+function capMode(){ return ((window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)||window.lastAH||window.frData||pmSnaps().length)?'tache':'info'; }
 function pmToggleTask(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); pmRerender(); }
 function pmDelTask(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){return t.id!==id;}); pmSave(o); pmRerender(); }
 function pmQuickAdd(){ var el=$('pmTaskIn'); if(!el)return; pmAddTask(el.value); el.value=''; pmRerender(); }
 function pmAddDecision(){ var el=$('pmDecIn'); if(!el||!el.value.trim())return; var o=pmLoad(); o.decisions.push({id:pmUid('d'),t:el.value.trim(),created:pmTodayStr(),resolved:false}); pmSave(o); pmRerender(); }
 function pmResolveDecision(id){ var o=pmLoad(); o.decisions=o.decisions.filter(function(d){return d.id!==id;}); pmSave(o); pmRerender(); }
-function capOpen(){ var c=$('capbar'); if(c){ c.className='show'; var i=$('capIn'); if(i){i.value='';setTimeout(function(){i.focus();},60);} } }
+function capOpen(){
+  var c=$('capbar'); if(!c) return;
+  var info=(capMode()==='info');
+  var ti=$('capTitle'), pi=$('capIn'), bi=$('capBtn');
+  if(ti) ti.innerHTML=info?'<i class="ti ti-info-circle" style="color:#E8541A;"></i> Info sur mon entreprise':'<i class="ti ti-bolt" style="color:#E8541A;"></i> Note rapide';
+  if(pi) pi.placeholder=info?'ex : on refait la vitrine en septembre…':'une tâche, une idée…';
+  if(bi) bi.textContent=info?'Enregistrer cette info':'Ajouter à ma to-do';
+  c.className='show'; if(pi){pi.value='';setTimeout(function(){pi.focus();},60);}
+}
 function capClose(){ var c=$('capbar'); if(c)c.className=''; }
-function capAdd(){ var i=$('capIn'); if(!i||!i.value.trim()){capClose();return;} pmAddTask(i.value); capClose(); pmRerender(); }
+function capAdd(){
+  var i=$('capIn'); if(!i||!i.value.trim()){capClose();return;}
+  if(capMode()==='info'){ pmAddInfo(i.value); capClose(); try{ if(document.getElementById('dirigeant')&&getComputedStyle($('dirigeant')).display!=='none') dirigeantSpace(); }catch(e){} }
+  else { pmAddTask(i.value); capClose(); pmRerender(); }
+}
 function capMic(){ var SR=window.SpeechRecognition||window.webkitSpeechRecognition; var i=$('capIn'); if(!SR){ if(i)i.focus(); return; } try{ var r=new SR(); r.lang='fr-FR'; r.interimResults=false; var mb=$('capMicBtn'); if(mb)mb.style.color='#E8541A'; r.onresult=function(e){ if(i) i.value=(i.value?i.value+' ':'')+e.results[0][0].transcript; }; r.onend=function(){ if(mb)mb.style.color=''; }; r.onerror=function(){ if(mb)mb.style.color=''; }; r.start(); }catch(e){} }
 function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching) return; window.pmFetching=true;
   var ah=window.lastAH, fr=window.frData, b=window.lastMiroir||{}, cap=pmCap();
@@ -1538,6 +1553,9 @@ function dirigeantSpace(){
         +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-sparkles" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Des outils IA concrets</b> — des propositions adaptées à votre métier pour gagner du temps.</div></div>'
         +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-trending-up" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Une note qui évolue</b> — chaque action que vous mettez en place la fait progresser, et vous le voyez.</div></div>'
       +'</div>'
+      +(function(){ var inf=(pmLoad().infos||[]); if(!inf.length) return '';
+        return '<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+') — prises en compte à l\'étape suivante</div>'
+          +inf.map(function(x){ return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+' <span style="color:#cbd5e1;font-size:10px;">('+esc(x.created)+')</span></div>'; }).join('')+'</div>'; })()
       +'<button class="btn btn-primary" style="margin-top:16px;" onclick="lancerMaSentinelle()"><i class="ti ti-radar-2"></i> Découvrir ma note — gratuit</button></div>'
       +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
     showView('dirigeant'); window.scrollTo(0,0); return;
@@ -1859,7 +1877,11 @@ function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ lo
 function goFeuille(){ if(window.frData){ showView('frView'); } else { frBuild(); } }
 function renderTabbar(v){
   var tb=$('tabbar'); if(!tb) return; var sp=window.currentSpace;
-  var fab=$('capfab'); if(fab) fab.className=(sp==='dirigeant'&&['dirigeant','soir','journal','vivante','frView','compare','cockpit'].indexOf(v)>-1)?'show':'';
+  var fab=$('capfab');
+  if(fab){
+    fab.className=(sp==='dirigeant'&&['dirigeant','soir','journal','vivante','frView','compare','cockpit','form'].indexOf(v)>-1)?'show':'';
+    fab.innerHTML=(typeof capMode==='function'&&capMode()==='info')?'<i class="ti ti-info-circle"></i> Noter une info sur mon entreprise':'<i class="ti ti-pencil-plus"></i> Noter une tâche';
+  }
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
     ? [['dirigeantSpace()','ti-home','Accueil',['dirigeant']],['goFeuille()','ti-list-check','Feuille',['frView']],['cockpitCompare()','ti-activity-heartbeat','Évolution',['compare']],['cockpitBuild()','ti-dashboard','Cockpit',['cockpit']]]
