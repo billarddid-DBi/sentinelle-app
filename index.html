@@ -1556,9 +1556,22 @@ function dirigeantSpace(){
       +(function(){ var inf=(pmLoad().infos||[]); if(!inf.length) return '';
         return '<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+') — prises en compte à l\'étape suivante</div>'
           +inf.map(function(x){ return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+' <span style="color:#cbd5e1;font-size:10px;">('+esc(x.created)+')</span></div>'; }).join('')+'</div>'; })()
-      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="lancerMaSentinelle()"><i class="ti ti-palette"></i> Mon IVE — ma note en couleur</button></div>'
+      +'<style>@keyframes iveGlow{0%{background:#E8541A;}20%{background:#d4a017;}40%{background:#16a34a;}60%{background:#2563eb;}80%{background:#7c3aed;}100%{background:#E8541A;}}</style>'
+      +'<button id="iveBtn" onclick="lancerMaSentinelle()" style="width:100%;margin-top:16px;border:none;border-radius:14px;padding:14px 16px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;animation:iveGlow 9s linear infinite;box-shadow:0 6px 18px rgba(40,30,10,.25);">'
+        +'<span style="font-size:14.5px;font-weight:800;text-align:left;"><i class="ti ti-palette"></i> Mon IVE — ma note en couleur</span>'
+        +'<span style="background:rgba(255,255,255,.22);border-radius:10px;padding:6px 10px;font-size:16px;font-weight:800;min-width:64px;text-align:center;font-variant-numeric:tabular-nums;"><span id="iveNum">50</span><span style="font-size:10px;font-weight:400;opacity:.85;">/100</span></span>'
+      +'</button></div>'
       +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
-    showView('dirigeant'); window.scrollTo(0,0); return;
+    showView('dirigeant'); window.scrollTo(0,0);
+    // Compteur qui tourne sur le bouton IVE (odomètre 5→95 en boucle)
+    clearInterval(window.__iveT); window.__iveV=50;
+    window.__iveT=setInterval(function(){
+      var el=document.getElementById('iveNum');
+      if(!el){ clearInterval(window.__iveT); return; }
+      window.__iveV+=3; if(window.__iveV>95) window.__iveV=5;
+      el.textContent=window.__iveV;
+    },90);
+    return;
   }
   if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
   pmRollover();
