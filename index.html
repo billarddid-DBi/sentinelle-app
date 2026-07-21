@@ -1141,7 +1141,7 @@ function saveAura(r,card){
 /* ===== FEUILLE DE ROUTE (5e temps : le suivi vivant) ===== */
 function frSlug(s){ return (s||'entreprise').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,50)||'ENTREPRISE'; }
 function frLoad(slug){ try{ return JSON.parse(localStorage.getItem('fr_'+slug))||{}; }catch(e){ return {}; } }
-function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,chat:(window.frChat||[]).slice(-40),ts:Date.now()})); }catch(e){} var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil'; }
+function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,chat:(window.frChat||[]).slice(-40),ts:Date.now()})); }catch(e){} if(typeof syncPush==='function') syncPush(); var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée (appareil + cloud)'; }
 var FR_MSG={
   done:["Bravo. Le plus dur, c'est de commencer — et vous venez de le faire.","C'est fait, et ça compte. Chaque étape franchie recrée de la confiance.","Excellent. Vous avancez pour de vrai, pas sur le papier."],
   progress:["Parfait, vous êtes dedans. Qu'est-ce qui freine le plus en ce moment ?","On y est presque. Notez ce qui coince, on le lèvera ensemble.","Ça bouge — c'est déjà une victoire. Dites-moi où vous en êtes."],
@@ -1347,6 +1347,7 @@ function cpSnapshot(force){
   arr.push(snap); arr.sort(function(a,c){return a.t-c.t;});
   if(arr.length>12) arr=arr.slice(-12);
   try{localStorage.setItem(key,JSON.stringify(arr));}catch(e){}
+  if(typeof syncPush==='function') syncPush();
   return arr;
 }
 function cpDelta(lab,before,after,higherBetter){
@@ -1409,7 +1410,7 @@ function pmLoad(){ var o={days:{},tasks:[],decisions:[]}; try{ var s=JSON.parse(
   o.priorites=undefined;
   o.decisions=o.decisions.map(function(d){ return (typeof d==='string')?{id:pmUid('d'),t:d,created:td,resolved:false}:{id:d.id||pmUid('d'),t:d.t,created:d.created||td,resolved:!!d.resolved}; });
   return o; }
-function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} }
+function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} if(typeof syncPush==='function') syncPush(); }
 function pmDay(o){ var k=new Date().toISOString().slice(0,10); if(!o.days[k]) o.days[k]={}; return o.days[k]; }
 function pmStreak(o){ var n=0,dt=new Date(),k0=dt.toISOString().slice(0,10); if(!(o.days[k0]&&o.days[k0].climat)) dt.setDate(dt.getDate()-1); for(;;){ var k=dt.toISOString().slice(0,10); if(o.days[k]&&o.days[k].climat){n++;dt.setDate(dt.getDate()-1);} else break; } return n; }
 function pmSnaps(){ try{ return JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[]; }catch(e){ return []; } }
@@ -1628,8 +1629,39 @@ async function loadUser(){
     if(!u){ window.currentUser=null; return null; }
     var m=u.user_metadata||{};
     window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), plan:(m.plan||'annuel'), price:(m.price!=null?m.price:24.90), since:(m.since||u.created_at), renewal:(m.renewal||null) };
+    if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
+    try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
+    await syncPull();
     return window.currentUser;
   }catch(e){ window.currentUser=null; return null; }
+}
+async function syncPull(){
+  if(!window.sb || !window.dbEnt || !window.currentUser) return;
+  try{
+    var r=await window.sb.from('pm_data').select('data').eq('entreprise_id',window.dbEnt).maybeSingle();
+    var slug=cpSlug();
+    if(r && r.data && r.data.data && Object.keys(r.data.data).length){
+      var b=r.data.data;
+      if(b.pm) localStorage.setItem('pm_'+slug,JSON.stringify(b.pm));
+      if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(b.snaps));
+      if(b.fr) localStorage.setItem('fr_'+slug,JSON.stringify(b.fr));
+      if(b.next) localStorage.setItem('cp_next_'+slug,b.next);
+    } else {
+      syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
+    }
+  }catch(e){ console.warn('syncPull', e && e.message); }
+}
+function syncPush(now){
+  if(!window.sb || !window.dbEnt || !window.currentUser) return;
+  clearTimeout(window.__pushT);
+  window.__pushT=setTimeout(function(){
+    try{
+      var slug=cpSlug();
+      var g=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+      var blob={ pm:g('pm_'+slug), snaps:g('cp_snaps_'+slug), fr:g('fr_'+slug), next:(localStorage.getItem('cp_next_'+slug)||null) };
+      window.sb.from('pm_data').upsert({ entreprise_id:window.dbEnt, data:blob },{ onConflict:'entreprise_id' }).then(function(res){ if(res && res.error) console.warn('syncPush', res.error.message); });
+    }catch(e){ console.warn('syncPush', e && e.message); }
+  }, now?0:1200);
 }
 async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
 function renderAuth(mode){
