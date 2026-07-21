@@ -130,8 +130,21 @@
     <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 2,99 € · Annuel 24,90 €</span></h3>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
-      <th>Client</th><th>Formule</th><th>Prix</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th>
+      <th>Client</th><th>Formule</th><th>Prix</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
     </tr></thead><tbody id="financeRows"></tbody></table></div>
+  </div>
+
+  <!-- FACTURES LIVE -->
+  <div class="panel" style="margin-bottom:20px;padding:0">
+    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">
+      🧾 Factures LIVE <span style="font-weight:400;color:var(--muted);font-size:12px;">— DBi360 · micro-entreprise · TVA non applicable (art. 293 B CGI)</span>
+      <span style="flex:1"></span>
+      <button onclick="reglOpen()" style="padding:6px 12px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-size:12px;">⚙️ Réglages émetteur</button>
+    </h3>
+    <div id="reglForm" style="display:none;padding:14px 16px;border-bottom:1px solid var(--line);background:#fafbfc;"></div>
+    <div style="overflow-x:auto"><table><thead><tr>
+      <th>N°</th><th>Client</th><th>Période</th><th>Formule</th><th>Montant</th><th>Statut</th><th>Actions</th>
+    </tr></thead><tbody id="factRows"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px">Connecte-toi en admin pour voir les factures.</td></tr></tbody></table></div>
   </div>
 
   <div class="grid2">
@@ -259,6 +272,7 @@ async function loadClients(){
   var badge=document.getElementById('adminBadge');
   if(badge){ badge.style.cursor='pointer'; badge.title='Cliquer pour se déconnecter'; badge.onclick=function(){ if(confirm('Se déconnecter de la console ?')) adminLogout(); }; }
   render();
+  loadFacturation();
 }
 function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
 function mapEnt(e, blob){
@@ -298,6 +312,130 @@ function mapEnt(e, blob){
     jours:jours, derniere:(lastD||'—'), nb:snaps.length,
     plan:'annuel', price:24.90, since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events };
+}
+
+/* ============ FACTURATION LIVE (DBi360 micro-entreprise) ============ */
+var REGL=null, FACTURES=[];
+var REGL_DEF={ nom:"Didier Billard — DBi360", statut:"Entrepreneur individuel (micro-entreprise)", adresse:"", siren:"", email:"billard.did@gmail.com", tel:"", iban:"", bic:"",
+  mention_tva:"TVA non applicable, art. 293 B du CGI",
+  penalites:"Paiement par virement à réception. Tout mois ou année commencé est dû. Retard : pénalités au taux annuel de 10 % + indemnité forfaitaire de recouvrement de 40 € (art. L441-10 C. com.). Pas d'escompte pour paiement anticipé." };
+function esc(s){ return (s==null?'':''+s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function r2(n){ return Math.round(n*100)/100; }
+async function loadFacturation(){
+  if(!SB) return;
+  try{
+    var rg=await SB.from('reglages_facturation').select('data').eq('id',1).maybeSingle();
+    if(!rg.error) REGL=Object.assign({},REGL_DEF,(rg.data&&rg.data.data)||{});
+    var fr=await SB.from('factures').select('*').order('id',{ascending:false});
+    if(!fr.error){ FACTURES=fr.data||[]; }
+    renderFactures();
+  }catch(e){ console.warn('loadFacturation', e&&e.message); }
+}
+function renderFactures(){
+  var tb=document.getElementById('factRows'); if(!tb) return;
+  var SL={emise:['p-stag','Émise'],envoyee:['p-stag','Envoyée'],payee:['p-ok','Payée'],annulee:['p-reg','Annulée']};
+  tb.innerHTML=FACTURES.map(function(f){
+    var s=SL[f.statut]||SL.emise;
+    return '<tr><td class="co">'+esc(f.numero)+'</td><td>'+esc((f.client&&f.client.nom)||'—')+'</td>'
+      +'<td class="sec">'+esc(f.periode_debut)+' → '+esc(f.periode_fin)+(f.type==='prorata'?' <span style="color:var(--orange)">(prorata)</span>':'')+'</td>'
+      +'<td>'+(f.plan==='annuel'?'Annuel':'Mensuel')+'</td><td><b>'+EUR(+f.montant)+'</b></td>'
+      +'<td><span class="pill '+s[0]+'"><span class="d"></span>'+s[1]+'</span></td>'
+      +'<td style="white-space:nowrap"><button onclick="factPrint('+f.id+')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">📄 PDF</button> '
+      +(f.statut!=='payee'&&f.statut!=='annulee'?'<button onclick="factPay('+f.id+')" style="padding:4px 10px;border:1px solid #16a34a;color:#16a34a;background:#fff;border-radius:7px;cursor:pointer;font-size:12px;">✓ Payée</button>':'')
+      +'</td></tr>';
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:18px">Aucune facture. Clique « 🧾 Facturer » sur un abonné ci-dessus pour émettre la première.</td></tr>';
+}
+/* --- Réglages émetteur --- */
+function reglOpen(){
+  var d=document.getElementById('reglForm'); if(!d) return;
+  if(d.style.display!=='none'){ d.style.display='none'; return; }
+  var r=REGL||REGL_DEF;
+  var F=[['nom','Nom / dénomination'],['statut','Statut'],['adresse','Adresse complète'],['siren','SIREN / SIRET'],['email','Email'],['tel','Téléphone'],['iban','IBAN (virement)'],['bic','BIC'],['mention_tva','Mention TVA'],['penalites','Conditions de paiement (bas de facture)']];
+  d.innerHTML='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">'+F.map(function(f){
+    var big=(f[0]==='penalites'||f[0]==='adresse');
+    return '<label style="font-size:12px;color:var(--muted);'+(big?'grid-column:1/-1;':'')+'">'+f[1]
+      +(big?'<textarea rows="2"':'<input')+' id="rg_'+f[0]+'" style="width:100%;margin-top:3px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;font-size:13px;font-family:inherit"'+(big?'>'+esc(r[f[0]])+'</textarea>':' value="'+esc(r[f[0]])+'">')+'</label>';
+  }).join('')+'</div><div style="margin-top:10px"><button onclick="reglSave()" style="padding:8px 16px;border:none;background:#1C1C1C;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Enregistrer</button> <span id="reglMsg" style="font-size:12px;color:var(--muted)"></span></div>';
+  d.style.display='block';
+}
+async function reglSave(){
+  var data={}; ['nom','statut','adresse','siren','email','tel','iban','bic','mention_tva','penalites'].forEach(function(k){ var el=document.getElementById('rg_'+k); data[k]=el?el.value.trim():''; });
+  var m=document.getElementById('reglMsg');
+  var r=await SB.from('reglages_facturation').upsert({id:1,data:data},{onConflict:'id'});
+  if(r.error){ if(m){m.style.color='#dc2626';m.textContent='Erreur : '+r.error.message;} return; }
+  REGL=Object.assign({},REGL_DEF,data);
+  if(m){m.style.color='#16a34a';m.textContent='Réglages enregistrés ✓';}
+}
+/* --- Génération : calage calendaire + prorata (tout mois/année commencé est dû) --- */
+function calcFacture(plan, from){
+  var d=from||new Date();
+  var deb=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  var fin, full, totalJ, restJ;
+  if(plan==='mensuel'){
+    full=2.99; fin=new Date(deb.getFullYear(),deb.getMonth()+1,0);
+    totalJ=fin.getDate(); restJ=totalJ-deb.getDate()+1;
+  } else {
+    full=24.90; fin=new Date(deb.getFullYear(),11,31);
+    var jan1=new Date(deb.getFullYear(),0,1);
+    totalJ=Math.round((new Date(deb.getFullYear()+1,0,1)-jan1)/864e5);
+    restJ=Math.round((fin-deb)/864e5)+1;
+  }
+  var prorata=(restJ<totalJ);
+  var montant=prorata?r2(full*restJ/totalJ):full;
+  var iso=function(x){ return x.getFullYear()+'-'+('0'+(x.getMonth()+1)).slice(-2)+'-'+('0'+x.getDate()).slice(-2); };
+  return { debut:iso(deb), fin:iso(fin), montant:montant, type:(prorata?'prorata':'pleine'), restJ:restJ, totalJ:totalJ, full:full };
+}
+async function factNew(entId){
+  var c=DATA.find(function(x){return x.id===entId;}); if(!c) return;
+  if(!REGL||!REGL.siren||!REGL.adresse){ alert('Complète d\'abord tes Réglages émetteur (adresse + SIREN obligatoires sur une facture).'); reglOpen(); return; }
+  // Infos client obligatoires (adresse pour tous, SIRET si pro)
+  var er=await SB.from('entreprises').select('id,nom,adresse,siret,tel,email_facturation').eq('id',entId).maybeSingle();
+  var e=(er.data)||{};
+  if(!e.adresse){ var a=prompt('Adresse de facturation de « '+c.nom+' » (obligatoire) :'); if(!a)return; e.adresse=a.trim(); }
+  if(!e.siret){ var s=prompt('SIRET de « '+c.nom+' » (Entrée si particulier) :')||''; e.siret=s.trim(); }
+  if(!e.email_facturation){ var m=prompt('Email de facturation de « '+c.nom+' » :')||''; e.email_facturation=m.trim(); }
+  await SB.from('entreprises').update({adresse:e.adresse,siret:e.siret||null,email_facturation:e.email_facturation||null}).eq('id',entId);
+  var plan=confirm('Formule de « '+c.nom+' » :\n\nOK = ANNUEL (24,90 €/an)\nAnnuler = MENSUEL (2,99 €/mois)')?'annuel':'mensuel';
+  var k=calcFacture(plan);
+  var lib='Abonnement LIVE — formule '+(plan==='annuel'?'Annuelle':'Mensuelle')+' — période du '+k.debut+' au '+k.fin+(k.type==='prorata'?' (prorata '+k.restJ+'/'+k.totalJ+' jours)':'');
+  if(!confirm('Émettre la facture ?\n\n'+c.nom+'\n'+lib+'\nMontant : '+EUR(k.montant)+' (net, TVA non applicable)\n\n⚠️ Une facture émise est définitive (numérotation légale).')) return;
+  var r=await SB.rpc('creer_facture',{ p_entreprise_id:entId, p_plan:plan, p_type:k.type, p_debut:k.debut, p_fin:k.fin, p_montant:k.montant,
+    p_client:{nom:c.nom,adresse:e.adresse,siret:e.siret||'',email:e.email_facturation||'',tel:e.tel||''},
+    p_emetteur:REGL, p_lignes:[{libelle:lib,montant:k.montant}] });
+  if(r.error){ alert('Émission impossible : '+r.error.message); return; }
+  FACTURES.unshift(r.data); renderFactures(); factPrint(r.data.id);
+}
+async function factPay(id){
+  var f=FACTURES.find(function(x){return x.id===id;}); if(!f) return;
+  if(!confirm('Marquer '+f.numero+' ('+EUR(+f.montant)+') comme PAYÉE (virement reçu) ?')) return;
+  var r=await SB.from('factures').update({statut:'payee',payee_le:new Date().toISOString()}).eq('id',id).select().maybeSingle();
+  if(r.error){ alert('Erreur : '+r.error.message); return; }
+  f.statut='payee'; renderFactures();
+}
+function factPrint(id){
+  var f=FACTURES.find(function(x){return x.id===id;}); if(!f) return;
+  var em=f.emetteur||{}, cl=f.client||{};
+  var w=window.open('','_blank');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(f.numero)+'</title><style>'
+    +'body{font-family:Segoe UI,Arial,sans-serif;color:#1C1C1C;max-width:720px;margin:40px auto;padding:0 20px;font-size:13.5px;line-height:1.5}'
+    +'h1{font-size:22px;margin:0 0 2px}.o{color:#E8541A}.g{color:#6b7280;font-size:12px}'
+    +'.row{display:flex;justify-content:space-between;gap:30px;margin:26px 0}.b{border:1px solid #e6e8ec;border-radius:10px;padding:12px 14px;flex:1}'
+    +'table{width:100%;border-collapse:collapse;margin:18px 0}th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #e6e8ec}th{background:#fafbfc;font-size:12px;color:#6b7280}'
+    +'.tot{text-align:right;font-size:17px;font-weight:700}.foot{margin-top:26px;font-size:11.5px;color:#6b7280;border-top:1px solid #e6e8ec;padding-top:12px;white-space:pre-line}'
+    +'@media print{body{margin:10mm auto}}</style></head><body>'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+    +'<div><h1>L<span class="o">i</span>VE <span class="g">by DBi360</span></h1><div class="g">'+esc(em.nom)+'<br>'+esc(em.statut)+'<br>'+esc(em.adresse).replace(/\n/g,'<br>')+'<br>SIREN : '+esc(em.siren)+(em.tel?'<br>'+esc(em.tel):'')+(em.email?'<br>'+esc(em.email):'')+'</div></div>'
+    +'<div style="text-align:right"><h1>FACTURE</h1><div><b>'+esc(f.numero)+'</b></div><div class="g">Émise le '+esc((f.emise_le||'').slice(0,10))+'</div></div></div>'
+    +'<div class="row"><div class="b"><div class="g" style="margin-bottom:4px">FACTURÉ À</div><b>'+esc(cl.nom)+'</b><br>'+esc(cl.adresse).replace(/\n/g,'<br>')+(cl.siret?'<br>SIRET : '+esc(cl.siret):'')+(cl.email?'<br>'+esc(cl.email):'')+'</div>'
+    +'<div class="b"><div class="g" style="margin-bottom:4px">PÉRIODE</div>Du <b>'+esc(f.periode_debut)+'</b> au <b>'+esc(f.periode_fin)+'</b><br><span class="g">Formule '+(f.plan==='annuel'?'Annuelle':'Mensuelle')+(f.type==='prorata'?' · prorata d\'entrée':'')+'</span></div></div>'
+    +'<table><thead><tr><th>Désignation</th><th style="text-align:right">Montant</th></tr></thead><tbody>'
+    +(f.lignes||[]).map(function(l){ return '<tr><td>'+esc(l.libelle)+'</td><td style="text-align:right">'+EUR(+l.montant)+'</td></tr>'; }).join('')
+    +'<tr><td class="tot">TOTAL NET À PAYER</td><td class="tot">'+EUR(+f.montant)+'</td></tr></tbody></table>'
+    +'<div class="g">'+esc(em.mention_tva)+'</div>'
+    +(em.iban?'<div style="margin-top:14px"><b>Règlement par virement</b><br>IBAN : '+esc(em.iban)+(em.bic?' · BIC : '+esc(em.bic):'')+'</div>':'')
+    +'<div class="foot">'+esc(em.penalites)+'</div>'
+    +'<script>window.print()<\/script></body></html>');
+  w.document.close();
 }
 
 /* ============ DONNÉES FACTICES (aperçu avant connexion) ============ */
@@ -430,7 +568,7 @@ function renderFinance(){
   const payPill={ajour:['p-ok','À jour'],proche:['p-stag','Échéance proche'],retard:['p-reg','En retard']};
   document.getElementById("financeRows").innerHTML=DATA.slice().sort((a,b)=>a.renewalDays-b.renewalDays).map(d=>{
     const p=payPill[d.pay];
-    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+'</td><td>'+EUR(d.price)+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td></tr>';
+    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+'</td><td>'+EUR(d.price)+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td>'+(SB?'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button>':'')+'</td></tr>';
   }).join("");
 }
 
