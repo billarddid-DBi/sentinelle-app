@@ -1859,7 +1859,7 @@ function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ lo
 function goFeuille(){ if(window.frData){ showView('frView'); } else { frBuild(); } }
 function renderTabbar(v){
   var tb=$('tabbar'); if(!tb) return; var sp=window.currentSpace;
-  var fab=$('capfab'); if(fab) fab.className=(sp==='dirigeant'&&v!=='home'&&v!=='auth')?'show':'';
+  var fab=$('capfab'); if(fab) fab.className=(sp==='dirigeant'&&['dirigeant','soir','journal','vivante','frView','compare','cockpit'].indexOf(v)>-1)?'show':'';
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
     ? [['dirigeantSpace()','ti-home','Accueil',['dirigeant']],['goFeuille()','ti-list-check','Feuille',['frView']],['cockpitCompare()','ti-activity-heartbeat','Évolution',['compare']],['cockpitBuild()','ti-dashboard','Cockpit',['cockpit']]]
