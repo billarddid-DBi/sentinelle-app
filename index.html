@@ -704,6 +704,38 @@ $('file').onchange = e => {
   rd.readAsDataURL(f);
 };
 
+// Sélecteur d'établissements : l'app PROPOSE les adresses trouvées sur Google Maps, l'utilisateur choisit.
+function etabChooser(q, dup){
+  return new Promise(async function(resolve){
+    var list=[];
+    try{ var r=await fetch('/api/etablissements',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:q})}); var j=await r.json(); list=(j&&j.etabs)||[]; }catch(e){}
+    for(var i=0;i<list.length;i++){
+      try{ var c=await window.sb.rpc('sentinelle_check',{p_texte:q+', '+list[i].adresse,p_adresse:list[i].adresse}); list[i].pris=!!(c.data&&c.data.found); list[i].prisLe=(c.data&&c.data.date)||null; }catch(e){ list[i].pris=false; }
+    }
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;';
+    var dd=(dup&&dup.date)?new Date(dup.date).toLocaleDateString('fr-FR'):'';
+    var rows=list.length? list.map(function(x,i){
+      return x.pris
+        ? '<div style="display:flex;gap:9px;align-items:center;padding:11px 4px;border-top:1px solid #f1f3f4;color:#9ca3af;font-size:13px;"><i class="ti ti-lock"></i><div style="flex:1;"><b>'+esc(x.nom)+'</b><br><span style="font-size:11.5px;">'+esc(x.adresse)+'</span></div><span style="font-size:10.5px;white-space:nowrap;">déjà fait'+(x.prisLe?' le '+new Date(x.prisLe).toLocaleDateString('fr-FR'):'')+'</span></div>'
+        : '<button type="button" data-i="'+i+'" class="etabOpt" style="display:flex;gap:9px;align-items:center;width:100%;text-align:left;padding:11px 4px;border:none;border-top:1px solid #f1f3f4;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:#1C1C1C;"><i class="ti ti-map-pin" style="color:#E8541A;font-size:17px;"></i><div style="flex:1;"><b>'+esc(x.nom)+'</b><br><span style="font-size:11.5px;color:#6b7280;">'+esc(x.adresse)+'</span></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>';
+    }).join('') : '<div style="padding:12px 4px;color:#6b7280;font-size:12.5px;">Aucun établissement trouvé automatiquement — utilisez « Autre adresse ».</div>';
+    ov.innerHTML='<div style="background:#fff;width:100%;max-width:720px;border-radius:18px 18px 0 0;padding:16px 16px 20px;max-height:82vh;overflow:auto;">'
+      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;"><i class="ti ti-alert-triangle" style="color:#d97706;"></i> Cette enseigne a déjà été diagnostiquée'+(dd?' le '+dd:'')+'</div>'
+      +'<div style="font-size:12.5px;color:#6b7280;margin-top:3px;">S\'il s\'agit d\'un AUTRE établissement, choisissez le vôtre :</div>'
+      +'<div style="margin-top:6px;">'+rows+'</div>'
+      +'<button type="button" id="etabAutre" style="width:100%;margin-top:10px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-pencil"></i> Autre adresse…</button>'
+      +'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>'
+      +'<button type="button" id="etabCancel" style="width:100%;margin-top:8px;border:none;background:none;color:#9ca3af;font-size:13px;cursor:pointer;font-family:inherit;padding:8px;">Annuler</button></div>';
+    document.body.appendChild(ov);
+    function done(v){ ov.remove(); resolve(v); }
+    ov.querySelectorAll('.etabOpt').forEach(function(b){ b.onclick=function(){ done(list[+b.dataset.i].adresse); }; });
+    ov.querySelector('#etabAutre').onclick=function(){ var a=prompt('Adresse de l\'établissement (ex : 12 rue de la Gare) :'); if(a&&a.trim()) done(a.trim()); };
+    ov.querySelector('#etabRedo').onclick=function(){ done('__REFAIRE__'); };
+    ov.querySelector('#etabCancel').onclick=function(){ done(null); };
+    ov.onclick=function(e){ if(e.target===ov) done(null); };
+  });
+}
 async function run(payload){
   // VERROU : une entreprise (un ÉTABLISSEMENT) = une SENTINELLE gratuite. L'adresse départage les enseignes multiples.
   window.__scanAdresse=null;
@@ -713,18 +745,16 @@ async function run(payload){
       if(window.sb){
         var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:''});
         if(!ck.error && ck.data && ck.data.found){
-          var dd=new Date(ck.data.date).toLocaleDateString('fr-FR');
-          var rep=prompt('⚠️ « '+ck.data.nom+' »'+(ck.data.ville?' ('+ck.data.ville+')':'')+' a déjà été diagnostiquée le '+dd+'.\n\n• Si c\'est un AUTRE établissement (chaîne, franchise, 2e magasin) : tapez son adresse (ex : 12 rue de la Gare) puis OK.\n• Pour REFAIRE quand même (passe-droit conseiller) : tapez REFAIRE.\n• Sinon : Annuler.');
-          if(rep===null || !rep.trim()) return;
-          if(rep.trim().toUpperCase()!=='REFAIRE'){
-            var adr=rep.trim();
-            var ck2=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:adr});
+          var choice=await etabChooser(payload.text, ck.data);
+          if(choice===null) return;
+          if(choice!=='__REFAIRE__'){
+            var ck2=await window.sb.rpc('sentinelle_check',{p_texte:payload.text+', '+choice,p_adresse:choice});
             if(!ck2.error && ck2.data && ck2.data.found){
-              alert('Cet établissement ('+adr+') a déjà été diagnostiqué le '+new Date(ck2.data.date).toLocaleDateString('fr-FR')+'.');
+              alert('Cet établissement ('+choice+') a déjà été diagnostiqué le '+new Date(ck2.data.date).toLocaleDateString('fr-FR')+'.');
               return;
             }
-            window.__scanAdresse=adr;
-            payload.text=payload.text+', '+adr;
+            window.__scanAdresse=choice;
+            payload.text=payload.text+', '+choice;
           }
         }
       }
