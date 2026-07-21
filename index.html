@@ -1552,8 +1552,9 @@ function dirigeantSpace(){
   html+='<button class="btn '+(evening?'btn-primary':'btn-ghost')+'" onclick="checkSoir()"><i class="ti ti-moon-stars"></i> Check de ma journée</button>';
   html+='<button class="btn btn-ghost" onclick="vivanteView()"><i class="ti ti-route"></i> Ma feuille de route vivante</button>';
   html+='<button class="btn btn-ghost" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un contrôle</button>';
-  var pl=DBI_PLANS[acc.plan]||DBI_PLANS.annuel;
-  html+='<div class="panel" style="margin-top:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:19px;color:#16a34a;"></i><div style="flex:1;font-size:11.5px;color:#4b5563;">Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per+'<div style="font-size:10px;color:#9ca3af;">'+esc(acc.email)+'</div></div><button type="button" onclick="authLogout()" style="border:none;background:none;color:#9ca3af;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">Déconnexion</button></div>';
+  var pl=DBI_PLANS[acc.plan]||DBI_PLANS.decouverte;
+  var plTxt=(pl.price>0)?('Abonnement <b>'+pl.label+'</b> · '+pl.price.toFixed(2).replace('.',',')+' €/'+pl.per):'Formule <b>Découverte</b> · gratuite';
+  html+='<div class="panel" style="margin-top:14px;padding:11px 13px;display:flex;align-items:center;gap:10px;"><i class="ti ti-rosette-discount-check" style="font-size:19px;color:#16a34a;"></i><div style="flex:1;font-size:11.5px;color:#4b5563;">'+plTxt+'<div style="font-size:10px;color:#9ca3af;">'+esc(acc.email)+'</div></div><button type="button" onclick="authLogout()" style="border:none;background:none;color:#9ca3af;font-size:11px;cursor:pointer;text-decoration:underline;font-family:inherit;">Déconnexion</button></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function checkSoir(){
@@ -1656,7 +1657,7 @@ function cockpitRemesure(){
   if($('cockpit').style.display!=='none') cockpitBuild();
 }
 /* ===== COMPTES DIRIGEANT (prototype local — à brancher sur Supabase) ===== */
-var DBI_PLANS={mensuel:{key:'mensuel',label:'Mensuel',price:2.99,per:'mois'},annuel:{key:'annuel',label:'Annuel',price:24.90,per:'an'}};
+var DBI_PLANS={decouverte:{key:'decouverte',label:'Découverte',price:0,per:'gratuit'},mensuel:{key:'mensuel',label:'Mensuel',price:2.99,per:'mois'},annuel:{key:'annuel',label:'Annuel',price:24.90,per:'an'}};
 function authHash(s){ var h=5381,i=String(s).length; while(i) h=(h*33)^String(s).charCodeAt(--i); return (h>>>0).toString(16); }
 function authAll(){ try{ return JSON.parse(localStorage.getItem('dbi_accounts'))||{}; }catch(e){ return {}; } }
 function authSaveAll(o){ try{ localStorage.setItem('dbi_accounts',JSON.stringify(o)); }catch(e){} }
@@ -1669,7 +1670,7 @@ async function loadUser(){
     var u=(s.data&&s.data.session)?s.data.session.user:null;
     if(!u){ window.currentUser=null; return null; }
     var m=u.user_metadata||{};
-    window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), plan:(m.plan||'annuel'), price:(m.price!=null?m.price:24.90), since:(m.since||u.created_at), renewal:(m.renewal||null) };
+    window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), ville:(m.ville||''), plan:(m.plan||'decouverte'), price:(m.price!=null?m.price:0), since:(m.since||u.created_at), renewal:(m.renewal||null) };
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
@@ -1737,42 +1738,47 @@ async function sendHandoff(){
 function renderAuth(mode){
   window.currentSpace='dirigeant';
   var pre=(window.lastMiroir&&window.lastMiroir.nom)||'';
-  var tab=function(m,l){ return '<button type="button" onclick="renderAuth(\''+m+'\')" style="flex:1;padding:9px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;background:'+(mode===m?'#1C1C1C':'#f1f5f9')+';color:'+(mode===m?'#fff':'#6b7280')+';">'+l+'</button>'; };
+  var tab=function(m,l,ic){ var on=(mode===m); return '<button type="button" onclick="renderAuth(\''+m+'\')" style="flex:1;padding:11px 6px;border:none;border-bottom:3px solid '+(on?'#E8541A':'transparent')+';cursor:pointer;font-size:13px;font-weight:'+(on?'800':'600')+';font-family:inherit;background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#E8541A':'#9ca3af')+';"><i class="ti '+ic+'"></i> '+l+'</button>'; };
   var fld=function(id,lab,type,val,ph){ return '<div style="margin-top:10px;"><label style="font-size:11px;color:#6b7280;">'+lab+'</label><input id="'+id+'" type="'+type+'" value="'+esc(val||'')+'" placeholder="'+(ph||'')+'" autocomplete="off" style="width:100%;font-size:14px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;margin-top:3px;font-family:inherit;"></div>'; };
-  var planCard=function(p,sel){ var pl=DBI_PLANS[p]; return '<label style="flex:1;cursor:pointer;"><input type="radio" name="dbiplan" value="'+p+'" '+(sel?'checked':'')+' style="display:none;" onchange="document.querySelectorAll(\'.planC\').forEach(function(x){x.style.borderColor=\'#e5e7eb\';x.style.background=\'#fff\';});this.parentNode.querySelector(\'.planC\').style.borderColor=\'#E8541A\';this.parentNode.querySelector(\'.planC\').style.background=\'#fff7ed\';"><div class="planC" style="border:2px solid '+(sel?'#E8541A':'#e5e7eb')+';background:'+(sel?'#fff7ed':'#fff')+';border-radius:10px;padding:10px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">'+pl.label+'</div><div style="font-size:16px;font-weight:700;color:#E8541A;margin-top:2px;">'+pl.price.toFixed(2).replace('.',',')+' €</div><div style="font-size:10px;color:#9ca3af;">/ '+pl.per+(p==='annuel'?' · 2 mois offerts':'')+'</div></div></label>'; };
   var body;
   if(mode==='signup'){
-    body=fld('auName','Nom de votre entreprise','text',pre,'Ma Menuiserie')
+    body='<div style="font-size:17px;font-weight:800;color:#1C1C1C;">Créer votre compte</div>'
+      +'<div style="background:#dcfce7;color:#166534;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:8px;"><i class="ti ti-gift"></i> C\'est gratuit : le diagnostic SENTINELLE de votre entreprise est offert. Aucun paiement demandé.</div>'
+      +fld('auName','Nom de votre entreprise','text',pre,'Ma Menuiserie')
+      +fld('auVille','Ville de l\'entreprise','text','','Metz')
       +fld('auMail','Votre email','email','','vous@entreprise.fr')
       +fld('auPass','Mot de passe','password','','au moins 6 caractères')
-      +'<div style="font-size:11px;color:#6b7280;margin-top:14px;">Votre formule</div><div style="display:flex;gap:8px;margin-top:5px;">'+planCard('mensuel',false)+planCard('annuel',true)+'</div>'
       +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
-      +'<button class="btn btn-primary" onclick="authSignup()"><i class="ti ti-user-plus"></i> Créer mon compte</button>';
+      +'<button class="btn btn-primary" onclick="authSignup()"><i class="ti ti-user-plus"></i> Créer mon compte gratuit</button>'
+      +'<div style="font-size:11.5px;color:#9ca3af;text-align:center;margin-top:8px;">Déjà un compte ? <a href="#" onclick="renderAuth(\'login\');return false;" style="color:#E8541A;font-weight:600;">Se connecter</a></div>';
   } else {
-    body=fld('auMail','Votre email','email','','vous@entreprise.fr')
+    body='<div style="font-size:17px;font-weight:800;color:#1C1C1C;">Se connecter</div>'
+      +'<div style="font-size:12px;color:#6b7280;margin-top:4px;">Retrouvez votre espace et votre suivi.</div>'
+      +fld('auMail','Votre email','email','','vous@entreprise.fr')
       +fld('auPass','Mot de passe','password','','')
       +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
-      +'<button class="btn btn-primary" onclick="authLogin()"><i class="ti ti-login"></i> Se connecter</button>';
+      +'<button class="btn btn-primary" onclick="authLogin()"><i class="ti ti-login"></i> Se connecter</button>'
+      +'<div style="font-size:11.5px;color:#9ca3af;text-align:center;margin-top:8px;">Pas encore de compte ? <a href="#" onclick="renderAuth(\'signup\');return false;" style="color:#E8541A;font-weight:600;">Créer un compte gratuit</a></div>';
   }
   var html='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:15px;font-weight:500;margin-top:3px;">Votre suivi de transformation, rien qu\'à vous.</div></div>'
-    +'<div style="display:flex;">'+tab('login','Se connecter')+tab('signup','Créer un compte')+'</div>'
+    +'<div style="display:flex;border-bottom:1px solid #f1f3f4;">'+tab('signup','Créer un compte','ti-user-plus')+tab('login','Se connecter','ti-login')+'</div>'
     +'<div class="sec">'+body+'</div>'
-    +'<div class="foot"><i class="ti ti-shield-lock"></i> Version d\'essai : vos identifiants restent sur cet appareil. La connexion sécurisée multi-appareils arrive très vite — n\'utilisez pas ici un mot de passe important.</div></div>'
+    +'<div class="foot"><i class="ti ti-shield-lock"></i> Connexion sécurisée — vos données sont chiffrées et retrouvables sur tous vos appareils.</div></div>'
     +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
   $('auth').innerHTML=html; showView('auth'); window.scrollTo(0,0);
 }
 async function authSignup(){
-  var name=($('auName')&&$('auName').value.trim())||'', mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
-  var plan=(document.querySelector('input[name=dbiplan]:checked')||{}).value||'annuel';
+  var name=($('auName')&&$('auName').value.trim())||'', ville=($('auVille')&&$('auVille').value.trim())||'', mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
   var msg=$('auMsg'); var err=function(m){ if(msg)msg.textContent=m; };
   if(!name) return err('Indiquez le nom de votre entreprise.');
+  if(!ville) return err('Indiquez la ville de votre entreprise.');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) return err('Email invalide.');
   if(pass.length<6) return err('Mot de passe : au moins 6 caractères.');
   if(msg)msg.innerHTML='<span style="color:#6b7280;"><span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Création du compte…</span>';
   await window.sbReady; if(!window.sb){ err('Service indisponible, réessayez.'); return; }
-  var now=new Date(), ren=new Date(now); if(plan==='annuel') ren.setFullYear(ren.getFullYear()+1); else ren.setMonth(ren.getMonth()+1);
-  var res=await window.sb.auth.signUp({ email:mail, password:pass, options:{ data:{ entreprise:name, plan:plan, price:DBI_PLANS[plan].price, since:now.toISOString(), renewal:ren.toISOString() } } });
+  var now=new Date();
+  var res=await window.sb.auth.signUp({ email:mail, password:pass, options:{ data:{ entreprise:name, ville:ville, plan:'decouverte', price:0, since:now.toISOString() } } });
   if(res.error){ err(/already registered|already exists/i.test(res.error.message)?'Un compte existe déjà avec cet email. Connectez-vous.':res.error.message); return; }
   await loadUser();
   if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
