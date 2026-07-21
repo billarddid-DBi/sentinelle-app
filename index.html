@@ -670,6 +670,19 @@ $('file').onchange = e => {
 };
 
 async function run(payload){
+  // VERROU : une entreprise = une SENTINELLE gratuite. Si déjà en base → on prévient.
+  try{
+    if(payload.text && window.sbReady){
+      await window.sbReady;
+      if(window.sb){
+        var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text});
+        if(!ck.error && ck.data && ck.data.found){
+          var dd=new Date(ck.data.date).toLocaleDateString('fr-FR');
+          if(!confirm('⚠️ « '+ck.data.nom+' »'+(ck.data.ville?' ('+ck.data.ville+')':'')+' a déjà été diagnostiquée le '+dd+'.\n\nLa SENTINELLE gratuite ne se fait qu\'une seule fois par entreprise.\n\nRefaire quand même (passe-droit conseiller) ?')) return;
+        }
+      }
+    }
+  }catch(e){}
   $('err').style.display='none';
   $('result').innerHTML='';
   $('form').style.display='none';
@@ -892,6 +905,14 @@ function saveFiche(d){
     fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,json:d,html:html})})
       .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '<i class="ti ti-circle-check"></i> Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '<i class="ti ti-alert-triangle"></i> Non enregistré ('+((x&&x.error)||'erreur')+')'; })
       .catch(e=>{ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré (connexion)'; });
+    // Base prospects Supabase (verrou anti-doublon + futur PDF/relances)
+    try{
+      window.sbReady.then(function(){
+        if(!window.sb) return;
+        window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html})
+          .then(function(r){ if(r&&r.error) console.warn('sentinelle_save', r.error.message); });
+      });
+    }catch(e){}
   }catch(e){ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré'; }
 }
 
