@@ -1,0 +1,173 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Croissance maîtrisée",
+    "atout": "Leader européen, innovation, conformité EASA"
+  },
+  "identite": "SAS Dronavia, SIREN 810 254 722, créée 01/03/2015 (11 ans), NAF 3030Z (Construction aéronautique et spatiale), 10-19 salariés en 2023 (site affiche 28-30 spécialistes), dirigeant Ludovic Pelletey (Président), siège 7 Avenue Julien Méline 88200 Remiremont.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      70,
+      72,
+      65,
+      70
+    ],
+    "potentiel": [
+      88,
+      85,
+      88,
+      82,
+      85,
+      85,
+      82,
+      85
+    ]
+  },
+  "valeurs": "Sécurité des drones, innovation anticipatrice, conformité réglementaire (EASA/DGAC), qualité « Made in France », simplification du travail des pilotes professionnels.",
+  "imagePercue": "Entreprise innovante, pionnière et leader européen reconnu en sécurité drone. Présence digitale professionnelle, communication claire sur expertise technique et conformité. Peu d'avis clients publics (métier B2B spécialisé), mais forte visibilité auprès des professionnels et partenaires (DJI, Thales, Valmet).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Leader de marché établi avec 11 ans d'ancienneté, croissance régulière et conformité réglementaire anticipée (EASA 2024)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Comptes confidentiels (PME) mais aucun signal négatif : pas de retard de paiement signalé, pas de procédure collective."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Effectif : discordance entre données INSEE (10-19 en 2023) et site (28-30 spécialistes) — croissance rapide ou reclassement à vérifier."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Marché très régulé (EASA/DGAC) = barrière à l'entrée forte, position défensive solide."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des demandes de conformité clients (devis, documentation EASA/MOC) via assistant IA",
+    "Capitaliser le savoir-faire technique en base de données (procédures d'assemblage, tests, certifications) pour accélérer onboarding et réduire erreurs",
+    "Piloter la croissance RH : prévisions de recrutement, plannings d'assemblage, suivi de productivité par poste"
+  ],
+  "avis": "Non trouvé publiquement. Métier B2B spécialisé (accessoires drone professionnel) : réputation se construit via certifications (EASA/DGAC), partenariats (DJI, Thales) et bouche-à-oreille secteur, pas via avis consommateurs.",
+  "presence": "Site web moderne et à jour (dronavia.com), contenu technique riche, blog/ressources. Facebook actif (2 430 likes, posts réguliers). LinkedIn professionnel (1 437 followers, contenu stratégique). YouTube avec tutoriels produits. Présence cohérente et professionnelle, adaptée au secteur B2B.",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité drone (normes EN 4709, MOC 2511/2512)",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et homologation des accessoires de sécurité drone en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "DJI Enterprise (partenariat stratégique)",
+      "role": "Validation et intégration des systèmes Dronavia sur drones professionnels DJI",
+      "url": "https://www.dji.com/fr/enterprise"
+    },
+    {
+      "nom": "Quai Alpha (écosystème innovation Vosges)",
+      "role": "Visibilité locale et réseau d'innovation régional pour PME tech",
+      "url": "https://www.quai-alpha.com"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels (PME). 2022 : CA < 700 k€, bilan < 350 k€. Capital social 30 016 € (2023). Aucun retard de paiement signalé. Croissance probable : effectif en hausse, nouveaux produits (Kronos 2025), expansion industrielle (Scout DI).",
+    "concurrence": "Marché très concentré (5-6 fabricants mondiaux de systèmes de sécurité drone). Dronavia = leader européen incontesté. Peu de concurrence directe en France/Europe. Barrière réglementaire (EASA/DGAC) très haute.",
+    "visibilite": "Forte auprès des professionnels (DJI, Thales, Valmet, télépilotes). Faible auprès du grand public (métier B2B). Présence digitale professionnelle et cohérente. Presse spécialisée (Quai Alpha, L'Industrie Recrute).",
+    "dirigeant": "Ludovic Pelletey, Président SAS. Fondateur ou repreneur en 2015 (non précisé). Visibilité publique : interviews, présentation produits, leadership stratégique visible. Pas d'info personnelle (âge, parcours détaillé) trouvée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Assistant Conformité EASA/MOC",
+      "benefice": "Générer automatiquement dossiers de conformité (MOC 2511/2512, C5, STS-01/02) et devis clients en 5 min au lieu de 2h — réduit délais commerciaux, augmente conversion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Base de Savoir-Faire Technique",
+      "benefice": "Capitaliser procédures d'assemblage, tests, certifications, troubleshooting — accélère onboarding techniciens, réduit erreurs, sécurise qualité en croissance."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Pilote RH & Productivité",
+      "benefice": "Prévisions recrutement, plannings d'assemblage, suivi productivité par poste — maîtrise croissance rapide (28-30 salariés), anticipe goulots."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Veille Appels d'Offres Publics",
+      "benefice": "Détecter marchés publics (défense, sécurité, inspection) compatibles avec expertise Dronavia — diversifie clients au-delà DJI."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire Partenaires & Revendeurs",
+      "benefice": "Centraliser réseau de revendeurs officiels, suivi stock/commandes, support technique — accélère distribution européenne et mondiale."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par mois en gestion conformité, devis, onboarding"
+  },
+  "coutInaction": "Croissance ralentie par goulots administratifs (conformité, devis, RH) et risque de perte de qualité en scaling rapide. Concurrence mondiale (même si faible) peut accélérer si Dronavia ne maîtrise pas productivité.",
+  "simulateur": {
+    "personnes": 3,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Devis conformité EASA : 2h manuelles. Onboarding technicien : 3 semaines. Plannings d'assemblage : Excel + appels. Suivi revendeurs : email/téléphone.",
+    "avecIA": "Devis auto-généré en 5 min. Onboarding : 1 semaine (base de savoir-faire). Plannings optimisés en temps réel. Revendeurs centralisés et pilotés."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie de scaling : prioriser les leviers (conformité, RH, distribution), anticiper les risques de croissance, et structurer l'organisation pour maintenir leadership européen.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 88
+  },
+  "aura": {
+    "sens": "Innovation & fiabilité",
+    "couleur": "Bleu",
+    "definition": "Entreprise établie et fiable, leader reconnu sur son marché, qui rayonne par l'innovation technique et l'anticipation réglementaire — une force tranquille et déterminée.",
+    "eclat": "fort"
+  },
+  "fierte": "Dronavia a bâti en 11 ans une position de leader incontesté en Europe sur un marché hautement régulé et techniquement exigeant — preuve de maîtrise opérationnelle et d'innovation constante. Avec une équipe de 28-30 spécialistes, une fabrication 100% in-house et des partenariats stratégiques (DJI, Thales, Valmet), l'entreprise dispose de tous les atouts pour accélérer sa croissance et conquérir de nouveaux marchés industriels (inspection, défense, nettoyage).",
+  "sources": "Annuaire-entreprises.data.gouv.fr (INSEE, RCS Épinal), Pappers.fr, Societe.com, Dronavia.com (site officiel + legal), LinkedIn Dronavia, Facebook Dronavia, Quai-Alpha.com (article juin 2024), L'Industrie-Recrute.fr, Pages Jaunes, RubyPayeur.com, ZoomInfo.com. Confiance : HAUTE (données publiques officielles + site d'entreprise + presse spécialisée). Comptes confidentiels (PME) = données financières détaillées non accessibles.",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
