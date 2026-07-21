@@ -1785,6 +1785,7 @@ async function authSignup(){
   if(pass.length<6) return err('Mot de passe : au moins 6 caractères.');
   if(msg)msg.innerHTML='<span style="color:#6b7280;"><span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Création du compte…</span>';
   await window.sbReady; if(!window.sb){ err('Service indisponible, réessayez.'); return; }
+  authResetState();
   var now=new Date();
   var res=await window.sb.auth.signUp({ email:mail, password:pass, options:{ data:{ entreprise:name, ville:ville, plan:'decouverte', price:0, since:now.toISOString() } } });
   if(res.error){ err(/already registered|already exists/i.test(res.error.message)?'Un compte existe déjà avec cet email. Connectez-vous.':res.error.message); return; }
@@ -1804,11 +1805,17 @@ function lancerMaSentinelle(){
   if($('q')) $('q').value=q;
   run({ text:q });
 }
+function authResetState(){
+  // Changement de compte : on repart de zéro (sinon les données de la session précédente contaminent la nouvelle)
+  window.lastMiroir=null; window.lastAH=null; window.frData=null; window.miroirData=null;
+  window.dbEnt=null; window.__gotHandoff=false; window.ahNom='';
+}
 async function authLogin(){
   var mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
   var msg=$('auMsg');
   if(msg)msg.innerHTML='<span style="color:#6b7280;"><span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Connexion…</span>';
   await window.sbReady; if(!window.sb){ if(msg)msg.textContent='Service indisponible, réessayez.'; return; }
+  authResetState();
   var res=await window.sb.auth.signInWithPassword({ email:mail, password:pass });
   if(res.error){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
   await loadUser();
