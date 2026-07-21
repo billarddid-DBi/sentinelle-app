@@ -102,6 +102,15 @@ create table if not exists public.fiches (
 );
 comment on table public.fiches is 'Fiches structurees (remplace les fichiers GitHub). Optionnel en phase 1.';
 
+-- 1.7 PM_DATA  — le "Point du matin" du dirigeant (blob quotidien)
+--     Reprend le localStorage pm_<slug> : {days, tasks, decisions, grafts, vivante}
+create table if not exists public.pm_data (
+  entreprise_id uuid primary key references public.entreprises(id) on delete cascade,
+  data          jsonb not null default '{}'::jsonb,
+  maj_le        timestamptz not null default now()
+);
+comment on table public.pm_data is 'Quotidien du dirigeant : to-do, décisions, constantes climat/tréso, greffes, analyse vivante.';
+
 -- =============================================================================
 -- 2. INDEX (accélèrent la console)
 -- =============================================================================
@@ -150,6 +159,7 @@ alter table public.snapshots     enable row level security;
 alter table public.feuille_route enable row level security;
 alter table public.events        enable row level security;
 alter table public.fiches        enable row level security;
+alter table public.pm_data       enable row level security;
 
 -- ---- 4.1 ENTREPRISES --------------------------------------------------------
 -- Le dirigeant lit SON entreprise ; l'admin lit toutes.
@@ -200,6 +210,13 @@ create policy fiches_select on public.fiches
   for select using ( public.is_admin() or entreprise_id = public.my_entreprise() );
 create policy fiches_insert on public.fiches
   for insert with check ( public.is_admin() or entreprise_id = public.my_entreprise() );
+
+-- ---- 4.7 PM_DATA ------------------------------------------------------------
+create policy pm_select on public.pm_data
+  for select using ( public.is_admin() or entreprise_id = public.my_entreprise() );
+create policy pm_upsert on public.pm_data
+  for all using ( public.is_admin() or entreprise_id = public.my_entreprise() )
+          with check ( public.is_admin() or entreprise_id = public.my_entreprise() );
 
 -- =============================================================================
 -- 5. VUE CONSOLE : une ligne par client, prête à afficher (calculs faits en SQL)
@@ -285,6 +302,10 @@ create trigger trg_touch_entreprises before update on public.entreprises
 
 drop trigger if exists trg_touch_feuille on public.feuille_route;
 create trigger trg_touch_feuille before update on public.feuille_route
+  for each row execute function public.touch_maj();
+
+drop trigger if exists trg_touch_pm on public.pm_data;
+create trigger trg_touch_pm before update on public.pm_data
   for each row execute function public.touch_maj();
 
 -- 6.3 Anti auto-promotion : un non-admin ne peut pas changer son role ni son entreprise
