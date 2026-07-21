@@ -1736,7 +1736,7 @@ async function authSignup(){
   if(res.error){ err(/already registered|already exists/i.test(res.error.message)?'Un compte existe déjà avec cet email. Connectez-vous.':res.error.message); return; }
   await loadUser();
   if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
-  window.lastMiroir={nom:name}; window.ahNom=name; window.lastAH=null; window.frData=null;
+  window.ahNom=(window.currentUser.name||name);
   dirigeantSpace();
 }
 async function authLogin(){
@@ -1747,7 +1747,7 @@ async function authLogin(){
   var res=await window.sb.auth.signInWithPassword({ email:mail, password:pass });
   if(res.error){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
   await loadUser();
-  window.lastMiroir={nom:(window.currentUser&&window.currentUser.name)||''}; window.ahNom=window.lastMiroir.nom; window.lastAH=null; window.frData=null;
+  window.ahNom=(window.currentUser&&window.currentUser.name)||'';
   dirigeantSpace();
 }
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
