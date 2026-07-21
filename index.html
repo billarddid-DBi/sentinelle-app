@@ -1572,9 +1572,9 @@ function dirigeantSpace(){
     window.__iveT=setInterval(function(){
       var el=document.getElementById('iveNum');
       if(!el){ clearInterval(window.__iveT); return; }
-      window.__iveV+=3; if(window.__iveV>95) window.__iveV=5;
+      window.__iveV+=1; if(window.__iveV>95) window.__iveV=5;
       el.textContent=window.__iveV;
-    },90);
+    },160);
     return;
   }
   if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
