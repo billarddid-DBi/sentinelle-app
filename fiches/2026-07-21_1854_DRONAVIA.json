@@ -1,0 +1,173 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, coupe-circuits, balises) ; solutions industrielles par drone",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Santé solide, croissance",
+    "atout": "Leadership européen, innovation, équipe spécialisée"
+  },
+  "identite": "SAS Dronavia, SIREN 810 254 722, créée 01/03/2015 (11 ans), NAF 3030Z (Construction aéronautique et spatiale), 28 spécialistes (données site), effectif INSEE 2023 : 6-9 salariés (données publiques anciennes), dirigeant Ludovic Pelletey (Président), siège 7 Avenue Julien Méline 88200 Remiremont.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      76,
+      74,
+      70,
+      72
+    ],
+    "potentiel": [
+      88,
+      85,
+      88,
+      82,
+      88,
+      86,
+      85,
+      85
+    ]
+  },
+  "valeurs": "Sécurité des drones professionnels, innovation anticipant les normes EASA, fabrication française en interne, simplification du travail des pilotes, conformité réglementaire.",
+  "imagePercue": "Leader européen reconnu en accessoires de sécurité drone ; entreprise innovante, spécialisée, avec expertise technique forte ; présence B2B solide auprès des opérateurs professionnels et des constructeurs (DJI, etc.) ; image de fiabilité et de conformité réglementaire.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Positionnement de marché clair et leadership affirmé en Europe sur un segment de niche à forte croissance (réglementations EASA 2024+)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Capacités de R&D et de fabrication intégrées (atelier, imprimantes 3D FDM/SLS, prototypage) ; équipe spécialisée de 28 experts."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes en confidentialité totale (L.232-25) : CA < 700 k€ en 2022 ; données financières non publiques depuis. Croissance réelle à confirmer en entretien."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Effectif INSEE (6-9 salariés en 2023) diverge du site (28 spécialistes) : clarifier la structure réelle et les périmètres (groupe, filiales, sous-traitants)."
+    }
+  ],
+  "quickwins": [
+    "Mettre à jour la fiche Google Business (horaires, photos récentes de l'atelier, lien vers site) : aucune présence visible actuellement sur Google Maps.",
+    "Publier 2-3 cas d'usage clients (avec accord) sur le site ou LinkedIn : démontrer l'impact réel des systèmes Kronos auprès des opérateurs professionnels.",
+    "Créer une page FAQ technique sur la conformité EASA MOC M2/2511 : répondre aux questions fréquentes des prospects en phase de décision."
+  ],
+  "avis": "Non trouvé publiquement. Aucun avis sur Google, Pages Jaunes, ou annuaires généralistes. Réputation B2B repose sur références directes (DJI, Valmet, réseau de partenaires officiels) et contenus techniques (certifications DGAC/EASA, publications).",
+  "presence": "Site web moderne et actif (dronavia.com, mis à jour avril 2026) ; LinkedIn actif (1 437 followers, posts récents sur Kronos M3D) ; Facebook (2 430 likes, activité modérée) ; YouTube (chaîne avec contenu technique) ; présence B2B via réseau de partenaires officiels. Absence notable sur Google Maps/Business.",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité drone (MOC 2511, MOC M2)",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et homologation des accessoires de sécurité drone en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "DJI Enterprise Partner Network",
+      "role": "Écosystème de partenaires certifiés pour solutions drone professionnelles",
+      "url": "https://enterprise.dji.com"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2022 (L.232-25). CA estimé < 700 k€ en 2022 ; bilan < 350 k€. Effectif INSEE 6-9 salariés (2023), mais site annonce 28 spécialistes : écart à clarifier. Capital social 30 016 € (2026). Pas de procédure collective. Paiements fournisseurs : retard de 23 jours signalé (D&B 2024).",
+    "concurrence": "Marché de niche (accessoires de sécurité drone) peu saturé en Europe. Concurrents potentiels : fabricants de parachutes/FTS internationaux (peu identifiés publiquement). Avantage Dronavia : leadership affirmé, certifications EASA/DGAC, fabrication française, réseau de partenaires (DJI, Valmet). Risque : émergence de concurrents asiatiques ou américains si marché se développe.",
+    "visibilite": "Très faible en B2C (aucun avis, pas de Google Maps). Forte en B2B spécialisé (références DJI, Valmet, réseau partenaires, certifications). Site et réseaux sociaux actifs mais audience restreinte (niche technique). Contenu technique riche (blog, vidéos YouTube, documentation EASA).",
+    "dirigeant": "Ludovic Pelletey, Président/CEO. Fondateur ou repreneur en 2015 (à confirmer). Profil d'entrepreneur tech/aéronautique. Pas d'informations publiques sur l'âge, la vision long terme ou les intentions (transmission, croissance, vente)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Prospection B2B structurée (CRM + veille appels d'offres)",
+      "benefice": "Identifier et qualifier les appels d'offres publics/privés (collectivités, industriels, opérateurs drone) ; automatiser le suivi des prospects chauds ; capitaliser les références clients."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Chiffrage & devis assisté (configurateur produit + documentation EASA)",
+      "benefice": "Accélérer la génération de devis conformes (MOC M2/2511) ; réduire les allers-retours avec prospects ; documenter automatiquement les variantes produit."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veille réglementaire & conformité (monitoring EASA/DGAC)",
+      "benefice": "Anticiper les évolutions normes (EASA, DGAC) ; alerter sur les nouvelles certifications à obtenir ; positionner Dronavia comme expert de la conformité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion de la documentation technique (versioning, traçabilité)",
+      "benefice": "Centraliser et versionner les dossiers de conformité (MOC, certifications, tests) ; faciliter les audits clients et régulateurs ; réduire les risques de non-conformité."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Marketing de contenu B2B (cas d'usage, webinaires, whitepapers)",
+      "benefice": "Générer des leads qualifiés via contenu technique ; positionner Dronavia comme thought leader en sécurité drone ; augmenter la visibilité auprès des décideurs."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion du réseau de partenaires (onboarding, support, KPIs)",
+      "benefice": "Structurer le suivi des partenaires officiels (DJI, revendeurs) ; automatiser les demandes de support ; mesurer la performance du réseau."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en prospection, chiffrage et conformité"
+  },
+  "coutInaction": "Sans structuration de la prospection et de la documentation, Dronavia risque de laisser des opportunités B2B sur la table (appels d'offres non détectés, devis lents) et de multiplier les risques de non-conformité réglementaire à mesure que le marché EASA se durcit.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Prospection manuelle, devis ad hoc, documentation dispersée, suivi partenaires informel.",
+    "avecIA": "Prospection automatisée (veille appels d'offres), devis générés en 15 min, documentation centralisée et versionnée, suivi partenaires structuré."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre prospection B2B, accélérer vos devis et sécuriser votre conformité réglementaire.",
+  "indice": {
+    "estime": 68,
+    "potentiel": 86
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 65,
+    "site": 82,
+    "traction": 78
+  },
+  "aura": {
+    "sens": "L'expertise & l'innovation",
+    "couleur": "Bleu",
+    "definition": "Dronavia rayonne par sa fiabilité technique, son leadership reconnu en sécurité drone et son engagement envers la conformité réglementaire européenne.",
+    "eclat": "moyen"
+  },
+  "fierte": "Dronavia a bâti une position de leader européen incontesté en accessoires de sécurité drone, avec une équipe de 28 spécialistes maîtrisant l'intégralité de la chaîne (R&D, fabrication, certifications EASA/DGAC). L'entreprise anticipe les évolutions réglementaires et livre des solutions innovantes (Kronos, Scout DI) qui sécurisent les opérations des plus grands opérateurs professionnels. Le potentiel de croissance est fort : le marché EASA 2024+ crée une demande structurelle, et la capacité de production/innovation de Dronavia lui permet de capturer cette opportunité.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Pages Jaunes, LinkedIn, site officiel dronavia.com, Quai Alpha (juin 2024), Pappers, Societe.com, RubyPayeur, L'Industrie Recrute, Drone Parts Center. Données financières : confidentialité totale (L.232-25) ; effectif INSEE 2023 : 6-9 salariés (données anciennes) vs site : 28 spécialistes (à confirmer). Avis clients : aucun trouvé publiquement. Traction : références DJI, Valmet, réseau partenaires, certifications EASA/DGAC.",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 25,
+      "v": 15,
+      "s": 60
+    }
+  }
+}
