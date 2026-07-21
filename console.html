@@ -103,14 +103,23 @@
   .evt b{color:var(--txt)}
   .foot{color:var(--muted);font-size:11px;text-align:center;margin-top:26px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header>
   <div class="logo">DB<b>i</b>360 · Console</div>
   <div class="sub">Pilotage des comptes clients</div>
   <div class="spacer"></div>
-  <div class="admin"><span class="dot"></span> Didier — Admin · <span id="clock"></span></div>
+  <div class="admin" id="adminBadge"><span class="dot"></span> <span id="adminName">Non connecté</span> · <span id="clock"></span></div>
 </header>
+
+<div id="loginBar" style="display:none;background:#fff7ed;border-bottom:1px solid #f5c6a5;padding:10px 24px;gap:8px;align-items:center;flex-wrap:wrap;">
+  <span style="font-size:13px;color:#9a3412;font-weight:600;">Connecte-toi en admin pour voir tes vrais clients&nbsp;:</span>
+  <input id="admMail" type="email" placeholder="email admin" autocomplete="username" style="padding:7px 10px;border:1px solid #e6e8ec;border-radius:8px;font-size:13px;">
+  <input id="admPass" type="password" placeholder="mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()" style="padding:7px 10px;border:1px solid #e6e8ec;border-radius:8px;font-size:13px;">
+  <button onclick="adminLogin()" style="padding:7px 14px;border:none;background:#1C1C1C;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">Se connecter</button>
+  <span id="admMsg" style="font-size:12px;color:#dc2626;"></span>
+</div>
 
 <div class="wrap">
   <!-- KPIs -->
@@ -197,7 +206,101 @@
 </div>
 
 <script>
-/* ============ DONNÉES FACTICES ============ */
+/* ============ SUPABASE — CONSOLE ADMIN RÉELLE ============ */
+var SB=null;
+(async function(){
+  try{
+    var cfg=await fetch('/api/config').then(function(r){return r.ok?r.json():null;});
+    if(cfg&&cfg.supabaseUrl&&window.supabase){
+      SB=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true}});
+      bootConsole();
+    } else { showLogin('Service cloud indisponible.'); }
+  }catch(e){ showLogin('Service cloud indisponible.'); }
+})();
+async function bootConsole(){
+  if(!SB) return;
+  try{
+    var s=await SB.auth.getSession();
+    if(s.data&&s.data.session){ await loadClients(); }
+    else { showLogin(); }
+  }catch(e){ showLogin(); }
+}
+function showLogin(m){ var b=document.getElementById('loginBar'); if(b){ b.style.display='flex'; } var e=document.getElementById('admMsg'); if(e&&m)e.textContent=m; }
+function hideLogin(){ var b=document.getElementById('loginBar'); if(b)b.style.display='none'; }
+async function adminLogin(){
+  if(!SB){ return; }
+  var mail=(document.getElementById('admMail').value||'').trim().toLowerCase();
+  var pass=document.getElementById('admPass').value||'';
+  var msg=document.getElementById('admMsg'); if(msg){ msg.style.color='#6b7280'; msg.textContent='Connexion…'; }
+  var r=await SB.auth.signInWithPassword({email:mail,password:pass});
+  if(r.error){ if(msg){ msg.style.color='#dc2626'; msg.textContent='Échec : '+r.error.message; } return; }
+  hideLogin();
+  var nm=document.getElementById('adminName'); if(nm) nm.textContent=mail;
+  await loadClients();
+}
+async function adminLogout(){ try{ if(SB) await SB.auth.signOut(); }catch(e){} location.reload(); }
+async function loadClients(){
+  if(!SB) return;
+  // Les données du dirigeant vivent dans le blob pm_data ; on lit entreprises + pm_data (RLS : admin voit tout).
+  var er=await SB.from('entreprises').select('id,nom,secteur,ville,taille');
+  if(er.error){ showLogin('Accès refusé : '+er.error.message); return; }
+  var ents=er.data||[];
+  var pr=await SB.from('pm_data').select('entreprise_id,data,maj_le');
+  var blobs={}; (pr.data||[]).forEach(function(x){ blobs[x.entreprise_id]={data:x.data||{},maj:x.maj_le}; });
+  DATA = ents.map(function(e){ return mapEnt(e, blobs[e.id]); });
+  var sel=document.getElementById('secteur');
+  if(sel){ sel.innerHTML='<option value="">Tous secteurs</option>';
+    Array.from(new Set(ents.map(function(x){return x.secteur;}).filter(Boolean))).sort().forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); }
+  var foot=document.querySelector('.foot');
+  if(foot) foot.textContent = DATA.length
+    ? 'Données réelles — '+DATA.length+' compte'+(DATA.length>1?'s':'')+' client (sécurisé par RLS Supabase).'
+    : 'Connecté. Aucun client pour le moment — envoie un diagnostic à un dirigeant pour le voir apparaître ici.';
+  try{ var u=await SB.auth.getUser(); var nm=document.getElementById('adminName'); if(nm&&u.data&&u.data.user) nm.textContent=u.data.user.email; }catch(e){}
+  var badge=document.getElementById('adminBadge');
+  if(badge){ badge.style.cursor='pointer'; badge.title='Cliquer pour se déconnecter'; badge.onclick=function(){ if(confirm('Se déconnecter de la console ?')) adminLogout(); }; }
+  render();
+}
+function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
+function mapEnt(e, blob){
+  var data=(blob&&blob.data)||{};
+  var maj=(blob&&blob.maj)||null;
+  var snaps=(Array.isArray(data.snaps)?data.snaps:[]).map(function(s){
+    return { d:((s.d||s.t||'')+'').slice(0,10), iat:num(s.iat), ive:num(s.ive), av:(num(s.av)||0) };
+  }).filter(function(s){ return s.d; }).sort(function(a,b){ return a.d<b.d?-1:a.d>b.d?1:0; });
+  var diag=data.diag||{};
+  // Si pas de trajectoire mais un diagnostic reçu (handoff), on crée un 1er point à partir du MIROIR/AURA
+  if(!snaps.length && (diag.lastMiroir || diag.lastAH)){
+    var m=diag.lastMiroir||{}, ah=diag.lastAH||{};
+    var d0=(maj||new Date().toISOString()).slice(0,10);
+    snaps=[{ d:d0, iat:num(ah.iat!=null?ah.iat:m.indiceInterieur), ive:num(m.ive!=null?m.ive:m.indiceExterieur), av:0 }];
+  }
+  var last=snaps.length?snaps[snaps.length-1]:null;
+  var prev=snaps.length>1?snaps[snaps.length-2]:null;
+  var iat=last?last.iat:null, ive=last?last.ive:null, av=last?last.av:0;
+  var dIat=(prev&&last&&last.iat!=null&&prev.iat!=null)?(last.iat-prev.iat):null;
+  var dIve=(prev&&last&&last.ive!=null&&prev.ive!=null)?(last.ive-prev.ive):null;
+  var lastD=last?last.d:(maj?(''+maj).slice(0,10):null);
+  var jours=lastD?Math.round((TODAY-new Date(lastD))/864e5):999;
+  var statut='ok';
+  if(!snaps.length || jours>45) statut='silence';
+  else if((dIat!=null&&dIat<0)||(dIve!=null&&dIve<0)) statut='regression';
+  else if(prev&&dIat===0&&dIve===0) statut='stagnation';
+  // Abonnement (défaut annuel — la vraie formule est dans user_metadata, à brancher plus tard)
+  var since=(snaps.length?snaps[0].d:lastD)||new Date().toISOString().slice(0,10);
+  var ren=new Date(since); ren.setFullYear(ren.getFullYear()+1);
+  var renewalDays=Math.round((ren-TODAY)/864e5);
+  var steps=(data.fr&&Array.isArray(data.fr.steps))?data.fr.steps.map(function(s){
+    return { t:(s.titre||s.t||s.texte||'—'), s:(s.status||s.statut||s.s||'todo'), ech:(s.echeance||s.ech||s.palier||''), d:(s.detail||s.note||'') };
+  }):[];
+  var events=snaps.slice().reverse().map(function(s){ return { d:s.d, t:'Contrôle — IAT '+(s.iat!=null?s.iat:'?')+' · IVE '+(s.ive!=null?s.ive:'?') }; });
+  return { id:e.id, nom:e.nom||'—', secteur:e.secteur||'—', ville:e.ville||'',
+    iat:(iat!=null?iat:'–'), ive:(ive!=null?ive:'–'), av:av, dIat:dIat, dIve:dIve, statut:statut,
+    jours:jours, derniere:(lastD||'—'), nb:snaps.length,
+    plan:'annuel', price:24.90, since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
+    pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events };
+}
+
+/* ============ DONNÉES FACTICES (aperçu avant connexion) ============ */
 /* Un client = trajectoire (snapshots), feuille de route (steps), events. */
 const CLIENTS = [
   {id:1, nom:"La Romana", secteur:"Restauration", ville:"Maizières-lès-Metz",
@@ -262,7 +365,7 @@ const CLIENTS = [
 ];
 
 /* ============ CALCULS (miment la vue SQL v_console_clients) ============ */
-const TODAY = new Date("2026-07-19");
+const TODAY = new Date();
 function daysSince(d){return Math.round((TODAY-new Date(d))/864e5);}
 function enrich(c){
   const n=c.snaps.length, last=c.snaps[n-1], prev=n>1?c.snaps[n-2]:null;
@@ -392,10 +495,18 @@ function render(){
 }
 
 /* ============ DETAIL ============ */
-function openDetail(id){
+async function openDetail(id){
   const c=DATA.find(x=>x.id===id);
   dTitle.textContent=c.nom;
   dMeta.textContent=c.secteur+" · "+c.ville+" · "+c.nb+" contrôle(s) · dernière activité "+fmtDays(c.jours);
+  overlay.classList.add("open");
+  if(!c.snaps||!c.snaps.length){
+    dCards.innerHTML='<div class="mini"><div class="v">—</div><div class="k">Pas encore de contrôle enregistré</div></div>';
+    document.getElementById("chart").innerHTML='<div style="padding:20px;color:var(--muted);font-size:13px">Aucune mesure pour l\'instant. Le premier contrôle (SENTINELLE/MIROIR) créera la trajectoire.</div>';
+    dSteps.innerHTML=(c.steps&&c.steps.length)?dStepsHtml(c.steps):'<div style="color:var(--muted);padding:6px">Feuille de route à venir.</div>';
+    dEvents.innerHTML=(c.events&&c.events.length)?c.events.map(function(e){return '<div class="evt"><b>'+e.d+'</b> — '+e.t+'</div>';}).join(''):'<div style="color:var(--muted);padding:6px">Aucune activité.</div>';
+    return;
+  }
   const last=c.snaps[c.snaps.length-1];
   dCards.innerHTML=[
     ["IAT (humain)",last.iat,c.dIat],
@@ -410,14 +521,14 @@ function openDetail(id){
 
   drawChart(c.snaps);
 
-  dSteps.innerHTML=(c.steps||[]).map(s=>`
+  dSteps.innerHTML=(c.steps&&c.steps.length)?dStepsHtml(c.steps):'<div style="color:var(--muted);padding:6px">Feuille de route à venir.</div>';
+  dEvents.innerHTML=(c.events&&c.events.length)?c.events.map(e=>`<div class="evt"><b>${e.d}</b> — ${e.t}</div>`).join(""):'<div style="color:var(--muted);padding:6px">Aucune activité enregistrée.</div>';
+}
+function dStepsHtml(steps){
+  return (steps||[]).map(s=>`
     <div class="row"><span class="status s-${s.s}"></span>
     <div class="rt"><b>${s.t}</b>${s.d?'<small>'+s.d+'</small>':''}</div>
-    <span class="ech">${({done:"Fait",progress:"En cours",todo:"À faire",blocked:"Bloqué"})[s.s]} · ${s.ech}</span></div>`).join("");
-
-  dEvents.innerHTML=(c.events||[]).map(e=>`<div class="evt"><b>${e.d}</b> — ${e.t}</div>`).join("");
-
-  overlay.classList.add("open");
+    <span class="ech">${({done:"Fait",progress:"En cours",todo:"À faire",blocked:"Bloqué"})[s.s]||s.s} · ${s.ech}</span></div>`).join("");
 }
 function closeSheet(){overlay.classList.remove("open");}
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
