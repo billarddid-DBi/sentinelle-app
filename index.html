@@ -83,6 +83,23 @@
 </style>
 </head>
 <body>
+<!-- DÉMO D'OUVERTURE : tourne au lancement, bouton Passer -->
+<div id="introDemo" style="display:none;position:fixed;inset:0;z-index:9999;background:#eef1f3;overflow:auto;">
+  <div style="max-width:430px;margin:0 auto;padding:22px 16px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:100%;">
+    <div style="display:flex;align-items:center;gap:8px;width:100%;">
+      <span style="font-size:20px;font-weight:800;color:#1C1C1C;">L<span style="color:#E8541A">i</span>VE</span>
+      <span style="font-size:11px;color:#6b7280;">by DBi360</span>
+      <span style="flex:1"></span>
+      <button onclick="introClose()" style="border:1px solid #e5e7eb;background:#fff;border-radius:20px;padding:7px 16px;font-size:13px;font-weight:600;color:#1C1C1C;cursor:pointer;font-family:inherit;">Passer <i class="ti ti-player-skip-forward"></i></button>
+    </div>
+    <div style="width:100%;max-width:300px;background:#fff;border:1px solid #efe9e0;border-radius:24px;padding:16px;box-shadow:0 10px 30px rgba(40,30,10,.08);">
+      <div id="introStage" style="min-height:300px;"></div>
+    </div>
+    <div id="introCap" style="font-size:14px;color:#374151;text-align:center;min-height:38px;font-weight:600;"></div>
+    <div id="introDots" style="display:flex;gap:6px;"></div>
+    <button onclick="introClose();renderAuth('signup');" style="background:#E8541A;color:#fff;border:none;border-radius:14px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;max-width:300px;">Tester gratuitement mon entreprise</button>
+  </div>
+</div>
 <div class="wrap">
   <div class="hero" id="hero">
     <svg class="hero-logo" viewBox="0 62 600 93" role="img" aria-label="LIVE — L'indice de valeur d'entreprise">
@@ -97,7 +114,9 @@
   </div>
 
   <div class="panel" id="home">
-    <div style="font-size:13px;color:#6b7280;text-align:center;margin-bottom:4px;">Que souhaitez-vous faire ?</div>
+    <button type="button" onclick="renderAuth('signup')" style="width:100%;text-align:center;background:#E8541A;border:none;border-radius:16px;padding:16px;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(232,84,26,.25);"><div style="font-size:16px;font-weight:700;color:#fff;"><i class="ti ti-gift"></i> Tester SENTINELLE gratuitement</div><div style="font-size:12px;color:#ffe1d3;margin-top:2px;">Créez votre compte — le diagnostic de votre entreprise est offert</div></button>
+    <button class="btn btn-ghost" onclick="introShow(true)" style="margin-top:8px;"><i class="ti ti-player-play"></i> Revoir la démo</button>
+    <div style="font-size:13px;color:#6b7280;text-align:center;margin:14px 0 4px;">Que souhaitez-vous faire ?</div>
     <button type="button" onclick="enterDiagnostic()" style="width:100%;text-align:left;background:#fff;border:1px solid #efe9e0;border-radius:16px;padding:16px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:14px;font-family:inherit;box-shadow:0 6px 18px rgba(40,30,10,.05);"><i class="ti ti-stethoscope" style="font-size:28px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:#1C1C1C;">Faire un diagnostic</div><div style="font-size:12px;color:#6b7280;">Analyser une entreprise — LIVE, BOUSSOLE, MIROIR</div></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>
     <button type="button" onclick="dirigeantSpace()" style="width:100%;text-align:left;background:#fff;border:1px solid #efe9e0;border-radius:16px;padding:16px;margin-top:10px;cursor:pointer;display:flex;align-items:center;gap:14px;font-family:inherit;box-shadow:0 6px 18px rgba(40,30,10,.05);"><i class="ti ti-user-heart" style="font-size:28px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:16px;font-weight:600;color:#1C1C1C;">Espace dirigeant</div><div style="font-size:12px;color:#6b7280;">Mon suivi : feuille de route, contrôles, évolution</div></div><i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>
     <button class="btn btn-ghost" onclick="openConsole()" style="margin-top:14px;"><i class="ti ti-dashboard"></i> Console de gestion (conseiller)</button>
@@ -1787,6 +1806,58 @@ function renderTabbar(v){
   tb.className='show'; document.body.classList.add('hastab');
 }
 /* ===== fin HISTORIQUE ===== */
+
+/* ===== DÉMO D'OUVERTURE (storyboard validé — 8 écrans, 2 s chacun) ===== */
+var INTRO_SLIDES=[
+{c:"Le diagnostic gratuit se remplit tout seul",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:6px">Diagnostic SENTINELLE — gratuit</div><div style="border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;margin-bottom:8px" id="inF1">&nbsp;</div><div style="border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:13px;margin-bottom:14px" id="inF2">&nbsp;</div><div style="background:#E8541A;color:#fff;border-radius:8px;padding:10px;text-align:center;font-size:13px;font-weight:600"><i class="ti ti-radar-2"></i> Lancer le scan</div>'},
+{c:"Des notes claires, calculées sur votre présence réelle",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">Boulangerie Éclair — résultats</div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#E8541A" id="inN1">0</div><div style="font-size:11px;color:#6b7280">Visibilité /100</div></div><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#1C1C1C"><i class="ti ti-star" style="font-size:16px;color:#d97706"></i> 4,2</div><div style="font-size:11px;color:#6b7280">Avis Google</div></div></div><div style="background:#fef3c7;border-radius:8px;padding:9px 11px;font-size:12px;color:#92400e">Potentiel détecté : votre image mérite mieux</div>'},
+{c:"Votre positionnement face à la concurrence locale",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">Face à 4 concurrents à Metz</div>'+[["Concurrent A",78],["Boulangerie Éclair",62],["Concurrent B",55],["Concurrent C",41]].map(function(b,i){return '<div style="margin-bottom:9px"><div style="font-size:11px;margin-bottom:3px;'+(i===1?'font-weight:700;color:#E8541A':'color:#6b7280')+'">'+b[0]+'</div><div style="height:10px;background:#f1f3f4;border-radius:5px"><div class="inBar" style="height:10px;width:0;border-radius:5px;background:'+(i===1?'#E8541A':'#cbd5e1')+';transition:width .8s" data-w="'+b[1]+'"></div></div></div>';}).join('')},
+{c:"Un rapport PDF généré et envoyé dans votre boîte mail",h:'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:12px"><i class="ti ti-file-text" style="font-size:52px;color:#E8541A"></i><div style="font-size:13px;font-weight:700;color:#1C1C1C">Rapport SENTINELLE.pdf</div><div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 14px;font-size:12px"><i class="ti ti-mail"></i> Envoyé au dirigeant</div></div>'},
+{c:"BOUSSOLE : des actions concrètes à mettre en place",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">BOUSSOLE — vos actions</div>'+["Répondre aux avis avec l’IA","Digitaliser la prise de commande","Automatiser les relances clients"].map(function(t){return '<div class="inAct" style="display:flex;gap:8px;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:12px;margin-bottom:8px;opacity:0;transition:opacity .5s;color:#1C1C1C"><i class="ti ti-circle-check" style="color:#16a34a;font-size:16px"></i>'+t+'</div>';}).join('')},
+{c:"AURA : votre équipe est-elle prête pour l’IA ?",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">AURA humaine — le relationnel</div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#6d28d9" id="inN2">0</div><div style="font-size:11px;color:#6b7280">Maturité humaine</div></div><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#1C1C1C">3</div><div style="font-size:11px;color:#6b7280">Peurs à lever</div></div></div><div style="background:#e0e7ff;border-radius:8px;padding:9px 11px;font-size:12px;color:#3730a3">L’équipe est prête, à condition de rassurer sur l’emploi</div>'},
+{c:"MIROIR : le retour sur investissement et la feuille de route",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">MIROIR — votre trajectoire</div><div style="background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Temps gagné estimé</div><div style="font-size:20px;font-weight:700;color:#16a34a">6 h / semaine</div></div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Feuille de route</div><div style="height:12px;background:#f1f3f4;border-radius:6px"><div id="inProg" style="height:12px;width:0;background:#16a34a;border-radius:6px;transition:width 1s"></div></div><div style="font-size:11px;color:#9aa0a6;margin-top:4px">Palier 1 → Palier 3 sur 12 mois</div>'},
+{c:"Et au quotidien : vos tâches notées… et analysées par l’IA",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:8px">Le quotidien du dirigeant</div>'+["Relancer les impayés (3e fois)","Refaire les plannings","Répondre aux avis Google"].map(function(t){return '<div style="display:flex;gap:7px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #f1f3f4;color:#1C1C1C"><i class="ti ti-checkbox" style="font-size:15px;color:#9aa0a6"></i>'+t+'</div>';}).join('')+'<div class="inGraft" style="margin-top:10px;background:#e0e7ff;border-radius:8px;padding:9px 11px;font-size:12px;color:#3730a3;opacity:0;transition:opacity .6s"><i class="ti ti-sparkles"></i> Tâche répétitive détectée → un outil IA peut la faire pour vous</div>'}
+];
+var introI=0, introT=null;
+function introSlide(k){
+  var st=$('introStage'), cap=$('introCap'), dots=$('introDots');
+  if(!st) return;
+  st.innerHTML='<div style="animation:introFade .4s">'+INTRO_SLIDES[k].h+'</div>';
+  cap.textContent=INTRO_SLIDES[k].c;
+  dots.innerHTML=INTRO_SLIDES.map(function(_,j){ return '<span style="width:7px;height:7px;border-radius:50%;display:inline-block;background:'+(j===k?'#E8541A':'#d1d5db')+'"></span>'; }).join('');
+  if(k===0){ setTimeout(function(){ var f=$('inF1'); if(f)f.textContent='Boulangerie Éclair'; },350); setTimeout(function(){ var f=$('inF2'); if(f)f.textContent='Metz'; },750); }
+  if(k===1){ var v=0,t=setInterval(function(){ v+=4; var n=$('inN1'); if(!n){clearInterval(t);return;} if(v>=62){v=62;clearInterval(t);} n.textContent=v; },40); }
+  if(k===2){ setTimeout(function(){ document.querySelectorAll('.inBar').forEach(function(b){ b.style.width=b.dataset.w+'%'; }); },150); }
+  if(k===4){ document.querySelectorAll('.inAct').forEach(function(a,j){ setTimeout(function(){ a.style.opacity=1; },250+j*380); }); }
+  if(k===5){ var v2=0,t2=setInterval(function(){ v2+=4; var n=$('inN2'); if(!n){clearInterval(t2);return;} if(v2>=54){v2=54;clearInterval(t2);} n.textContent=v2; },40); }
+  if(k===6){ setTimeout(function(){ var p=$('inProg'); if(p)p.style.width='70%'; },200); }
+  if(k===7){ setTimeout(function(){ var g=document.querySelector('.inGraft'); if(g)g.style.opacity=1; },1100); }
+}
+function introShow(replay){
+  var o=$('introDemo'); if(!o) return;
+  o.style.display='block'; document.body.style.overflow='hidden';
+  introI=0; introSlide(0);
+  clearInterval(introT);
+  introT=setInterval(function(){
+    introI++;
+    if(introI>=INTRO_SLIDES.length){
+      if(replay){ introClose(); return; }
+      introI=0; // au premier lancement, la démo boucle jusqu'à Passer
+    }
+    introSlide(introI);
+  },2000);
+}
+function introClose(){
+  clearInterval(introT);
+  var o=$('introDemo'); if(o)o.style.display='none';
+  document.body.style.overflow='';
+  try{ localStorage.setItem('intro_vu','1'); }catch(e){}
+}
+(function(){
+  var s=document.createElement('style'); s.textContent='@keyframes introFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}'; document.head.appendChild(s);
+  var vu=null; try{ vu=localStorage.getItem('intro_vu'); }catch(e){}
+  if(!vu) introShow(false);
+})();
 </script>
 </body>
 </html>
