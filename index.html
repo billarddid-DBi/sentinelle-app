@@ -1517,6 +1517,14 @@ function dirigeantSpace(){
   if(!acc){ renderAuth('login'); return; }
   if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
+  // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
+  if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
+    $('dirigeant').innerHTML='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'
+      +'<div class="sec"><div style="font-size:14px;color:#374151;line-height:1.55;">Votre espace est prêt. Première étape : le <b>diagnostic SENTINELLE</b> de votre entreprise — <span style="color:#166534;font-weight:600;">offert</span>. En 2 minutes, l\'IA analyse votre présence réelle (avis, visibilité, concurrence locale) et vous remet votre carte.</div>'
+      +'<button class="btn btn-primary" style="margin-top:14px;" onclick="lancerMaSentinelle()"><i class="ti ti-radar-2"></i> Lancer mon diagnostic gratuit</button></div>'
+      +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
+    showView('dirigeant'); window.scrollTo(0,0); return;
+  }
   if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
   pmRollover();
   var o=pmLoad(), t=pmDay(o), streak=pmStreak(o), feu=pmFeu(t), cap=pmCap();
@@ -1783,7 +1791,18 @@ async function authSignup(){
   await loadUser();
   if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
   window.ahNom=(window.currentUser.name||name);
-  dirigeantSpace();
+  // Nouveau compte → on enchaîne DIRECT sur sa SENTINELLE gratuite (sauf si un diagnostic l'attend déjà via le pont)
+  if(window.__gotHandoff || (window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)){ dirigeantSpace(); }
+  else lancerMaSentinelle();
+}
+function lancerMaSentinelle(){
+  var acc=currentAccount(); if(!acc){ renderAuth('signup'); return; }
+  var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
+  if(!q.trim()){ dirigeantSpace(); return; }
+  window.currentSpace='dirigeant';
+  showView('form');
+  if($('q')) $('q').value=q;
+  run({ text:q });
 }
 async function authLogin(){
   var mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
