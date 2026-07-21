@@ -1,0 +1,168 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Santé solide",
+    "atout": "Leader européen, innovation, équipe spécialisée"
+  },
+  "identite": "SAS créée le 1er mars 2015 (11 ans), SIREN 810254722, NAF 3030Z (Construction aéronautique et spatiale), 10-19 salariés (2023), dirigeant Ludovic Pelletey, capital social 30 016 €.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      70,
+      72,
+      75,
+      70
+    ],
+    "potentiel": [
+      88,
+      85,
+      88,
+      82,
+      85,
+      85,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Innovation, sécurité, excellence technique, leadership européen, conformité réglementaire (EASA, EN 4709, DGAC).",
+  "imagePercue": "Entreprise innovante et fiable, leader reconnu du marché des accessoires de sécurité pour drones professionnels. Présence digitale active (site moderne, réseaux sociaux, recrutement visible). Réputation B2B solide auprès des opérateurs de drones professionnels.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Comptes confidentiels mais CA < 700 k€ en 2022 : croissance modérée à surveiller. Pas d'alerte de paiement."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Aucun avis client public trouvé (métier B2B spécialisé, normal). Réputation construite via certifications et références clients."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Recrutement actif (30+ collaborateurs annoncés vs 10-19 en 2023) : croissance en cours, structuration en cours."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Dépendance à la régulation drone (EASA, EN 4709) : opportunité si anticipée, risque si changements rapides."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des certifications produit (EN 4709, MoC 2511/2512) et dossiers réglementaires pour réduire les délais de mise au marché",
+    "Centraliser la documentation technique et les références clients pour accélérer les réponses aux appels d'offres",
+    "Structurer le suivi des projets R&D (Kronos, Geocaging, Scout DI) pour piloter la croissance et les jalons"
+  ],
+  "avis": "Non trouvé publiquement (métier B2B spécialisé, pas d'avis consommateurs). Réputation construite via certifications DGAC, EASA et références clients professionnels.",
+  "presence": "Site web moderne et complet (dronavia.com), Facebook actif (2 430 likes, contenu régulier), Instagram (151 followers, 70 posts), LinkedIn implicite. Présence sur l'Industrie Recrute. Recrutement visible et actif.",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité pour drones professionnels",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et régulation des accessoires de sécurité pour drones civils en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "L'Industrie Recrute",
+      "role": "Plateforme de recrutement et visibilité pour les entreprises industrielles françaises",
+      "url": "https://www.lindustrie-recrute.fr"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels (article L.232-25). CA < 700 k€ en 2022, bilan < 350 k€. Capital augmenté de 1 500 € à 30 016 € (2023). Pas d'alerte de paiement. Croissance modérée mais stable.",
+    "concurrence": "Leader européen auto-déclaré sur les accessoires de sécurité pour drones. Peu de concurrents identifiés publiquement. Marché de niche hautement régulé (EASA, EN 4709). Partenariats stratégiques (Thales, Valmet).",
+    "visibilite": "Présence digitale solide et cohérente. Recrutement actif (30+ collaborateurs vs 10-19 en 2023). Innovations récentes (Kronos 2025, Geocaging, Scout DI). Anticipation des normes réglementaires (EN 4709, MoC 2512).",
+    "dirigeant": "Ludovic Pelletey, Président. Fondateur ou repreneur en 2015 (non précisé publiquement). Implication visible dans la stratégie (site, recrutement, innovation). Âge et parcours non trouvés publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de Certifications & Conformité",
+      "benefice": "Automatiser le suivi des certifications EASA, EN 4709, MoC 2511/2512 et dossiers réglementaires pour réduire les délais de mise au marché et les erreurs administratives."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Accélérateur de Réponses aux Appels d'Offres",
+      "benefice": "Centraliser et structurer la documentation technique, les références clients et les capacités produit pour répondre 3x plus vite aux RFQ B2B."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Pilote de Projets R&D & Jalons",
+      "benefice": "Suivre en temps réel les projets (Kronos, Geocaging, Scout DI) et les jalons de développement pour anticiper les lancements et les ressources."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur de Partenariats Stratégiques",
+      "benefice": "Identifier et qualifier les opportunités de partenariats (distributeurs, intégrateurs, OEM) pour accélérer la pénétration de marché européen."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documenteur Technique & Capitalisation",
+      "benefice": "Structurer et capitaliser le savoir-faire en conception mécanique, électronique et logiciel pour accélérer l'onboarding des nouveaux ingénieurs."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en gestion administrative et réponses aux appels d'offres"
+  },
+  "coutInaction": "Sans optimisation, Dronavia risque de perdre des opportunités commerciales face à des concurrents mieux structurés, et de voir ses délais de mise au marché s'allonger avec la croissance (30+ collaborateurs). La charge administrative réglementaire (EASA, EN 4709) peut devenir un goulot d'étranglement.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des certifications, documentation dispersée, réponses aux RFQ lentes, suivi des projets R&D fragmenté, capitalisation du savoir-faire limitée.",
+    "avecIA": "Certifications et conformité automatisées et tracées, documentation centralisée et accessible, réponses aux RFQ structurées et rapides, projets R&D pilotés en temps réel, savoir-faire capitalisé et transmissible."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre croissance et transformer votre capacité à répondre aux enjeux réglementaires et commerciaux du marché drone européen.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 78
+  },
+  "aura": {
+    "sens": "L'innovation fiable",
+    "couleur": "Bleu",
+    "definition": "Dronavia rayonne par sa maîtrise technique, son anticipation réglementaire et sa croissance mesurée. Une entreprise qui construit son leadership sur la conformité et l'innovation, pas sur le bruit.",
+    "eclat": "moyen"
+  },
+  "fierte": "Dronavia a bâti en 11 ans une position de leader européen reconnu sur un marché hautement régulé et innovant, avec des certifications DGAC et EASA, des partenariats stratégiques (Thales, Valmet) et une équipe de 30+ spécialistes. Son anticipation des normes (EN 4709, MoC 2512) et ses innovations récentes (Kronos, Geocaging) montrent une vision claire et une capacité à structurer la croissance — le potentiel pour devenir un acteur incontournable du drone professionnel européen est tangible.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Societe.com, Pappers, Infonet, RubyPayeur, Pages Jaunes, Cylex, Kompass, site officiel dronavia.com, Facebook, Instagram, L'Industrie Recrute. Confiance : haute pour identité et structure, moyenne pour financier (comptes confidentiels), haute pour présence digitale et innovation.",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
