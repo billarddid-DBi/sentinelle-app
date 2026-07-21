@@ -1,0 +1,183 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, systèmes de coupure, balises)",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Structurer la croissance",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Croissance maîtrisée",
+    "atout": "Leader européen, innovation, régulation favorable"
+  },
+  "identite": "SAS Dronavia, SIREN 810 254 722, créée 01/03/2015 (11 ans), NAF 3030Z (Construction aéronautique et spatiale), 28 salariés (site officiel) / 6-9 salariés (INSEE 2023), dirigeant Ludovic Pelletey (Président), capital 30 016 €, siège 7 Avenue Julien Méline 88200 Remiremont.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      65,
+      72,
+      58,
+      68,
+      62,
+      75,
+      70
+    ],
+    "potentiel": [
+      88,
+      80,
+      85,
+      75,
+      82,
+      78,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Sécurité des drones, innovation technologique, conformité réglementaire EASA/DGAC, fabrication française, expertise en ingénierie, partenariats stratégiques (DJI, Thales, Valmet).",
+  "imagePercue": "Entreprise innovante, leader reconnu en Europe, positionnée comme expert en sécurité aérienne, image de fiabilité et de conformité réglementaire, forte présence digitale et communication B2B.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Marché porteur : régulation EASA 2024 crée une demande obligatoire ; Dronavia est l'un des 5-6 fabricants mondiaux de ces systèmes."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Croissance visible : recrutement actif (ingénieur mécanique, chargé conformité, responsable comptes), expansion vers solutions industrielles (Scout DI, Valmet)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes confidentiels : CA < 700 k€ en 2022 ; effectif déclaré varie (6-9 INSEE vs 28 site officiel) — à clarifier en audit."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Localisation stratégique : 200m gare TGV, proximité aéroport Bâle-Mulhouse, accès drone valley suisse — atout logistique et commercial."
+    }
+  ],
+  "quickwins": [
+    "Automatiser la gestion des certifications produit (traçabilité EASA/DGAC) et dossiers réglementaires",
+    "Centraliser la veille appels d'offres (marchés publics, grands comptes DJI/Thales) et capitaliser les réponses",
+    "Structurer le CRM partenaires (resellers, clients industriels) et pipeline commercial B2B"
+  ],
+  "avis": "Non trouvé publiquement (Pages Jaunes : aucun avis déposé). Réputation construite via LinkedIn (1 437 followers), Facebook (2 430 likes), YouTube, blog technique et partenariats visibles (DJI, Thales, Valmet, Quai Alpha).",
+  "presence": "Très active : site dronavia.com moderne et riche (blog, actualités, recrutement), LinkedIn 1 437 followers, Facebook 2 430 likes, YouTube avec contenu technique, présence dans presse spécialisée (Quai Alpha juin 2024). Communication B2B cohérente et régulière.",
+  "plateformes": [
+    {
+      "nom": "LinkedIn",
+      "role": "Réseau professionnel aéronautique, suivi secteur drone, recrutement",
+      "url": "https://www.linkedin.com/company/dronavia"
+    },
+    {
+      "nom": "Annuaire des Entreprises (data.gouv.fr)",
+      "role": "Registre public SIREN/SIRET, données légales et financières",
+      "url": "https://annuaire-entreprises.data.gouv.fr/entreprise/dronavia-810254722"
+    },
+    {
+      "nom": "Pappers",
+      "role": "Bilans, chiffre d'affaires, alertes financières, procédures collectives",
+      "url": "https://www.pappers.fr/entreprise/dronavia-810254722"
+    },
+    {
+      "nom": "Societe.com",
+      "role": "Extrait KBIS, statuts, annonces légales, dirigeants",
+      "url": "https://www.societe.com/societe/dronavia-810254722.html"
+    },
+    {
+      "nom": "RubyPayeur",
+      "role": "Notation paiements fournisseurs, retards signalés (aucun à ce jour)",
+      "url": "https://rubypayeur.com/societe/dronavia-810254722"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels 2022 (CA < 700 k€, bilan < 350 k€). Capital augmenté sept 2023 (1 500 € → 1 876 €). Pas de retard de paiement signalé (RubyPayeur). Croissance attendue 2024-2025 (régulation EASA).",
+    "concurrence": "Marché très concentré : 5-6 fabricants mondiaux de systèmes de sécurité drone obligatoires. Dronavia leader européen reconnu. Partenariats stratégiques (DJI 70-80% du marché, Thales, Valmet) = barrière à l'entrée forte.",
+    "visibilite": "Forte présence digitale (site, réseaux, blog, YouTube). Couverture presse spécialisée (Quai Alpha, L'Industrie Recrute). Recrutement visible = signal de croissance. Pas d'avis clients en ligne (métier B2B, clients = professionnels/intégrateurs).",
+    "dirigeant": "Ludovic Pelletey, Président. Fondateur ou repreneur en 2015 (non précisé). Présent dans médias (Quai Alpha juin 2024). Pas d'info publique sur l'âge ou la vision long terme."
+  },
+  "agents": [
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de Certifications & Conformité",
+      "benefice": "Centraliser et automatiser le suivi des dossiers EASA/DGAC/MoC, réduire les délais de mise en conformité produit, capitaliser les templates de certification."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veille Appels d'Offres & Pipeline Commercial",
+      "benefice": "Détecter et qualifier les marchés publics, grands comptes (DJI, Thales, intégrateurs), structurer les réponses, accélérer la conversion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "CRM Partenaires & Resellers",
+      "benefice": "Gérer le réseau de distributeurs officiels, suivre les ventes indirectes, animer la communauté partenaires, réduire la friction commerciale."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Rédaction Technique & Documentation Produit",
+      "benefice": "Générer fiches techniques, dossiers de conformité, guides utilisateur, documentation réglementaire (validation humaine), accélérer la mise au marché."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planification Production & Gestion Stock",
+      "benefice": "Prévoir la demande (régulation 2024), optimiser les runs de fabrication 3D/assemblage, réduire les délais de livraison, anticiper les goulots."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Recrutement & Onboarding Techniciens",
+      "benefice": "Sourcer et qualifier les techniciens d'assemblage/ingénieurs, accélérer l'intégration, capitaliser le savoir-faire (procédures, certifications)."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en automatisation (gestion conformité, veille, CRM, documentation)"
+  },
+  "coutInaction": "Risque de saturation opérationnelle : croissance régulation 2024 peut surcharger l'équipe (28 salariés) si les processus restent manuels. Perte de clients ou retards de livraison si la capacité de production/conformité n'est pas structurée.",
+  "simulateur": {
+    "personnes": 3,
+    "heures": 12,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des dossiers conformité, veille appels d'offres fragmentée, CRM partenaires basique, documentation produit rédigée ad hoc, planification production empirique.",
+    "avecIA": "Dossiers conformité centralisés et tracés automatiquement, veille appels d'offres consolidée et qualifiée, CRM partenaires structuré et animé, documentation technique générée et validée rapidement, planification production optimisée."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie de structuration opérationnelle et identifier les leviers IA prioritaires selon votre roadmap 2024-2025.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 82,
+    "site": 88,
+    "traction": 85
+  },
+  "aura": {
+    "sens": "Innovation & fiabilité",
+    "couleur": "Argent",
+    "definition": "Dronavia rayonne par son agilité technologique et sa capacité à anticiper les régulations ; une entreprise agile, réactive, qui transforme les contraintes réglementaires en opportunités de marché.",
+    "eclat": "fort"
+  },
+  "fierte": "Dronavia a bâti une position de leader européen incontournable en 11 ans, en innovant constamment (parachutes CO₂, systèmes autonomes, partenariats Thales/Valmet) et en anticipant les régulations EASA. Avec la croissance attendue 2024-2025 et une équipe de 28 experts, l'entreprise a le potentiel pour devenir un acteur stratégique majeur de la sécurité aérienne civile en Europe.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Pappers, Societe.com, RubyPayeur, site officiel dronavia.com, LinkedIn, Facebook, YouTube, Quai Alpha (juin 2024), L'Industrie Recrute, Pages Jaunes. Comptes confidentiels 2022 (données publiques limitées). Effectif : discordance INSEE (6-9) vs site officiel (28) — à valider en audit.",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
