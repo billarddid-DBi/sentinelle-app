@@ -80,6 +80,8 @@
   #capfab.show{display:flex;}
   @keyframes iveGlow{0%{background:#E8541A;box-shadow:0 0 34px 8px rgba(232,84,26,.55);}20%{background:#d4a017;box-shadow:0 0 34px 8px rgba(212,160,23,.55);}40%{background:#16a34a;box-shadow:0 0 34px 8px rgba(22,163,74,.5);}60%{background:#2563eb;box-shadow:0 0 34px 8px rgba(37,99,235,.5);}80%{background:#7c3aed;box-shadow:0 0 34px 8px rgba(124,58,237,.5);}100%{background:#E8541A;box-shadow:0 0 34px 8px rgba(232,84,26,.55);}}
   .ivePastille{width:165px;height:165px;border-radius:50%;border:3px dashed rgba(255,255,255,.5);cursor:pointer;font-family:inherit;color:#fff;animation:iveGlow 9s linear infinite;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+  @keyframes iveLetter{0%{color:#E8541A;}20%{color:#d4a017;}40%{color:#16a34a;}60%{color:#2563eb;}80%{color:#7c3aed;}100%{color:#E8541A;}}
+  .liveAnim span{display:inline-block;animation:iveLetter 6s linear infinite;}
   #capbar{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;}
   #capbar.show{display:flex;}
   @media print{ #tabbar,#capfab,#capbar{display:none!important;} }
@@ -120,14 +122,12 @@
     <div style="text-align:center;padding:6px 0 2px;">
       <div style="font-size:21px;font-weight:800;color:#1C1C1C;letter-spacing:3px;">SENTINELLE</div>
       <div style="font-size:13px;color:#6b7280;margin-top:2px;font-style:italic;">Rendre visible ce que personne ne voit.</div>
-      <div style="margin-top:14px;">
-        <button type="button" class="ivePastille" onclick="renderAuth('signup')" aria-label="Découvrir la note de mon entreprise">
-          <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.9;">MON IVE</span>
-          <span style="font-size:42px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;"><span id="iveNumHome">50</span><span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>
-          <span style="font-size:10.5px;opacity:.9;"><i class="ti ti-palette"></i> ma note en couleur</span>
+      <div style="margin-top:10px;">
+        <button type="button" class="liveAnim" onclick="renderAuth('signup')" aria-label="Découvrir la note de mon entreprise" style="border:none;background:none;cursor:pointer;font-family:inherit;font-size:60px;font-weight:800;line-height:1;letter-spacing:3px;padding:6px 10px;">
+          <span>L</span><span style="animation-delay:.7s;">i</span><span style="animation-delay:1.4s;">V</span><span style="animation-delay:2.1s;">E</span>
         </button>
       </div>
-      <div style="font-size:12px;color:#9ca3af;margin-top:9px;">Découvrez la note de votre entreprise — c'est offert</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:6px;">Découvrez la note de votre entreprise — c'est offert</div>
     </div>
     <button class="btn btn-ghost" onclick="introShow(true)" style="margin-top:8px;"><i class="ti ti-player-play"></i> Revoir la démo</button>
     <div style="font-size:13px;color:#6b7280;text-align:center;margin:14px 0 4px;">Que souhaitez-vous faire ?</div>
