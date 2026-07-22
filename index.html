@@ -1793,7 +1793,7 @@ function dirigeantSpace(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
   // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
   if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
-    $('dirigeant').innerHTML='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'
+    $('dirigeant').innerHTML='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
       +'<div class="sec">'
       +'<div style="text-align:center;margin-top:2px;">'
         +'<button id="iveBtn" class="ivePastille" onclick="lancerMaSentinelle()" aria-label="Découvrir mon IVE">'
