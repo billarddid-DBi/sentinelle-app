@@ -1291,7 +1291,7 @@ function ahFinish(){
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
   window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
-  if(window.ahControleMode){ window.ahControleMode=false; cpSnapshot(true); cockpitCompare(); return; }
+  if(window.ahControleMode){ window.ahControleMode=false; try{ var _o=pmLoad(); _o.lastCtrl=pmTodayStr(); pmSave(_o); }catch(e){} cpSnapshot(true); cockpitCompare(); return; }
   saveAura(r,card);
 }
 function saveAura(r,card){
@@ -1559,6 +1559,18 @@ function cockpitCompare(){
 function lancerControle(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
   if(b.indiceInterieur==null && !ah && !fr){ alert('Faites d\'abord un diagnostic (au moins une AURA Humaine) pour avoir une situation de départ à comparer.'); return; }
+  // Cadence : le pouls se mesure 1 fois par SEMAINE (le quotidien, lui, est illimité)
+  try{
+    var lc=pmLoad().lastCtrl;
+    if(lc){
+      var next=new Date(lc); next.setDate(next.getDate()+7);
+      var today=new Date(pmTodayStr());
+      if(today<next){
+        alert('Ton pouls a été mesuré le '+new Date(lc).toLocaleDateString('fr-FR')+'.\n\nUn contrôle par semaine suffit : le prochain sera possible le '+next.toLocaleDateString('fr-FR')+'.\n\nD\'ici là, tes notes et priorités du jour continuent de nourrir l\'analyse.');
+        return;
+      }
+    }
+  }catch(e){}
   var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
   if(!arr.length) cpSnapshot(); // fige la situation initiale si pas encore de photo
   window.ahControleMode=true;
