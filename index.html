@@ -955,8 +955,7 @@ function render(d,skipSave){
     ? (qwAll.length? `<b>Action offerte :</b> ${esc(qwAll[0])}`+(qwAll.length>1?`<div style="margin-top:7px;color:#94a3b8;"><i class="ti ti-lock"></i> ${qwAll.length-1} autre${qwAll.length>2?'s':''} action${qwAll.length>2?'s':''} rapide${qwAll.length>2?'s':''} identifiée${qwAll.length>2?'s':''} — débloquée${qwAll.length>2?'s':''} avec la BOUSSOLE</div>`:'') : '')
     : `<b>Quick wins :</b> ${qwAll.map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ')}`;
   const agents = SS
-    ? (d.agents||[]).map((a,i)=>`<div class="row" style="opacity:.75;"><span class="chip" style="background:#f1f5f9;color:#94a3b8;"><i class="ti ti-lock"></i></span><div style="color:#94a3b8;"><b>Outil IA n°${i+1}</b> — identifié pour votre métier, prêt à être révélé</div></div>`).join('')
-      +`<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px;color:#7c2d12;line-height:1.5;"><i class="ti ti-lock"></i> <b>${(d.agents||[]).length} outil${(d.agents||[]).length>1?'s':''} IA déjà sélectionné${(d.agents||[]).length>1?'s':''} pour vous</b> — dont un qui cible votre point de vigilance principal. Révélés avec la BOUSSOLE.</div>`
+    ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:12px;color:#7c2d12;line-height:1.5;"><i class="ti ti-lock"></i> <b>${(d.agents||[]).length} outil${(d.agents||[]).length>1?'s':''} IA déjà sélectionné${(d.agents||[]).length>1?'s':''} pour vous</b> — dont un qui cible votre point de vigilance principal. Révélés avec la BOUSSOLE.</div>`
     : (d.agents||[]).map(a=>{
     const fire = a.tag && a.tag.indexOf('<i class="ti ti-flame"></i>')>=0;
     const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
