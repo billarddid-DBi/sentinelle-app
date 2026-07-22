@@ -1,0 +1,183 @@
+{
+  "nom": "LE ROMANA (PIZZERIA ROMANA)",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Restaurant pizzeria italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réputation solide, institution locale"
+  },
+  "identite": "SIREN 839452786, SARL, créée 7 mai 2018, 6-9 salariés, équipe 100% italienne. Comptes confidentiels (< 700k€ CA ou < 350k€ bilan en 2022).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      55,
+      50,
+      65,
+      78,
+      75
+    ],
+    "potentiel": [
+      82,
+      80,
+      85,
+      75,
+      72,
+      80,
+      88,
+      88
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients (produits du sud de l'Italie), pizzas au feu de bois, accueil chaleureux, équipe transalpine.",
+  "imagePercue": "Institution locale bien établie, réputée pour ses pizzas napolitaines et sa cuisine italienne authentique. Classée #1 des pizzerias sur plusieurs comparateurs. Avis très positifs sur la qualité, le service et l'ambiance conviviale.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Réputation solide et stable : 4.4-4.6/5 sur les principaux comparateurs (TripAdvisor, Restaurant Guru, Sluurpy) avec 600+ avis cumulés."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Quelques signaux de variabilité : certains avis mentionnent des changements de propriétaires et une qualité inégale selon les périodes (attentes longues, pâtes dures rapportées)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale active : Facebook régulièrement mis à jour (1070 likes, 307 visites), site web fonctionnel, présent sur 6+ comparateurs majeurs."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Gestion des avis : peu de réponses du management aux avis négatifs sur certaines plateformes ; opportunité de renforcer l'engagement client."
+    }
+  ],
+  "quickwins": [
+    "Répondre aux 3-5 avis les plus critiques (attentes, qualité) sur TripAdvisor et Sluurpy pour clarifier les changements et rassurer : cela prend 15 min et renforce la confiance.",
+    "Mettre à jour la fiche Google My Business avec photos récentes du restaurant rénové et des plats phares : augmente la visibilité locale et le taux de clics.",
+    "Publier 1-2 posts mensuels sur Facebook montrant les préparations en direct (pizzas au feu de bois, pâtes fraîches) : renforce l'authenticité et l'engagement (actuellement 65 talking about)."
+  ],
+  "avis": "Très positifs globalement. TripAdvisor : 4.6/5 (84 avis, #1 de 5 restaurants). Restaurant Guru : 4.4/5 (667 avis, #1 de 12 pizzerias). Sluurpy : 79/100 (833 points, 24 recommandations). Avis récurrents : excellentes pizzas au feu de bois, pâtes fraîches, équipe sympathique, accueil chaleureux, prix raisonnables. Quelques avis anciens mentionnent des changements de propriétaires et variabilité de qualité, mais avis récents (2024-2025) très positifs.",
+  "presence": "Facebook actif (1070 likes, 65 talking about, 307 visites). Présent sur 6+ comparateurs (TripAdvisor, Restaurant Guru, Sluurpy, Petit Futé, LaCarte.Menu, RestoRanking). Site web fonctionnel. Horaires clairs et à jour. Pas de présence Instagram détectée. Téléphone et adresse bien référencés.",
+  "plateformes": [
+    {
+      "nom": "TripAdvisor",
+      "role": "Avis et classement restaurants, autorité majeure, 84 avis, 4.6/5",
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g1194434-d5003044-Reviews-La_Romana-Maizieres_les_Metz_Moselle_Grand_Est.html"
+    },
+    {
+      "nom": "Restaurant Guru",
+      "role": "Comparateur avis restaurants, 667 avis, 4.4/5, #1 pizzerias",
+      "url": "https://restaurantguru.com/Pizzeria-Romana-Maizieres-les-Metz"
+    },
+    {
+      "nom": "Sluurpy",
+      "role": "Avis et recommandations restaurants français, 79/100, 833 points",
+      "url": "https://www.sluurpy.fr/maizi%C3%A8res-les-metz/restaurant/2083841/la-romana"
+    },
+    {
+      "nom": "Petit Futé",
+      "role": "Guide touristique et avis restaurants, classement régional",
+      "url": "https://www.petitfute.co.uk/v22080-maizieres-les-metz-57280/c1165-restaurants/c1031-cuisines-du-monde/c1036-cuisine-mediterraneenne/c82-restaurant-italien-et-pizzeria/626409-pizzeria-romana.html"
+    },
+    {
+      "nom": "LaCarte.Menu",
+      "role": "Avis et menus restaurants, suivi de la qualité et service",
+      "url": "https://lacarte.menu/restaurants/maizieres-les-metz/la-romana-22"
+    }
+  ],
+  "site": "https://la-romana.menufyy.com/",
+  "intel": {
+    "financier": "Comptes confidentiels (article L.232-25 du Code du Commerce). CA estimé < 700k€ en 2022, bilan < 350k€. Effectif stable 6-9 salariés. Pas de signaux de fragilité financière détectés.",
+    "concurrence": "Marché local fragmenté : 12 pizzerias à Maizières-lès-Metz (Planet Pizza, Mond'O Pizza, Joe Pizza, LE VENEZIA). La Romana se distingue par son classement #1 et sa réputation d'institution locale depuis 31 ans (selon avis). Concurrence aussi sur restaurants français (Ô Fourneau, La Cloche d'Or).",
+    "visibilite": "Très bonne : #1 sur TripAdvisor et Restaurant Guru, présente sur 6+ comparateurs majeurs. Facebook actif. Horaires et infos bien référencées. Pas de site e-commerce ni de réservation en ligne détectée.",
+    "dirigeant": "Dirigeants multiples (Marion CHARLES, Dominique BELLEMARE, Celine FREIBURGER-VOLTZENLOGEL, Sylvie MELOTTE, MARSOVALOR et autres). Avis mentionnent un propriétaire « Massimo » et des changements de propriétaires récents. Pas d'année de naissance trouvée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestion des avis & réputations",
+      "benefice": "Automatiser les réponses aux avis critiques (templates personnalisés), monitorer les notes en temps réel, identifier les tendances (attentes, qualité) pour corriger rapidement. Gain : +0.2 à +0.3 pts de note, fidélisation client."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimisation des réservations & no-shows",
+      "benefice": "Intégrer un système de réservation en ligne (TheFork, Yelp) avec rappels SMS/email 24h avant. Réduire les no-shows de 15-20%, optimiser le remplissage des tables, surtout samedi (actuellement saturé)."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestion des stocks & invendus",
+      "benefice": "Prévoir les quantités de pâte, ingrédients frais (sud Italie) selon la fréquentation. Réduire le gaspillage, optimiser les marges. Particulièrement utile pour les pizzas et pâtes fraîches."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Plannings & productivité équipe",
+      "benefice": "Optimiser les shifts selon la charge (midi/soir, semaine/weekend). Réduire les attentes longues (signal d'avis anciens). Améliorer la satisfaction client et la rentabilité par heure travaillée."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Contenu & social media",
+      "benefice": "Automatiser la publication de photos/vidéos des pizzas au feu de bois, pâtes fraîches, ambiance. Augmenter l'engagement Facebook (actuellement 65 talking about), attirer clients locaux. 1-2 posts/semaine."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Fidélité & panier moyen",
+      "benefice": "Créer un programme de fidélité simple (carte de 10 pizzas = 1 gratuite) ou proposer des combos (pizza + dessert + boisson). Augmenter le panier moyen de 10-15%, fidéliser les clients réguliers."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Gain de marge annuel estimé (optimisation stocks + réservations + fidélité)"
+  },
+  "coutInaction": "Chaque mois sans optimisation des réservations et gestion des avis coûte environ 500-800€ en no-shows, gaspillage et clients perdus. La variabilité de qualité rapportée dans les avis anciens risque de freiner la croissance locale.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 4,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Samedi saturé, attentes longues, quelques clients frustrés. Avis positifs mais variabilité de qualité. Pas de réservation en ligne. Stocks gérés manuellement. Facebook peu actif.",
+    "avecIA": "Réservations en ligne avec rappels, tables optimisées, attentes réduites. Avis monitoés et réponses rapides. Stocks prévisionnels, moins de gaspillage. Social media actif (2 posts/semaine). Clients fidélisés via programme simple. Marge +10-15%."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie de croissance : fidélité client, optimisation opérationnelle, et consolidation de votre position de leader local.",
+  "indice": {
+    "estime": 76,
+    "potentiel": 94
+  },
+  "dimensions": {
+    "avis": 88,
+    "reseaux": 62,
+    "site": 70,
+    "traction": 85
+  },
+  "aura": {
+    "sens": "L'authenticité rayonnante",
+    "couleur": "Orange",
+    "definition": "La Romana dégage la chaleur d'une institution locale bien ancrée, où la qualité italienne authentique et l'accueil chaleureux créent une fidélité naturelle. Une énergie de confiance et de convivialité.",
+    "eclat": "moyen"
+  },
+  "fierte": "Vous avez bâti une institution locale respectée depuis 31 ans, classée #1 sur les comparateurs majeurs avec une équipe 100% italienne et des ingrédients authentiques du sud de l'Italie. Votre potentiel est immense : en optimisant les réservations, la gestion des stocks et l'engagement client, vous pouvez augmenter votre marge de 10-15% tout en renforçant la fidélité et réduire les attentes qui frustrent parfois vos clients.",
+  "sources": "TripAdvisor (84 avis, 4.6/5), Restaurant Guru (667 avis, 4.4/5), Sluurpy (79/100, 833 points), Petit Futé, LaCarte.Menu, RestoRanking, Facebook (1070 likes), PagesJaunes (SIREN 839452786, SARL, 6-9 salariés), Societe.com (comptes confidentiels 2022), Pappers (CA < 700k€), Zmenu (horaires), Mappy, Wanderlog. Confiance : très élevée (données publiques multiples, avis vérifiés, SIREN confirmé).",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
