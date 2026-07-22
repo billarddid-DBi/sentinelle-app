@@ -936,7 +936,100 @@ function showErr(m,d){
   $('err').innerHTML='<b>'+esc(m)+'</b>'+(d?'<br><span style="font-size:11px">'+esc(d)+'</span>':'');
 }
 
-// ===== SENTINELLE en CHAPITRES (dirigeant) : menu + pages séparées =====
+// ===== SENTINELLE — PARCOURS EN 6 SLIDES (dirigeant) · orange/noir · cercle IVE = couleur d'aura =====
+var SENT_N=6, sentCur=0;
+function sentRing(val,color){
+  var r=52,c=2*Math.PI*r,off=c*(1-Math.max(0,Math.min(100,val))/100);
+  return '<svg width="140" height="140" viewBox="0 0 130 130" style="display:block;margin:0 auto;"><circle cx="65" cy="65" r="'+r+'" fill="none" stroke="#eef2f7" stroke-width="11"/><circle cx="65" cy="65" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="11" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'" transform="rotate(-90 65 65)"/><text x="62" y="72" text-anchor="middle" font-size="36" font-weight="800" fill="#1C1C1C">'+val+'</text><text x="92" y="72" text-anchor="middle" font-size="12" fill="#9ca3af">/100</text></svg>';
+}
+function sentExp(id,titleHtml,detailHtml,bg){
+  return '<div style="border:1px solid #eef0f3;border-radius:12px;overflow:hidden;margin-top:10px;">'
+    +'<button type="button" onclick="sentToggle(\''+id+'\')" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:'+(bg||'#fafbfc')+';border:none;cursor:pointer;font-family:inherit;text-align:left;"><div style="flex:1;">'+titleHtml+'</div><i class="ti ti-chevron-down" id="'+id+'_ic" style="color:#9ca3af;font-size:18px;transition:transform .2s;"></i></button>'
+    +'<div id="'+id+'" style="display:none;padding:12px 14px;border-top:1px solid #eef0f3;font-size:12.5px;color:#4b5563;line-height:1.55;">'+detailHtml+'</div></div>';
+}
+function sentToggle(id){
+  var el=document.getElementById(id), ic=document.getElementById(id+'_ic'); if(!el) return;
+  var open=el.style.display!=='none'; el.style.display=open?'none':'block';
+  if(ic) ic.style.transform=open?'':'rotate(180deg)';
+  if(!open && id==='exp_forces' && window.__sentDrawRadar) window.__sentDrawRadar();
+}
+function sentSlide(i){
+  if(i<0||i>=SENT_N) return;
+  for(var k=0;k<SENT_N;k++){ var el=document.getElementById('sSlide_'+k); if(el) el.style.display=(k===i)?'':'none'; }
+  sentCur=i; window.scrollTo(0,0);
+}
+function sentSlides(d){
+  var res=$('result'); if(!res) return;
+  if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
+  var est=(d.indice&&d.indice.estime!=null)?d.indice.estime:50;
+  var pot=(d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+18);
+  var gain=Math.max(0,pot-est);
+  var coul=(d.aura&&d.aura.couleur)||'Bleu';
+  var hex=(typeof AURAS!=='undefined'&&AURAS[coul]&&AURAS[coul].h)||'#3b82f6';
+  var ng=(d._auraCalc&&d._auraCalc.note_google!=null)?+d._auraCalc.note_google:null;
+  var nbA=(d._auraCalc&&d._auraCalc.nb_avis!=null)?+d._auraCalc.nb_avis:null;
+  var repLbl=ng==null?'À construire':(ng>=4.5?'Excellente':ng>=4?'Correcte':ng>=3?'Moyenne':'Fragile');
+  var repN=ng==null?0:Math.max(1,Math.min(5,Math.round(ng)));
+  var repStars=''; for(var s=1;s<=5;s++){ repStars+='<i class="ti ti-star" style="font-size:15px;color:'+(s<=repN?'#16a34a':'#d1d5db')+';"></i>'; }
+  var nbOpp=(d.agents?d.agents.length:0)+(d.quickwins?d.quickwins.length:0);
+  var ouMonter='';
+  if(d._auraCalc&&d._auraCalc.poids){
+    var Wp=d._auraCalc.poids,Cp=d._auraCalc;
+    var qf=function(r){if(r==null)return 45;if(r>=4.8)return 90;if(r>=4.5)return 84;if(r>=4.2)return 78;if(r>=4)return 72;if(r>=3.5)return 62;if(r>=3)return 52;return 40;};
+    var vf=function(c){c=c||0;if(c>=500)return 92;if(c>=150)return 85;if(c>=50)return 76;if(c>=15)return 66;if(c>=5)return 55;if(c>=1)return 45;return 32;};
+    var L=[{w:Wp.q,sc:qf(Cp.note_google)},{w:Wp.v,sc:vf(Cp.nb_avis)},{w:Wp.s,sc:(Cp.site?75:28)}];
+    L.forEach(function(x){x.gain=Math.round(x.w*(100-x.sc)/100);});
+    var top=L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
+    var tot=top.reduce(function(su,x){return su+x.gain;},0), rangs=['Une première option','Une deuxième option'];
+    if(top.length) ouMonter=top.map(function(x,i){return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+tot+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Le détail se débloque avec la BOUSSOLE.</div>';
+  }
+  var outilsTease=(d.agents&&d.agents.length)?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:9px 11px;color:#7c2d12;"><i class="ti ti-lock"></i> <b>'+d.agents.length+' outil'+(d.agents.length>1?'s':'')+' IA</b> déjà sélectionné'+(d.agents.length>1?'s':'')+' pour vous — révélé'+(d.agents.length>1?'s':'')+' avec la BOUSSOLE.</div>':'';
+  var qwList=(d.quickwins&&d.quickwins.length)?'<div style="margin-top:8px;"><b>Actions rapides :</b><ul style="margin:4px 0 0;padding-left:18px;">'+d.quickwins.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul></div>':'';
+  var vigList=(d.vigilance&&d.vigilance.length)?d.vigilance.map(function(x){return '<div style="margin-top:4px;">'+esc(x.niveau)+' '+esc(x.texte)+'</div>';}).join(''):'Aucun point de vigilance majeur.';
+  var intelHtml=d.intel?'<div><b>Financier :</b> '+esc(d.intel.financier)+'</div><div style="margin-top:4px;"><b>Concurrence :</b> '+esc(d.intel.concurrence)+'</div><div style="margin-top:4px;"><b>Visibilité :</b> '+esc(d.intel.visibilite)+'</div><div style="margin-top:4px;"><b>Dirigeant :</b> '+esc(d.intel.dirigeant)+'</div>':'';
+  var platHtml=(Array.isArray(d.plateformes)&&d.plateformes.length)?d.plateformes.map(function(p,i){return '<div style="margin-top:4px;"><b>'+(i+1)+'.</b> <a href="'+esc(p.url||'#')+'" target="_blank" style="color:#1d4ed8;">'+esc(p.nom)+'</a> — '+esc(p.role||'')+'</div>';}).join(''):'Aucune plateforme spécialisée pour ce métier.';
+  var sim=d.simulateur||{personnes:2,heures:5,cout:40}, uH=(d.chiffre&&d.chiffre.unite)==='h';
+  var simHtml='<div style="background:#1C1C1C;color:#fff;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;opacity:.7;letter-spacing:.5px;">ESTIMATION INDICATIVE</div><div style="font-size:26px;font-weight:800;margin:2px 0;"><span id="heroV">–</span> '+(uH?'h':'€')+' <span style="font-size:12px;opacity:.8;">/ an</span></div><div style="font-size:11px;opacity:.85;" id="heroSub"></div></div><div style="margin-top:8px;"><div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="'+sim.personnes+'"><span class="val" id="sPv"></span></div><div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem.</label><input type="range" id="sH" min="1" max="15" step="1" value="'+sim.heures+'"><span class="val" id="sHv"></span></div><div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="'+sim.cout+'"><span class="val" id="sCv"></span></div></div><div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:8px;"><i class="ti ti-info-circle"></i> Exemple illustratif et non contractuel — pistes réelles établies en BOUSSOLE.</div>';
+
+  var slides=[];
+  slides.push({t:'Votre IVE aujourd\'hui', s:'Ce que révèle votre présence en ligne.', html:
+    sentRing(est,hex)+'<div style="text-align:center;font-size:13px;font-weight:700;color:'+hex+';margin-top:2px;">IVE '+esc(coul)+'</div><div style="text-align:center;font-size:15px;margin-top:2px;">'+starsHTML(est)+'</div><div style="text-align:center;font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:12px;">'+esc(d.fierte||'Vous êtes déjà au-dessus de nombreuses entreprises de votre secteur.')+'</div>'});
+  slides.push({t:'Votre potentiel', s:'Là où vous pouvez monter.', html:
+    sentRing(pot,'#E8541A')+'<div style="text-align:center;margin-top:4px;"><span style="display:inline-block;background:#fff7ed;color:#c2410c;font-weight:800;border-radius:20px;padding:6px 16px;font-size:14px;">+'+gain+' points possibles</span></div><div style="display:flex;gap:9px;align-items:flex-start;background:#f8fafc;border-radius:10px;padding:11px 13px;margin-top:12px;"><i class="ti ti-bolt" style="color:#E8541A;font-size:18px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b>Un fort potentiel détecté.</b> Plusieurs leviers d\'amélioration à fort impact.</div></div>'+(ouMonter?sentExp('exp_monter','<b style="font-size:13px;"><i class="ti ti-target" style="color:#E8541A;"></i> Où monter votre note</b>',ouMonter):'')});
+  slides.push({t:'Votre identité publique', s:'Ce que l\'on trouve de vous en ligne.', html:
+    '<div style="text-align:center;margin:6px 0 12px;"><div style="width:70px;height:70px;border-radius:50%;background:#eef2ff;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-building-store" style="font-size:34px;color:#E8541A;"></i></div></div>'+['Entreprise identifiée','Activité cohérente','Informations clés présentes'].map(function(t){return '<div style="display:flex;align-items:center;gap:9px;font-size:13px;padding:6px 0;"><i class="ti ti-circle-check" style="color:#16a34a;font-size:19px;"></i>'+t+'</div>';}).join('')+sentExp('exp_id','<b style="font-size:13px;"><i class="ti ti-clipboard-text" style="color:#E8541A;"></i> Voir le détail</b>','<b>Carte d\'identité</b><br>'+identiteHtml(d)+'<div style="margin-top:8px;"><b>Valeurs :</b> '+esc(d.valeurs)+'</div><div style="margin-top:4px;"><b>Image perçue :</b> '+esc(d.imagePercue)+'</div>')});
+  slides.push({t:'Votre réputation en ligne', s:'Ce que disent clients et partenaires.', html:
+    '<div style="text-align:center;background:#f0fdf4;border-radius:12px;padding:14px;margin:4px 0 10px;"><i class="ti ti-star" style="font-size:26px;color:#16a34a;"></i><div style="font-size:18px;font-weight:800;color:#15803d;margin-top:2px;">'+repLbl+'</div><div style="margin-top:2px;">'+repStars+'</div></div>'+[['ti-message-star','Avis clients',(ng!=null?ng+'/5'+(nbA!=null?' ('+nbA+' avis)':''):'à développer')],['ti-speakerphone','Présence',esc((d.presence||'').slice(0,42))],['ti-users','Engagement','à renforcer']].map(function(x){return '<div style="display:flex;align-items:center;gap:10px;border:1px solid #eef0f3;border-radius:10px;padding:10px 12px;margin-top:8px;"><i class="ti '+x[0]+'" style="font-size:18px;color:#E8541A;"></i><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;">'+x[1]+'</div><div style="font-size:11px;color:#9ca3af;">'+x[2]+'</div></div></div>';}).join('')+sentExp('exp_rep','<b style="font-size:13px;"><i class="ti ti-eye" style="color:#E8541A;"></i> Voir le détail</b>','<b>Avis :</b> '+esc(d.avis)+'<div style="margin-top:6px;"><b>Présence :</b> '+esc(d.presence)+'</div><div style="margin-top:8px;"><b>Plateformes du secteur :</b>'+platHtml+'</div>')});
+  slides.push({t:'Forces & opportunités', s:'Ce qui vous distingue, ce qui peut vous faire gagner.', html:
+    sentExp('exp_forces','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-trophy" style="color:#16a34a;font-size:19px;"></i><div><div style="font-size:13px;font-weight:700;color:#15803d;">Vos forces</div><div style="font-size:11px;color:#6b7280;">Une expertise reconnue, un positionnement clair.</div></div></div>','<div style="font-size:12px;color:#6b7280;margin-bottom:6px;">Radar des 8 piliers (écart actuel → potentiel = leviers) :</div><div style="max-width:340px;margin:0 auto;"><canvas id="radar" height="240"></canvas></div>','#f0fdf4')
+    +sentExp('exp_vig','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-target" style="color:#d97706;font-size:19px;"></i><div><div style="font-size:13px;font-weight:700;color:#b45309;">Points de vigilance</div><div style="font-size:11px;color:#6b7280;">Des signaux à surveiller.</div></div></div>',vigList+qwList,'#fffbeb')
+    +sentExp('exp_opp','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-bulb" style="color:#E8541A;font-size:19px;"></i><div><div style="font-size:13px;font-weight:700;color:#c2410c;">Opportunités majeures</div><div style="font-size:11px;color:#6b7280;">'+nbOpp+' opportunités détectées à fort impact.</div></div></div>',outilsTease+'<div style="margin-top:10px;"><b>Simulateur — votre gain estimé :</b></div>'+simHtml,'#fff7ed')});
+  slides.push({t:'Synthèse', s:'Premier niveau d\'analyse terminé.', last:true, html:
+    '<div style="text-align:center;margin:6px 0 10px;"><div style="width:74px;height:74px;border-radius:50%;background:#eef2ff;display:inline-flex;align-items:center;justify-content:center;position:relative;"><i class="ti ti-file-text" style="font-size:34px;color:#1d4ed8;"></i><span style="position:absolute;right:-2px;bottom:-2px;background:#1C1C1C;color:#fff;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:13px;"></i></span></div></div><div style="text-align:center;font-size:15px;font-weight:800;color:#1C1C1C;">Nous avons détecté<br>'+nbOpp+' opportunités de progression.</div><div style="text-align:center;font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:8px;">Le détail, les causes, les priorités et le plan d\'action personnalisé sont dans la <b>BOUSSOLE</b>.</div>'+sentExp('exp_intel','<b style="font-size:13px;"><i class="ti ti-brain" style="color:#E8541A;"></i> Intelligence stratégique</b>',intelHtml)});
+
+  var html='<div id="sentFlow">';
+  slides.forEach(function(sl,i){
+    html+='<div class="sSlide card" id="sSlide_'+i+'" style="overflow:hidden;'+(i===0?'':'display:none;')+'">'
+      +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f1f3f4;">'+(i>0?'<button type="button" onclick="sentSlide('+(i-1)+')" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-arrow-left"></i></button>':'<button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-home"></i></button>')+'<span style="font-size:11px;letter-spacing:1px;color:#6b7280;font-weight:600;">SENTINELLE · <b style="color:#1C1C1C;">DBi360</b></span><span style="flex:1;"></span><span style="font-size:11px;color:#9ca3af;">'+(i+1)+' / '+SENT_N+'</span></div>'
+      +'<div style="padding:16px;"><div style="text-align:center;font-size:17px;font-weight:800;color:#1C1C1C;">'+sl.t+'</div><div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:2px;margin-bottom:14px;">'+sl.s+'</div>'+sl.html+'</div>'
+      +'<div style="padding:0 16px 14px;">'+(sl.last?'<button type="button" onclick="paywallView()" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;"><i class="ti ti-lock-open"></i> Passer à la BOUSSOLE</button>':'<button type="button" onclick="sentSlide('+(i+1)+')" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">Suivant <i class="ti ti-arrow-right"></i></button>')+'<div style="display:flex;justify-content:center;gap:7px;margin-top:12px;">'+slides.map(function(_,j){return '<span onclick="sentSlide('+j+')" style="width:8px;height:8px;border-radius:50%;background:'+(j===i?'#E8541A':'#d1d5db')+';cursor:pointer;display:inline-block;"></span>';}).join('')+'</div></div>'
+    +'</div>';
+  });
+  html+='</div>'
+    +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 14px;margin-top:12px;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;"><i class="ti ti-shield-check" style="color:#16a34a;"></i> À propos de SENTINELLE</div><div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:4px;">Analyse plus de 30 sources publiques vérifiées (avis, annuaires, réseaux, presse, données officielles) pour une vision objective, rapide et fiable de votre image en ligne.</div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;">'+[['ti-target-arrow','Objectif','Aucune intervention humaine'],['ti-shield-check','Fiable','Données publiques vérifiées'],['ti-bolt','Rapide','Résultats en minutes'],['ti-lock','Confidentiel','Vos données sécurisées']].map(function(x){return '<div style="flex:1;min-width:110px;display:flex;gap:7px;align-items:flex-start;"><i class="ti '+x[0]+'" style="color:#E8541A;font-size:17px;"></i><div><div style="font-size:11.5px;font-weight:700;color:#1C1C1C;">'+x[1]+'</div><div style="font-size:10.5px;color:#9ca3af;line-height:1.3;">'+x[2]+'</div></div></div>';}).join('')+'</div></div>'
+    +'<div style="background:#1C1C1C;color:#fff;border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12.5px;line-height:1.5;"><i class="ti ti-trophy" style="color:#EEA987;"></i> <b>SENTINELLE vous donne les constats.</b> BOUSSOLE vous donne les réponses et le plan d\'action.</div>'
+    +'<button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>';
+  res.innerHTML=html;
+
+  window.__sentSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8); if(uH){$('heroV').textContent=hrs.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+soir+' soirées — soit ≈ '+eur.toLocaleString('fr-FR')+' €';}else{$('heroV').textContent=eur.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées)';} };
+  ['sP','sH','sC'].forEach(function(id){var e=$(id); if(e)e.addEventListener('input',window.__sentSim);});
+  window.__sentSim();
+  var rd=d.radar||{labels:[],actuel:[],potentiel:[]};
+  window.__sentDrawRadar=function(){ if(window.__sentRadar) return; var cv=document.getElementById('radar'); if(!cv||typeof Chart==='undefined') return; window.__sentRadar=new Chart(cv,{type:'radar',data:{labels:rd.labels,datasets:[{label:'Actuel',data:rd.actuel,borderColor:hex,backgroundColor:hex+'2e',borderWidth:2,pointRadius:2},{label:'Potentiel',data:rd.potentiel,borderColor:'#E8541A',backgroundColor:'#E8541A22',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8},color:'#9ca3af',backdropColor:'transparent'},grid:{color:'#e5e7eb'},angleLines:{color:'#e5e7eb'},pointLabels:{font:{size:9},color:'#4b5563'}}},plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:8}}}}}); };
+  sentCur=0; window.scrollTo(0,0);
+}
+
+// ===== (ancien) SENTINELLE en CHAPITRES — inactif, conservé =====
 var SENT_CHAPS=[
   ['note','ti-gauge','Ma note (IVE)','Aujourd\'hui vs potentiel'],
   ['identite','ti-building-store','Ma carte d\'identité','SIREN, dirigeant, ancienneté'],
@@ -1234,8 +1327,8 @@ function render(d,skipSave){
   sim2();
   window.scrollTo(0,0);
   if(!skipSave) setTimeout(function(){ saveFiche(d); }, 700);
-  // Dirigeant : on découpe la fiche en 5 chapitres (menu + pages). Le consultant garde la vue complète.
-  if(SS && typeof sentChapters==='function') sentChapters();
+  // Dirigeant : parcours en 6 slides (menu + pages). Le consultant garde la vue complète en un scroll.
+  if(SS && typeof sentSlides==='function') sentSlides(d);
 }
 
 function saveFiche(d){
