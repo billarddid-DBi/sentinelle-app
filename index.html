@@ -1033,6 +1033,20 @@ function iveNavBar(active){
     +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:9px 4px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';width:56px;line-height:1.15;"><i class="ti '+x[1]+'" style="font-size:19px;"></i><span style="font-size:8.5px;font-weight:600;text-align:center;">'+x[2]+(x[3]?'<br><i class="ti ti-lock" style="font-size:8px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
 }
+// Extrait 1 mot-clé métier court d'une activité longue (ex "Réparation et remplacement de pare-brise…" -> "pare-brise")
+function shortKw(s){
+  if(!s) return '';
+  var GEN='et de des du la le les un une en a au aux pour avec sur ou d l reparation remplacement vente ventes installation pose entretien service services prestation prestations fabrication production conception creation gestion solution solutions achat location distribution commerce negoce activite entreprise societe professionnel professionnels tous toutes divers general generale generaliste specialiste specialisee specialise travaux amenagement'.split(' ');
+  var raw=s.split(/[\s,;/()]+/);
+  for(var i=0;i<raw.length;i++){
+    var w=(raw[i]||'').trim(); if(!w) continue;
+    var norm=w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z-]/g,'');
+    if(norm.length<4) continue;
+    if(GEN.indexOf(norm)>-1) continue;
+    return w;
+  }
+  return (raw[0]||'').trim();
+}
 function sentSlides(d, targetId, cockpitHtml){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
   var embedded=!!targetId;
@@ -1093,7 +1107,7 @@ function sentSlides(d, targetId, cockpitHtml){
     sentIconCircle(122,'#eef2ff','<i class="ti ti-map-2" style="font-size:46px;color:#E8541A;"></i>')
     +'<div style="text-align:center;font-size:12.5px;color:#4b5563;line-height:1.5;margin-bottom:12px;">Découvrez les entreprises de votre métier autour de vous et comparez votre note à la leur.</div>'
     +'<label style="font-size:11px;color:#6b7280;">Votre métier (1-2 mots)</label>'
-    +'<input type="text" id="cKw" value="'+esc(d.activite||'')+'" placeholder="ex : pare-brise, plombier…" autocomplete="off" style="width:100%;font-size:14px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;margin-top:3px;font-family:inherit;">'
+    +'<input type="text" id="cKw" value="'+esc(shortKw(d.activite||d.secteur||''))+'" placeholder="ex : pare-brise, plombier…" autocomplete="off" style="width:100%;font-size:14px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;margin-top:3px;font-family:inherit;">'
     +'<button type="button" onclick="runConcurrence()" style="width:100%;margin-top:10px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-search"></i> Trouver mes concurrents</button>'
     +'<div style="font-size:10.5px;color:#9ca3af;text-align:center;margin-top:6px;">Analyse IA — comptez ~30 s.</div>'
     +'<div id="cOut"></div>'});
