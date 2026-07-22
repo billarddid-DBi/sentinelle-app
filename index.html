@@ -866,7 +866,9 @@ function evoNav(dir){
 }
 // Affiche une SENTINELLE ARCHIVÉE + compte à rebours hebdo + re-mesure (abonnés / conseiller)
 function showArchived(g){
-  // On CHANGE d'écran : masque tous les panneaux (accueil dirigeant compris) → la fiche remplace l'accueil, pas en dessous
+  // Dirigeant : son espace (cockpit) est LA vue de référence — jamais la fiche brute.
+  if(window.selfServe){ dirigeantSpace(); return; }
+  // Consultant : vue complète de la fiche
   ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(function(id){ var el=$(id); if(el) el.style.display='none'; });
   var _cf=$('capfab'); if(_cf) _cf.className='';   // le bouton "Que pouvez-vous nous dire…" reste sur l'accueil, pas sur la fiche
   $('err').style.display='none';
@@ -916,11 +918,8 @@ async function run(payload){
       if(window.sb){
         var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:''});
         var dup=(!ck.error&&ck.data)?ck.data:{found:false};
-        // SENTINELLE IMMUABLE : déjà faite → on AFFICHE l'archive (jamais de régénération)
-        if(window.selfServe && dup.found){
-          var ga=await window.sb.rpc('sentinelle_get',{p_texte:payload.text,p_adresse:''});
-          if(!ga.error && ga.data && ga.data.found && ga.data.fiche){ showArchived(ga.data); return; }
-        }
+        // SENTINELLE IMMUABLE : le dirigeant a déjà sa fiche → direct à son espace (cockpit), pas de re-scan.
+        if(window.selfServe && dup.found){ dirigeantSpace(); return; }
         var list=await etabList(payload.text);
         if(list.length>1 || dup.found){
           var choice=await etabChooser(payload.text, list, dup);
@@ -1408,8 +1407,8 @@ function render(d,skipSave){
   sim2();
   window.scrollTo(0,0);
   if(!skipSave) setTimeout(function(){ saveFiche(d); }, 700);
-  // Dirigeant : parcours en 6 slides (menu + pages). Le consultant garde la vue complète en un scroll.
-  if(SS && typeof sentSlides==='function') sentSlides(d);
+  // Dirigeant : on ne montre JAMAIS le scan brut ; on prépare son espace (cockpit) qui prendra le relais.
+  if(SS){ $('result').innerHTML='<div class="card" style="text-align:center;padding:34px 20px;color:#6b7280;"><span class="spin"></span><div style="margin-top:10px;font-size:13px;">Préparation de votre espace…</div></div>'; }
 }
 
 function saveFiche(d){
@@ -1432,17 +1431,9 @@ function saveFiche(d){
         if(!window.sb) return;
         window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html,p_adresse:(window.__scanAdresse||'')})
           .then(function(r){
-            if(r&&r.error){ console.warn('sentinelle_save', r.error.message); return; }
-            // Dès la 2e mesure : la carte d'évolution apparaît en tête du résultat
-            var q=(d.nom||'')+(d.ville?', '+d.ville:'')+(window.__scanAdresse?', '+window.__scanAdresse:'');
-            window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(window.__scanAdresse||'')}).then(function(g){
-              if(g&&!g.error&&g.data&&g.data.found&&typeof evoCardHtml==='function'){
-                window.__lastGet=g.data; window.__evoMois=null;
-                var evo=evoCardHtml(g.data.serie);
-                var res=$('result');
-                if(evo&&res){ var e=document.createElement('div'); e.id='evoCard'; e.innerHTML=evo; res.insertBefore(e,res.firstChild); window.scrollTo(0,0); }
-              }
-            });
+            if(r&&r.error){ console.warn('sentinelle_save', r.error.message); if(window.selfServe) dirigeantSpace(); return; }
+            // Scan enregistré → le dirigeant bascule sur SON espace (cockpit), qui charge la fiche fraîche.
+            if(window.selfServe){ setTimeout(function(){ dirigeantSpace(); }, 300); }
           });
       });
     }catch(e){}
