@@ -757,40 +757,76 @@ function etabChooser(q, list, dup){
     ov.onclick=function(e){ if(e.target===ov) done(null); };
   });
 }
-// CARTE D'ÉVOLUTION : compare les SENTINELLE hebdo entre elles (faits extérieurs uniquement)
+// CARTE D'ÉVOLUTION MENSUELLE : compare les SENTINELLE du MOIS choisi (faits extérieurs uniquement),
+// navigation ◀ mois ▶ pour revenir en arrière. La note ET sa couleur d'aura évoluent (pastilles colorées).
+var MOIS_FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+function evoDot(couleur){
+  var h=(window.AURAS&&AURAS[couleur]&&AURAS[couleur].h)||'#9ca3af';
+  return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+h+';vertical-align:-2px;box-shadow:0 0 6px '+h+'88;" title="'+esc(couleur||'')+'"></span>';
+}
 function evoCardHtml(serie){
-  var s=(serie||[]).filter(function(x){return x&&x.ive!=null;});
-  if(s.length<2) return '';
-  var first=s[0], last=s[s.length-1], prev=s[s.length-2];
+  var all=(serie||[]).filter(function(x){return x&&x.ive!=null&&x.date;}).sort(function(a,b){return a.date<b.date?-1:1;});
+  if(all.length<1) return '';
+  var lastD=new Date(all[all.length-1].date), firstD=new Date(all[0].date);
+  if(!window.__evoMois) window.__evoMois=new Date(lastD.getFullYear(),lastD.getMonth(),1);
+  var m=window.__evoMois;
+  var pts=all.filter(function(x){ var d0=new Date(x.date); return d0.getFullYear()===m.getFullYear()&&d0.getMonth()===m.getMonth(); });
+  var canPrev=(new Date(firstD.getFullYear(),firstD.getMonth(),1)<m), canNext=(new Date(lastD.getFullYear(),lastD.getMonth(),1)>m);
+  var nav='<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;">'
+    +'<button type="button" onclick="evoNav(-1)" '+(canPrev?'':'disabled')+' style="border:1px solid #e5e7eb;background:#fff;border-radius:8px;width:30px;height:30px;cursor:'+(canPrev?'pointer':'default')+';opacity:'+(canPrev?'1':'.35')+';font-family:inherit;"><i class="ti ti-chevron-left"></i></button>'
+    +'<span style="font-size:13px;font-weight:700;color:#1C1C1C;min-width:130px;text-align:center;">'+MOIS_FR[m.getMonth()]+' '+m.getFullYear()+'</span>'
+    +'<button type="button" onclick="evoNav(1)" '+(canNext?'':'disabled')+' style="border:1px solid #e5e7eb;background:#fff;border-radius:8px;width:30px;height:30px;cursor:'+(canNext?'pointer':'default')+';opacity:'+(canNext?'1':'.35')+';font-family:inherit;"><i class="ti ti-chevron-right"></i></button></div>';
+  var head='<div style="display:flex;justify-content:space-between;align-items:baseline;"><div style="font-size:13px;font-weight:700;color:#1C1C1C;"><i class="ti ti-trending-up" style="color:#E8541A;"></i> Évolution de ma note</div><div style="font-size:10.5px;color:#9ca3af;">'+pts.length+' mesure'+(pts.length>1?'s':'')+' ce mois</div></div>';
+  if(!pts.length){
+    return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin-bottom:12px;">'+head+nav
+      +'<div style="text-align:center;color:#9ca3af;font-size:12.5px;padding:14px 0;">Aucune mesure en '+MOIS_FR[m.getMonth()]+' '+m.getFullYear()+'.</div></div>';
+  }
+  var first=pts[0], last=pts[pts.length-1];
   var ive0=+first.ive, iveN=+last.ive, d=iveN-ive0;
-  var pts=s.slice(-6);
-  var W=150,H=40,pad=8;
-  var vals=pts.map(function(x){return +x.ive;});
-  var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx===mn){mx=mn+1;}
-  var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), H-6-((+x.ive-mn)/(mx-mn))*(H-14)]; });
-  var spark='<svg viewBox="0 0 '+W+' '+(H+10)+'" width="'+W+'" height="'+(H+10)+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
-    +xy.map(function(p,i){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4:3)+'" fill="'+(i===0?'#9ca3af':(d>=0?'#16a34a':'#d97706'))+'"/>'; }).join('')
-    +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(H+8)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
-  var rows='';
-  var arrow=function(up,same){ return same?'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>':(up?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>'); };
-  var facts=0, up=0, down=0;
-  if(prev.note!=null&&last.note!=null){ var n0=+prev.note,n1=+last.note,a0=+(prev.avis||0),a1=+(last.avis||0);
+  // Ligne NOTE + COULEUR : pastille(couleur départ) 62 → pastille(couleur actuelle) 64
+  var noteRow='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12.5px;"><i class="ti ti-gauge" style="font-size:15px;color:#6b7280;"></i><span style="flex:1;">Ma note (IVE)</span>'
+    +'<span style="color:#6b7280;font-size:12px;">'+(pts.length>1? evoDot(first.couleur)+' '+ive0+' → '+evoDot(last.couleur)+' <b style="color:#1C1C1C;">'+iveN+'</b>' : evoDot(last.couleur)+' <b style="color:#1C1C1C;">'+iveN+'</b>/100')+'</span>'
+    +(pts.length>1?(d>2?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':(d<-2?'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>':'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>')):'')+'</div>';
+  var spark='';
+  if(pts.length>1){
+    var W=150,H=40,pad=8;
+    var vals=pts.map(function(x){return +x.ive;});
+    var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx===mn){mx=mn+1;}
+    var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), H-6-((+x.ive-mn)/(mx-mn))*(H-14)]; });
+    spark='<svg viewBox="0 0 '+W+' '+(H+10)+'" width="'+W+'" height="'+(H+10)+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
+      +xy.map(function(p,i){ var h=(window.AURAS&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+h+'"/>'; }).join('')
+      +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(H+8)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
+  }
+  var rows='', facts=0, up=0, down=0;
+  var arrow=function(u,same){ return same?'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>':(u?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>'); };
+  if(pts.length>1 && first.note!=null && last.note!=null){
+    var n0=+first.note,n1=+last.note,a0=+(first.avis||0),a1=+(last.avis||0);
     var same=(n1===n0&&a1===a0); if(!same){ facts++; if(n1>n0||(n1===n0&&a1>a0))up++; else down++; }
     rows+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12.5px;"><i class="ti ti-star" style="font-size:15px;color:#6b7280;"></i><span style="flex:1;">Avis Google</span><span style="color:#6b7280;font-size:11.5px;">'+n0+'★ ('+a0+') → <b style="color:#1C1C1C;">'+n1+'★ ('+a1+')</b></span>'+arrow(n1>n0||(n1===n0&&a1>a0),same)+'</div>';
   }
-  var s0=(prev.site||'')!=='', s1=(last.site||'')!=='';
-  if(s0!==s1){ facts++; if(s1)up++; else down++; }
-  rows+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12.5px;"><i class="ti ti-world" style="font-size:15px;color:#6b7280;"></i><span style="flex:1;">Site internet</span><span style="color:#6b7280;font-size:11.5px;">'+(s1?(s0?'présent':'<b style=\'color:#166534\'>nouveau ✓</b>'):'absent')+'</span>'+arrow(s1&&!s0, s0===s1)+'</div>';
-  var verdict;
-  if(up>0&&down===0) verdict='<div style="background:#dcfce7;color:#166534;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-circle-check"></i> Vos actions paient : les signaux extérieurs progressent.</div>';
-  else if(down>0) verdict='<div style="background:#fef3c7;color:#92400e;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-alert-triangle"></i> Un signal recule — regardez la ligne orange ci-dessus.</div>';
-  else verdict='<div style="background:#f1f5f9;color:#475569;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-clock"></i> Pas encore d\'effet visible — normal, les avis et Google mettent du temps. Continuez.</div>';
-  var dTxt=(facts===0&&Math.abs(d)<=2)?'<span style="color:#6b7280;font-size:12px;">stable</span>'
-    :'<span style="color:'+(d>=0?'#166534':'#92400e')+';font-size:12px;font-weight:700;">'+(d>=0?'▲ +':'▼ ')+d+' depuis le départ</span>';
-  return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
-    +'<div style="display:flex;justify-content:space-between;align-items:baseline;"><div style="font-size:13px;font-weight:700;color:#1C1C1C;"><i class="ti ti-trending-up" style="color:#E8541A;"></i> Évolution de ma note</div><div style="font-size:10.5px;color:#9ca3af;">'+s.length+' mesures · hebdo</div></div>'
+  if(pts.length>1){
+    var s0=(first.site||'')!=='', s1=(last.site||'')!=='';
+    if(s0!==s1){ facts++; if(s1)up++; else down++; }
+    rows+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12.5px;"><i class="ti ti-world" style="font-size:15px;color:#6b7280;"></i><span style="flex:1;">Site internet</span><span style="color:#6b7280;font-size:11.5px;">'+(s1?(s0?'présent':'<b style=\'color:#166534\'>nouveau ✓</b>'):'absent')+'</span>'+arrow(s1&&!s0, s0===s1)+'</div>';
+  }
+  var verdict='';
+  if(pts.length>1){
+    if(up>0&&down===0) verdict='<div style="background:#dcfce7;color:#166534;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-circle-check"></i> Vos actions paient : les signaux extérieurs progressent.</div>';
+    else if(down>0) verdict='<div style="background:#fef3c7;color:#92400e;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-alert-triangle"></i> Un signal recule — regardez la ligne orange ci-dessus.</div>';
+    else verdict='<div style="background:#f1f5f9;color:#475569;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:9px;"><i class="ti ti-clock"></i> Pas encore d\'effet visible — normal, les avis et Google mettent du temps. Continuez.</div>';
+  }
+  var dTxt=(pts.length<2)?'<span style="color:#6b7280;font-size:12px;">1 mesure ce mois</span>'
+    :((facts===0&&Math.abs(d)<=2)?'<span style="color:#6b7280;font-size:12px;">stable ce mois</span>'
+    :'<span style="color:'+(d>=0?'#166534':'#92400e')+';font-size:12px;font-weight:700;">'+(d>=0?'▲ +':'▼ ')+d+' ce mois</span>');
+  return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin-bottom:12px;">'+head+nav
     +'<div style="display:flex;align-items:center;gap:14px;margin-top:8px;"><div><div style="font-size:30px;font-weight:800;line-height:1;color:#1C1C1C;">'+iveN+'<span style="font-size:13px;color:#9ca3af;font-weight:400;">/100</span></div><div style="margin-top:2px;">'+dTxt+'</div></div>'+spark+'</div>'
-    +'<div style="margin-top:8px;">'+rows+'</div>'+verdict+'</div>';
+    +'<div style="margin-top:8px;">'+noteRow+rows+'</div>'+verdict+'</div>';
+}
+function evoNav(dir){
+  if(!window.__evoMois) return;
+  window.__evoMois=new Date(window.__evoMois.getFullYear(), window.__evoMois.getMonth()+dir, 1);
+  var c=document.getElementById('evoCard');
+  if(c && window.__lastGet) c.innerHTML=evoCardHtml(window.__lastGet.serie);
 }
 // Affiche une SENTINELLE ARCHIVÉE + compte à rebours hebdo + re-mesure (abonnés / conseiller)
 function showArchived(g){
@@ -810,9 +846,9 @@ function showArchived(g){
         ? ' — une nouvelle mesure est possible dès maintenant.'
         : (next?' — <b>prochain SENTINELLE disponible le '+next.toLocaleDateString('fr-FR')+'</b> (une mesure par semaine).':''))
       +(dispo?'<div style="margin-top:9px;"><button type="button" onclick="remesurer()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Re-mesurer ma note</button></div>':'');
-    window.__lastGet=g;
+    window.__lastGet=g; window.__evoMois=null;
     var evo=evoCardHtml(g.serie);
-    if(evo){ var e=document.createElement('div'); e.innerHTML=evo; res.insertBefore(e.firstChild, res.firstChild); }
+    if(evo){ var e=document.createElement('div'); e.id='evoCard'; e.innerHTML=evo; res.insertBefore(e, res.firstChild); }
     res.insertBefore(b, res.firstChild);
   }
   window.scrollTo(0,0);
@@ -1115,9 +1151,10 @@ function saveFiche(d){
             var q=(d.nom||'')+(d.ville?', '+d.ville:'')+(window.__scanAdresse?', '+window.__scanAdresse:'');
             window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(window.__scanAdresse||'')}).then(function(g){
               if(g&&!g.error&&g.data&&g.data.found&&typeof evoCardHtml==='function'){
+                window.__lastGet=g.data; window.__evoMois=null;
                 var evo=evoCardHtml(g.data.serie);
                 var res=$('result');
-                if(evo&&res){ var e=document.createElement('div'); e.innerHTML=evo; res.insertBefore(e.firstChild,res.firstChild); window.scrollTo(0,0); }
+                if(evo&&res){ var e=document.createElement('div'); e.id='evoCard'; e.innerHTML=evo; res.insertBefore(e,res.firstChild); window.scrollTo(0,0); }
               }
             });
           });
@@ -1983,23 +2020,24 @@ function renderAuth(mode){
   window.currentSpace='dirigeant';
   var pre=(window.lastMiroir&&window.lastMiroir.nom)||'';
   var tab=function(m,l,ic){ var on=(mode===m); return '<button type="button" onclick="renderAuth(\''+m+'\')" style="flex:1;padding:11px 6px;border:none;border-bottom:3px solid '+(on?'#E8541A':'transparent')+';cursor:pointer;font-size:13px;font-weight:'+(on?'800':'600')+';font-family:inherit;background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#E8541A':'#9ca3af')+';"><i class="ti '+ic+'"></i> '+l+'</button>'; };
-  var fld=function(id,lab,type,val,ph){ return '<div style="margin-top:10px;"><label style="font-size:11px;color:#6b7280;">'+lab+'</label><input id="'+id+'" type="'+type+'" value="'+esc(val||'')+'" placeholder="'+(ph||'')+'" autocomplete="off" style="width:100%;font-size:14px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;margin-top:3px;font-family:inherit;"></div>'; };
+  var fld=function(id,lab,type,val,ph,ac){ return '<div style="margin-top:10px;"><label style="font-size:11px;color:#6b7280;">'+lab+'</label><input id="'+id+'" type="'+type+'" value="'+esc(val||'')+'" placeholder="'+(ph||'')+'" autocomplete="'+(ac||'off')+'" style="width:100%;font-size:14px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;margin-top:3px;font-family:inherit;"></div>'; };
+  var lastMail=''; try{ lastMail=localStorage.getItem('dbi_last_mail')||''; }catch(e){}
   var body;
   if(mode==='signup'){
     body='<div style="font-size:17px;font-weight:800;color:#1C1C1C;">Créer votre compte</div>'
       +'<div style="background:#dcfce7;color:#166534;border-radius:9px;padding:8px 11px;font-size:12px;margin-top:8px;"><i class="ti ti-gift"></i> C\'est gratuit : découvrez <b>la note de votre entreprise</b> — le diagnostic SENTINELLE est offert, aucun paiement demandé.</div>'
-      +fld('auName','Nom de votre entreprise','text',pre,'Ma Menuiserie')
-      +fld('auVille','Ville de l\'entreprise','text','','Metz')
-      +fld('auMail','Votre email','email','','vous@entreprise.fr')
-      +fld('auPass','Mot de passe','password','','au moins 6 caractères')
+      +fld('auName','Nom de votre entreprise','text',pre,'Ma Menuiserie','organization')
+      +fld('auVille','Ville de l\'entreprise','text','','Metz','address-level2')
+      +fld('auMail','Votre email','email','','vous@entreprise.fr','username email')
+      +fld('auPass','Mot de passe','password','','au moins 6 caractères','new-password')
       +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
       +'<button class="btn btn-primary" onclick="authSignup()"><i class="ti ti-user-plus"></i> Créer mon compte gratuit</button>'
       +'<div style="font-size:11.5px;color:#9ca3af;text-align:center;margin-top:8px;">Déjà un compte ? <a href="#" onclick="renderAuth(\'login\');return false;" style="color:#E8541A;font-weight:600;">Se connecter</a></div>';
   } else {
     body='<div style="font-size:17px;font-weight:800;color:#1C1C1C;">Se connecter</div>'
       +'<div style="font-size:12px;color:#6b7280;margin-top:4px;">Retrouvez votre espace et votre suivi.</div>'
-      +fld('auMail','Votre email','email','','vous@entreprise.fr')
-      +fld('auPass','Mot de passe','password','','')
+      +fld('auMail','Votre email','email',lastMail,'vous@entreprise.fr','username email')
+      +fld('auPass','Mot de passe','password','','','current-password')
       +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
       +'<button class="btn btn-primary" onclick="authLogin()"><i class="ti ti-login"></i> Se connecter</button>'
       +'<div style="font-size:11.5px;color:#9ca3af;text-align:center;margin-top:8px;">Pas encore de compte ? <a href="#" onclick="renderAuth(\'signup\');return false;" style="color:#E8541A;font-weight:600;">Créer un compte gratuit</a></div>';
@@ -2025,6 +2063,7 @@ async function authSignup(){
   var now=new Date();
   var res=await window.sb.auth.signUp({ email:mail, password:pass, options:{ data:{ entreprise:name, ville:ville, plan:'decouverte', price:0, since:now.toISOString() } } });
   if(res.error){ err(/already registered|already exists/i.test(res.error.message)?'Un compte existe déjà avec cet email. Connectez-vous.':res.error.message); return; }
+  try{ localStorage.setItem('dbi_last_mail', mail); }catch(e){}
   await loadUser();
   if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
   window.ahNom=(window.currentUser.name||name);
@@ -2067,6 +2106,7 @@ async function authLogin(){
   authResetState();
   var res=await window.sb.auth.signInWithPassword({ email:mail, password:pass });
   if(res.error){ if(msg)msg.textContent='Email ou mot de passe incorrect.'; return; }
+  try{ localStorage.setItem('dbi_last_mail', mail); }catch(e){}
   await loadUser();
   window.ahNom=(window.currentUser&&window.currentUser.name)||'';
   dirigeantSpace();
