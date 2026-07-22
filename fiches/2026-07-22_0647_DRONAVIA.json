@@ -1,0 +1,178 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, systèmes de coupure, balises), drones industriels sur mesure, solutions d'inspection industrielle",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Structurer la croissance",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Entreprise saine & en expansion",
+    "atout": "Leadership européen, innovation, équipe spécialisée"
+  },
+  "identite": "SAS Dronavia, SIREN 810254722, NAF 3030Z (Construction aéronautique et spatiale), créée 01/03/2015 (11 ans), 6-9 salariés (2023), dirigeant Ludovic Pelletey, siège 7 avenue Julien Méline 88200 Remiremont.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      70,
+      74,
+      76,
+      80,
+      77
+    ],
+    "potentiel": [
+      88,
+      85,
+      87,
+      82,
+      86,
+      88,
+      92,
+      88
+    ]
+  },
+  "valeurs": "Sécurité des drones, innovation anticipatrice des normes EASA, qualité made-in-France, expertise en ingénierie, support du secteur professionnel.",
+  "imagePercue": "Leader européen reconnu en accessoires de sécurité drone, innovateur certifié EASA/DGAC, fabricant français de confiance, partenaire de 80+ revendeurs en Europe, protégeant 10 000+ drones.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Croissance structurée : recrutement en cours (Account Manager), équipe de 28 spécialistes, expansion vers solutions industrielles (Scout DI)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale solide : site moderne et riche, blog actif, YouTube, LinkedIn, Facebook avec engagement régulier."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes en confidentialité totale (2022) : chiffre d'affaires et bilan non publics, limite la transparence financière observable."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Marché porteur et réglementé : normes EASA en évolution continue, positionnement de first-mover sur certifications (C5, MOC M2/2511)."
+    }
+  ],
+  "quickwins": [
+    "Enrichir la fiche Google Business avec photos récentes de l'atelier/équipe et horaires d'ouverture (actuellement peu visible en local).",
+    "Publier mensuellement un cas d'usage client ou tutoriel technique sur le blog pour renforcer l'autorité SEO et la fidélisation.",
+    "Créer une page dédiée aux certifications EASA/DGAC avec timeline de conformité pour rassurer les prospects en phase de décision."
+  ],
+  "avis": "Non trouvé publiquement sur Google/annuaires spécialisés. Réputation construite via réseau de 80+ revendeurs officiels et références clients (10 000+ drones équipés). Présence forte sur LinkedIn (2 430 likes Facebook, engagement régulier).",
+  "presence": "Site dronavia.com moderne et à jour (avril 2026), blog actif, YouTube avec contenu technique, LinkedIn professionnel, Facebook avec 2 430 likes et engagement régulier. Absence d'avis clients publics (modèle B2B via revendeurs).",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité drone (MOC, C-class)",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et homologation des accessoires de sécurité drone en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "DJI Eco Partner",
+      "role": "Écosystème de partenaires certifiés pour solutions drone DJI",
+      "url": "https://www.dji.com"
+    },
+    {
+      "nom": "Drone Industry Insights (secteur)",
+      "role": "Veille et classement des fabricants de sécurité drone en Europe",
+      "url": "https://www.droneii.com"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes en confidentialité totale (2022) : CA < 700 k€, bilan < 350 k€. Effectif 2022 > 10 salariés (contradiction avec données 2023 : 6-9). Paiement fournisseurs avec retard moyen de 23 jours (2024). Pas de procédure collective.",
+    "concurrence": "Marché de niche hautement réglementé. Concurrents potentiels : fabricants de systèmes FTS/parachute (peu nombreux en Europe), intégrateurs drone généralistes. Dronavia positionné en leader par certification précoce et innovation (CO2 breveté).",
+    "visibilite": "Forte auprès des professionnels (80+ revendeurs, 10 000+ drones équipés). Faible visibilité grand public (modèle B2B). Présence digitale solide mais peu de contenu SEO local (Remiremont/Vosges).",
+    "dirigeant": "Ludovic Pelletey, fondateur/président. Entreprise familiale ou personnelle (structure SASU/SAS). Aucune information publique sur l'âge ou les intentions de transmission."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Veille appels d'offres & marchés publics",
+      "benefice": "Capturer les appels d'offres drone/inspection (collectivités, ministères, industriels) et alerter l'équipe commerciale en temps réel."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Chiffrage & devis assisté (EASA compliance)",
+      "benefice": "Générer automatiquement des devis de conversion C2→C5 ou kits MOC avec documentation réglementaire, réduire le délai de réponse."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capitalisation savoir-faire (base de cas d'usage)",
+      "benefice": "Documenter les intégrations réussies (DJI Mavic 3, Matrice, etc.) et les certifications obtenues pour accélérer les futurs projets."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion planning R&D & production",
+      "benefice": "Piloter les cycles de développement produit et les lancements de conformité (EN 4709, MOC 2512) sans surcharge administrative."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospection revendeurs & partenaires",
+      "benefice": "Identifier et qualifier les nouveaux revendeurs potentiels en Europe, automatiser le suivi du pipeline partenaires."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Documentation technique & conformité",
+      "benefice": "Générer et maintenir à jour les dossiers de conformité EASA/DGAC, réduire les risques de non-conformité."
+    }
+  ],
+  "archetype": "Structure en croissance",
+  "posture": "Structuration & pilotage",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en gestion administrative, chiffrage et veille réglementaire"
+  },
+  "coutInaction": "Risque de ralentissement de la croissance si les processus de chiffrage, veille réglementaire et capitalisation savoir-faire restent manuels. Perte d'opportunités commerciales (appels d'offres manqués) et surcharge de l'équipe R&D/production lors des lancements de nouvelles certifications.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Chiffrage manuel par email, veille appels d'offres fragmentée, documentation de conformité dispersée, cycles R&D sans pilotage centralisé.",
+    "avecIA": "Devis auto-générés en 5 min, alertes appels d'offres en temps réel, base de cas d'usage consultable, planning R&D et conformité piloté en tableau de bord."
+  },
+  "cta": "Explorez BOUSSOLE pour affiner les leviers IA prioritaires et valider les gains opérationnels avec votre équipe.",
+  "indice": {
+    "estime": 68,
+    "potentiel": 86
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 88
+  },
+  "aura": {
+    "sens": "Innovation & fiabilité",
+    "couleur": "Bleu",
+    "definition": "Dronavia rayonne par sa fiabilité technique et son leadership innovant : une entreprise établie, certifiée, qui anticipe les normes et sécurise l'avenir du secteur drone.",
+    "eclat": "fort"
+  },
+  "fierte": "Dronavia a bâti en 11 ans une position de leader européen incontesté en sécurité drone, avec 28 spécialistes, 80+ revendeurs et 10 000+ drones protégés. L'équipe anticipe les normes EASA, innove (CO2 breveté, MOC M2 first-mover) et fabrique 100% en France. Le potentiel de croissance est immense : expansion industrielle (Scout DI), marchés publics, nouvelles certifications — à condition de structurer les processus commerciaux et opérationnels.",
+  "sources": "Annuaire-entreprises.data.gouv.fr (INSEE 2023), site dronavia.com (avril 2026), LinkedIn Dronavia, Facebook Dronavia, lejournaldesentreprises.com (2024), pappers.fr, societe.com, rubypayeur.com, YouTube Dronavia. Comptes en confidentialité totale : données financières non publiques. Avis clients : aucun trouvé sur Google/annuaires (modèle B2B via revendeurs).",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 25,
+      "v": 15,
+      "s": 60
+    }
+  }
+}
