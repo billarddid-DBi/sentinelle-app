@@ -1,0 +1,183 @@
+{
+  "nom": "La Romana",
+  "ville": "Maizières-lès-Metz (57280)",
+  "activite": "Pizzeria & restaurant italien",
+  "secteur": "restaurant",
+  "resume": {
+    "enjeu": "Acquisition & visibilité",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Transition post-reprise",
+    "atout": "Réputation établie, pizzas au feu de bois"
+  },
+  "identite": "SIREN 839452786, SAS ROMANA, créée 7 mai 2018, 6-9 salariés. Pizzeria italienne établie depuis 31 ans (selon avis client), récemment reprise (mars 2024 selon témoignage). Comptes confidentiels (CA < 700k€ en 2022).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      55,
+      52,
+      50,
+      62,
+      58
+    ],
+    "potentiel": [
+      70,
+      75,
+      72,
+      78,
+      75,
+      72,
+      85,
+      80
+    ]
+  },
+  "valeurs": "Authenticité italienne, qualité des ingrédients, accueil chaleureux, tradition du feu de bois.",
+  "imagePercue": "Institution locale bien établie, mais en phase de stabilisation post-reprise. Réputation solide sur les avis (4.4-4.6/5), mais signaux mitigés : certains clients rapportent une baisse de qualité depuis le changement de propriétaire (pâte moins bonne, attentes longues).",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Reprise récente (mars 2024) : ancien propriétaire et pizzaiolo partis. Clients fidèles rapportent une différence de qualité (pâte dure, problèmes de cuisson). Risque de perte de clientèle si la transition n'est pas maîtrisée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale fragmentée : Facebook actif (1070 likes, 92% de recommandation) mais peu de contenu récent. Site menu (lacarte.menu) à jour, mais pas de site propre. Pas de Google My Business visible dans les résultats."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Gestion des avis : peu de réponses aux avis négatifs (notamment sur lacarte.menu). Les critiques sur la qualité post-reprise ne sont pas adressées publiquement."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Fondamentaux solides : localisation centrale (face à la mairie), parking accessible, terrasse, accessibilité PMR. Horaires réguliers (fermé lundi et dimanche). Clientèle de proximité fidèle."
+    }
+  ],
+  "quickwins": [
+    "Répondre aux 3-4 avis critiques récents (lacarte.menu, TripAdvisor) mentionnant la baisse de qualité post-reprise : reconnaître la transition, expliquer les changements, inviter à revenir tester.",
+    "Créer ou réclamer une fiche Google My Business complète (photos actuelles, horaires, menu, lien vers réservation) : actuellement absent des résultats Google directs.",
+    "Publier 2-3 photos récentes du restaurant et des pizzas sur Facebook (dernière publication datée de 6 jours) pour montrer la continuité et rassurer sur la qualité."
+  ],
+  "avis": "Avis globalement positifs (4.4/5 sur Restaurant Guru avec 667 avis, 4.6/5 sur TripAdvisor avec 84 avis, 7.9/10 sur RestoRanking avec 523 avis agrégés). Thèmes récurrents : pizzas excellentes, pâtes fraîches, accueil chaleureux, cadre convivial. MAIS : depuis mars 2024 (reprise), plusieurs clients rapportent une baisse de qualité (pâte dure, attentes longues, pizzas mal cuites). Certains avis positifs récents (oct-déc 2024) indiquent une amélioration en cours.",
+  "presence": "Facebook actif (1070 likes, 92% recommandation, 18 avis, 307 visites enregistrées). Présence sur lacarte.menu (44 plats listés), RestoRanking, TripAdvisor, Restaurant Guru, Petit Futé. Pas de site officiel détecté. Pas de LinkedIn, Instagram ou TikTok visibles. Téléphone : 03 87 80 62 44.",
+  "plateformes": [
+    {
+      "nom": "TripAdvisor",
+      "role": "Avis & classement restaurants (84 avis, #1 sur 5 à Maizières)",
+      "url": "https://www.tripadvisor.com/Restaurant_Review-g1194434-d5003044-Reviews-La_Romana-Maizieres_les_Metz_Moselle_Grand_Est.html"
+    },
+    {
+      "nom": "Restaurant Guru",
+      "role": "Avis & photos restaurants (667 avis, 4.4/5, #1 pizzeria)",
+      "url": "https://restaurantguru.com/Pizzeria-Romana-Maizieres-les-Metz"
+    },
+    {
+      "nom": "RestoRanking",
+      "role": "Agrégateur d'avis restaurants (523 avis, 7.9/10)",
+      "url": "https://restoranking.fr/r/la-romana-7_157552/"
+    },
+    {
+      "nom": "LaCarte.Menu",
+      "role": "Menu en ligne & avis (44 plats, 2126 évaluations)",
+      "url": "https://lacarte.menu/restaurants/maizieres-les-metz/la-romana-22"
+    },
+    {
+      "nom": "Petit Futé",
+      "role": "Guide touristique & avis (avis détaillés, historique)",
+      "url": "https://www.petitfute.co.uk/v22080-maizieres-les-metz-57280/c1165-restaurants/c1031-cuisines-du-monde/c1036-cuisine-mediterraneenne/c82-restaurant-italien-et-pizzeria/626409-pizzeria-romana.html"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels (CA < 700k€, bilan < 350k€ en 2022). Effectif 6-9 salariés. Pas de données publiques récentes (2023-2024). Santé financière non observable.",
+    "concurrence": "Maizières-lès-Metz : 5 restaurants (La Romana #1 sur TripAdvisor). Concurrence locale : Le Venezia (pizzeria, #9 sur Restaurant Guru), restaurants turcs, marocains, couscous. Région Metz : forte densité de restaurants italiens et pizzerias. La Romana reste leader local mais doit consolider sa position post-reprise.",
+    "visibilite": "Forte présence sur les annuaires (PagesJaunes, 118712, Bottin, Mappy). Avis massifs sur les plateformes spécialisées (2000+ avis agrégés). Pas de site propre = perte de contrôle de l'image. Absence Google My Business = perte de visibilité sur recherche locale.",
+    "dirigeant": "Non trouvé publiquement. Reprise en mars 2024 : ancien propriétaire (Massimo, mentionné dans avis Petit Futé) et pizzaiolo (frère du propriétaire) partis. Nouveaux propriétaires non identifiés. Pas d'information sur l'âge, la vision ou les intentions du nouveau dirigeant."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réponses",
+      "benefice": "Adresser les critiques post-reprise, rassurer les clients fidèles, montrer la continuité. Cible : 5-10 avis critiques à traiter cette semaine."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Fiche Google My Business",
+      "benefice": "Apparaître dans les recherches locales 'pizzeria Maizières', 'restaurant italien Metz'. Augmenter la visibilité auprès des nouveaux clients. Lien direct vers réservation/menu."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Calendrier de contenu Facebook",
+      "benefice": "Publier 2-3x/semaine : photos des pizzas, plats du jour, événements, témoignages clients. Maintenir l'engagement (actuellement 92% recommandation mais peu de contenu)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Suivi qualité & feedback clients",
+      "benefice": "Capturer les retours en temps réel (appels, réservations, avis) pour identifier et corriger les écarts de qualité post-reprise. Clé pour regagner la confiance."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Campagne de relance clients fidèles",
+      "benefice": "Cibler les clients qui venaient avant la reprise (via avis datés) : offre spéciale, invitation à revenir, communication sur les améliorations. Reconquête rapide."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimisation des réservations & no-shows",
+      "benefice": "Mettre en place un système de réservation en ligne (Facebook, Google, Doctolib) pour anticiper les pics et réduire les attentes longues (problème signalé)."
+    }
+  ],
+  "archetype": "Commerce établi & performant (mais en transition)",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Perte estimée par client non-revenu (reprise mal gérée)"
+  },
+  "coutInaction": "Chaque semaine sans réponse aux avis critiques = risque de perte de 5-10% de la clientèle fidèle. Les clients qui venaient pour la qualité du pizzaiolo parti cherchent des alternatives. La réputation locale, construite en 31 ans, s'érode rapidement en phase de transition.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Réception des avis critiques sans réponse. Clients fidèles hésitent à revenir. Pas de fiche Google. Facebook peu actif. Attentes longues signalées. Perte progressive de clientèle.",
+    "avecIA": "Avis critiques traités en 24h (reconnaissance + plan d'action). Fiche Google complète & à jour. Facebook : 2-3 posts/semaine (photos, plats du jour, témoignages). Réservations en ligne = gestion des pics. Feedback clients capturé & analysé. Relance ciblée des clients fidèles."
+  },
+  "cta": "Explorez BOUSSOLE pour valider la stratégie de consolidation post-reprise, identifier les leviers de fidélisation et structurer le pilotage opérationnel (qualité, réservations, avis).",
+  "indice": {
+    "estime": 76,
+    "potentiel": 94
+  },
+  "dimensions": {
+    "avis": 72,
+    "reseaux": 48,
+    "site": 0,
+    "traction": 70
+  },
+  "aura": {
+    "sens": "Chaleur & résilience",
+    "couleur": "Orange",
+    "definition": "Une institution locale qui traverse une transition délicate mais conserve la confiance de sa communauté. L'énergie est celle d'une maison qui se réinvente, avec le potentiel de retrouver son éclat.",
+    "eclat": "moyen"
+  },
+  "fierte": "La Romana a bâti une réputation solide en 31 ans : elle est l'institution culinaire de Maizières, classée #1 sur TripAdvisor et Restaurant Guru, avec des milliers d'avis positifs. Malgré la transition récente, les fondamentaux sont là (localisation, équipe, four à bois, accueil). Le potentiel de regain est énorme : avec une gestion maîtrisée de la qualité et une présence digitale renforcée, cette pizzeria peut non seulement retrouver son niveau antérieur, mais aussi attirer une nouvelle clientèle.",
+  "sources": "PagesJaunes (SIREN, horaires, description), 118712 (SIREN, effectif, création), Societe.com (confidentialité comptes), TripAdvisor (84 avis, 4.6/5, #1 classement), Restaurant Guru (667 avis, 4.4/5), RestoRanking (523 avis agrégés, 7.9/10), LaCarte.Menu (2126 évaluations, 3.8/5), Petit Futé (avis détaillés, historique 31 ans), Facebook (1070 likes, 92% recommandation), Bottin.fr (horaires, services), Mappy (localisation). Confiance : HAUTE pour avis & présence, MOYENNE pour données financières (confidentielles), FAIBLE pour identité du nouveau dirigeant.",
+  "_auraCalc": {
+    "note_google": 4.4,
+    "nb_avis": 587,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
