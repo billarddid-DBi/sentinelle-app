@@ -2394,7 +2394,7 @@ async function authSignup(){
   try{
     window.sb.auth.getSession().then(function(s){
       var tok=(s.data&&s.data.session)?s.data.session.access_token:null;
-      if(tok) fetch('/api/welcome-email',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+tok}}).catch(function(){});
+      if(tok) fetch('/api/facture-email',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+tok},body:JSON.stringify({type:'welcome'})}).catch(function(){});
     });
   }catch(e){}
   // Nouveau compte → on enchaîne DIRECT sur sa SENTINELLE gratuite (sauf si un diagnostic l'attend déjà via le pont)
