@@ -160,7 +160,6 @@
       <div style="text-align:center;margin-top:12px;"><button onclick="introShow(true)" style="background:none;border:none;color:#9ca3af;font-size:12.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-player-play"></i> Revoir la démo</button></div>
       <div style="text-align:center;font-size:10px;letter-spacing:2px;color:#6b7280;margin-top:20px;">QUE SOUHAITEZ-VOUS FAIRE ?</div>
       <div style="display:flex;gap:10px;margin-top:12px;">
-        <button onclick="enterDiagnostic()" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #E8541A;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-radar-2" style="font-size:26px;color:#E8541A;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Faire analyser<br>une entreprise</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Scanner gratuitement une entreprise à partir de données publiques.</div><i class="ti ti-arrow-right" style="color:#E8541A;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
         <button onclick="renderAuth('login')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-user" style="font-size:26px;color:#3b82f6;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Mon espace<br>dirigeant</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Retrouvez vos analyses, votre progression et vos plans d\'action.</div><i class="ti ti-arrow-right" style="color:#3b82f6;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 6px;">
@@ -2115,6 +2114,16 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
     .then(function(r){return r.json();})
     .then(function(x){ done((x&&x.action)?{action:x.action,objectif:x.objectif||'Ton cap',pourquoi:x.pourquoi||'',type:x.type||'humain'}:{action:'Prends la température de l\'équipe ce matin, un mot à chacun.',objectif:'Écoute',pourquoi:'Rien ne vaut le contact direct pour sentir l\'ambiance.',type:'humain'}); })
     .catch(function(){ done({action:'Avance d\'un pas sur ta feuille de route aujourd\'hui.',objectif:'Ton cap',pourquoi:'La régularité fait la transformation.',type:'humain'}); }); }
+// Admin = un seul email (billard.did@gmail.com). Côté serveur c'est prof.role==='admin' (is_admin) qui fait foi ;
+// ici c'est purement UI : afficher le bouton « Nouvelle analyse » et la vue consultant complète.
+function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email||'').toLowerCase()==='billard.did@gmail.com'); }
+function adminBar(){
+  if(!iveIsAdmin()) return '';
+  return '<div style="background:#1C1C1C;border:1px solid #3f3f46;border-radius:12px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'
+    +'<div style="font-size:11.5px;color:#e5e7eb;line-height:1.2;"><i class="ti ti-shield-check" style="color:#E8541A;"></i> <b>Mode admin</b> · DBi360<div style="font-size:9.5px;color:#9ca3af;margin-top:1px;">Vue consultant complète débloquée</div></div>'
+    +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Nouvelle analyse</button>'
+    +'</div>';
+}
 function dirigeantSpace(){
   window.currentSpace='dirigeant';
   if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
@@ -2124,7 +2133,7 @@ function dirigeantSpace(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
   // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
   if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
-    $('dirigeant').innerHTML='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
+    $('dirigeant').innerHTML=adminBar()+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
       +'<div class="sec">'
       +'<div style="text-align:center;margin-top:2px;">'
         +'<button id="iveBtn" class="ivePastille" onclick="lancerMaSentinelle()" aria-label="Découvrir mon IVE">'
@@ -2185,7 +2194,7 @@ function dirigeantSpace(){
           var meaning='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;flex:1;min-width:158px;font-size:11.5px;color:#7c2d12;line-height:1.5;"><b><i class="ti ti-palette"></i> Ce que dit votre note</b><div style="margin-top:2px;">IVE '+esc(coul)+(_adef&&_adef.s?' — '+esc(_adef.s):'')+'.'+(_adef&&_adef.d?' '+esc(_adef.d):'')+'</div>'+(_f.valeurs?'<div style="margin-top:6px;"><b>Vos valeurs :</b> '+esc(_f.valeurs)+'</div>':'')+(_f.imagePercue?'<div style="margin-top:4px;"><b>Votre image :</b> '+esc(_f.imagePercue)+'</div>':'')+'</div>';
           var cockpit='<div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">'+band+'<div style="flex:0 0 auto;">'+pastille+'</div>'+meaning+'</div>'+evo+infHtml;
           var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
-          $('dirigeant').innerHTML=header+'<div id="homeSlides"></div>';
+          $('dirigeant').innerHTML=adminBar()+header+'<div id="homeSlides"></div>';
           if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit);
         });
       });
