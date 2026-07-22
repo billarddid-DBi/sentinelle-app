@@ -3,10 +3,15 @@
 -- Règle : UNE entreprise = UNE SENTINELLE gratuite, à vie. Admin = passe-droit.
 -- =============================================================================
 
--- 0. Normalisation (minuscules + alphanumérique seulement, accents conservés)
+-- 0. Normalisation : minuscules + SANS accents (é→e, à→a…) + alphanumérique seulement.
+--    (accents pliés pour que "Référence" et "reference" matchent — sinon boucle à la connexion)
 create or replace function public.s_norm(t text) returns text
 language sql immutable as
-$$ select regexp_replace(lower(coalesce(t,'')),'[^a-z0-9àâäéèêëîïôöùûüç]','','g') $$;
+$$ select regexp_replace(
+     translate(lower(coalesce(t,'')),
+       'àâäáãéèêëíìîïóòôöõúùûüýÿçñ',
+       'aaaaaeeeeiiiiooooouuuuyycn'),
+     '[^a-z0-9]', '', 'g') $$;
 
 -- 1. LA TABLE — chaque scan SENTINELLE archivé pour toujours (pipeline prospect)
 create table if not exists public.sentinelles (
