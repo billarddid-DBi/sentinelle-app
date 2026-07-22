@@ -129,9 +129,6 @@
 
   <div class="panel" id="home" style="background:transparent;padding:0;box-shadow:none;border:none;">
     <div style="background:radial-gradient(circle at 50% 28%,#241a14 0%,#0e0d10 68%);border-radius:20px;padding:16px 16px 20px;position:relative;overflow:hidden;">
-      <div style="display:flex;justify-content:flex-end;">
-        <button onclick="renderAuth('login')" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);color:#fff;border-radius:20px;padding:7px 14px;font-size:12.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-user"></i> Se connecter</button>
-      </div>
       <div style="position:relative;height:224px;display:flex;align-items:center;justify-content:center;">
         <div class="radarWrap">
           <div class="radarRing" style="width:76px;height:76px;"></div>
@@ -156,10 +153,10 @@
         <div style="font-size:11px;color:#9ca3af;margin-top:12px;"><span style="color:#22c55e;">●</span> Analyse IA disponible</div>
         <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Temps estimé : <span style="color:#E8541A;font-weight:600;">1 min 30</span></div>
       </div>
-      <button onclick="renderAuth('signup')" style="width:100%;margin-top:16px;background:linear-gradient(90deg,#E8541A,#f97316);border:none;color:#fff;border-radius:14px;padding:15px;font-size:13.5px;font-weight:800;letter-spacing:.8px;cursor:pointer;font-family:inherit;box-shadow:0 8px 24px rgba(232,84,26,.4);display:flex;align-items:center;justify-content:center;gap:10px;"><span style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.25);display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-player-play"></i></span> LANCER L'ANALYSE SENTINELLE</button>
-      <div style="text-align:center;margin-top:12px;"><button onclick="introShow(true)" style="background:none;border:none;color:#9ca3af;font-size:12.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-player-play"></i> Revoir la démo</button></div>
+      <div style="text-align:center;margin-top:16px;"><button onclick="introShow(true)" style="background:none;border:none;color:#9ca3af;font-size:12.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-player-play"></i> Revoir la démo</button></div>
       <div style="text-align:center;font-size:10px;letter-spacing:2px;color:#6b7280;margin-top:20px;">QUE SOUHAITEZ-VOUS FAIRE ?</div>
       <div style="display:flex;gap:10px;margin-top:12px;">
+        <button onclick="renderAuth('signup')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #E8541A;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-user-plus" style="font-size:26px;color:#E8541A;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Créer un<br>compte</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Et découvrir SENTINELLE gratuitement.</div><i class="ti ti-arrow-right" style="color:#E8541A;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
         <button onclick="renderAuth('login')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-user" style="font-size:26px;color:#3b82f6;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Mon espace<br>dirigeant</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Retrouvez vos analyses, votre progression et vos plans d\'action.</div><i class="ti ti-arrow-right" style="color:#3b82f6;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 6px;">
