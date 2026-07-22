@@ -984,13 +984,23 @@ function render(d,skipSave){
       _L.forEach(function(x){x.gain=Math.round(x.w*(100-x.s)/100);});
       var _top=_L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
       if(_top.length){
-        progHTML='<div class="sec" style="background:#FBF4EF;"><div style="font-size:12.5px;font-weight:600;color:#cf4712;"><i class="ti ti-target"></i> Où travailler pour monter votre note</div>'
-          +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#E8541A;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
-          +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div></div>';
+        var _tot=_top.reduce(function(s,x){return s+x.gain;},0);
+        var _rangs=['Une première option','Une deuxième option','Une troisième option'];
+        if(SS){
+          // Dirigeant : on montre le GAIN possible, jamais le levier (la solution se débloque en BOUSSOLE)
+          progHTML='<div class="sec" style="background:#FBF4EF;"><div style="font-size:12.5px;font-weight:600;color:#cf4712;"><i class="ti ti-target"></i> Où monter votre note</div>'
+            +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+_rangs[i]+'</b> vous permet de gagner <span style="color:#E8541A;font-weight:700;">jusqu\'à +'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')
+            +'<div style="font-size:12.5px;color:#1C1C1C;font-weight:700;margin-top:8px;background:#fff;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;">Soit un potentiel de <span style="color:#E8541A;">+'+_tot+' pts</span> au total.</div>'
+            +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Le détail de ces leviers se débloque avec la <b>BOUSSOLE</b>.</div></div>';
+        } else {
+          progHTML='<div class="sec" style="background:#FBF4EF;"><div style="font-size:12.5px;font-weight:600;color:#cf4712;"><i class="ti ti-target"></i> Où travailler pour monter votre note</div>'
+            +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#E8541A;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
+            +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div></div>';
+        }
       }
     }
     auraHTML = `
-    <div class="sec" style="background:#1C1C1C;color:#fff;">
+    <div class="sec" style="background:#1C1C1C;color:#fff;border-radius:16px;margin:14px;">
       <div style="text-align:center;font-size:11px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> VOTRE IVE <span style="font-weight:400;opacity:.7;">· indice de valeur d'entreprise (estimé)</span></div>
       <div style="display:flex;align-items:center;justify-content:space-around;gap:6px;margin-top:10px;">
         <div style="text-align:center;flex:1;">
