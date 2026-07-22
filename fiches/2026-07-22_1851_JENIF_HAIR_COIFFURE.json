@@ -1,0 +1,183 @@
+{
+  "nom": "Jenif'hair coiffure",
+  "ville": "Jarny (54800)",
+  "activite": "Salon de coiffure mixte",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Excellente réputation, équipe stable"
+  },
+  "identite": "SAS créée le 18 juin 2020 (6 ans), SIREN 884535725, NAF 9602A (Coiffure), dirigée par Jennifer Bauer (née 1984, 42 ans), 3-5 salariés, capital 2 000 €, 1 établissement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      65,
+      58,
+      62,
+      70,
+      82,
+      78
+    ],
+    "potentiel": [
+      85,
+      82,
+      80,
+      75,
+      78,
+      85,
+      92,
+      90
+    ]
+  },
+  "valeurs": "Professionnalisme, accueil chaleureux, expertise (spécialistes du blond), qualité des prestations, équipe adorable.",
+  "imagePercue": "Salon accueillant, professionnel et chaleureux, réputé pour la coloration et le blond. Image positive et stable en ligne.",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Excellente réputation : 4,80/5 sur Google (68 avis), 5,0/5 sur Facebook (17 avis), 4,84/5 agrégé (85 évaluations). Stabilité confirmée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale fragmentée : site Google Business actif, mais pas de site propre détecté. Réseaux sociaux (Facebook) actifs mais visibilité limitée sur Instagram/TikTok."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes non publics : bilans confidentiels depuis 2023 (déclaration L.232-25). Chiffre d'affaires et rentabilité non accessibles publiquement."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Concurrence locale dense (15+ salons à Jarny) mais Jenif'hair se distingue par ses avis et sa spécialité blond. Position solide."
+    }
+  ],
+  "quickwins": [
+    "Créer un site web professionnel (actuellement absent) : 2-3 pages (accueil, services, tarifs, contact, galerie) pour capter les recherches locales et renforcer la crédibilité.",
+    "Activer Instagram/TikTok avec 2-3 posts/semaine (avant/après coiffures, conseils blond, ambiance salon) : la concurrence locale y est très active, c'est un levier de visibilité gratuit.",
+    "Mettre à jour les horaires et photos sur Google Business : vérifier que les infos sont à jour (horaires, photos récentes du salon, équipe) pour maximiser les clics et RDV."
+  ],
+  "avis": "Excellente réputation consolidée : 4,80/5 sur Google (68 avis), 5,0/5 sur Facebook (17 avis), 4,84/5 agrégé. Avis très positifs soulignant l'accueil chaleureux, le professionnalisme, l'expertise en coloration/blond et la sympathie de l'équipe. Aucun avis négatif notable. Peu ou pas d'avis sur UnBonCoiffeur et Pagesjaunes (plateformes moins actives pour ce salon).",
+  "presence": "Google Business actif avec horaires et contact (06 98 38 94 87). Facebook avec 17 avis 5/5. Présent sur Fresha (plateforme de réservation). Pas de site web propre détecté. Instagram/TikTok : non trouvé publiquement (probablement absent ou très discret).",
+  "plateformes": [
+    {
+      "nom": "iCoiffeur.fr",
+      "role": "Annuaire spécialisé coiffure avec avis et horaires",
+      "url": "https://icoiffeur.fr/54/jarny/"
+    },
+    {
+      "nom": "UnBonCoiffeur.fr",
+      "role": "Plateforme d'avis dédiée aux salons de coiffure",
+      "url": "https://www.unboncoiffeur.fr/"
+    },
+    {
+      "nom": "Fresha",
+      "role": "Plateforme de réservation et avis pour salons beauté",
+      "url": "https://www.fresha.com/"
+    },
+    {
+      "nom": "Planity",
+      "role": "Comparateur de salons coiffure avec avis et tarifs",
+      "url": "https://www.planity.com/"
+    },
+    {
+      "nom": "Yably",
+      "role": "Agrégateur d'avis multi-sources (Google, Facebook, etc.)",
+      "url": "https://yably.fr/"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2023 (déclaration L.232-25). Capital 2 000 €. Chiffre d'affaires moyen du secteur : ~145 000 € (données nationales). Santé financière non observable publiquement.",
+    "concurrence": "Marché dense : 15+ salons à Jarny. Concurrents directs : Nuances Coiffures (45 av Patton, 5,0/5 20 avis), Espace Lyli B (41 B Rue Verdun, 4,75/5), Le Salon Jarny (41 Rue Verdun, 5,0/5 649 avis). Jenif'hair se distingue par sa spécialité blond et son accueil chaleureux.",
+    "visibilite": "Bonne visibilité locale (Google Business, Facebook, annuaires). Absence de site web = perte de trafic organique et crédibilité. Réseaux sociaux (Instagram/TikTok) non détectés = manque de viralité et engagement jeune public.",
+    "dirigeant": "Jennifer Bauer, née 1984 (42 ans), fondatrice et présidente depuis juin 2020. Entreprise jeune (6 ans) mais établie. Pas d'information publique sur ses intentions (transmission, croissance, stabilisation)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réservations & RDV",
+      "benefice": "Capturer les appels/SMS entrants, proposer créneaux libres, confirmer RDV, réduire les no-shows et optimiser le taux de remplissage des coiffeuses."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de fidélité & panier moyen",
+      "benefice": "Tracker les clients réguliers, proposer offres personnalisées (anniversaire, fidélité), vendre services complémentaires (soins, produits), augmenter le panier moyen."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Pilote d'avis & réputation",
+      "benefice": "Automatiser les demandes d'avis post-RDV, monitorer les nouveaux avis, répondre rapidement aux retours, maintenir la note 4,8+ et renforcer la confiance."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planificateur de stocks & produits",
+      "benefice": "Prévoir les consommables (teintures, produits coiffage), éviter les ruptures, optimiser les achats, réduire le gaspillage et les coûts matière."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Créateur de contenu social & marketing",
+      "benefice": "Générer 2-3 posts/semaine (avant/après, conseils blond, ambiance), planifier les publications, engager les followers, augmenter la visibilité et attirer nouveaux clients."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de performance & plannings",
+      "benefice": "Analyser les chiffres (CA, taux occupation, services les plus vendus), optimiser les plannings coiffeuses, identifier les pics/creux, maximiser la rentabilité."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative & marketing"
+  },
+  "coutInaction": "Sans optimisation digitale et fidélité, le salon risque de perdre des clients face à la concurrence locale (15+ salons) et de laisser des créneaux inoccupés. Les avis excellents ne suffisent pas sans visibilité web et réseaux sociaux actifs.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 6,
+    "cout": 48
+  },
+  "avantApres": {
+    "aujourdhui": "Appels manuels pour RDV, gestion papier/Excel des clients, pas de relance fidélité, réseaux sociaux inactifs, site absent, avis non pilotés.",
+    "avecIA": "RDV automatisés, clients segmentés et relancés (anniversaire, offres), avis collectés et monitored, 2-3 posts/semaine générés, site web actif, plannings optimisés."
+  },
+  "cta": "Découvrez comment transformer votre salon en machine de fidélité et visibilité. Réservez votre entretien BOUSSOLE pour explorer les leviers adaptés à votre équipe et vos objectifs.",
+  "indice": {
+    "estime": 65,
+    "potentiel": 83
+  },
+  "dimensions": {
+    "avis": 92,
+    "reseaux": 35,
+    "site": 0,
+    "traction": 85
+  },
+  "aura": {
+    "sens": "Fiabilité & excellence",
+    "couleur": "Bleu",
+    "definition": "Un salon établi qui rayonne par la qualité de ses prestations et l'accueil chaleureux, inspirant confiance et fidélité malgré une présence digitale à renforcer.",
+    "eclat": "moyen"
+  },
+  "fierte": "Jenif'hair a bâti en 6 ans une réputation solide (4,8/5 sur 68 avis Google) et une équipe stable reconnue pour son expertise en coloration et son accueil bienveillant. C'est un salon qui tourne bien, avec une clientèle fidèle et des avis exceptionnels — une belle fondation. Le potentiel est immense : en activant les réseaux sociaux, en créant un site web et en automatisant la fidélité, vous pourriez doubler votre visibilité locale et transformer ces excellents avis en machine de croissance.",
+  "sources": "Données publiques : Annuaire des Entreprises (SIREN, identité), Verif.com, Societe.com, Manageo (financier), Google Business (avis, horaires), Facebook (avis), iCoiffeur.fr, UnBonCoiffeur.fr, Fresha, Yably (agrégation avis), Pagesjaunes, Mappy, Kompass (annuaires). Confiance : très élevée pour identité & avis (sources officielles + agrégateurs), moyenne pour financier (comptes confidentiels), bonne pour concurrence (annuaires spécialisés).",
+  "_auraCalc": {
+    "note_google": 4.7,
+    "nb_avis": 79,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 45,
+      "s": 25
+    }
+  }
+}
