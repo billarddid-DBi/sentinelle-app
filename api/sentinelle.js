@@ -164,7 +164,7 @@ export default async function handler(req, res) {
       max_tokens: 8000,
       temperature: 0,
       system: METHODE,
-      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 5 }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: 4 }],
       messages: [{ role: "user", content: userContent }]
     };
 

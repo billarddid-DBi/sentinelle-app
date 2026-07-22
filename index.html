@@ -949,6 +949,7 @@ async function run(payload){
       }
     }
   }catch(e){}
+  window.__lastScanPayload=payload;   // pour le bouton « Réessayer »
   $('err').style.display='none';
   $('result').innerHTML='';
   $('form').style.display='none';
@@ -958,16 +959,26 @@ async function run(payload){
   try{
     const r = await fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     clearInterval(t); $('loading').style.display='none';
-    if(r.status===504||r.status===408||r.status===502){ showErr('Analyse trop longue', 'La recherche web de l\'IA est lente en ce moment. Réessayez dans un instant — le plus souvent ça repasse tout de suite.'); return; }
-    let data; try{ data = await r.json(); }catch(pe){ showErr('Réponse inattendue', 'Le serveur a mis trop de temps à répondre. Réessayez dans un instant.'); return; }
-    if(!r.ok || data.error){ showErr(data.error||'Erreur', data.detail||data.raw); return; }
+    if(r.status===504||r.status===408||r.status===502){ scanFail('L\'analyse a pris trop de temps', 'La recherche web est parfois lente. Ça repasse presque toujours au 2e essai.'); return; }
+    let data; try{ data = await r.json(); }catch(pe){ scanFail('Réponse inattendue', 'Le serveur a mis trop de temps à répondre. Réessayez dans un instant.'); return; }
+    if(!r.ok || data.error){ scanFail(data.error||'Analyse indisponible', data.detail||data.raw||'Réessayez dans un instant.'); return; }
     render(data);
-  }catch(e){ clearInterval(t); $('loading').style.display='none'; showErr('Connexion impossible', String(e)); }
+  }catch(e){ clearInterval(t); $('loading').style.display='none'; scanFail('Connexion impossible', 'Vérifiez votre connexion et réessayez.'); }
 }
 function showErr(m,d){
   $('form').style.display='block';
   $('err').style.display='block';
   $('err').innerHTML='<b>'+esc(m)+'</b>'+(d?'<br><span style="font-size:11px">'+esc(d)+'</span>':'');
+}
+// Échec de scan : pour le dirigeant, un vrai bouton « Réessayer » (pas le formulaire consultant = plus de boucle)
+function scanFail(title,msg){
+  $('loading').style.display='none';
+  if(window.selfServe){
+    ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(function(id){ var el=$(id); if(el) el.style.display='none'; });
+    $('err').style.display='none';
+    $('result').style.display='block';
+    $('result').innerHTML='<div class="card" style="text-align:center;padding:30px 22px;"><div style="width:60px;height:60px;border-radius:50%;background:#fff0e8;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti ti-clock-exclamation" style="font-size:30px;color:#E8541A;"></i></div><div style="font-size:15px;font-weight:700;margin-top:12px;color:#1C1C1C;">'+esc(title)+'</div><div style="font-size:12.5px;color:#6b7280;margin-top:6px;line-height:1.5;">'+esc(msg)+'</div><button type="button" onclick="run(window.__lastScanPayload)" style="margin-top:16px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px 26px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Réessayer l\'analyse</button><div style="margin-top:10px;"><button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;font-size:12px;cursor:pointer;font-family:inherit;">Retour à mon espace</button></div></div>';
+  } else { showErr(title,msg); }
 }
 
 // ===== SENTINELLE — PARCOURS EN 6 SLIDES (dirigeant) · orange/noir · cercle IVE = couleur d'aura =====
