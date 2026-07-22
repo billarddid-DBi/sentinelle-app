@@ -761,7 +761,7 @@ function etabChooser(q, list, dup){
 // navigation ◀ mois ▶ pour revenir en arrière. La note ET sa couleur d'aura évoluent (pastilles colorées).
 var MOIS_FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 function evoDot(couleur){
-  var h=(window.AURAS&&AURAS[couleur]&&AURAS[couleur].h)||'#9ca3af';
+  var h=(typeof AURAS!=='undefined'&&AURAS[couleur]&&AURAS[couleur].h)||'#9ca3af';
   return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+h+';vertical-align:-2px;box-shadow:0 0 6px '+h+'88;" title="'+esc(couleur||'')+'"></span>';
 }
 function evoCardHtml(serie){
@@ -794,7 +794,7 @@ function evoCardHtml(serie){
     var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx===mn){mx=mn+1;}
     var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), H-6-((+x.ive-mn)/(mx-mn))*(H-14)]; });
     spark='<svg viewBox="0 0 '+W+' '+(H+10)+'" width="'+W+'" height="'+(H+10)+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
-      +xy.map(function(p,i){ var h=(window.AURAS&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+h+'"/>'; }).join('')
+      +xy.map(function(p,i){ var h=(typeof AURAS!=='undefined'&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+h+'"/>'; }).join('')
       +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(H+8)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
   }
   var rows='', facts=0, up=0, down=0;
@@ -1826,7 +1826,7 @@ function dirigeantSpace(){
           var ive=(dg.fiche.indice&&dg.fiche.indice.estime!=null)?dg.fiche.indice.estime:null;
           if(ive==null) return;
           var coul=(dg.fiche.aura&&dg.fiche.aura.couleur)||'';
-          var hex=(window.AURAS&&AURAS[coul]&&AURAS[coul].h)||'#E8541A';
+          var hex=(typeof AURAS!=='undefined'&&AURAS[coul]&&AURAS[coul].h)||'#E8541A';
           var dern=new Date(dg.dernier||dg.date);
           var next=new Date(dern); next.setDate(next.getDate()+7);
           var today=new Date(); today.setHours(0,0,0,0);
