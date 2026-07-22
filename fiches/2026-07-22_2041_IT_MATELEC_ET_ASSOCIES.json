@@ -1,0 +1,183 @@
+{
+  "nom": "IT MATELEC ET ASSOCIES",
+  "ville": "Norroy-le-Veneur (57140)",
+  "activite": "Installation et maintenance de systèmes de sécurité (alarmes, vidéoprotection, contrôle d'accès, incendie)",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établie & fiable",
+    "atout": "Réputation solide, clientèle fidèle"
+  },
+  "identite": "SARL fondée en 2014 (SIREN 803946367, NAF 4652Z). Dirigeants : Sébastien Giacomel (né 1977) et Sandra Giacomel (née 1977). Effectif : 3-5 personnes. Capital social : 30 000 €. Siège transféré à Norroy-le-Veneur en 2019.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      65,
+      68,
+      70,
+      78,
+      75
+    ],
+    "potentiel": [
+      85,
+      82,
+      85,
+      80,
+      85,
+      85,
+      90,
+      88
+    ]
+  },
+  "valeurs": "Innovation technologique, sérénité client, solutions sur mesure, réactivité, expertise régionale (Grand Est, Belgique, Luxembourg, Allemagne).",
+  "imagePercue": "Entreprise professionnelle, réactive et compétente. Réputation de conseil avisé et d'équipe disponible. Positionnement haut de gamme (solutions connectées, IA, reconnaissance faciale).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients très positifs (7 avis, note 5/5 sur fournisseur.tel). Clients fidèles depuis 40 ans mentionnés sur le site."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence digitale discrète : site daté (dernière mise à jour 2022), pas de réseaux sociaux actifs détectés, peu de visibilité en ligne malgré une bonne réputation locale."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Santé financière stable : capital renforcé (3 000 € → 30 000 €), aucune procédure en cours, délai de paiement client court (42 j vs 134 j en moyenne secteur)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Chiffre d'affaires modeste (221 K€ en 2016, données anciennes). Comptes non publics depuis 2023 (confidentialité appliquée)."
+    }
+  ],
+  "quickwins": [
+    "Mettre à jour le site (dernière mise à jour 2022) : ajouter photos récentes, témoignages clients, cas d'usage, blog actif.",
+    "Créer une présence LinkedIn/Facebook : partager actualités, conseils sécurité, références clients (avec accord), générer du trafic local.",
+    "Répondre aux avis positifs sur fournisseur.tel et Google : remercier, renforcer la relation, inviter à recommander."
+  ],
+  "avis": "7 avis sur fournisseur.tel, tous 5/5. Thèmes : équipe professionnelle, réactive, disponible, bons conseils, solutions adaptées, prix compétitif. Aucun avis négatif détecté. Pas d'avis sur Google Maps ou autres plateformes majeures.",
+  "presence": "Site officiel www.it-matelec.fr (daté, dernière mise à jour 2022). Présence sur annuaires (Pages Jaunes, Cylex, Kompass, Verif). Pas de réseaux sociaux actifs détectés (Facebook, LinkedIn, Instagram). Blog présent mais peu actif.",
+  "plateformes": [
+    {
+      "nom": "Fournisseur.tel",
+      "role": "Annuaire d'avis spécialisé pour fournisseurs de services et sécurité",
+      "url": "https://fournisseur.tel/57-moselle/norroy-le-veneur/fournisseur-de-systemes-de-securite/393-it-matelec.html"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire généraliste français avec avis et horaires",
+      "url": "https://www.pagesjaunes.fr/pros/64269254"
+    },
+    {
+      "nom": "Kompass",
+      "role": "Annuaire B2B européen pour fournisseurs industriels et services",
+      "url": "https://fr.kompass.com/c/it-matelec-et-associes/fr4337911/"
+    },
+    {
+      "nom": "Verif.com",
+      "role": "Base de données d'entreprises avec données financières et dirigeants",
+      "url": "https://www.verif.com/en/company/IT-MATELEC-ET-ASSOCIES-68d9c0691299230338eb363d/"
+    },
+    {
+      "nom": "Cylex",
+      "role": "Annuaire local avec horaires, avis et coordonnées",
+      "url": "https://www.cylex-locale.fr/entreprises/it-matelec-13701236.html"
+    }
+  ],
+  "site": "https://www.it-matelec.fr",
+  "intel": {
+    "financier": "Capital social 30 000 € (renforcé en 2020). CA 221 K€ (2016, données anciennes). Comptes confidentiels depuis 2023. Délai de paiement client court (42 j), signe de bonne trésorerie. Aucune procédure en cours.",
+    "concurrence": "Marché régional (Grand Est, Belgique, Luxembourg, Allemagne). Concurrents locaux : autres installateurs d'alarmes/vidéoprotection en Moselle. Positionnement haut de gamme (solutions connectées, IA) vs concurrence généraliste.",
+    "visibilite": "Réputation locale très solide (7 avis 5/5, clients fidèles 40 ans). Visibilité digitale faible : site daté, pas de réseaux sociaux, peu de contenu en ligne. Bouche-à-oreille et annuaires = principaux leviers actuels.",
+    "dirigeant": "Sébastien Giacomel (né 1977, 48 ans) et Sandra Giacomel (née 1977, 49 ans) co-gérants depuis 2018-2021. Couple de dirigeants, structure familiale. Entreprise établie, pas de signaux de transition."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de devis & appels",
+      "benefice": "Capturer et qualifier les demandes (téléphone, formulaire site, annuaires) → relancer automatiquement, proposer créneaux diagnostic, réduire délai de réponse."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Animateur de contenu sécurité",
+      "benefice": "Produire articles blog, conseils LinkedIn/Facebook (types d'alarmes, tendances, cas d'usage) → générer trafic, positionner comme expert, nourrir SEO."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de fidélité client",
+      "benefice": "Relancer clients anciens (maintenance, upgrade, nouveaux services), proposer parrainage → augmenter panier moyen, réduire churn, générer références."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Collecteur d'avis & témoignages",
+      "benefice": "Solliciter clients satisfaits pour avis Google/LinkedIn, vidéos courtes, cas d'usage → renforcer réputation en ligne, améliorer SEO local, crédibilité."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Planificateur de chantiers & maintenance",
+      "benefice": "Optimiser calendrier installations/maintenances, alertes préventives, relances maintenance → réduire no-shows, augmenter taux de rétention, fluidifier opérations."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Veilleur appels d'offres publics",
+      "benefice": "Monitorer marchés publics (collectivités, écoles, mairies) en Grand Est → identifier opportunités B2B, structurer réponses, diversifier CA."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative et prospection"
+  },
+  "coutInaction": "Chaque semaine sans présence digitale active = clients potentiels qui ne trouvent pas IT Matelec en ligne, qui choisissent un concurrent visible. Perte de panier moyen (upgrade, services additionnels) auprès de la clientèle existante faute de relance structurée.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Appels reçus, devis manuels, peu de suivi clients, site statique, pas de contenu régulier, réputation locale forte mais invisible en ligne.",
+    "avecIA": "Devis qualifiés et relancés automatiquement, contenu sécurité publié régulièrement, clients fidélisés par relances intelligentes, avis collectés et amplifiés, chantiers optimisés, opportunités publiques identifiées."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses en entretien : capacité réelle de l'équipe, processus internes, ambitions de croissance, freins digitaux, priorités opérationnelles.",
+  "indice": {
+    "estime": 71,
+    "potentiel": 89
+  },
+  "dimensions": {
+    "avis": 85,
+    "reseaux": 15,
+    "site": 45,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "la fiabilité installée",
+    "couleur": "Bleu",
+    "definition": "IT Matelec rayonne d'une solidité tranquille : une équipe compétente, des clients fidèles depuis des décennies, une réputation locale irréprochable. L'énergie est celle de l'expert discret qui livre, qui tient ses promesses, qui n'a pas besoin de crier pour être reconnu.",
+    "eclat": "moyen"
+  },
+  "fierte": "IT Matelec a bâti une réputation solide en 12 ans : une équipe stable, des clients qui reviennent, une expertise reconnue en solutions de sécurité connectée. Le potentiel est immense : avec une présence digitale cohérente et une structuration légère de la prospection, cette entreprise peut doubler sa visibilité et son CA sans changer son ADN.",
+  "sources": "Verif.com (données légales, dirigeants), Pappers (historique, dirigeants), Kompass (profil B2B), Pages Jaunes (activité, horaires), Cylex (annuaire local), Fournisseur.tel (7 avis 5/5), Site officiel it-matelec.fr (présentation, services, blog), Manageo (financier 2016), Infonet (effectif, CA), Societe.com (statuts, RCS).",
+  "_auraCalc": {
+    "note_google": 4.8,
+    "nb_avis": 21,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
