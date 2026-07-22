@@ -831,9 +831,10 @@ function evoNav(dir){
 }
 // Affiche une SENTINELLE ARCHIVÉE + compte à rebours hebdo + re-mesure (abonnés / conseiller)
 function showArchived(g){
+  // On CHANGE d'écran : masque tous les panneaux (accueil dirigeant compris) → la fiche remplace l'accueil, pas en dessous
+  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(function(id){ var el=$(id); if(el) el.style.display='none'; });
   $('err').style.display='none';
   $('loading').style.display='none';
-  $('form').style.display='none';
   window.__iveTop=true;           // encadré AUJOURD'HUI/POTENTIEL remonté en haut de la fiche
   render(g.fiche, true);
   window.__iveTop=false;
