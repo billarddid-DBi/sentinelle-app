@@ -958,8 +958,9 @@ function sentSlide(i){
   for(var k=0;k<SENT_N;k++){ var el=document.getElementById('sSlide_'+k); if(el) el.style.display=(k===i)?'':'none'; }
   sentCur=i; window.scrollTo(0,0);
 }
-function sentSlides(d){
-  var res=$('result'); if(!res) return;
+function sentSlides(d, targetId){
+  var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
+  var embedded=!!targetId;
   if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
   var est=(d.indice&&d.indice.estime!=null)?d.indice.estime:50;
   var pot=(d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+18);
@@ -1018,7 +1019,7 @@ function sentSlides(d){
   html+='</div>'
     +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 14px;margin-top:12px;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;"><i class="ti ti-shield-check" style="color:#16a34a;"></i> À propos de SENTINELLE</div><div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:4px;">Analyse plus de 30 sources publiques vérifiées (avis, annuaires, réseaux, presse, données officielles) pour une vision objective, rapide et fiable de votre image en ligne.</div><div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;">'+[['ti-target-arrow','Objectif','Aucune intervention humaine'],['ti-shield-check','Fiable','Données publiques vérifiées'],['ti-bolt','Rapide','Résultats en minutes'],['ti-lock','Confidentiel','Vos données sécurisées']].map(function(x){return '<div style="flex:1;min-width:110px;display:flex;gap:7px;align-items:flex-start;"><i class="ti '+x[0]+'" style="color:#E8541A;font-size:17px;"></i><div><div style="font-size:11.5px;font-weight:700;color:#1C1C1C;">'+x[1]+'</div><div style="font-size:10.5px;color:#9ca3af;line-height:1.3;">'+x[2]+'</div></div></div>';}).join('')+'</div></div>'
     +'<div style="background:#1C1C1C;color:#fff;border-radius:12px;padding:12px 14px;margin-top:10px;font-size:12.5px;line-height:1.5;"><i class="ti ti-trophy" style="color:#EEA987;"></i> <b>SENTINELLE vous donne les constats.</b> BOUSSOLE vous donne les réponses et le plan d\'action.</div>'
-    +'<button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>';
+    +(embedded?'':'<button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>');
   res.innerHTML=html;
 
   window.__sentSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8); if(uH){$('heroV').textContent=hrs.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+soir+' soirées — soit ≈ '+eur.toLocaleString('fr-FR')+' €';}else{$('heroV').textContent=eur.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées)';} };
@@ -2000,10 +2001,11 @@ function dirigeantSpace(){
         return '<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+') — prises en compte à l\'étape suivante</div>'
           +inf.map(function(x){ return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+' <span style="color:#cbd5e1;font-size:10px;">('+esc(x.created)+')</span></div>'; }).join('')+'</div>'; })()
       +'</div>'
-      +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
+      +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>'
+      +'<div id="homeSlides" style="margin-top:14px;"></div>';
     showView('dirigeant'); window.scrollTo(0,0);
-    // Une SENTINELLE existe déjà ? → la pastille montre la VRAIE note (couleur d'aura) + compte à rebours J-x,
-    // et un tap ouvre la fiche archivée (avec la carte d'évolution). Sinon : pastille teaser (compteur qui tourne).
+    // Une SENTINELLE existe déjà ? → la pastille montre la VRAIE note + le DIAGNOSTIC COMPLET (6 slides) s'affiche
+    // directement sous le tableau de bord (fusion). Sinon : pastille teaser (compteur qui tourne).
     (function(){
       var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
       if(!q.trim()) return;
@@ -2032,9 +2034,9 @@ function dirigeantSpace(){
             +'<span style="font-size:42px;font-weight:800;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.25);">'+ive+'<span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>'
             +(coul?'<span style="font-size:10.5px;opacity:.95;">IVE '+esc(coul)+' · '+dern.toLocaleDateString('fr-FR')+'</span>':'')
             +badge;
-          btn.onclick=function(){ window.selfServe=true; window.__lastGet=dg; window.__evoMois=null; showArchived(dg); };
+          btn.onclick=function(){ var hs=document.getElementById('homeSlides'); if(hs) hs.scrollIntoView({behavior:'smooth',block:'start'}); };
           var cap=document.getElementById('iveCaption');
-          if(cap) cap.innerHTML='<i class="ti ti-hand-click" style="font-size:16px;color:#E8541A;vertical-align:-3px;"></i> Appuyez pour revoir votre diagnostic';
+          if(cap) cap.innerHTML='<i class="ti ti-arrow-down" style="font-size:15px;color:#E8541A;vertical-align:-2px;"></i> Votre diagnostic complet, juste en dessous';
           // La SENTINELLE existe → on masque la promo (réservée aux nouveaux) et on affiche la CARTE D'ÉVOLUTION directement
           var promo=document.getElementById('homePromo'); if(promo) promo.style.display='none';
           var promoTxt=document.getElementById('homePromoTxt'); if(promoTxt) promoTxt.style.display='none';
@@ -2045,6 +2047,20 @@ function dirigeantSpace(){
             evoHost.innerHTML='<div id="evoCard">'+evoCardHtml(dg.serie)+'</div>';
           } else if(evoHost && serie.length===1){
             evoHost.innerHTML='<div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:11px 14px;font-size:12px;color:#475569;line-height:1.5;"><i class="ti ti-device-floppy"></i> Première mesure enregistrée. Dès la prochaine, votre <b>courbe d\'évolution</b> apparaîtra ici.</div>';
+          }
+          // FUSION : le diagnostic complet (6 slides) s'affiche directement sous le tableau de bord
+          var hs=document.getElementById('homeSlides');
+          if(hs && dg.fiche){
+            window.selfServe=true; window.__sentData=dg.fiche; window.__lastGet=dg;
+            var dLong=dern.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+            var nLong=next.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+            var band='<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:12.5px;color:#3730a3;line-height:1.5;">'
+              +'<div style="font-weight:700;"><i class="ti ti-archive"></i> Diagnostic SENTINELLE du '+dLong+'</div>'
+              +'<div style="margin-top:3px;">'+esc(dg.nom||'')+(dg.adresse?' — '+esc(dg.adresse):'')+'</div>'
+              +'<div style="margin-top:3px;">'+(diff>0?'Prochain SENTINELLE disponible à partir du <b>'+nLong+'</b> (une mesure par semaine).':'Nouvelle mesure disponible dès maintenant.')+'</div>'
+              +'<div style="margin-top:5px;font-size:11px;color:#6366a8;"><i class="ti ti-shield-check"></i> Niveau d\'analyse fondé sur des données publiques vérifiables.</div></div>';
+            hs.innerHTML=band+'<div id="homeSlidesInner"></div>';
+            if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlidesInner');
           }
         });
       });
