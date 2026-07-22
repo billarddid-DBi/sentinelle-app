@@ -929,6 +929,21 @@ function showErr(m,d){
   $('err').innerHTML='<b>'+esc(m)+'</b>'+(d?'<br><span style="font-size:11px">'+esc(d)+'</span>':'');
 }
 
+// Carte d'identité : met automatiquement en gras le nom de l'entreprise, le SIREN, le NAF et le dirigeant (nom + fonction)
+function identiteHtml(d){
+  var t=esc(d.identite||'');
+  try{
+    if(d.nom){
+      var nomEsc=esc(d.nom).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      t=t.replace(new RegExp('((?:SASU|SAS|SARL|EURL|SA|SCI|EI|SNC)\\s+)?'+nomEsc,'i'),function(m){ return '<b>'+m+'</b>'; });
+    }
+    t=t.replace(/SIREN\s*:?\s*\d[\d\s]{7,}\d/gi,function(m){ return '<b>'+m+'</b>'; });
+    t=t.replace(/SIRET\s*:?\s*\d[\d\s]{12,}\d/gi,function(m){ return '<b>'+m+'</b>'; });
+    t=t.replace(/NAF\s*:?\s*\d{2}\.?\d{2}[A-Z]/gi,function(m){ return '<b>'+m+'</b>'; });
+    t=t.replace(/(dirigeante?s?|présidente?|gérante?|fondateur|fondatrice)\s+([A-ZÀ-Ý][^\s,(]+(?:\s+[A-ZÀ-Ý][^\s,(]+)+)(\s*\(([^)]{2,40})\))?/g,function(m){ return '<b>'+m+'</b>'; });
+  }catch(e){}
+  return t;
+}
 function render(d,skipSave){
   window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
@@ -1031,7 +1046,7 @@ function render(d,skipSave){
     </div>
 
     <div class="sec"><div class="ktitle" style="color:${col};"><i class="ti ti-clipboard-text"></i> LE DÉTAIL DE L'ENQUÊTE</div>
-      <div style="font-size:12.5px;line-height:1.6;margin-top:6px;"><b style="color:${col};">Carte d'identité</b> <span style="color:#16a34a;font-size:11px;">🟢</span><br>${esc(d.identite)}</div>
+      <div style="font-size:12.5px;line-height:1.6;margin-top:6px;"><b style="color:${col};">Carte d'identité</b> <span style="color:#16a34a;font-size:11px;">🟢</span><br>${identiteHtml(d)}</div>
     </div>
 
     <div class="sec">
