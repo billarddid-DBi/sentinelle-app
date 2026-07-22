@@ -956,6 +956,8 @@ function sentToggle(id){
 function sentSlide(i){
   if(i<0||i>=SENT_N) return;
   for(var k=0;k<SENT_N;k++){ var el=document.getElementById('sSlide_'+k); if(el) el.style.display=(k===i)?'':'none'; }
+  // « Que pouvez-vous nous dire sur cette entreprise ? » : uniquement sur la slide 1 (cockpit)
+  var fab=$('capfab'); if(fab && window.currentSpace==='dirigeant' && document.getElementById('sSlide_0')) fab.className=(i===0)?'show':'';
   sentCur=i; window.scrollTo(0,0);
 }
 // Navigation de l'univers L'IVE (bandeau noir) : Accueil · Sentinelle · Boussole · Plan d'action · Historique · Réglages
