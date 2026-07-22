@@ -1005,16 +1005,16 @@ function sentSlide(i){
 }
 // Navigation de l'univers L'IVE (bandeau noir) : Accueil · Sentinelle · Boussole · Plan d'action · Historique · Réglages
 function iveNav(s){
-  if(s==='accueil'){ if(typeof sentSlide==='function'&&document.getElementById('sSlide_0')) sentSlide(0); else dirigeantSpace(); }
-  else if(s==='sentinelle'){ if(document.getElementById('sSlide_1')) sentSlide(1); }
+  if(s==='accueil'){ renderAuth('login'); }
+  else if(s==='sentinelle'){ if(document.getElementById('sSlide_1')) sentSlide(1); else dirigeantSpace(); }
   else if(s==='boussole'||s==='plan'){ if(typeof paywallView==='function') paywallView(); }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
 }
 function iveNavBar(active){
-  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Diagnostic',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
-  return '<div style="display:flex;flex-direction:column;gap:5px;background:#1C1C1C;border-radius:12px;padding:8px 6px;flex:0 0 auto;align-self:flex-start;">'
-    +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:9px 4px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';width:56px;line-height:1.15;"><i class="ti '+x[1]+'" style="font-size:19px;"></i><span style="font-size:8.5px;font-weight:600;text-align:center;">'+x[2]+(x[3]?'<br><i class="ti ti-lock" style="font-size:8px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
+  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
+  return '<div style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
+    +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+(x[3]?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
 }
 // Rose des vents (compas nautique) — étoile 8 branches facettées + double cercle gradué + lettres N-E-S-O
@@ -1142,9 +1142,9 @@ function sentSlides(d, targetId, cockpitHtml){
   SENT_N=slides.length;
   var html='<div id="sentFlow">';
   slides.forEach(function(sl,i){
-    html+='<div id="sSlide_'+i+'" style="gap:8px;align-items:flex-start;'+(i===0?'display:flex;':'display:none;')+'">'
+    html+='<div id="sSlide_'+i+'" style="flex-direction:column;gap:8px;'+(i===0?'display:flex;':'display:none;')+'">'
       +iveNavBar(sl.cockpit?'accueil':'sentinelle')
-      +'<div class="sSlide card" style="flex:1;min-width:0;overflow:hidden;">'
+      +'<div class="sSlide card" style="min-width:0;overflow:hidden;">'
       +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f1f3f4;">'+(i>0?'<button type="button" onclick="sentSlide('+(i-1)+')" title="Slide précédente" style="background:#fff0e8;border:1px solid #f5c6a5;color:#E8541A;cursor:pointer;border-radius:50%;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;font-size:19px;padding:0;flex:0 0 auto;"><i class="ti ti-arrow-left"></i></button>':(sl.cockpit?'<i class="ti ti-layout-dashboard" style="color:#E8541A;font-size:18px;"></i>':'<button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-home"></i></button>'))+'<span style="font-size:11px;letter-spacing:1px;color:#6b7280;font-weight:600;">'+(sl.cockpit?'MON ESPACE':'SENTINELLE · <b style="color:#1C1C1C;">DBi360</b>')+'</span><span style="flex:1;"></span><span style="font-size:11px;color:#9ca3af;">'+(i+1)+' / '+slides.length+'</span></div>'
       +'<div style="padding:16px;"><div style="text-align:center;font-size:17px;font-weight:800;color:#1C1C1C;">'+sl.t+'</div><div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:2px;margin-bottom:14px;">'+sl.s+'</div>'+sl.html+'</div>'
       +'<div style="padding:0 16px 14px;">'+(sl.last?'<button type="button" onclick="paywallView()" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;"><i class="ti ti-lock-open"></i> Passer à la BOUSSOLE</button>':'<button type="button" onclick="sentSlide('+(i+1)+')" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">'+(sl.cockpit?'Voir mon diagnostic':'Suivant')+' <i class="ti ti-arrow-right"></i></button>')+'<div style="display:flex;justify-content:center;gap:7px;margin-top:12px;">'+slides.map(function(_,j){return '<span onclick="sentSlide('+j+')" style="width:8px;height:8px;border-radius:50%;background:'+(j===i?'#E8541A':'#d1d5db')+';cursor:pointer;display:inline-block;"></span>';}).join('')+'</div></div>'
