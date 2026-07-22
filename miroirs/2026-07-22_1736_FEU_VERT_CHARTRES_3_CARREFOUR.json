@@ -1,0 +1,292 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Chartres 3 Carrefour",
+  "date": "2026-07-22T17:36:55.978Z",
+  "contexte": {
+    "nom": "Feu Vert Chartres 3 Carrefour",
+    "activite": "Centre auto : entretien, réparation, vente d'équipements automobiles, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 60,
+    "indiceExterieur": 72,
+    "potentiel": 85,
+    "ecart": -12,
+    "zoneVerite": "Refroidissement",
+    "piliers": {
+      "Vision": 60,
+      "Organisation": 60,
+      "Processus": 60,
+      "Informations": 60,
+      "Outils": 60,
+      "Décisions": 60,
+      "Clients": 60,
+      "Performance": 60
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Chacun connaît son rôle et son périmètre",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont centralisées (pas éparpillées)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": {
+      "nom": "Feu Vert Chartres 3 Carrefour",
+      "mode": "express",
+      "iat": 60,
+      "imh": 60,
+      "band": "Vigilance",
+      "zone": "Vigilance",
+      "reco": "Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide.",
+      "indices": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Écoute": 60,
+        "Transparence": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Adhésion": 60,
+        "Ouverture au changement": 60
+      },
+      "domaines": {
+        "Leadership": 60,
+        "Communication": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Climat social": 60,
+        "Maturité du changement": 60
+      },
+      "peurs": [],
+      "resistance": 40
+    }
+  },
+  "miroir": {
+    "priorite": "Passer de l'implicite à l'explicite : écrire la stratégie, documenter les process, centraliser les données pour transformer la fiabilité en avantage compétitif mesurable.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Feu Vert Chartres 3 affiche une image solide (72/100) mais sa réalité opérationnelle (60/100) révèle un écart : l'entreprise fonctionne bien, mais sur l'implicite et les routines. Vous êtes fiable, mais pas encore transparent ni agile. L'IA attend que vous structuriez d'abord.",
+      "interne": "Commerce établi & performant en plateau de maturité : tous les piliers à 60/100, écart de Vérité négatif (−12) = surpromet l'image vs réalité. Blocage systémique : absence de documentation, données éparpillées, délégation fragile, pas de cap écrit. Zone IAT Vigilance (60) = prérequis fragiles mais équipe réceptive. Palier 1 = réparer l'organisation avant d'automatiser."
+    },
+    "verite": {
+      "externe": "Vous êtes fiable, mais fragile. Tout repose sur les routines et les têtes : la stratégie n'est pas écrite (3/5), les procédures non plus (3/5), les données sont éparpillées (3/5), la délégation peine (3/5). Tant que le savoir reste implicite, vous ne pouvez ni croître ni innover. L'IA ne sauvera pas une organisation sans fondations. Commencez par rendre visible ce qui fonctionne.",
+      "interne": "Plateau de maturité homogène (tous piliers 60/100) masque une fragilité organisationnelle : absence de documentation systémique, données non centralisées, décisions au feeling (3/5), délégation limitée (3/5). L'équipe connaît mal la direction (3/5) et l'ambiance est 3/5 = il se peut qu'il existe une tension implicite entre autonomie attendue et cadre flou. Hypothèse : dirigeant concentre les décisions stratégiques, équipe en attente de clarté. Palier 1 = écrire, centraliser, clarifier le cap ; palier 2 = automatiser sur des fondations solides."
+    },
+    "humain": {
+      "posologie": "Zone Vigilance (60/100) : prérequis fragiles. Sécuriser EN PARALLÈLE du palier 1 : sur-communiquer le POURQUOI (cap écrit, rôles clairs), impliquer relais internes, démarrer par un pilote non menaçant (ex : centralisation données client). Rythme : point mensuel, implication équipe dès semaine 1.",
+      "peurs": [
+        {
+          "peur": "Perte de flexibilité / autonomie si tout devient procédure écrite",
+          "traitement": "Cadrer : procédures = socle commun, pas carcan. Impliquer équipe dans rédaction, valoriser expertise locale, tester sur un processus non critique."
+        },
+        {
+          "peur": "Surcharge de travail si on ajoute documentation + IA",
+          "traitement": "Séquencer : palier 1 = clarifier & documenter (gain temps moyen terme) ; palier 2 = IA allège tâches répétitives. Montrer le gain rapide (ex : devis centralisé = moins de recherche)."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Stratégie et rôles implicites (cap 3/5, rôles 3/5, délégation 3/5) = équipe en attente de clarté, décisions lentes.",
+        "levier": "Écrire la stratégie 3 ans + matrice rôles/périmètres + plan de délégation par fonction.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + N−1 (2j), rédaction, validation équipe, affichage. Mois 1.",
+        "indicateur": "Stratégie écrite & signée, 100% équipe peut la réciter, délégations testées."
+      },
+      {
+        "palier": 1,
+        "frein": "Données éparpillées (3/5), pas de centralisation = perte d'info, double saisie, décisions au feeling (3/5).",
+        "levier": "Audit données client/devis/historique ; centraliser dans logiciel existant (ou CRM léger) ; nettoyage & gouvernance.",
+        "type": "externe",
+        "mise_en_oeuvre": "Semaine 1-2 : cartographie données. Semaine 3-4 : migration + test. Mois 2 : gouvernance & formation équipe.",
+        "indicateur": "100% données centralisées, zéro double saisie, taux d'erreur < 5%, équipe maîtrise accès."
+      },
+      {
+        "palier": 1,
+        "frein": "Procédures non écrites (3/5), savoir-faire en têtes = fragile, onboarding lent, qualité variable (3/5).",
+        "levier": "Documenter 5 processus clés (devis, réparation, vente équipement, SAV, facturation) en fiches + vidéos.",
+        "type": "humain",
+        "mise_en_oeuvre": "Mois 1-2 : ateliers par processus, rédaction collaborative, test terrain, ajustement. Affichage & formation.",
+        "indicateur": "5 procédures écrites & validées, 80% équipe les connaît, délais tenus 90%, qualité stable."
+      },
+      {
+        "palier": 2,
+        "frein": "Tâches répétitives lentes (devis 3/5, rapports 3/5) = perte de temps, erreurs manuelles, client attend.",
+        "levier": "Automatiser devis (template + données client centralisées), relances SAV, rapports d'intervention via IA/RPA.",
+        "type": "IA",
+        "mise_en_oeuvre": "Mois 3-4 : POC devis automatisé (1 semaine), test avec équipe, déploiement progressif. Mois 5 : relances & rapports.",
+        "indicateur": "Devis généré en < 5 min (vs 20 min), 95% taux d'acceptation, 10h/mois économisées, client satisfait."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps administratif (devis, relances, rapports)",
+          "inaction_an": 12000,
+          "invest_1x": 3000,
+          "recurrent_an": 1500
+        },
+        {
+          "poste": "Erreurs données & recherche d'info (double saisie, données éparpillées)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Onboarding & turnover (procédures non écrites, savoir-faire perdu)",
+          "inaction_an": 5000,
+          "invest_1x": 1500,
+          "recurrent_an": 500
+        }
+      ],
+      "inaction_an": 25000,
+      "invest_total": 6500,
+      "recurrent_an": 2800,
+      "gain_an": 18000,
+      "roi_net_an": 15200,
+      "payback_mois": 4,
+      "fourchette": "3 à 5 mois de retour sur investissement initial"
+    },
+    "cadence": "Point mensuel (30 min) avec dirigeant + N−1 pour suivre palier 1 (stratégie, données, procédures). Prochaine BOUSSOLE dans 3 mois (fin palier 1, avant lancement palier 2 IA). Rythme : semaine 1-2 stratégie, semaine 3-8 données & procédures, semaine 9-12 pilote IA.",
+    "synthese": {
+      "externe": "Vous êtes fiable et établi. Le prochain pas : rendre visible ce qui fonctionne. Écrivez votre stratégie 3 ans, clarifiez les rôles, centralisez vos données client. En 3 mois, vous serez prêt pour l'IA — et vous aurez déjà gagné 15000 € en efficacité. Commencez par un atelier stratégie semaine prochaine.",
+      "interne": "Plateau de maturité homogène = bon signal (équipe stable, pas de crise) mais masque fragilité organisationnelle. Zone IAT Vigilance = prérequis fragiles, équipe réceptive si on sécurise le POURQUOI. Palier 1 = réparer l'organisation (écrire, centraliser, clarifier) avant d'automatiser. ROI net 15200 €/an, payback 4 mois. Angle commercial : vendre d'abord la clarté organisationnelle (humain + externe), puis l'IA comme accélérateur. Prochaine étape : audit stratégie + données semaine 1."
+    }
+  }
+}
