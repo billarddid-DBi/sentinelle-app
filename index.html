@@ -1037,7 +1037,7 @@ function iveNavBar(active){
 function shortKw(s){
   if(!s) return '';
   var GEN='et de des du la le les un une en a au aux pour avec sur ou d l reparation remplacement vente ventes installation pose entretien service services prestation prestations fabrication production conception creation gestion solution solutions achat location distribution commerce negoce activite entreprise societe professionnel professionnels tous toutes divers general generale generaliste specialiste specialisee specialise travaux amenagement salon agence cabinet boutique magasin centre atelier maison'.split(' ');
-  var raw=s.split(/[\s,;/()]+/);
+  var raw=s.split(/[\s,;/()'’‘]+/);
   for(var i=0;i<raw.length;i++){
     var w=(raw[i]||'').trim(); if(!w) continue;
     var norm=w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z-]/g,'');
