@@ -1006,7 +1006,7 @@ function sentSlide(i){
 // Navigation de l'univers L'IVE (bandeau noir) : Accueil · Sentinelle · Boussole · Plan d'action · Historique · Réglages
 function iveNav(s){
   if(s==='accueil'){ renderAuth('login'); }
-  else if(s==='sentinelle'){ if(document.getElementById('sSlide_1')) sentSlide(1); else dirigeantSpace(); }
+  else if(s==='sentinelle'){ if(document.getElementById('sSlide_0')) sentSlide(0); else dirigeantSpace(); }
   else if(s==='boussole'||s==='plan'){ if(typeof paywallView==='function') paywallView(); }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
