@@ -2390,6 +2390,13 @@ async function authSignup(){
   await loadUser();
   if(!window.currentUser){ if(msg)msg.innerHTML='<span style="color:#166534;">Compte créé ! Vérifie ton email pour confirmer, puis connecte-toi.</span>'; return; }
   window.ahNom=(window.currentUser.name||name);
+  // Mail de bienvenue automatique (envoyé à l'email du nouveau compte, best-effort)
+  try{
+    window.sb.auth.getSession().then(function(s){
+      var tok=(s.data&&s.data.session)?s.data.session.access_token:null;
+      if(tok) fetch('/api/welcome-email',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+tok}}).catch(function(){});
+    });
+  }catch(e){}
   // Nouveau compte → on enchaîne DIRECT sur sa SENTINELLE gratuite (sauf si un diagnostic l'attend déjà via le pont)
   if(window.__gotHandoff || (window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)){ dirigeantSpace(); }
   else lancerMaSentinelle();
