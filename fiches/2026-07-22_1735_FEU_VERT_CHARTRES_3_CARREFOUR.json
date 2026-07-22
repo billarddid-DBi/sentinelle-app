@@ -1,0 +1,179 @@
+{
+  "nom": "Feu Vert Chartres 3 Carrefour",
+  "ville": "Chartres (28000)",
+  "activite": "Centre auto : entretien, réparation, vente d'équipements automobiles, pneus",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réseau national, avis solides, localisation stratégique"
+  },
+  "identite": "Établissement secondaire du groupe FEU VERT (SAS, SIREN 327359980, créée 1983). Centre Chartres créé 30/09/2003 (23 ans). NAF 45.32z. Groupe : 2 000-4 999 salariés, 304 établissements. Dirigeant groupe : non trouvé publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      75,
+      70,
+      68,
+      72,
+      70,
+      78,
+      75
+    ],
+    "potentiel": [
+      82,
+      85,
+      82,
+      80,
+      85,
+      82,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Expertise automobile, qualité de service, accessibilité, conseil client, développement durable (groupe)",
+  "imagePercue": "Centre auto fiable, personnel compétent et accueillant, respect des délais, tarifs abordables, localisation pratique (proximité Carrefour)",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients solides (4/5, 1 712 avis) et réponses actives de la direction"
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Présence réseaux sociaux discrète (23 likes Facebook) : peu d'engagement, contenu rare"
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Processus de réservation en ligne à affiner : 1 avis signalant un problème de synchronisation stock"
+    }
+  ],
+  "quickwins": [
+    "Relancer Facebook avec 2-3 posts/semaine (promotions, conseils entretien, photos clients) : page à 23 likes seulement",
+    "Répondre aux 5 avis les plus récents sur Avis Vérifiés : montrer l'écoute et la réactivité",
+    "Compléter les fiches annuaires (Pages Jaunes, Google My Business) : horaires, services, photos à jour"
+  ],
+  "avis": "Avis positifs dominants (4/5 étoiles, 1 712 avis). Clients apprécient : personnel attentif, conseils avisés, qualité des prestations, respect des délais, bonne prise en charge. Tarifs jugés abordables. Quelques signalements mineurs sur processus de réservation en ligne. Taux de réponse de la direction : bon.",
+  "presence": "Site officiel feuvert.fr/centres-auto/chartres (page dédiée, moderne). Facebook Feu Vert Chartres (23 likes, peu actif). Présence sur annuaires (Pages Jaunes, Tiendeo, AllGarage). Réseaux peu dynamiques, engagement faible.",
+  "plateformes": [
+    {
+      "nom": "Avis Vérifiés",
+      "role": "Collecte et modération d'avis clients certifiés (NF ISO 20488)",
+      "url": "https://www.avis-verifies.com/avis-clients/feuvert.fr/e/317/feu-vert-chartres-3-carrefour-28000"
+    },
+    {
+      "nom": "Google My Business",
+      "role": "Fiche établissement, avis, horaires, localisation",
+      "url": "https://www.google.com/maps"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire professionnel, avis clients, coordonnées",
+      "url": "https://www.pagesjaunes.fr/pros/06360282"
+    },
+    {
+      "nom": "Tiendeo",
+      "role": "Catalogues, promotions, horaires, localisation",
+      "url": "https://www.tiendeo.fr/Magasins/chartres/feu-vert-zup-de-la-madeleine/43529"
+    },
+    {
+      "nom": "AllGarage",
+      "role": "Annuaire garages, avis, services automobiles",
+      "url": "https://www.allogarage.fr/garages/details-garage-FEU-VERT-CHARTRES-CC-CARREFOUR-12480.html"
+    }
+  ],
+  "site": "https://www.feuvert.fr/centres-auto/chartres/feu-vert-chartres-carrefour/317.html",
+  "intel": {
+    "financier": "Groupe FEU VERT : structure équilibrée 2024, CA stable, situation saine. Comptes du centre Chartres : non publics.",
+    "concurrence": "Feu Vert réseau national dominant (354 centres). Peu de concurrence directe visible à Chartres. Autre centre Feu Vert : Chartres Lucé (28110).",
+    "visibilite": "Présence digitale correcte (site groupe, annuaires, avis). Réseaux sociaux peu actifs. Localisation stratégique (ZUP Madeleine, proximité Carrefour) = bon trafic naturel.",
+    "dirigeant": "Établissement secondaire : pas de dirigeant local identifié publiquement. Gestion groupe centralisée (siège Écully)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Fidélité & panier moyen",
+      "benefice": "Suivi des clients réguliers, relance après entretien, propositions de services complémentaires → augmenter la fréquence et le ticket moyen"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion des avis & e-réputation",
+      "benefice": "Collecte automatisée, réponse rapide, analyse sentiment → maintenir et renforcer la note 4/5, détecter les insatisfactions"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Optimisation des RDV & plannings",
+      "benefice": "Réduction des no-shows, meilleure utilisation des créneaux, anticipation des pics → fluidifier le service, réduire les attentes"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Upsell & cross-sell intelligent",
+      "benefice": "Propositions contextuelles lors de la visite (révision → pneus, freins, batterie) → augmenter le panier moyen sans agressivité"
+    },
+    {
+      "tag": "🔥",
+      "nom": "Contenu réseaux sociaux automatisé",
+      "benefice": "Posts réguliers (conseils entretien, promotions, témoignages clients) → augmenter l'engagement, la visibilité locale"
+    },
+    {
+      "tag": "🧱",
+      "nom": "Synchronisation stock & réservations",
+      "benefice": "Intégration système pour éviter les conflits de réservation → améliorer l'expérience client, réduire les frustrations"
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion des avis, réseaux et RDV"
+  },
+  "coutInaction": "Réseaux sociaux inactifs = perte de visibilité locale et d'engagement client. Avis sans réponse = perception de désintérêt. Processus de réservation imparfait = frustration et risque de perte de clients.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des avis (réponses ponctuelles), Facebook peu actif, RDV gérés par téléphone/papier, pas de suivi fidélité structuré",
+    "avecIA": "Avis collectés et répondus automatiquement, Facebook alimenté 2x/semaine, RDV optimisés et relances automatiques, fidélité client tracée et actionnée"
+  },
+  "cta": "Explorez BOUSSOLE pour affiner la stratégie de fidélisation et d'efficacité opérationnelle du centre.",
+  "indice": {
+    "estime": 72,
+    "potentiel": 90
+  },
+  "dimensions": {
+    "avis": 80,
+    "reseaux": 35,
+    "site": 75,
+    "traction": 78
+  },
+  "aura": {
+    "sens": "Fiabilité & expertise",
+    "couleur": "Bleu",
+    "definition": "Centre auto établi qui rayonne par sa compétence, son accueil chaleureux et sa localisation stratégique ; une référence locale de confiance.",
+    "eclat": "moyen"
+  },
+  "fierte": "Feu Vert Chartres s'est construit en 23 ans comme un centre auto de référence locale, avec une note solide (4/5) et une équipe reconnue pour son expertise et son accueil. Le potentiel de croissance est réel : en structurant la fidélité client et en dynamisant la présence digitale, le centre peut renforcer son emprise locale et augmenter significativement son panier moyen.",
+  "sources": "INSEE (Annuaire des Entreprises, SIREN 327359980), Avis Vérifiés (avis certifiés NF ISO 20488), Pages Jaunes, Google My Business, Tiendeo, AllGarage, site officiel feuvert.fr, Facebook (pages Chartres et Lucé), Score3 (données financières groupe). Confiance : haute pour identité et avis ; moyenne pour données financières détaillées (groupe seul).",
+  "_auraCalc": {
+    "note_google": 3.9,
+    "nb_avis": 1130,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
