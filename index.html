@@ -1488,7 +1488,15 @@ function saveFiche(d){
           .then(function(r){
             if(r&&r.error){ console.warn('sentinelle_save', r.error.message); if(window.selfServe) dirigeantSpace(); return; }
             // Scan enregistré → le dirigeant bascule sur SON espace (cockpit), qui charge la fiche fraîche.
-            if(window.selfServe){ setTimeout(function(){ dirigeantSpace(); }, 300); }
+            if(window.selfServe){
+              // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace
+              // dirigeant ne retrouve jamais la fiche (nom tapé ≠ nom officiel, ville différente) → boucle.
+              var _md={sent_nom:d.nom||'', sent_ville:d.ville||'', sent_adresse:(window.__scanAdresse||'')};
+              window.sb.auth.updateUser({data:_md}).then(function(){
+                if(window.currentUser){ window.currentUser.sentNom=_md.sent_nom; window.currentUser.sentVille=_md.sent_ville; window.currentUser.sentAdr=_md.sent_adresse; }
+                setTimeout(function(){ dirigeantSpace(); }, 200);
+              }).catch(function(){ setTimeout(function(){ dirigeantSpace(); }, 200); });
+            }
           });
       });
     }catch(e){}
@@ -2102,6 +2110,13 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
 // Admin = un seul email (billard.did@gmail.com). Côté serveur c'est prof.role==='admin' (is_admin) qui fait foi ;
 // ici c'est purement UI : afficher le bouton « Nouvelle analyse » et la vue consultant complète.
 function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email||'').toLowerCase()==='billard.did@gmail.com'); }
+// Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
+// ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
+// la fiche par la clé mémorisée sur le compte (sentNom/sentVille), sinon on retombe sur le nom saisi.
+function sentKey(acc){ acc=acc||currentAccount()||{};
+  if(acc.sentNom){ return { texte: acc.sentNom+(acc.sentVille?', '+acc.sentVille:''), adresse: acc.sentAdr||'' }; }
+  return { texte:(acc.name||'')+(acc.ville?', '+acc.ville:''), adresse:'' };
+}
 function adminBar(){
   if(!iveIsAdmin()) return '';
   return '<div style="background:#1C1C1C;border:1px solid #3f3f46;border-radius:12px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'
@@ -2145,11 +2160,11 @@ function dirigeantSpace(){
     // Une SENTINELLE existe déjà ? → la pastille montre la VRAIE note + le DIAGNOSTIC COMPLET (6 slides) s'affiche
     // directement sous le tableau de bord (fusion). Sinon : pastille teaser (compteur qui tourne).
     (function(){
-      var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
+      var _k=sentKey(acc); var q=_k.texte;
       if(!q.trim()) return;
       window.sbReady.then(function(){
         if(!window.sb) return;
-        window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:''}).then(function(g){
+        window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(_k.adresse||'')}).then(function(g){
           if(g.error||!g.data||!g.data.found||!g.data.fiche) return;
           var dg=g.data;
           var ive=(dg.fiche.indice&&dg.fiche.indice.estime!=null)?dg.fiche.indice.estime:null;
@@ -2339,7 +2354,7 @@ async function loadUser(){
     var u=(s.data&&s.data.session)?s.data.session.user:null;
     if(!u){ window.currentUser=null; return null; }
     var m=u.user_metadata||{};
-    window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), ville:(m.ville||''), plan:(m.plan||'decouverte'), price:(m.price!=null?m.price:0), since:(m.since||u.created_at), renewal:(m.renewal||null) };
+    window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), ville:(m.ville||''), plan:(m.plan||'decouverte'), price:(m.price!=null?m.price:0), since:(m.since||u.created_at), renewal:(m.renewal||null), sentNom:(m.sent_nom||''), sentVille:(m.sent_ville||''), sentAdr:(m.sent_adresse||'') };
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
@@ -2468,7 +2483,7 @@ async function authSignup(){
 }
 function lancerMaSentinelle(){
   var acc=currentAccount(); if(!acc){ renderAuth('signup'); return; }
-  var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
+  var q=sentKey(acc).texte;
   if(!q.trim()){ dirigeantSpace(); return; }
   window.currentSpace='dirigeant';
   window.selfServe=true; // mode dirigeant autonome : résultat teasé (le constat offert, la prescription verrouillée)
