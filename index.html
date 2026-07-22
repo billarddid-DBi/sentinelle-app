@@ -789,13 +789,14 @@ function evoCardHtml(serie){
     +(pts.length>1?(d>2?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':(d<-2?'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>':'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>')):'')+'</div>';
   var spark='';
   if(pts.length>1){
-    var W=150,H=40,pad=8;
+    var W=168,Wtop=15,Wbot=13,Hplot=34,Htot=Wtop+Hplot+Wbot,pad=12;
     var vals=pts.map(function(x){return +x.ive;});
     var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx===mn){mx=mn+1;}
-    var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), H-6-((+x.ive-mn)/(mx-mn))*(H-14)]; });
-    spark='<svg viewBox="0 0 '+W+' '+(H+10)+'" width="'+W+'" height="'+(H+10)+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
+    var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), Wtop+(1-(+x.ive-mn)/(mx-mn))*Hplot]; });
+    spark='<svg viewBox="0 0 '+W+' '+Htot+'" width="'+W+'" height="'+Htot+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
       +xy.map(function(p,i){ var h=(typeof AURAS!=='undefined'&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+h+'"/>'; }).join('')
-      +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(H+8)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
+      +xy.map(function(p,i){ return '<text x="'+p[0]+'" y="'+(p[1]-7)+'" font-size="9" font-weight="700" fill="#1C1C1C" text-anchor="middle">'+(+pts[i].ive)+'</text>'; }).join('')
+      +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(Htot-3)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
   }
   var rows='', facts=0, up=0, down=0;
   var arrow=function(u,same){ return same?'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>':(u?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>'); };
