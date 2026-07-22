@@ -1,0 +1,183 @@
+{
+  "nom": "Dronavia",
+  "ville": "Remiremont (88200)",
+  "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, systèmes de coupure, balises), drones industriels, solutions d'ingénierie aéronautique",
+  "secteur": "industrie",
+  "resume": {
+    "enjeu": "Capacité & compétitivité",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Santé solide, croissance maîtrisée",
+    "atout": "Leader européen, innovation, équipe spécialisée"
+  },
+  "identite": "SAS Dronavia, SIREN 810254722, NAF 3030Z (Construction aéronautique et spatiale), créée 01/03/2015 (11 ans), 10-19 salariés (2023), dirigeant Ludovic Pelletey (Président), capital social 30 016 €. Comptes confidentiels (PME).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      70,
+      74,
+      76,
+      72
+    ],
+    "potentiel": [
+      88,
+      85,
+      87,
+      82,
+      85,
+      87,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Sécurité des drones, innovation, conformité réglementaire (EASA, DGAC), qualité « Made in France », support des opérateurs professionnels, anticipation des normes futures.",
+  "imagePercue": "Entreprise innovante, spécialisée, leader reconnu en Europe. Présence digitale professionnelle (site moderne, LinkedIn actif, Facebook engagé). Partenariats stratégiques (DJI, Thales, Valmet). Recrutement actif (croissance). Peu d'avis clients publics (métier B2B spécialisé).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Positionnement de leader européen confirmé par sources multiples (site, LinkedIn, presse). Conformité réglementaire EASA/DGAC attestée et anticipée."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Équipe spécialisée (28 experts selon site), atelier intégré (fabrication + 3D), innovation continue (3e génération de produits, partenariats R&D)."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes confidentiels depuis 2022 : chiffre d'affaires et bilan non publics. Croissance observable (recrutement, nouveaux produits) mais ampleur non quantifiée."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Métier très réglementé (EASA, DGAC) : dépendance aux normes européennes. Marché concentré (5-6 fabricants mondiaux). Concurrence potentielle de géants (DJI, Thales)."
+    }
+  ],
+  "quickwins": [
+    "Enrichir la fiche Google Business (horaires, photos atelier, vidéos produits) : actuellement peu visible en recherche locale malgré la notoriété B2B.",
+    "Publier mensuellement sur LinkedIn (actualités produits, cas d'usage clients, recrutement) : 1 437 abonnés, mais cadence irrégulière observée.",
+    "Créer une page FAQ/Blog sur le site (conformité EASA 2024, comparatif produits, tutoriels) : améliorerait le SEO et la conversion des prospects."
+  ],
+  "avis": "Non trouvé publiquement sur Google/Pages Jaunes. Métier B2B spécialisé (vente via réseau de partenaires officiels) : avis clients peu pertinents. Réputation fondée sur certifications (EASA, DGAC), partenariats (DJI, Thales) et visibilité secteur (presse, LinkedIn).",
+  "presence": "Site web moderne et à jour (dronavia.com, janvier 2026). LinkedIn actif (1 437 abonnés, posts réguliers). Facebook (2 430 likes, contenu en anglais/français). YouTube (chaîne officielle). Pas de présence Instagram détectée. Recrutement visible (offres d'emploi sur site).",
+  "plateformes": [
+    {
+      "nom": "EASA (European Union Aviation Safety Agency)",
+      "role": "Certification et conformité des systèmes de sécurité drone (MOC M2, MOC 2511, C5/C6)",
+      "url": "https://www.easa.europa.eu"
+    },
+    {
+      "nom": "DGAC (Direction Générale de l'Aviation Civile)",
+      "role": "Approbation et homologation des accessoires de sécurité drone en France",
+      "url": "https://www.dgac.gouv.fr"
+    },
+    {
+      "nom": "LinkedIn (secteur aéronautique & aerospace)",
+      "role": "Visibilité B2B, recrutement, actualités produits et partenariats",
+      "url": "https://www.linkedin.com/company/dronavia"
+    },
+    {
+      "nom": "Kompass (annuaire B2B)",
+      "role": "Référencement entreprise, contacts commerciaux, données financières",
+      "url": "https://www.kompass.com"
+    },
+    {
+      "nom": "Annuaire des Entreprises (data.gouv.fr)",
+      "role": "Données légales, SIREN, statut, effectif, historique",
+      "url": "https://annuaire-entreprises.data.gouv.fr"
+    }
+  ],
+  "site": "https://www.dronavia.com",
+  "intel": {
+    "financier": "Comptes confidentiels depuis 2022 (PME). En 2022 : CA < 700 k€, bilan < 350 k€ (données Pappers). Capital social 30 016 € (2023). Croissance observable : recrutement, nouveaux produits (Kronos M3D 2024), expansion industrielle (Scout DI 2024).",
+    "concurrence": "Marché très concentré : 5-6 fabricants mondiaux de systèmes de sécurité drone. Concurrents potentiels : DJI (intégration verticale), Thales (partenaire R&D), autres accessoiristes européens. Dronavia leader reconnu en Europe grâce à spécialisation + conformité anticipée.",
+    "visibilite": "Forte en B2B (LinkedIn, presse spécialisée, partenariats). Faible en B2C (pas d'avis Google, peu de présence réseaux grand public). Référencement naturel bon (site moderne, contenu technique riche). Pas de campagne publicitaire détectée.",
+    "dirigeant": "Ludovic Pelletey, Président SAS. Fondateur ou repreneur en 2015 (non précisé). Présent publiquement (interviews presse, vidéos YouTube). Pas d'âge trouvé publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Automatisation des devis & documentation EASA",
+      "benefice": "Réduire le temps de réponse aux appels d'offres (MOC M2, MOC 2511, C5/C6) et générer automatiquement les dossiers de conformité. Hypothèse : processus manuel actuellement, opportunité de gain de productivité pour l'équipe commerciale/technique."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Veille appels d'offres & marchés publics (aéronautique, défense, industrie)",
+      "benefice": "Capturer les opportunités B2B (collectivités, industriels, intégrateurs) avant la concurrence. Hypothèse : réseau de partenaires actuel, mais pas de système de prospection automatisée détecté."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestion de la base clients & CRM partenaires",
+      "benefice": "Piloter le réseau de revendeurs officiels (suivi des ventes, support, conformité). Hypothèse : croissance du réseau observable, mais pas de visibilité sur l'outil de gestion."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Capitalisation du savoir-faire technique (documentation, tutoriels, FAQ)",
+      "benefice": "Réduire les appels support, accélérer l'onboarding des partenaires, améliorer le SEO. Hypothèse : expertise forte, mais peu de contenu pédagogique détecté (hormis vidéos YouTube)."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Suivi de la conformité réglementaire (EASA, DGAC, normes futures)",
+      "benefice": "Anticiper les changements de normes, adapter les produits, communiquer auprès des clients. Hypothèse : Dronavia déjà proactive (EN 4709 2023), mais processus de veille non visible."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimisation du planning de production & stock (3D, assemblage)",
+      "benefice": "Réduire les délais de livraison, gérer les pics de demande (nouveaux produits, conformité). Hypothèse : atelier intégré, mais pas de visibilité sur les goulots d'étranglement."
+    }
+  ],
+  "archetype": "PME B2B / sous-traitant technique (ingénierie/industrie, grands comptes)",
+  "posture": "Compétitivité & productivité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en automatisation devis + documentation EASA"
+  },
+  "coutInaction": "Chaque mois sans optimisation des processus devis/conformité = risque de perdre des appels d'offres face à des concurrents plus réactifs, et surcharge de l'équipe technique (28 experts) sur des tâches administratives répétitives. Croissance freinée par manque de scalabilité.",
+  "simulateur": {
+    "personnes": 3,
+    "heures": 12,
+    "cout": 90
+  },
+  "avantApres": {
+    "aujourdhui": "Appel d'offre reçu → traitement manuel du dossier EASA (2-3 jours) → réponse tardive. Partenaires contactés manuellement. Pas de suivi centralisé des ventes. Expertise dispersée (pas de FAQ/tutoriels).",
+    "avecIA": "Appel d'offre → génération automatique du dossier EASA (2h) → réponse rapide. CRM partenaires synchronisé. Veille réglementaire automatisée. FAQ/tutoriels alimentés en continu. Équipe focus sur innovation, pas sur l'administratif."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses en entretien : processus devis, gestion partenaires, veille réglementaire, capitalisation technique. Identifiez ensemble les vrais leviers de croissance.",
+  "indice": {
+    "estime": 68,
+    "potentiel": 86
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 72,
+    "site": 85,
+    "traction": 82
+  },
+  "aura": {
+    "sens": "L'expertise & l'innovation",
+    "couleur": "Bleu",
+    "definition": "Dronavia rayonne par sa fiabilité technique, son anticipation des normes et sa capacité à transformer la sécurité des drones en avantage compétitif. Une entreprise qui construit l'avenir avec rigueur.",
+    "eclat": "fort"
+  },
+  "fierte": "Dronavia a bâti en 11 ans une position de leader européen reconnu, avec une équipe de 28 spécialistes et une innovation continue (3e génération de produits, partenariats stratégiques avec Thales et DJI). L'atelier intégré et la maîtrise de la fabrication (3D, assemblage) témoignent d'une excellence opérationnelle rare. Le potentiel de croissance est immense : marché réglementé en expansion, demande croissante de conformité EASA, et opportunités industrielles (Scout DI) qui ne demandent qu'à être amplifiées par une meilleure scalabilité des processus.",
+  "sources": "Annuaire des Entreprises (data.gouv.fr) — SIREN, NAF, effectif, ancienneté. Pages Jaunes — activité, avis. Pappers, Societe.com, Infonet — données financières, statut. Site dronavia.com (janvier 2026) — vision, produits, équipe, recrutement. LinkedIn Dronavia (1 437 abonnés) — actualités, partenariats, culture. Facebook Dronavia (2 430 likes) — engagement. Quai-Alpha (juin 2024) — atelier, technologie 3D. Lindustrie-recrute.fr — positionnement marché. Kompass — contacts, structure. Confiance : TRÈS ÉLEVÉE (sources officielles + presse spécialisée).",
+  "_auraCalc": {
+    "note_google": 4,
+    "nb_avis": 10,
+    "site": true,
+    "poids": {
+      "q": 25,
+      "v": 15,
+      "s": 60
+    }
+  }
+}
