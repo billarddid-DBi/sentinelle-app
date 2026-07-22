@@ -740,18 +740,14 @@ function etabChooser(q, list, dup){
       +'<div style="font-size:12px;color:#6b7280;margin-top:3px;">Les établissements <span style="color:#E8541A;font-weight:700;">surlignés</span> ont déjà été étudiés par SENTINELLE.</div>'
       +'<div style="margin-top:4px;">'+rows+'</div>'
       +'<button type="button" id="etabAutre" style="width:100%;margin-top:10px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-pencil"></i> Autre adresse…</button>'
-      +(dup&&dup.found&&!list.length&&conseiller?'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>':'')
+      +(dup&&dup.found&&conseiller?'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>':'')
       +'<button type="button" id="etabCancel" style="width:100%;margin-top:8px;border:none;background:none;color:#9ca3af;font-size:13px;cursor:pointer;font-family:inherit;padding:8px;">Annuler</button></div>';
     document.body.appendChild(ov);
     function done(v){ ov.remove(); resolve(v); }
     ov.querySelectorAll('.etabOpt').forEach(function(b){
       b.onclick=function(){
         var x=list[+b.dataset.i];
-        if(x.pris){
-          if(!conseiller){ alert('Cet établissement a déjà été diagnostiqué'+(x.prisLe?' le '+new Date(x.prisLe).toLocaleDateString('fr-FR'):'')+'.'); return; }
-          if(!confirm('Cet établissement a déjà été étudié'+(x.prisLe?' le '+new Date(x.prisLe).toLocaleDateString('fr-FR'):'')+'.\n\nRefaire son diagnostic (passe-droit conseiller) ?')) return;
-          done({adresse:x.adresse,refaire:true}); return;
-        }
+        if(x.pris){ done({adresse:x.adresse,afficher:true}); return; }
         done({adresse:x.adresse,refaire:false});
       };
     });
@@ -760,6 +756,22 @@ function etabChooser(q, list, dup){
     ov.querySelector('#etabCancel').onclick=function(){ done(null); };
     ov.onclick=function(e){ if(e.target===ov) done(null); };
   });
+}
+// Affiche une SENTINELLE ARCHIVÉE (immuable : faite une fois, jamais régénérée)
+function showArchived(g){
+  $('err').style.display='none';
+  $('loading').style.display='none';
+  $('form').style.display='none';
+  render(g.fiche, true);
+  var res=$('result');
+  if(res){
+    var b=document.createElement('div');
+    b.style.cssText='background:#eef2ff;border:1px solid #c7d2fe;border-radius:12px;padding:11px 14px;margin-bottom:12px;font-size:12.5px;color:#3730a3;line-height:1.5;';
+    var dd=g.date?new Date(g.date).toLocaleDateString('fr-FR'):'';
+    b.innerHTML='<i class="ti ti-archive"></i> <b>Diagnostic SENTINELLE du '+dd+'</b>'+(g.adresse?' · '+esc(g.adresse):'')+' — la SENTINELLE se fait une seule fois : voici les informations récoltées à cette date. La suite de l\'analyse se joue en <b>BOUSSOLE</b>.';
+    res.insertBefore(b, res.firstChild);
+  }
+  window.scrollTo(0,0);
 }
 async function run(payload){
   // VERROU + CHOIX D'ÉTABLISSEMENT : si l'enseigne a plusieurs établissements dans la ville, la liste
@@ -771,10 +783,21 @@ async function run(payload){
       if(window.sb){
         var ck=await window.sb.rpc('sentinelle_check',{p_texte:payload.text,p_adresse:''});
         var dup=(!ck.error&&ck.data)?ck.data:{found:false};
+        // SENTINELLE IMMUABLE : déjà faite → on AFFICHE l'archive (jamais de régénération)
+        if(window.selfServe && dup.found){
+          var ga=await window.sb.rpc('sentinelle_get',{p_texte:payload.text,p_adresse:''});
+          if(!ga.error && ga.data && ga.data.found && ga.data.fiche){ showArchived(ga.data); return; }
+        }
         var list=await etabList(payload.text);
         if(list.length>1 || dup.found){
           var choice=await etabChooser(payload.text, list, dup);
           if(choice===null) return;
+          if(choice.afficher){
+            var g=await window.sb.rpc('sentinelle_get',{p_texte:payload.text+', '+choice.adresse,p_adresse:choice.adresse});
+            if(!g.error && g.data && g.data.found && g.data.fiche){ showArchived(g.data); }
+            else alert('Diagnostic archivé introuvable pour cet établissement.');
+            return;
+          }
           if(choice.adresse){
             if(!choice.refaire){
               var ck2=await window.sb.rpc('sentinelle_check',{p_texte:payload.text+', '+choice.adresse,p_adresse:choice.adresse});
