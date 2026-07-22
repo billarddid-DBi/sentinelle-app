@@ -1637,24 +1637,25 @@ function dirigeantSpace(){
   // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
   if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
     $('dirigeant').innerHTML='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'
-      +'<div class="sec"><div style="font-size:15px;font-weight:700;color:#1C1C1C;line-height:1.4;">Découvrez la note de votre entreprise.</div>'
-      +'<div style="font-size:13.5px;color:#374151;line-height:1.55;margin-top:6px;">En 2 minutes, l\'IA analyse la présence réelle de votre entreprise (avis clients, visibilité, concurrence locale) et calcule votre <b>IVE — l\'Indice de Valeur d\'Entreprise</b> : la valeur que dégage votre entreprise vue de l\'extérieur, notée sur 100. <span style="color:#166534;font-weight:600;">Découvrez la note.</span></div>'
-      +'<div style="margin-top:12px;">'
-        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-palette" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Votre note, en couleur</b> — l\'indice et la couleur qui disent où en est vraiment votre entreprise aujourd\'hui.</div></div>'
-        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-sparkles" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Des outils IA concrets</b> — des propositions adaptées à votre métier pour gagner du temps.</div></div>'
-        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-trending-up" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Une note qui évolue</b> — chaque action que vous mettez en place la fait progresser, et vous le voyez.</div></div>'
-      +'</div>'
-      +(function(){ var inf=(pmLoad().infos||[]); if(!inf.length) return '';
-        return '<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+') — prises en compte à l\'étape suivante</div>'
-          +inf.map(function(x){ return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+' <span style="color:#cbd5e1;font-size:10px;">('+esc(x.created)+')</span></div>'; }).join('')+'</div>'; })()
-      +'<div style="text-align:center;margin-top:18px;">'
+      +'<div class="sec">'
+      +'<div style="text-align:center;margin-top:2px;">'
         +'<button id="iveBtn" class="ivePastille" onclick="lancerMaSentinelle()" aria-label="Découvrir mon IVE">'
           +'<span style="font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.9;">MON IVE</span>'
           +'<span style="font-size:42px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;"><span id="iveNum">50</span><span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>'
           +'<span style="font-size:10.5px;opacity:.9;"><i class="ti ti-palette"></i> ma note en couleur</span>'
         +'</button>'
-        +'<div style="font-size:12px;color:#9ca3af;margin-top:9px;">Appuyez pour découvrir votre vraie note</div>'
-      +'</div></div>'
+        +'<div style="font-size:12px;color:#9ca3af;margin-top:8px;animation:tapBounce 1.6s ease-in-out infinite;"><i class="ti ti-hand-click" style="font-size:16px;color:#E8541A;vertical-align:-3px;"></i> Appuyez pour découvrir votre vraie note</div>'
+      +'</div>'
+      +'<div style="margin-top:14px;">'
+        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-palette" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Votre note, en couleur</b> — l\'indice et la couleur qui disent où en est vraiment votre entreprise aujourd\'hui.</div></div>'
+        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-sparkles" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Des outils IA concrets</b> — des propositions adaptées à votre métier pour gagner du temps.</div></div>'
+        +'<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-trending-up" style="color:#E8541A;font-size:18px;margin-top:1px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.45;"><b style="color:#1C1C1C;">Une note qui évolue</b> — chaque action que vous mettez en place la fait progresser, et vous le voyez.</div></div>'
+      +'</div>'
+      +'<div style="font-size:13px;color:#374151;line-height:1.55;margin-top:14px;">En 2 minutes, l\'IA analyse la présence réelle de votre entreprise (avis clients, visibilité, concurrence locale) et calcule votre <b>IVE — l\'Indice de Valeur d\'Entreprise</b>.</div>'
+      +(function(){ var inf=(pmLoad().infos||[]); if(!inf.length) return '';
+        return '<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+') — prises en compte à l\'étape suivante</div>'
+          +inf.map(function(x){ return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+' <span style="color:#cbd5e1;font-size:10px;">('+esc(x.created)+')</span></div>'; }).join('')+'</div>'; })()
+      +'</div>'
       +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
     return;
