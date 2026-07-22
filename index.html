@@ -967,9 +967,9 @@ function iveNav(s){
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
 }
 function iveNavBar(active){
-  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Diagnostic',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan d\'action',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
-  return '<div style="display:flex;gap:6px;overflow-x:auto;background:#1C1C1C;border-radius:12px;padding:7px;margin-bottom:12px;">'
-    +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 10px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';min-width:60px;"><i class="ti '+x[1]+'" style="font-size:19px;"></i><span style="font-size:9.5px;font-weight:600;white-space:nowrap;">'+x[2]+(x[3]?' <i class="ti ti-lock" style="font-size:9px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
+  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Diagnostic',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
+  return '<div style="display:flex;flex-direction:column;gap:5px;background:#1C1C1C;border-radius:12px;padding:8px 6px;flex:0 0 auto;align-self:flex-start;">'
+    +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:9px 4px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';width:56px;line-height:1.15;"><i class="ti '+x[1]+'" style="font-size:19px;"></i><span style="font-size:8.5px;font-weight:600;text-align:center;">'+x[2]+(x[3]?'<br><i class="ti ti-lock" style="font-size:8px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
 }
 function sentSlides(d, targetId, cockpitHtml){
@@ -2048,7 +2048,7 @@ function dirigeantSpace(){
           var dLong=dern.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
           var nLong=next.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
           var band='<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:11.5px;color:#3730a3;line-height:1.5;"><b><i class="ti ti-archive"></i> Diagnostic du '+dLong+'</b>'+(dg.adresse?' · '+esc(dg.adresse):'')+'<div style="margin-top:2px;">'+(diff>0?'Prochain à partir du '+nLong+' (1/semaine).':'Nouvelle mesure disponible.')+' · Données publiques vérifiables.</div></div>';
-          var cockpit=(typeof iveNavBar==='function'?iveNavBar('accueil'):'')+band+'<div style="text-align:center;">'+pastille+'</div>'+evo+infHtml;
+          var cockpit='<div style="display:flex;gap:10px;">'+(typeof iveNavBar==='function'?iveNavBar('accueil'):'')+'<div style="flex:1;min-width:0;">'+band+'<div style="text-align:center;">'+pastille+'</div>'+evo+infHtml+'</div></div>';
           var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
           $('dirigeant').innerHTML=header+'<div id="homeSlides"></div>';
           if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit);
