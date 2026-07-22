@@ -1038,7 +1038,7 @@ function sentSlides(d, targetId, cockpitHtml){
   var repN=ng==null?0:Math.max(1,Math.min(5,Math.round(ng)));
   var repStars=''; for(var s=1;s<=5;s++){ repStars+='<i class="ti ti-star" style="font-size:15px;color:'+(s<=repN?'#16a34a':'#d1d5db')+';"></i>'; }
   var repStarsSm=''; for(var s2=1;s2<=5;s2++){ repStarsSm+='<i class="ti ti-star" style="font-size:10px;color:'+(s2<=repN?'#16a34a':'#d1d5db')+';"></i>'; }
-  var nbOpp=(d.agents?d.agents.length:0)+(d.quickwins?d.quickwins.length:0);
+  var nbOpp=(d.agents?d.agents.length:0);
   var ouMonter='';
   if(d._auraCalc&&d._auraCalc.poids){
     var Wp=d._auraCalc.poids,Cp=d._auraCalc;
