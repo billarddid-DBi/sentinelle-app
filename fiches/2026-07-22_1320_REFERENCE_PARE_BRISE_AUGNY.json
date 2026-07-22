@@ -1,0 +1,183 @@
+{
+  "nom": "Référence Pare-Brise Augny",
+  "ville": "Augny (57685)",
+  "activite": "Réparation et remplacement de pare-brise, calibrage ADAS",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réseau multi-sites, avis solides"
+  },
+  "identite": "REFERENCE METZ (SIREN 877844076, SIRET 87784407600035), établissement à Augny depuis 2011. Forme juridique : SARL. Code NAF 4520A (réparation pare-brise). Effectif : 3-5 salariés. Gérant : Nicolas Etiienne. Ancienne adresse : Jouy-aux-Arches, déménagement à Augny (Zone Actisud, 59 rue du Bois d'Orly).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      65,
+      62,
+      68,
+      75,
+      70
+    ],
+    "potentiel": [
+      82,
+      80,
+      82,
+      78,
+      78,
+      80,
+      88,
+      85
+    ]
+  },
+  "valeurs": "Qualité de service, transparence, accueil client, respect des engagements, nettoyage du véhicule, véhicule de prêt gratuit, aucun frais à avancer.",
+  "imagePercue": "Entreprise fiable et professionnelle, spécialisée dans le vitrage automobile. Présence multi-canaux (site, réseaux sociaux, annuaires). Réputation positive en ligne avec avis clients favorables. Positionnement premium avec services à valeur ajoutée (franchise offerte, cadeau, garantie 1 an).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Avis clients positifs et réguliers, équipe réactive aux commentaires, engagement de qualité visible."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Site web moderne et à jour, présence active sur réseaux (Facebook, LinkedIn, TikTok), horaires clairs, prise de RDV en ligne."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Concurrence locale forte (Mondial Pare-Brise, Carglass, Norauto) : nécessité de maintenir la différenciation par le service et la relation client."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Réseau de 10+ agences en Grand Est : solidité structurelle, économies d'échelle, mais gestion multi-sites à optimiser."
+    }
+  ],
+  "quickwins": [
+    "Fiche Google Business : vérifier que tous les horaires, photos et CTA (Prendre RDV) sont à jour et visibles — signal observé : présence sur annuaires mais fiche Google non vérifiée publiquement.",
+    "Répondre aux 3-5 avis les plus récents sur PagesJaunes et Google (même positifs) : renforce l'engagement et l'algorithme — signal : avis sans réponse détectés.",
+    "Créer une FAQ courte sur le site (« Combien de temps pour une réparation ? », « Franchise offerte comment ? ») : réduit les appels redondants et améliore le SEO local."
+  ],
+  "avis": "Avis clients positifs et réguliers sur PagesJaunes et site officiel. Clients soulignent : accueil excellent, personnel professionnel, travail soigné, nettoyage du véhicule, prêt de voiture, respect des engagements. Quelques avis mentionnent des délais liés à l'assurance (hors contrôle de l'agence). Pas d'avis négatif majeur détecté. Volume : environ 7 avis Facebook (100% recommandé), plusieurs sur PagesJaunes et site. Réactivité : l'équipe répond aux avis.",
+  "presence": "Site officiel moderne (referenceparebrise.fr/augny) avec prise de RDV en ligne, horaires, services détaillés. Facebook actif (131 likes, posts réguliers). LinkedIn présent (contenu corporate). TikTok mentionné. Horaires clairs : lun-ven 8h-12h30/13h30-18h, sam 8h30-12h. Point relais Colissimo. Pas de présence Instagram détectée publiquement. Réseaux : activité modérée mais cohérente.",
+  "plateformes": [
+    {
+      "nom": "PagesJaunes",
+      "role": "Annuaire professionnel français, avis clients, notation, visibilité locale",
+      "url": "https://www.pagesjaunes.fr/pros/60567278"
+    },
+    {
+      "nom": "Google Business Profile",
+      "role": "Fiche entreprise, avis, horaires, localisation, prise de RDV",
+      "url": "https://www.google.com/maps"
+    },
+    {
+      "nom": "Vroomly",
+      "role": "Plateforme de comparaison garages, avis clients, devis en ligne",
+      "url": "https://www.vroomly.com"
+    },
+    {
+      "nom": "Mappy",
+      "role": "Cartographie, avis, horaires, localisation, comparaison concurrents",
+      "url": "https://fr.mappy.com"
+    },
+    {
+      "nom": "Cylex",
+      "role": "Annuaire d'entreprises, avis, profil professionnel",
+      "url": "https://www.cylex-locale.fr"
+    }
+  ],
+  "site": "https://www.referenceparebrise.fr/augny",
+  "intel": {
+    "financier": "Comptes partiellement confidentiels en 2023 (PME sous seuils). Chiffre d'affaires non public. Effectif stable 3-5 salariés. Pas de procédure judiciaire détectée.",
+    "concurrence": "Marché très concurrentiel à Augny : Mondial Pare-Brise (4,9/5 sur 355 avis, 210m), Carglass (réseau national, Norauto), Norauto (point relais). Différenciation par service client et offres (franchise offerte, cadeau, garantie 1 an).",
+    "visibilite": "Bonne visibilité locale (annuaires, site, réseaux). Réseau multi-sites (10+ agences) renforce la crédibilité. SEO local : présent sur PagesJaunes, Mappy, Cylex. Pas de campagne publicitaire payante détectée.",
+    "dirigeant": "Nicolas Etiienne, gérant. Fondation du groupe en 2011 dans le Grand Est. Pas d'information publique sur l'âge, la vision ou les intentions du dirigeant — à explorer en entretien BOUSSOLE."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réponses",
+      "benefice": "Automatiser la collecte et la réponse aux avis (PagesJaunes, Google, Vroomly) : gagne 2-3h/semaine, renforce l'engagement client et le SEO local."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planificateur de RDV & relance",
+      "benefice": "Centraliser les RDV (site, téléphone, réseaux), envoyer rappels SMS/email 24h avant : réduit les no-shows, optimise le taux de remplissage des créneaux."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Rédacteur de contenu local (FAQ, blog)",
+      "benefice": "Produire 2-3 articles/mois sur pare-brise, ADAS, assurance : améliore le SEO, réduit les appels redondants, positionne l'agence comme expert."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de performance multi-sites",
+      "benefice": "Tableau de bord unifié (avis, RDV, chiffre d'affaires par agence) : permet au gérant de piloter le réseau et d'identifier les meilleures pratiques."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur B2B (flottes, assurances)",
+      "benefice": "Identifier et contacter flottes d'entreprises, courtiers d'assurance : ouvre un nouveau canal de revenus, moins dépendant du client particulier."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de stock & devis",
+      "benefice": "Centraliser les stocks de pare-brise par agence, générer devis automatisés : réduit les délais, améliore la marge, facilite la facturation."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion administrative et relation client"
+  },
+  "coutInaction": "Sans optimisation, le temps de gestion des avis, RDV et relances reste fragmenté entre téléphone, email et réseaux. Risque : perte de clients face à la concurrence (Mondial, Carglass) qui automatisent déjà ces processus. Marge client et fidélisation stagnent.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Gérant + 1 secrétaire gèrent manuellement les RDV (téléphone, site), répondent aux avis au fil de l'eau, relancent les clients par SMS/email. Pas de vue d'ensemble sur la performance. Temps perdu en tâches répétitives.",
+    "avecIA": "Agents IA centralisent RDV, avis, relances. Tableau de bord unifié. Gérant pilote le réseau en temps réel, identifie les opportunités B2B, se concentre sur la stratégie. Secrétaire libérée pour l'accueil client et la qualité de service."
+  },
+  "cta": "Explorez comment BOUSSOLE peut structurer votre croissance multi-sites et optimiser votre marge client. Prenez rendez-vous pour un diagnostic approfondi.",
+  "indice": {
+    "estime": 77,
+    "potentiel": 95
+  },
+  "dimensions": {
+    "avis": 78,
+    "reseaux": 65,
+    "site": 80,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "la fiabilité professionnelle",
+    "couleur": "Bleu",
+    "definition": "Entreprise établie et de confiance, ancrée dans le service client et la qualité. Rayonne par sa solidité, son engagement envers le client et sa présence multi-sites.",
+    "eclat": "moyen"
+  },
+  "fierte": "Référence Pare-Brise a bâti une réputation solide en 15 ans, avec un réseau de 10+ agences et des clients satisfaits qui recommandent le service. L'équipe d'Augny incarne cette excellence : accueil chaleureux, travail soigné, engagement transparent. Le potentiel est clair : en optimisant la gestion administrative et en explorant de nouveaux canaux (B2B, flottes), l'agence peut accélérer sa croissance et renforcer sa marge, tout en gardant la qualité qui la définit.",
+  "sources": "PagesJaunes (avis, fiche), site officiel referenceparebrise.fr, Facebook, LinkedIn, Pappers (données légales SIREN 877844076), Societe.com, Vroomly, Mappy, Cylex, 118712, applivoiture.fr, villepratique.fr (Colissimo). Confiance : élevée pour identité légale et avis clients ; modérée pour données financières (confidentialité partielle) ; bonne pour présence digitale et concurrence.",
+  "_auraCalc": {
+    "note_google": 5,
+    "nb_avis": 2645,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
