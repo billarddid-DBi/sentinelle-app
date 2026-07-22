@@ -974,16 +974,20 @@ function sentChapters(){
   SENT_CHAPS.forEach(function(m,i){
     var v=document.createElement('div'); v.className='card sentChapView'; v.id='sentChap_'+i; v.style.display='none'; v.style.overflow='hidden';
     var bar=document.createElement('div');
-    bar.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:12px 14px;display:flex;align-items:center;gap:10px;"><button type="button" onclick="sentBack()" style="background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i></button><i class="ti '+m[1]+'" style="font-size:18px;color:#EEA987;"></i><div style="flex:1;"><div style="font-size:14px;font-weight:600;">'+m[2]+'</div><div style="font-size:10px;color:#9ca3af;">Chapitre '+(i+1)+' / '+SENT_CHAPS.length+'</div></div></div>';
+    bar.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:11px 12px;display:flex;align-items:center;gap:10px;"><button type="button" onclick="sentBack()" style="background:#E8541A;border:none;color:#fff;border-radius:22px;padding:9px 16px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;white-space:nowrap;"><i class="ti ti-chevron-left" style="font-size:16px;"></i> Menu</button><i class="ti '+m[1]+'" style="font-size:18px;color:#EEA987;"></i><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;">'+m[2]+'</div><div style="font-size:10px;color:#9ca3af;">Chapitre '+(i+1)+' / '+SENT_CHAPS.length+'</div></div></div>';
     v.appendChild(bar.firstChild);
     var body=document.createElement('div');
     if(!buckets[m[0]].length){ body.innerHTML='<div style="padding:20px 16px;color:#9ca3af;font-size:12.5px;text-align:center;">Rien à signaler dans ce chapitre.</div>'; }
     buckets[m[0]].forEach(function(el){ body.appendChild(el); });
     v.appendChild(body);
     var nav=document.createElement('div');
-    nav.style.cssText='display:flex;justify-content:space-between;gap:8px;padding:12px 14px;border-top:1px solid #f1f3f4;';
-    nav.innerHTML=(i>0?'<button type="button" onclick="sentGo('+(i-1)+')" style="border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:8px 11px;font-size:11.5px;cursor:pointer;font-family:inherit;color:#4b5563;"><i class="ti ti-chevron-left"></i> Préc.</button>':'<span></span>')
-      +(i<SENT_CHAPS.length-1?'<button type="button" onclick="sentGo('+(i+1)+')" style="border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:8px 11px;font-size:11.5px;cursor:pointer;font-family:inherit;color:#4b5563;">'+SENT_CHAPS[i+1][2]+' <i class="ti ti-chevron-right"></i></button>':'<button type="button" onclick="sentBack()" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:8px 12px;font-size:11.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-list"></i> Menu</button>');
+    nav.style.cssText='display:flex;gap:10px;padding:14px;border-top:1px solid #f1f3f4;';
+    nav.innerHTML=(i>0
+        ? '<button type="button" onclick="sentGo('+(i-1)+')" style="flex:1;border:2px solid #E8541A;background:#fff;color:#E8541A;border-radius:12px;padding:13px 8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-chevron-left"></i> Précédent</button>'
+        : '<button type="button" onclick="sentBack()" style="flex:1;border:2px solid #cbd5e1;background:#fff;color:#64748b;border-radius:12px;padding:13px 8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-list"></i> Menu</button>')
+      +(i<SENT_CHAPS.length-1
+        ? '<button type="button" onclick="sentGo('+(i+1)+')" style="flex:1;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px 8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;">Suivant <i class="ti ti-chevron-right"></i></button>'
+        : '<button type="button" onclick="sentBack()" style="flex:1;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px 8px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-list"></i> Retour au menu</button>');
     v.appendChild(nav);
     chapWrap.appendChild(v);
   });
