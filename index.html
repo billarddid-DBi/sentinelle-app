@@ -958,7 +958,7 @@ function sentSlide(i){
   for(var k=0;k<SENT_N;k++){ var el=document.getElementById('sSlide_'+k); if(el) el.style.display=(k===i)?'':'none'; }
   sentCur=i; window.scrollTo(0,0);
 }
-function sentSlides(d, targetId){
+function sentSlides(d, targetId, cockpitHtml){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
   var embedded=!!targetId;
   if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
