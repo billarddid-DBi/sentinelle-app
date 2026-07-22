@@ -959,7 +959,8 @@ async function run(payload){
   try{
     const r = await fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     clearInterval(t); $('loading').style.display='none';
-    if(r.status===504||r.status===408||r.status===502){ scanFail('L\'analyse a pris trop de temps', 'La recherche web est parfois lente. Ça repasse presque toujours au 2e essai.'); return; }
+    if(r.status===504||r.status===408){ scanFail('L\'analyse a pris trop de temps', 'La recherche web est parfois lente. Ça repasse presque toujours au 2e essai.'); return; }
+    if(r.status===502){ var d5=null; try{ d5=await r.json(); }catch(e){} var det=(d5&&(d5.detail||d5.error))||''; console.warn('SENTINELLE 502:', det); if(/credit|billing|balance|quota|insufficient/i.test(det)){ scanFail('Service momentanément indisponible', 'L\'analyse IA est temporairement indisponible. Réessayez un peu plus tard.'); } else { scanFail('L\'analyse a pris trop de temps', 'La recherche web est parfois lente. Réessayez dans un instant.'); } return; }
     let data; try{ data = await r.json(); }catch(pe){ scanFail('Réponse inattendue', 'Le serveur a mis trop de temps à répondre. Réessayez dans un instant.'); return; }
     if(!r.ok || data.error){ scanFail(data.error||'Analyse indisponible', data.detail||data.raw||'Réessayez dans un instant.'); return; }
     render(data);
