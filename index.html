@@ -1812,6 +1812,42 @@ function dirigeantSpace(){
       +'</div>'
       +'<div class="foot"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+' · <a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
+    // Une SENTINELLE existe déjà ? → la pastille montre la VRAIE note (couleur d'aura) + compte à rebours J-x,
+    // et un tap ouvre la fiche archivée (avec la carte d'évolution). Sinon : pastille teaser (compteur qui tourne).
+    (function(){
+      var q=(acc.name||'')+(acc.ville?', '+acc.ville:'');
+      if(!q.trim()) return;
+      window.sbReady.then(function(){
+        if(!window.sb) return;
+        window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:''}).then(function(g){
+          if(g.error||!g.data||!g.data.found||!g.data.fiche) return;
+          var dg=g.data, btn=document.getElementById('iveBtn');
+          if(!btn) return;
+          var ive=(dg.fiche.indice&&dg.fiche.indice.estime!=null)?dg.fiche.indice.estime:null;
+          if(ive==null) return;
+          var coul=(dg.fiche.aura&&dg.fiche.aura.couleur)||'';
+          var hex=(window.AURAS&&AURAS[coul]&&AURAS[coul].h)||'#E8541A';
+          var dern=new Date(dg.dernier||dg.date);
+          var next=new Date(dern); next.setDate(next.getDate()+7);
+          var today=new Date(); today.setHours(0,0,0,0);
+          var diff=Math.ceil((next-today)/864e5);
+          var badge=(diff>0)
+            ? '<span style="margin-top:4px;background:rgba(0,0,0,.28);border-radius:9px;padding:2px 9px;font-size:9.5px;font-weight:700;letter-spacing:.5px;">PROCHAIN SCAN : J-'+diff+'</span>'
+            : '<span style="margin-top:4px;background:rgba(255,255,255,.3);border-radius:9px;padding:2px 9px;font-size:9.5px;font-weight:700;letter-spacing:.5px;">RE-MESURE DISPONIBLE</span>';
+          btn.style.animation='none';
+          btn.style.background=hex;
+          btn.style.boxShadow='0 0 34px 8px '+hex+'88';
+          btn.style.border='3px solid rgba(255,255,255,.6)';
+          btn.innerHTML='<span style="font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.9;">MON IVE</span>'
+            +'<span style="font-size:42px;font-weight:800;line-height:1;text-shadow:0 1px 3px rgba(0,0,0,.25);">'+ive+'<span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>'
+            +(coul?'<span style="font-size:10.5px;opacity:.95;">IVE '+esc(coul)+' · '+dern.toLocaleDateString('fr-FR')+'</span>':'')
+            +badge;
+          btn.onclick=function(){ window.selfServe=true; window.__lastGet=dg; window.__evoMois=null; showArchived(dg); };
+          var cap=btn.parentNode.parentNode.querySelector('div[style*="tapBounce"]');
+          if(cap) cap.innerHTML='<i class="ti ti-hand-click" style="font-size:16px;color:#E8541A;vertical-align:-3px;"></i> Appuyez pour revoir votre diagnostic';
+        });
+      });
+    })();
     return;
   }
   if((b.indiceInterieur!=null||ah||fr) && !pmSnaps().length) cpSnapshot();
