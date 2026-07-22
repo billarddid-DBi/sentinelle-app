@@ -1038,8 +1038,7 @@ function sentSlides(d, targetId, cockpitHtml){
   var embedded=!!targetId;
   if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
   var est=(d.indice&&d.indice.estime!=null)?d.indice.estime:50;
-  var pot=(d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+18);
-  var gain=Math.max(0,pot-est);
+  var gain=Math.max(0,(((d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:est+18))-est); // défaut ; remplacé par la somme des leviers si dispo
   var coul=(d.aura&&d.aura.couleur)||'Bleu';
   var hex=(typeof AURAS!=='undefined'&&AURAS[coul]&&AURAS[coul].h)||'#3b82f6';
   var dernStr=window.__sentDern?new Date(window.__sentDern).toLocaleDateString('fr-FR'):'';
@@ -1060,8 +1059,9 @@ function sentSlides(d, targetId, cockpitHtml){
     L.forEach(function(x){x.gain=Math.round(x.w*(100-x.sc)/100);});
     var top=L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
     var tot=top.reduce(function(su,x){return su+x.gain;},0), rangs=['Une première option','Une deuxième option'];
-    if(top.length) ouMonter=top.map(function(x,i){return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+tot+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Pour en savoir plus, abonnez-vous à '+bLink+'.</div>';
+    if(top.length){ gain=tot; ouMonter=top.map(function(x,i){return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+tot+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Pour en savoir plus, abonnez-vous à '+bLink+'.</div>'; }
   }
+  var pot=Math.min(100,est+gain);   // potentiel = note + gain COHÉRENT avec les leviers affichés
   var outilsTease=(d.agents&&d.agents.length)?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:9px 11px;color:#7c2d12;"><i class="ti ti-lock"></i> <b>'+d.agents.length+' outil'+(d.agents.length>1?'s':'')+' IA</b> déjà sélectionné'+(d.agents.length>1?'s':'')+' pour vous. Pour en savoir plus, abonnez-vous à '+bLink+'.</div>':'';
   var qwList=(d.quickwins&&d.quickwins.length)?'<div style="margin-top:8px;"><b>Actions rapides :</b><ul style="margin:4px 0 0;padding-left:18px;">'+d.quickwins.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul></div>':'';
   var vigList=(d.vigilance&&d.vigilance.length)?d.vigilance.map(function(x){return '<div style="margin-top:4px;">'+esc(x.niveau)+' '+esc(x.texte)+'</div>';}).join(''):'Aucun point de vigilance majeur.';
