@@ -73,7 +73,8 @@ function welcomeHtml(entreprise) {
   </div></body></html>`;
 }
 
-const AURA_HEX = { "Bleu": "#3b82f6", "Vert": "#16a34a", "Orange": "#E8541A", "Rouge": "#dc2626", "Violet": "#7c3aed", "Or": "#d4a017", "Jaune": "#eab308", "Gris": "#6b7280", "Turquoise": "#14b8a6", "Rose": "#ec4899" };
+// MÊMES valeurs que AURAS dans index.html (les 14 couleurs) — sinon le mail affiche une couleur fausse (ex. Marron -> bleu).
+const AURA_HEX = { "Doré": "#eab308", "Rouge": "#ef4444", "Orange": "#f97316", "Jaune": "#facc15", "Vert": "#22c55e", "Turquoise": "#14b8a6", "Bleu": "#3b82f6", "Violet": "#8b5cf6", "Rose": "#ec4899", "Argent": "#94a3b8", "Marron": "#92643f", "Gris": "#9ca3af", "Noir": "#4b5563", "Blanc": "#cbd5e1" };
 function sentinelleHtml(s) {
   s = s || {};
   const hex = AURA_HEX[s.couleur] || "#3b82f6";
@@ -104,14 +105,20 @@ function sentinelleHtml(s) {
   ].map(t => `<tr><td valign="top" width="14" style="padding:4px 0;color:#E8541A;font-weight:800;font-size:12px;">&#9656;</td><td style="padding:4px 0;font-size:12px;color:#7c2d12;line-height:1.4;">${t}</td></tr>`).join("");
   // Tuile stat
   const tile = (bg, bd, col, icon, title, big, small, extra) =>
-    `<td width="33%" valign="top" style="padding:0 4px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bg};border:1px solid ${bd};border-radius:12px;"><tr><td align="center" style="padding:14px 8px;">
-      <div style="font-size:20px;line-height:1;">${icon}</div>
-      <div style="font-size:9.5px;letter-spacing:.5px;font-weight:800;color:${col};margin-top:5px;">${title}</div>
-      <div style="font-size:25px;font-weight:800;color:#1C1C1C;margin-top:2px;line-height:1;">${big}</div>
-      <div style="font-size:10.5px;color:#6b7280;line-height:1.3;margin-top:3px;">${small}</div>${extra || ""}</td></tr></table></td>`;
+    `<td width="20%" valign="top" style="padding:0 3px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${bg};border:1px solid ${bd};border-radius:11px;"><tr><td align="center" style="padding:11px 3px;">
+      <div style="font-size:17px;line-height:1;">${icon}</div>
+      <div style="font-size:8px;letter-spacing:.2px;font-weight:800;color:${col};margin-top:4px;">${title}</div>
+      <div style="font-size:20px;font-weight:800;color:#1C1C1C;margin-top:2px;line-height:1;">${big}</div>
+      <div style="font-size:9px;color:#6b7280;line-height:1.25;margin-top:3px;">${small}</div>${extra || ""}</td></tr></table></td>`;
   const badge = (icon, title, sub) =>
     `<td width="25%" valign="top" style="padding:0 4px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #eef0f3;border-radius:10px;"><tr><td align="center" style="padding:11px 6px;">
       <div style="font-size:15px;">${icon}</div><div style="font-size:9px;font-weight:800;color:#2563EB;margin-top:4px;letter-spacing:.3px;">${title}</div><div style="font-size:8.5px;color:#9ca3af;line-height:1.25;margin-top:2px;">${sub}</div></td></tr></table></td>`;
+  // Indicateurs (mêmes chiffres que la page — envoyés dans le payload)
+  const band = (n) => n >= 75 ? { l: "Solide", c: "#16a34a" } : n >= 60 ? { l: "Bon niveau", c: "#2563EB" } : n >= 45 ? { l: "À renforcer", c: "#d97706" } : { l: "Fragile", c: "#dc2626" };
+  const lb = (o) => `<div style="display:inline-block;margin-top:6px;font-size:8.5px;font-weight:700;color:${o.c};background:${o.c}1e;padding:2px 7px;border-radius:7px;">${o.l}</div>`;
+  const est9 = '<span style="font-size:8px;color:#9ca3af;font-weight:600;">*</span>';
+  const vis = +s.visibilite || 0, sen = +s.sentiment || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;
+  const uni = '<span style="font-size:10px;color:#6b7280;font-weight:400;">/100</span>';
   // Bloc concurrence (optionnel)
   let concuBlock = "";
   if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
@@ -168,12 +175,22 @@ function sentinelleHtml(s) {
     </tr></table>
   </td></tr>
 
-  <tr><td style="padding:8px 20px 4px;">
+  <tr><td style="padding:4px 24px 2px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td style="padding:11px 15px;font-size:12.5px;color:#1C1C1C;line-height:1.4;">
+      <span style="font-weight:800;color:#2563EB;font-size:11px;">&#8599; VOTRE POTENTIEL</span> &mdash; de <b>${ive}</b> à <b>${pot}/100</b>, soit <b style="color:#E8541A;">+${gain} points possibles</b> avec les bons leviers.
+    </td></tr></table>
+  </td></tr>
+
+  <tr><td style="padding:8px 20px 2px;">
+    <div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;padding:0 4px 6px;">VUE D'ENSEMBLE</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      ${tile("#eff5ff", "#dbe7fb", "#2563EB", "&#11088;", "RÉPUTATION", noteTxt + '<span style="font-size:12px;color:#6b7280;font-weight:400;">' + (s.note_google != null ? "/5" : "") + "</span>", (s.nb_avis != null ? esc(s.nb_avis) + " avis Google" : "à construire"), '<div style="font-size:12px;color:#f0a500;letter-spacing:1px;margin-top:2px;">' + stars + "</div>")}
-      ${tile("#effaf3", "#cfeeda", "#16a34a", "&#128200;", "POTENTIEL", pot + '<span style="font-size:12px;color:#6b7280;font-weight:400;">/100</span>', (gain > 0 ? "+" + gain + " points accessibles" : "à révéler"))}
-      ${tile("#fff4ee", "#fdd9c3", "#E8541A", "&#127919;", "OPPORTUNITÉS", (opp || "—"), "leviers de progression identifiés")}
+      ${tile("#eff5ff", "#dbe7fb", "#2563EB", "&#11088;", "RÉPUTATION", noteTxt + (s.note_google != null ? '<span style="font-size:10px;color:#6b7280;font-weight:400;">/5</span>' : ""), (s.nb_avis != null ? esc(s.nb_avis) + " avis" : "à construire"), '<div style="font-size:10px;color:#f0a500;letter-spacing:1px;margin-top:1px;">' + stars + "</div>" + lb({ l: (s.note_google != null && +s.note_google >= 4 ? "Au-dessus moy." : "À développer"), c: "#2563EB" }))}
+      ${tile("#effaf3", "#cfeeda", "#16a34a", "&#128065;", "VISIBILITÉ", vis + uni + est9, "Présence web", lb(band(vis)))}
+      ${tile("#fff4ee", "#fdd9c3", "#E8541A", "&#10084;", "SENTIMENT", sen + '<span style="font-size:10px;color:#6b7280;font-weight:400;">%</span>' + est9, "retours positifs", lb({ l: (sen >= 70 ? "Positif" : "Mitigé"), c: (sen >= 70 ? "#16a34a" : "#d97706") }))}
+      ${tile("#eef0ff", "#dfe3ff", "#6366f1", "&#127970;", "POSITION.", pos + uni + est9, "différenciation", lb(band(pos)))}
+      ${tile("#e0f2fe", "#c3e6fb", "#0ea5e9", "&#128737;", "CONFIANCE", cfn + uni + est9, "perçue en ligne", lb(band(cfn)))}
     </tr></table>
+    <div style="font-size:9px;color:#9ca3af;padding:6px 4px 0;">* Visibilité, Sentiment, Positionnement et Confiance sont des indicateurs estimés à partir de données publiques.</div>
   </td></tr>
 
   <tr><td style="padding:10px 24px 6px;">
