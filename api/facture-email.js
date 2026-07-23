@@ -119,8 +119,8 @@ function sentinelleHtml(s) {
   const est9 = '<span style="font-size:8px;color:#9ca3af;font-weight:600;">*</span>';
   const vis = +s.visibilite || 0, sen = +s.sentiment || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;
   const uni = '<span style="font-size:10px;color:#6b7280;font-weight:400;">/100</span>';
-  // Pastille RONDE (border-radius sur la <table> — rendu rond y compris là où le td l'ignore)
-  const circle = (bg, label, val) => `<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="border-radius:50%;background:${bg};"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;color:#ffffff;text-align:center;"><div style="font-size:7.5px;font-weight:700;letter-spacing:.3px;opacity:.9;">${label}</div><div style="font-size:25px;font-weight:800;line-height:1;">${val}</div></td></tr></table>`;
+  // Pastille RONDE : VML v:roundrect (arcsize 50% = cercle) pour Outlook ; border-radius pour les autres clients.
+  const circle = (bg, label, val) => `<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:72px;width:72px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="${bg}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;"><span style="font-size:7px;font-weight:bold;letter-spacing:.3px;">${label}</span><br><span style="font-size:23px;font-weight:bold;">${val}</span></center></v:roundrect><![endif]--><!--[if !mso]><!--><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:50%;background:${bg};color:#ffffff;text-align:center;"><div style="font-size:7.5px;font-weight:700;letter-spacing:.3px;opacity:.9;">${label}</div><div style="font-size:25px;font-weight:800;line-height:1;">${val}</div></td></tr></table><!--<![endif]-->`;
   // Bloc concurrence (optionnel)
   let concuBlock = "";
   if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
@@ -136,7 +136,7 @@ function sentinelleHtml(s) {
         ${rowC(s.prospect, true)}${s.concurrents.map(c => rowC(c, false)).join("")}
       </table></td></tr>`;
   }
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+  return `<!doctype html><html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><!--[if mso]><style>v\\:* { behavior:url(#default#VML); }</style><![endif]--></head>
 <body style="margin:0;padding:0;background:#eef0f3;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef0f3;"><tr><td align="center" style="padding:22px 8px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;background:#ffffff;border-radius:14px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;color:#1C1C1C;">
