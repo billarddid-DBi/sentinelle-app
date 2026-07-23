@@ -1007,7 +1007,7 @@ function sentSlide(i){
 function iveNav(s){
   if(s==='accueil'){ renderAuth('login'); }
   else if(s==='sentinelle'){ if(document.getElementById('sSlide_0')) sentSlide(0); else dirigeantSpace(); }
-  else if(s==='boussole'||s==='plan'){ if(typeof paywallView==='function') paywallView(); }
+  else if(s==='boussole'||s==='plan'){ if(typeof boussoleActif==='function'&&boussoleActif()){ boussoleView(); } else if(typeof paywallView==='function'){ paywallView(); } }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
 }
@@ -1056,7 +1056,7 @@ function shortKw(s){
   }
   return (raw[0]||'').trim();
 }
-function sentSlides(d, targetId, cockpitHtml){
+function sentSlides(d, targetId, cockpitHtml, banner){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
   var embedded=!!targetId;
   if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
@@ -1147,6 +1147,7 @@ function sentSlides(d, targetId, cockpitHtml){
   slides.forEach(function(sl,i){
     html+='<div id="sSlide_'+i+'" style="flex-direction:column;gap:8px;'+(i===0?'display:flex;':'display:none;')+'">'
       +iveNavBar('sentinelle')
+      +((sl.cockpit&&banner)?banner:'')
       +'<div class="sSlide card" style="min-width:0;overflow:hidden;">'
       +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #f1f3f4;">'+(sl.cockpit?'<i class="ti ti-layout-dashboard" style="color:#E8541A;font-size:18px;"></i>':(i>0?'<i class="ti ti-radar-2" style="color:#E8541A;font-size:18px;"></i>':'<button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-home"></i></button>'))+'<span style="font-size:11px;letter-spacing:1px;color:#6b7280;font-weight:600;">'+(sl.cockpit?'MON ESPACE':'SENTINELLE · <b style="color:#1C1C1C;">'+esc(d.nom||'')+'</b>')+'</span><span style="flex:1;"></span><span style="font-size:11px;color:#9ca3af;">'+(i+1)+' / '+slides.length+'</span></div>'
       +'<div style="padding:16px;"><div style="text-align:center;font-size:17px;font-weight:800;color:#1C1C1C;">'+sl.t+'</div><div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:2px;margin-bottom:14px;">'+sl.s+'</div>'+sl.html+'</div>'
@@ -2116,6 +2117,8 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
 // Admin = un seul email (billard.did@gmail.com). Côté serveur c'est prof.role==='admin' (is_admin) qui fait foi ;
 // ici c'est purement UI : afficher le bouton « Nouvelle analyse » et la vue consultant complète.
 function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email||'').toLowerCase()==='billard.did@gmail.com'); }
+// Abonné à la BOUSSOLE ? admin, ou prix>0, ou choix simulé (tant que le vrai paiement n'est pas branché).
+function boussoleActif(){ return !!window.__boussoleActive || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
 // Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
 // ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
 // la fiche par la clé mémorisée sur le compte (sentNom/sentVille), sinon on retombe sur le nom saisi.
@@ -2200,8 +2203,8 @@ function dirigeantSpace(){
           var meaning='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;flex:1;min-width:158px;font-size:11.5px;color:#7c2d12;line-height:1.5;"><b><i class="ti ti-palette"></i> Ce que dit votre note</b><div style="margin-top:2px;">IVE '+esc(coul)+(_adef&&_adef.s?' — '+esc(_adef.s):'')+'.'+(_adef&&_adef.d?' '+esc(_adef.d):'')+'</div>'+(_f.valeurs?'<div style="margin-top:6px;"><b>Vos valeurs :</b> '+esc(_f.valeurs)+'</div>':'')+(_f.imagePercue?'<div style="margin-top:4px;"><b>Votre image :</b> '+esc(_f.imagePercue)+'</div>':'')+'</div>';
           var cockpit='<div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">'+band+'<div style="flex:0 0 auto;text-align:center;">'+pastille+'<div style="font-size:10px;color:#9ca3af;margin-top:7px;font-weight:600;letter-spacing:.3px;">'+(diff>0?'Prochain scan : J-'+diff:'Re-mesure disponible')+'</div></div>'+meaning+'</div>'+evo+infHtml;
           var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
-          $('dirigeant').innerHTML=adminBar()+header+'<div id="homeSlides"></div>';
-          if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit);
+          $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>';
+          if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit,header);
         });
       });
     })();
@@ -2535,6 +2538,7 @@ function paywallView(){
 }
 // Choix d'une formule BOUSSOLE — confirmation SANS paiement (le règlement sera branché plus tard).
 function boussoleChoisir(plan){
+  window.__boussoleActive=true; // abonnement SIMULÉ (aucun paiement branché) → débloque la BOUSSOLE
   var lbl=(plan==='annuel')?'Annuelle — 24,90 € / an':'Mensuelle — 2,99 € / mois';
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre choix est bien noté</div></div>'
@@ -2543,8 +2547,23 @@ function boussoleChoisir(plan){
       +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;margin-top:12px;">Formule '+lbl+'</div>'
       +'<div style="font-size:13px;color:#4b5563;line-height:1.6;margin-top:8px;">Merci ! Votre intérêt pour la <b>BOUSSOLE</b> est enregistré. <b>Aucun paiement ne vous est demandé pour l\'instant</b> — l\'abonnement n\'est pas encore actif.</div>'
       +'<div style="background:#fef3c7;border-radius:9px;padding:10px 12px;font-size:12px;color:#7c4a03;margin-top:14px;line-height:1.5;text-align:left;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Vous serez prévenu par email dès l\'activation, avec les modalités de règlement. Vous ne perdez rien.</div>'
-      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Revenir à mon espace</button>'
-      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="paywallView()">Changer de formule</button>'
+      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="boussoleView()"><i class="ti ti-compass"></i> Accéder à la BOUSSOLE</button>'
+      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()">Revenir à mon espace</button>'
+    +'</div></div></div>';
+  $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
+}
+// BOUSSOLE débloquée (abonné). Placeholder tant que le contenu réel n'est pas construit.
+function boussoleView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var feat=[['ti-robot','Vos outils IA','Les outils concrets recommandés pour votre métier, en clair.'],['ti-bolt','Vos actions rapides','La liste priorisée des gestes qui font bouger votre note.'],['ti-gauge','La mesure interne','La BOUSSOLE : le diagnostic réel de votre entreprise, au-delà de l\'image publique.'],['ti-route','Votre feuille de route','Le plan sur 12 mois + le suivi de votre note dans le temps.']];
+  var html='<div style="display:flex;flex-direction:column;gap:8px;">'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div>'
+    +'<div class="sec">'
+      +'<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#166534;"><i class="ti ti-rosette-discount-check"></i> <b>Abonnement actif</b> — vous avez accès à la BOUSSOLE.</div>'
+      +'<div style="font-size:13px;color:#374151;line-height:1.55;margin-top:12px;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
+      +'<div style="margin-top:6px;">'+feat.map(function(f){return '<div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:8px;"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;">'+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div></div></div>';}).join('')+'</div>'
+      +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:10px 12px;font-size:12px;color:#92700c;margin-top:14px;line-height:1.5;"><i class="ti ti-tools"></i> La BOUSSOLE est en cours de finalisation. Vos accès sont ouverts — le contenu détaillé arrive très vite.</div>'
+      +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>'
     +'</div></div></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
