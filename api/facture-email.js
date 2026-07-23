@@ -119,8 +119,9 @@ function sentinelleHtml(s) {
   const est9 = '<span style="font-size:8px;color:#9ca3af;font-weight:600;">*</span>';
   const vis = +s.visibilite || 0, sen = +s.sentiment || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;
   const uni = '<span style="font-size:10px;color:#6b7280;font-weight:400;">/100</span>';
-  // Pastille RONDE : VML v:roundrect (arcsize 50% = cercle) pour Outlook ; border-radius pour les autres clients.
-  const circle = (bg, label, val) => `<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:72px;width:72px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="${bg}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;"><span style="font-size:7px;font-weight:bold;letter-spacing:.3px;">${label}</span><br><span style="font-size:23px;font-weight:bold;">${val}</span></center></v:roundrect><![endif]--><!--[if !mso]><!--><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:50%;background:${bg};color:#ffffff;text-align:center;"><div style="font-size:7.5px;font-weight:700;letter-spacing:.3px;opacity:.9;">${label}</div><div style="font-size:25px;font-weight:800;line-height:1;">${val}</div></td></tr></table><!--<![endif]-->`;
+  // Pastille RONDE ne contenant QUE le chiffre (une seule ligne centrée → jamais coupé).
+  // VML v:roundrect (arcsize 50% = cercle) pour Outlook ; border-radius pour les autres clients.
+  const circle = (bg, val) => `<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:76px;width:76px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="${bg}"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:30px;font-weight:bold;">${val}</center></v:roundrect><![endif]--><!--[if !mso]><!--><table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:50%;background:${bg};color:#ffffff;text-align:center;font-size:29px;font-weight:800;line-height:76px;">${val}</td></tr></table><!--<![endif]-->`;
   // Bloc concurrence (optionnel)
   let concuBlock = "";
   if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
@@ -171,9 +172,9 @@ function sentinelleHtml(s) {
       <td width="52%" valign="top" style="padding-left:8px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td align="center" style="padding:13px 8px;">
         <div style="font-size:10.5px;font-weight:800;color:#2563EB;letter-spacing:.3px;margin-bottom:9px;">&#8599; VOTRE POTENTIEL</div>
         <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td align="center" valign="middle">${circle(hex, "MON IVE", ive)}<div style="font-size:8.5px;color:#6b7280;margin-top:4px;">IVE ${esc(s.couleur || "")}</div></td>
+          <td align="center" valign="middle"><div style="font-size:8px;font-weight:800;color:#8a6a4f;letter-spacing:.3px;margin-bottom:4px;">MON IVE</div>${circle(hex, ive)}<div style="font-size:8.5px;color:#6b7280;margin-top:5px;">IVE ${esc(s.couleur || "")}</div></td>
           <td valign="middle" align="center" style="padding:0 8px;font-size:8.5px;color:#9ca3af;line-height:1.2;">&rarr;<br>objectif</td>
-          <td align="center" valign="middle">${circle("#E8541A", "POTENTIEL", pot)}<div style="font-size:8.5px;color:#6b7280;margin-top:4px;">à viser</div></td>
+          <td align="center" valign="middle"><div style="font-size:8px;font-weight:800;color:#E8541A;letter-spacing:.3px;margin-bottom:4px;">POTENTIEL</div>${circle("#E8541A", pot)}<div style="font-size:8.5px;color:#6b7280;margin-top:5px;">à viser</div></td>
         </tr></table>
         <div style="margin-top:10px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:11px;font-weight:800;padding:4px 13px;border-radius:20px;">+${gain} points possibles</span></div>
       </td></tr></table></td>
