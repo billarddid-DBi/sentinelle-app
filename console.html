@@ -125,6 +125,17 @@
   <!-- KPIs -->
   <div class="kpis" id="kpis"></div>
 
+  <!-- OUTIL DE TEST : réinitialiser un compte -->
+  <div class="panel" style="margin-bottom:20px;padding:14px 16px;border:1px solid #fecaca;background:#fff5f5;">
+    <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">🧪 Réinitialiser un compte de test</div>
+    <div style="font-size:12px;color:var(--muted);margin:4px 0 10px;">Supprime la fiche SENTINELLE liée <b>et</b> le compte (libère l'email pour recréer). Réservé à l'admin.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <input id="resetEmail" type="email" placeholder="email du compte à supprimer" onkeydown="if(event.key==='Enter')resetTestAccount()" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;min-width:260px;">
+      <button onclick="resetTestAccount()" style="padding:8px 14px;border:none;background:#dc2626;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">Supprimer le compte</button>
+      <span id="resetMsg" style="font-size:12px;"></span>
+    </div>
+  </div>
+
   <!-- SUIVI FINANCIER DES ABONNEMENTS -->
   <div class="panel" style="margin-bottom:20px;padding:0">
     <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 2,99 € · Annuel 24,90 €</span></h3>
@@ -252,6 +263,24 @@ async function adminLogin(){
   await loadClients();
 }
 async function adminLogout(){ try{ if(SB) await SB.auth.signOut(); }catch(e){} location.reload(); }
+async function resetTestAccount(){
+  var msg=document.getElementById('resetMsg');
+  var set=function(t,c){ if(msg){ msg.style.color=c||'#6b7280'; msg.textContent=t; } };
+  if(!SB){ set('Service indisponible.','#dc2626'); return; }
+  var email=(document.getElementById('resetEmail').value||'').trim().toLowerCase();
+  if(!email){ set('Entre un email.','#dc2626'); return; }
+  var s=await SB.auth.getSession();
+  if(!(s.data&&s.data.session)){ set('Connecte-toi en admin d\'abord.','#dc2626'); return; }
+  if(!confirm('Supprimer définitivement le compte '+email+' et sa fiche SENTINELLE ?')) return;
+  set('Suppression…');
+  try{
+    var r=await SB.rpc('admin_reset_test_account',{p_email:email});
+    if(r.error){ set('Erreur : '+r.error.message,'#dc2626'); return; }
+    var d=r.data||{};
+    if(d.ok){ set('✓ Compte supprimé ('+(d.fiches_supprimees||0)+' fiche). Email libéré.','#16a34a'); document.getElementById('resetEmail').value=''; }
+    else { set('⚠️ '+(d.error||'Échec'),'#dc2626'); }
+  }catch(e){ set('Erreur : '+(e&&e.message||e),'#dc2626'); }
+}
 async function loadClients(){
   if(!SB) return;
   // Les données du dirigeant vivent dans le blob pm_data ; on lit entreprises + pm_data (RLS : admin voit tout).
