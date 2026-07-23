@@ -2522,15 +2522,30 @@ async function sendSentinelleEmail(){
   }catch(e){ setMsg('<span style="color:#991b1b;">Connexion impossible, réessayez.</span>'); }
 }
 function paywallView(){
-  var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div>'
+  var html='<div style="display:flex;flex-direction:column;gap:8px;">'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div>'
     +'<div class="sec"><div style="font-size:13px;color:#374151;line-height:1.6;">Votre note est <b>enregistrée</b> — c\'est votre point de départ. Avec l\'abonnement, vous débloquez :</div>'
     +'<div style="font-size:12.5px;color:#4b5563;line-height:1.7;margin-top:8px;"><i class="ti ti-lock-open" style="color:#16a34a;"></i> Vos <b>outils IA</b> recommandés, en clair<br><i class="ti ti-lock-open" style="color:#16a34a;"></i> Toutes vos <b>actions rapides</b><br><i class="ti ti-lock-open" style="color:#16a34a;"></i> La <b>BOUSSOLE</b> : la mesure interne réelle de votre entreprise<br><i class="ti ti-lock-open" style="color:#16a34a;"></i> Votre <b>feuille de route</b> + le suivi de votre note dans le temps</div>'
     +'<div style="display:flex;gap:8px;margin-top:14px;">'
-      +'<div style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div></div>'
-      +'<div style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · 2 mois offerts</div></div>'
+      +'<div onclick="boussoleChoisir(\'mensuel\')" style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
+      +'<div onclick="boussoleChoisir(\'annuel\')" style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · 2 mois offerts</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
     +'</div>'
     +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Votre note et votre diagnostic sont bien enregistrés — vous serez prévenu par email dès l\'activation, vous ne perdez rien.</div>'
-    +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button></div></div>';
+    +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button></div></div></div>';
+  $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
+}
+// Choix d'une formule BOUSSOLE — confirmation SANS paiement (le règlement sera branché plus tard).
+function boussoleChoisir(plan){
+  var lbl=(plan==='annuel')?'Annuelle — 24,90 € / an':'Mensuelle — 2,99 € / mois';
+  var html='<div style="display:flex;flex-direction:column;gap:8px;">'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre choix est bien noté</div></div>'
+    +'<div class="sec" style="text-align:center;">'
+      +'<div style="width:62px;height:62px;border-radius:50%;background:#dcfce7;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-circle-check" style="font-size:34px;color:#16a34a;"></i></div>'
+      +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;margin-top:12px;">Formule '+lbl+'</div>'
+      +'<div style="font-size:13px;color:#4b5563;line-height:1.6;margin-top:8px;">Merci ! Votre intérêt pour la <b>BOUSSOLE</b> est enregistré. <b>Aucun paiement ne vous est demandé pour l\'instant</b> — l\'abonnement n\'est pas encore actif.</div>'
+      +'<div style="background:#fef3c7;border-radius:9px;padding:10px 12px;font-size:12px;color:#7c4a03;margin-top:14px;line-height:1.5;text-align:left;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Vous serez prévenu par email dès l\'activation, avec les modalités de règlement. Vous ne perdez rien.</div>'
+      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Revenir à mon espace</button>'
+      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="paywallView()">Changer de formule</button>'
+    +'</div></div></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
 }
 function authResetState(){
