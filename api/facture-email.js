@@ -119,6 +119,8 @@ function sentinelleHtml(s) {
   const est9 = '<span style="font-size:8px;color:#9ca3af;font-weight:600;">*</span>';
   const vis = +s.visibilite || 0, sen = +s.sentiment || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;
   const uni = '<span style="font-size:10px;color:#6b7280;font-weight:400;">/100</span>';
+  // Pastille RONDE (border-radius sur la <table> — rendu rond y compris là où le td l'ignore)
+  const circle = (bg, label, val) => `<table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0" style="border-radius:50%;background:${bg};"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;color:#ffffff;text-align:center;"><div style="font-size:7.5px;font-weight:700;letter-spacing:.3px;opacity:.9;">${label}</div><div style="font-size:25px;font-weight:800;line-height:1;">${val}</div></td></tr></table>`;
   // Bloc concurrence (optionnel)
   let concuBlock = "";
   if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
@@ -160,39 +162,22 @@ function sentinelleHtml(s) {
 
   <tr><td style="padding:10px 24px 4px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td width="54%" valign="top" style="padding-right:8px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f8fb;border:1px solid #eef0f3;border-radius:12px;"><tr><td style="padding:15px 16px;">
+      <td width="48%" valign="top" style="padding-right:8px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f6f8fb;border:1px solid #eef0f3;border-radius:12px;"><tr><td style="padding:15px 16px;">
         <div style="font-size:22px;">&#127970;</div>
         <div style="font-size:15px;font-weight:800;margin-top:6px;line-height:1.25;">${esc(s.nom) || "Votre entreprise"}</div>
         <div style="font-size:11.5px;color:#6b7280;margin-top:4px;line-height:1.4;">${esc(s.activite || "")}</div>
         <div style="font-size:11.5px;color:#6b7280;margin-top:6px;">&#128205; ${esc(s.ville || "")}</div>
       </td></tr></table></td>
-      <td width="46%" valign="top" style="padding-left:8px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${hex}" style="background:${hex};border-radius:12px;"><tr><td style="padding:15px 16px;color:#ffffff;">
-        <div style="font-size:10px;letter-spacing:1.5px;font-weight:700;opacity:.85;">MON IVE</div>
-        <div style="font-size:38px;font-weight:800;line-height:1;margin-top:2px;">${ive}<span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></div>
-        <div style="font-size:12px;opacity:.95;margin-top:2px;">IVE ${esc(s.couleur || "")}</div>
-        <div style="font-size:11px;margin-top:9px;opacity:.95;line-height:1.35;">&#9679; ${ivTag}</div>
+      <td width="52%" valign="top" style="padding-left:8px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td align="center" style="padding:13px 8px;">
+        <div style="font-size:10.5px;font-weight:800;color:#2563EB;letter-spacing:.3px;margin-bottom:9px;">&#8599; VOTRE POTENTIEL</div>
+        <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td align="center" valign="middle">${circle(hex, "MON IVE", ive)}<div style="font-size:8.5px;color:#6b7280;margin-top:4px;">IVE ${esc(s.couleur || "")}</div></td>
+          <td valign="middle" align="center" style="padding:0 8px;font-size:8.5px;color:#9ca3af;line-height:1.2;">&rarr;<br>objectif</td>
+          <td align="center" valign="middle">${circle("#E8541A", "POTENTIEL", pot)}<div style="font-size:8.5px;color:#6b7280;margin-top:4px;">à viser</div></td>
+        </tr></table>
+        <div style="margin-top:10px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:11px;font-weight:800;padding:4px 13px;border-radius:20px;">+${gain} points possibles</span></div>
       </td></tr></table></td>
     </tr></table>
-  </td></tr>
-
-  <tr><td style="padding:6px 24px 2px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td align="center" style="padding:14px 10px;">
-      <div style="font-size:11px;font-weight:800;color:#2563EB;letter-spacing:.3px;margin-bottom:10px;">&#8599; VOTRE POTENTIEL</div>
-      <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td align="center" valign="middle">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="78" height="78" bgcolor="${hex}" style="width:78px;height:78px;background:${hex};border-radius:50%;color:#ffffff;text-align:center;">
-            <div style="font-size:8px;font-weight:700;letter-spacing:.3px;opacity:.9;">MON IVE</div><div style="font-size:27px;font-weight:800;line-height:1;">${ive}</div></td></tr></table>
-          <div style="font-size:9px;color:#6b7280;margin-top:4px;">IVE ${esc(s.couleur || "")}</div>
-        </td>
-        <td valign="middle" align="center" style="padding:0 12px;font-size:9px;color:#9ca3af;line-height:1.2;">&rarr;<br>objectif</td>
-        <td align="center" valign="middle">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="78" height="78" bgcolor="#E8541A" style="width:78px;height:78px;background:#E8541A;border-radius:50%;color:#ffffff;text-align:center;">
-            <div style="font-size:8px;font-weight:700;letter-spacing:.3px;opacity:.9;">POTENTIEL</div><div style="font-size:27px;font-weight:800;line-height:1;">${pot}</div></td></tr></table>
-          <div style="font-size:9px;color:#6b7280;margin-top:4px;">à viser</div>
-        </td>
-      </tr></table>
-      <div style="margin-top:11px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:800;padding:4px 15px;border-radius:20px;">+${gain} points possibles</span></div>
-    </td></tr></table>
   </td></tr>
 
   <tr><td style="padding:8px 20px 2px;">
