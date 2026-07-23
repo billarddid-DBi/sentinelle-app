@@ -1086,6 +1086,8 @@ function sentSlides(d, targetId, cockpitHtml){
     if(top.length){ gain=tot; ouMonter=top.map(function(x,i){return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+tot+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Pour en savoir plus, abonnez-vous à '+bLink+'.</div>'; }
   }
   var pot=Math.min(100,est+gain);   // potentiel = note + gain COHÉRENT avec les leviers affichés
+  // Récap mémorisé pour l'envoi email (bouton slide 7)
+  window.__sentRecap={ nom:d.nom||'', ville:d.ville||'', activite:d.activite||'', ive:est, potentiel:pot, gain:gain, couleur:coul, note_google:ng, nb_avis:nbA, valeurs:d.valeurs||'', image:d.imagePercue||'', nbOpp:nbOpp };
   var outilsTease=(d.agents&&d.agents.length)?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:9px 11px;color:#7c2d12;"><i class="ti ti-lock"></i> <b>'+d.agents.length+' outil'+(d.agents.length>1?'s':'')+' IA</b> déjà sélectionné'+(d.agents.length>1?'s':'')+' pour vous. Pour en savoir plus, abonnez-vous à '+bLink+'.</div>':'';
   var qwList=(d.quickwins&&d.quickwins.length)?'<div style="margin-top:8px;"><b>Actions rapides :</b><ul style="margin:4px 0 0;padding-left:18px;">'+d.quickwins.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul></div>':'';
   var vigList=(d.vigilance&&d.vigilance.length)?d.vigilance.map(function(x){return '<div style="margin-top:4px;">'+esc(x.niveau)+' '+esc(x.texte)+'</div>';}).join(''):'Aucun point de vigilance majeur.';
@@ -1137,6 +1139,7 @@ function sentSlides(d, targetId, cockpitHtml){
     +'<div style="text-align:center;font-size:16px;font-weight:800;color:#1C1C1C;line-height:1.3;">Voilà ce que révèle l\'enquête publique.<br>Et c\'est déjà énorme.</div>'
     +'<div style="text-align:center;font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:8px;">Tout ça, uniquement à partir de <b>données publiques</b> — vous n\'avez encore rien fait. Au passage, nous avons repéré <b>'+nbOpp+' opportunités de progression</b>.</div>'
     +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:13px 15px;margin-top:12px;display:flex;align-items:center;gap:12px;"><div style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+boussoleSVG(30)+'</div><div><div style="font-size:13.5px;font-weight:800;color:#c2410c;">Envie que ce soit encore plus fort ?</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.5;margin-top:3px;"><b>BOUSSOLE :</b> garder le cap et peu importe la direction.</div></div></div>'
+    +'<button type="button" onclick="sendSentinelleEmail()" style="width:100%;margin-top:12px;border:none;background:#2563EB;color:#fff;border-radius:12px;padding:13px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-mail"></i> Recevoir mon récap par email</button><div id="sentMailMsg" style="text-align:center;margin-top:7px;min-height:16px;font-size:12px;"></div>'
     +sentExp('exp_intel','<b style="font-size:13px;"><i class="ti ti-brain" style="color:#E8541A;"></i> Intelligence stratégique</b>',intelHtml)});
 
   SENT_N=slides.length;
@@ -1540,6 +1543,7 @@ function renderConcu(d){
   if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
   // Prospect en 1re ligne, puis concurrents DU PLUS PROCHE AU PLUS LOIN (tri par distance croissante)
   d.concurrents.sort(function(a,b){ return (a.distance!=null?a.distance:1e9)-(b.distance!=null?b.distance:1e9); });
+  window.__concuData=d; // mémorisé pour l'envoi email (récap slide 7)
   var rows='<tr style="background:#FBE7DC;"><td style="padding:6px 8px;font-weight:700;"><i class="ti ti-target"></i> <a href="'+siteLink(d.prospect.nom,d.prospect.commune,d.prospect.site)+'" target="_blank" style="color:#1f2937;">'+esc(d.prospect.nom)+' <i class="ti ti-external-link"></i></a><br><span style="font-weight:400;color:#6b7280;font-size:10px;">votre prospect · '+esc(d.prospect.commune||'')+'</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(d.prospect.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(d.prospect.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(d.prospect.aura)+'</td></tr>';
   d.concurrents.forEach(function(c){
     rows+='<tr style="border-top:1px solid #eef2f5;"><td style="padding:6px 8px;"><a href="'+siteLink(c.nom,c.commune,c.site)+'" target="_blank" style="color:#1f2937;">'+esc(c.nom)+' <i class="ti ti-external-link"></i></a><br><span style="color:#9ca3af;font-size:10px;">'+esc(c.commune||'')+' · '+c.distance+' km</span></td><td style="text-align:center;padding:6px 8px;">'+avisTxt(c.avis)+'</td><td style="text-align:center;padding:6px 8px;">'+presBadge(c.presence)+'</td><td style="text-align:center;padding:6px 8px;">'+auraCell(c.aura)+'</td></tr>';
@@ -2492,6 +2496,30 @@ function lancerMaSentinelle(){
   showView('form');
   if($('q')) $('q').value=q;
   run({ text:q });
+}
+async function sendSentinelleEmail(){
+  var msg=document.getElementById('sentMailMsg');
+  var setMsg=function(h){ if(msg) msg.innerHTML=h; };
+  var r=window.__sentRecap;
+  if(!r){ setMsg('<span style="color:#991b1b;"><i class="ti ti-alert-triangle"></i> Récap indisponible — rouvrez votre diagnostic.</span>'); return; }
+  setMsg('<span style="color:#6b7280;"><span class="spin" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Envoi en cours…</span>');
+  try{
+    await window.sbReady;
+    var s=window.sb?await window.sb.auth.getSession():null;
+    var token=s&&s.data&&s.data.session&&s.data.session.access_token;
+    if(!token){ setMsg('<span style="color:#991b1b;">Connectez-vous pour recevoir votre récap.</span>'); return; }
+    var sent=Object.assign({},r);
+    var cd=window.__concuData;
+    if(cd&&cd.prospect&&cd.concurrents&&cd.concurrents.length){
+      sent.keyword=cd.keyword||'';
+      sent.prospect={ nom:cd.prospect.nom, commune:cd.prospect.commune, note:(cd.prospect.avis&&cd.prospect.avis.note), nb:(cd.prospect.avis&&cd.prospect.avis.nombre), ive:(cd.prospect.aura&&cd.prospect.aura.note) };
+      sent.concurrents=cd.concurrents.slice(0,8).map(function(c){ return { nom:c.nom, commune:c.commune, distance:c.distance, note:(c.avis&&c.avis.note), nb:(c.avis&&c.avis.nombre), ive:(c.aura&&c.aura.note) }; });
+    }
+    var resp=await fetch('/api/facture-email',{method:'POST',headers:{'content-type':'application/json','authorization':'Bearer '+token},body:JSON.stringify({type:'sentinelle',sent:sent})});
+    var j=null; try{ j=await resp.json(); }catch(e){}
+    if(resp.ok&&j&&j.ok){ setMsg('<span style="color:#166534;"><i class="ti ti-circle-check"></i> Récap envoyé à '+esc(j.envoye_a||'votre email')+'.</span>'); }
+    else { setMsg('<span style="color:#991b1b;">Envoi impossible'+((j&&j.error)?' — '+esc(j.error):'')+'.</span>'); }
+  }catch(e){ setMsg('<span style="color:#991b1b;">Connexion impossible, réessayez.</span>'); }
 }
 function paywallView(){
   var html='<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div>'

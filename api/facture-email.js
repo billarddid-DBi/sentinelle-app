@@ -73,6 +73,66 @@ function welcomeHtml(entreprise) {
   </div></body></html>`;
 }
 
+const AURA_HEX = { "Bleu": "#3b82f6", "Vert": "#16a34a", "Orange": "#E8541A", "Rouge": "#dc2626", "Violet": "#7c3aed", "Or": "#d4a017", "Jaune": "#eab308", "Gris": "#6b7280", "Turquoise": "#14b8a6", "Rose": "#ec4899" };
+function sentinelleHtml(s) {
+  s = s || {};
+  const hex = AURA_HEX[s.couleur] || "#3b82f6";
+  const gain = +s.gain || 0;
+  const opp = +s.nbOpp || 0;
+  const repLine = (s.note_google != null)
+    ? `<div style="margin:2px 0;"><b>Réputation :</b> ${esc(s.note_google)}/5${s.nb_avis != null ? ` · ${esc(s.nb_avis)} avis Google` : ""}</div>` : "";
+  const idBlocks =
+    (s.valeurs ? `<div style="margin:4px 0;"><b>Vos valeurs :</b> ${esc(s.valeurs)}</div>` : "") +
+    (s.image ? `<div style="margin:4px 0;"><b>Votre image :</b> ${esc(s.image)}</div>` : "");
+  const potBlock = gain > 0
+    ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin:14px 0;font-size:13.5px;color:#7c2d12;">
+         <b>Votre potentiel :</b> de <b>${esc(s.ive)}</b> à <b>${esc(s.potentiel)}</b>/100 — soit <b>+${gain} points</b> à portée de main.</div>` : "";
+  const oppBlock = opp > 0
+    ? `<div style="font-size:13.5px;color:#1C1C1C;margin:10px 0;">🔎 Au passage, nous avons repéré <b>${opp} opportunité${opp > 1 ? "s" : ""} de progression</b> pour votre entreprise.</div>` : "";
+  // Tableau concurrence (le plus proche au plus loin)
+  let concuBlock = "";
+  if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
+    const rowC = (c, pros) => `<tr${pros ? ' style="background:#FBE7DC;"' : ""}>
+      <td style="padding:8px 10px;border-bottom:1px solid #eef2f5;font-size:12.5px;${pros ? "font-weight:700;" : ""}">${esc(c.nom)}${pros ? ' <span style="font-weight:400;color:#6b7280;font-size:11px;">(vous)</span>' : ""}<br><span style="color:#9ca3af;font-size:11px;">${esc(c.commune || "")}${(!pros && c.distance != null) ? " · " + esc(c.distance) + " km" : ""}</span></td>
+      <td style="padding:8px 10px;border-bottom:1px solid #eef2f5;text-align:center;font-size:12px;">${c.note != null ? esc(c.note) + "/5" : "n.c."}${c.nb != null ? `<br><span style="color:#9ca3af;font-size:10px;">(${esc(c.nb)})</span>` : ""}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid #eef2f5;text-align:center;font-weight:700;font-size:13px;">${c.ive != null ? esc(c.ive) : "—"}</td></tr>`;
+    concuBlock = `<div style="margin-top:22px;">
+      <div style="font-size:15px;font-weight:700;color:#1C1C1C;">📍 Votre concurrence locale${s.keyword ? ` — « ${esc(s.keyword)} »` : ""}</div>
+      <div style="font-size:11.5px;color:#6b7280;margin:4px 0 8px;">Vous en 1re ligne, puis les concurrents <b>du plus proche au plus loin</b>.</div>
+      <table width="100%" style="border-collapse:collapse;font-size:13px;">
+        <tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:7px 10px;">Entreprise</th><th style="padding:7px 10px;">Avis</th><th style="padding:7px 10px;">IVE</th></tr>
+        ${rowC(s.prospect, true)}${s.concurrents.map(c => rowC(c, false)).join("")}
+      </table>
+      <div style="font-size:11px;color:#9ca3af;margin-top:6px;"><b>IVE</b> = indice objectif (note + nombre d'avis + site), calculé à l'identique pour tous → directement comparable.</div></div>`;
+  }
+  return `<!doctype html><html><body style="margin:0;background:#f4f5f7;padding:24px 8px;">
+  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;">
+    <div style="background:#1C1C1C;color:#fff;padding:24px;text-align:center;">
+      <div style="font-size:28px;font-weight:800;letter-spacing:3px;">L<span style="color:#E8541A;">i</span>VE</div>
+      <div style="font-size:9px;letter-spacing:2px;color:#9ca3af;margin-top:5px;">RÉCAP DE VOTRE SENTINELLE</div>
+    </div>
+    <div style="padding:24px;color:#1C1C1C;font-size:14px;line-height:1.55;">
+      <div style="font-size:18px;font-weight:800;">${esc(s.nom) || "Votre entreprise"}</div>
+      <div style="color:#6b7280;font-size:12.5px;">${esc(s.ville || "")}${s.activite ? " · " + esc(s.activite) : ""}</div>
+      <div style="text-align:center;margin:18px 0;">
+        <div style="display:inline-block;width:130px;height:130px;border-radius:50%;background:${hex};color:#fff;text-align:center;">
+          <div style="padding-top:30px;font-size:10px;letter-spacing:1.5px;font-weight:700;opacity:.9;">MON IVE</div>
+          <div style="font-size:40px;font-weight:800;line-height:1;">${s.ive != null ? esc(s.ive) : "—"}<span style="font-size:14px;font-weight:400;opacity:.85;">/100</span></div>
+          <div style="font-size:11px;opacity:.95;margin-top:2px;">IVE ${esc(s.couleur || "")}</div>
+        </div>
+      </div>
+      ${repLine}${idBlocks}${potBlock}${oppBlock}${concuBlock}
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 18px;margin-top:24px;">
+        <div style="font-size:15px;font-weight:800;color:#c2410c;">Vous avez fait une première expérience avec SENTINELLE 🎯</div>
+        <div style="font-size:13.5px;color:#7c2d12;line-height:1.6;margin-top:6px;">SENTINELLE vous a donné les <b>constats</b>, à partir de vos seules données publiques. La suite logique, c'est <b>BOUSSOLE</b> : les causes, les priorités et les <b>outils IA concrets</b> pour votre métier — le plan d'action qui fait progresser votre note.</div>
+        <div style="text-align:center;margin-top:16px;"><a href="${APP_URL}" style="display:inline-block;background:#E8541A;color:#fff;text-decoration:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px;">Passer à la BOUSSOLE →</a></div>
+      </div>
+      <p style="margin:20px 0 0;color:#6b7280;font-size:13px;">À très vite,<br><b>Didier Billard</b> — LIVE by DBi360</p>
+    </div>
+    <div style="background:#f8fafc;padding:14px 24px;text-align:center;font-size:11px;color:#9ca3af;">🔒 Analyse issue de données publiques. Vos données sont protégées et ne sont jamais revendues.</div>
+  </div></body></html>`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const URL = process.env.SUPABASE_URL, ANON = process.env.SUPABASE_ANON_KEY, SR = process.env.SUPABASE_SERVICE_ROLE;
@@ -97,6 +157,21 @@ export default async function handler(req, res) {
         to: dest,
         subject: "Bienvenue sur LIVE — votre entreprise vient de révéler ses premiers signaux 🎯",
         html: welcomeHtml(entreprise)
+      });
+      res.status(200).json({ ok: true, envoye_a: dest });
+      return;
+    }
+    // BRANCHE « RÉCAP SENTINELLE » : le dirigeant s'envoie SON récap + relance BOUSSOLE (pas besoin d'admin)
+    if (((req.body || {}).type) === "sentinelle") {
+      const dest = (user.email || "").trim();
+      if (!dest) { res.status(400).json({ error: "Email introuvable" }); return; }
+      const sent = (req.body || {}).sent || {};
+      const transporter = nodemailer.createTransport({ service: "gmail", auth: { user: GU, pass: GP } });
+      await transporter.sendMail({
+        from: `"LIVE by DBi360" <${GU}>`,
+        to: dest,
+        subject: `Votre récap SENTINELLE — ${sent.nom || "votre entreprise"} (IVE ${sent.ive != null ? sent.ive : "—"}/100)`,
+        html: sentinelleHtml(sent)
       });
       res.status(200).json({ ok: true, envoye_a: dest });
       return;
