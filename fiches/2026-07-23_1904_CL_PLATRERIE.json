@@ -1,0 +1,174 @@
+{
+  "nom": "CL Plâtrerie",
+  "ville": "Ars-sur-Moselle (57130)",
+  "activite": "Plâtrerie, isolation thermique et phonique",
+  "secteur": "artisan",
+  "resume": {
+    "enjeu": "Gagner du temps",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Invisibilité digitale",
+    "atout": "Ancienneté & savoir-faire établi"
+  },
+  "identite": "SARL CL PLATRERIE, SIREN 448986893, créée mai 2003 (23 ans), 1 salarié, forme juridique SARL, NAF 45.4A (Travaux de plâtrerie), RCS Metz. Dirigeant : Quentin DAL PIAN (reprise de Laurent DAL PIAN).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      35,
+      40,
+      38,
+      25,
+      30,
+      35,
+      20,
+      28
+    ],
+    "potentiel": [
+      60,
+      65,
+      62,
+      55,
+      60,
+      60,
+      65,
+      60
+    ]
+  },
+  "valeurs": "Travail soigné, isolation thermique et phonique, plâtrerie traditionnelle et moderne.",
+  "imagePercue": "Entreprise établie mais quasi-invisible en ligne. Présente sur Pages Jaunes et Eldo (0 avis), absente de Google My Business, pas de site web détecté, pas de réseaux sociaux actifs.",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Aucun avis client public (0 sur Eldo, 0 sur Google). Absence totale de présence digitale : pas de site, pas de réseaux, pas de fiche Google optimisée."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Micro-entreprise (1 salarié) : capacité de production limitée, risque de saturation ou de dépendance au dirigeant. Comptes confidentiels (SARL) : pas de visibilité financière publique."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Concurrence locale active et bien notée (SAS MICHIENZI 5/5, RC Bat 5/5, Capannesi Yves, Klein Emmanuelle). CL Plâtrerie ne se différencie pas."
+    }
+  ],
+  "quickwins": [
+    "Créer une fiche Google My Business complète (adresse, téléphone, horaires, photos de chantiers) : actuellement introuvable sur Google Maps.",
+    "Répondre aux 0 avis sur Eldo en créant un profil actif et en invitant les 3 derniers clients à laisser un avis : plateforme clé du BTP.",
+    "Ajouter 3-5 photos de réalisations (avant/après) sur Pages Jaunes et Eldo : seul moyen visible de montrer le savoir-faire."
+  ],
+  "avis": "Non trouvé publiquement. 0 avis sur Eldo (plateforme BTP leader), 0 sur Google, 0 sur Pages Jaunes. Entreprise invisible en ligne malgré 23 ans d'ancienneté.",
+  "presence": "Présence minimale : fiche Pages Jaunes basique (sans horaires ni photos), profil Eldo vide (0 avis, 0 photos). Aucun site web, aucun réseau social (Facebook, Instagram, LinkedIn). Pas de fiche Google My Business détectée.",
+  "plateformes": [
+    {
+      "nom": "Eldo",
+      "role": "Plateforme leader d'avis clients spécialisée BTP, 70% de taux de collecte",
+      "url": "https://www.eldo.com"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire professionnel français, référence pour artisans et PME locales",
+      "url": "https://www.pagesjaunes.fr"
+    },
+    {
+      "nom": "Google My Business",
+      "role": "Fiche locale Google, essentielle pour visibilité locale et avis clients",
+      "url": "https://www.google.com/business"
+    },
+    {
+      "nom": "Mappy",
+      "role": "Annuaire et cartographie locale, référence pour recherche proximité",
+      "url": "https://fr.mappy.com"
+    },
+    {
+      "nom": "AlloVoisins",
+      "role": "Plateforme de services locaux avec avis, alternative à Pages Jaunes",
+      "url": "https://www.allovoisins.com"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes confidentiels (SARL). Pas de données publiques accessibles. Ancienneté de 23 ans suggère une stabilité, mais absence de croissance visible.",
+    "concurrence": "Marché local saturé : SAS MICHIENZI (5/5, 5 avis, 5 km), RC Bat (5/5, 1 avis, 1,4 km), Capannesi Yves (Ars-sur-Moselle), Klein Emmanuelle (27 Bis r Prés Wilson, même rue que CL Plâtrerie). Tous mieux notés et plus visibles.",
+    "visibilite": "Quasi-nulle. CL Plâtrerie n'apparaît que sur Pages Jaunes et Eldo (sans avis). Aucune présence Google, aucun site, aucun réseau. Clients potentiels ne la trouvent que par bouche-à-oreille ou recherche directe.",
+    "dirigeant": "Quentin DAL PIAN, reprise de Laurent DAL PIAN (cession de parts en 2024 selon BODACC). Transition générationnelle possible, mais pas confirmée publiquement."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Collecteur d'avis clients (Eldo + Google)",
+      "benefice": "Transformer 23 ans de chantiers en réputation visible : inviter les clients à laisser des avis vérifiés, centraliser les retours, afficher les meilleures réalisations."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de fiche Google My Business",
+      "benefice": "Apparaître sur Google Maps, capturer les recherches locales « plâtrerie Ars-sur-Moselle », afficher horaires, photos, répondre aux questions."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Galerie de chantiers (avant/après)",
+      "benefice": "Documenter et publier 10-15 photos de réalisations (isolation, cloisons, plafonds) sur Pages Jaunes, Eldo, Google : seul moyen de montrer le savoir-faire sans site."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Prospecteur local (Pages Jaunes + Eldo)",
+      "benefice": "Identifier les 20 derniers clients, les relancer par SMS/email pour avis, créer un cycle de recommandations et de visibilité."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de présence réseaux (Facebook local)",
+      "benefice": "Créer une page Facebook simple (1 post/mois minimum) : photos de chantiers, conseils isolation, horaires, contact. Coût zéro, impact local fort."
+    }
+  ],
+  "archetype": "Artisan saturé",
+  "posture": "Temps & sérénité",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en automatisant la collecte d'avis et la gestion de la visibilité locale"
+  },
+  "coutInaction": "Chaque mois sans présence digitale = clients perdus au profit de concurrents mieux notés (SAS MICHIENZI, RC Bat). Risque de stagnation : 23 ans d'expérience invisibles, 1 salarié non remplacé en cas de départ.",
+  "simulateur": {
+    "personnes": 1,
+    "heures": 3,
+    "cout": 0
+  },
+  "avantApres": {
+    "aujourdhui": "Appels directs (bouche-à-oreille), pas de visibilité Google, 0 avis en ligne, clients potentiels vont chez la concurrence mieux notée.",
+    "avecIA": "Fiche Google complète + 5 avis vérifiés en 3 semaines, photos de chantiers sur Eldo/Pages Jaunes, page Facebook active, apparition sur recherches locales, appels qualifiés augmentent."
+  },
+  "cta": "Explorez BOUSSOLE pour structurer votre transition digitale et transformer 23 ans de savoir-faire en réputation visible.",
+  "indice": {
+    "estime": 59,
+    "potentiel": 77
+  },
+  "dimensions": {
+    "avis": 0,
+    "reseaux": 0,
+    "site": 0,
+    "traction": 45
+  },
+  "aura": {
+    "sens": "L'ancrage discret",
+    "couleur": "Marron",
+    "definition": "Entreprise établie et fiable, ancrée localement par 23 ans de métier, mais étouffée par son invisibilité digitale et débordée par le manque de structure.",
+    "eclat": "faible"
+  },
+  "fierte": "CL Plâtrerie a bâti 23 ans de présence locale et de savoir-faire en plâtrerie, isolation thermique et phonique — une expertise solide et reconnue par le bouche-à-oreille. Le potentiel est énorme : transformer cette ancienneté et cette compétence en réputation visible en ligne pourrait tripler la visibilité et les appels qualifiés, sans effort majeur.",
+  "sources": "Ellisphere (SIREN, création, effectif), Pages Jaunes (fiche, adresse, RCS), Pappers (BODACC, dirigeants, cession), Eldo (0 avis), Mappy (localisation), concurrence locale (SAS MICHIENZI, RC Bat, Capannesi Yves, Klein Emmanuelle), recherche web générale BTP (plateformes d'avis, comparateurs).",
+  "_auraCalc": {
+    "note_google": 5,
+    "nb_avis": 2,
+    "site": false,
+    "poids": {
+      "q": 45,
+      "v": 20,
+      "s": 35
+    }
+  }
+}
