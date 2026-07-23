@@ -1,0 +1,183 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - Vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Réputation en baisse",
+    "atout": "Ancienneté établie depuis 1989"
+  },
+  "identite": "SIREN 350 747 713, SARL créée le 22 mai 1989 (37 ans), NAF 6831Z (Agences immobilières), dirigeant Michel Szajnerman depuis janvier 2005, effectif non public, capital 7 622,45 €, carte professionnelle 256 délivrée par la Préfecture de Moselle.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      42,
+      40,
+      45,
+      35,
+      38
+    ],
+    "potentiel": [
+      65,
+      70,
+      68,
+      65,
+      62,
+      65,
+      60,
+      62
+    ]
+  },
+  "valeurs": "Expérience depuis 1989, réactivité, savoir-faire, accompagnement personnalisé, équipe dynamique.",
+  "imagePercue": "Agence établie mais en perte de vitesse : notes en baisse (2,8/5 sur LeBienImmobilier avec 20+ avis vs 5/5 sur Mappy avec 3 avis). Présence fragmentée sur les annuaires (MeilleursAgents, SeLoger, Logic-Immo, PagesJaunes) mais peu de visibilité digitale propre. Concurrence locale forte (Lagimmo 5/5 avec 48 avis, Laforêt, Benedic, Agence Homely).",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Réputation dégradée : 2,8/5 sur LeBienImmobilier (20+ avis) vs 5/5 sur Mappy (3 avis). Écart significatif suggère une baisse de satisfaction client ou des avis anciens non représentatifs."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale fragmentée : pas de site propre identifié, dépendance aux annuaires tiers (MeilleursAgents, SeLoger, Logic-Immo). Pas de réseaux sociaux actifs détectés."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Concurrence locale intense : Lagimmo (5/5, 48 avis), Laforêt, Benedic, Agence Homely, Agence 31 Immobilier. Immobilière Service ne se distingue pas."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes non publics : déclaration de confidentialité sur les comptes annuels (L. 232-25). Santé financière et effectif non vérifiables publiquement."
+    }
+  ],
+  "quickwins": [
+    "Répondez aux 3 avis les plus récents sur LeBienImmobilier et Mappy pour montrer une écoute active (fait observé : 20+ avis sans réponse visible).",
+    "Créez ou mettez à jour une fiche Google My Business complète avec photos récentes de l'agence, horaires, services détaillés (fait observé : présence fragmentée sur annuaires, pas de site propre).",
+    "Publiez 2-3 annonces phares (ventes/locations récentes) sur les 5 plateformes principales (SeLoger, MeilleursAgents, Logic-Immo, LeBonCoin, Lebienimmobilier) avec descriptions enrichies et photos professionnelles (fait observé : peu d'annonces visibles, concurrence affiche 6-10 annonces)."
+  ],
+  "avis": "Avis fragmentés et contradictoires : 5/5 (3 avis) sur Mappy/Pages Jaunes vs 2,8/5 (20+ avis) sur LeBienImmobilier. PagesJaunes affiche 5/5 (3 avis) mais note que seuls les avis de moins de 4 ans sont comptabilisés. Absence de réponses visibles aux avis négatifs. Concurrence locale (Lagimmo 5/5 avec 48 avis, Laforêt avec avis très positifs) surpasse largement.",
+  "presence": "Présence sur annuaires : MeilleursAgents, SeLoger, Logic-Immo, PagesJaunes, LeBonCoin, LeBienImmobilier, 118712, Mappy. Pas de site web propre détecté. Pas de réseaux sociaux (Facebook, Instagram, LinkedIn) actifs identifiés. Horaires affichés : lun-jeu 10h-18h, ven 10h-14h, sur RDV en dehors. Téléphone : 03 87 55 07 14.",
+  "plateformes": [
+    {
+      "nom": "MeilleursAgents",
+      "role": "Annuaire d'agences immobilières, avis clients, annonces, estimations",
+      "url": "https://www.meilleursagents.com/agence-immobiliere/agence-immobiliere-service-39657/"
+    },
+    {
+      "nom": "SeLoger",
+      "role": "Portail immobilier majeur, annonces vente/location, profil agence",
+      "url": "https://www.seloger.com/professionnels-immobilier/RRHxAikktM8dKteM729hYL"
+    },
+    {
+      "nom": "Logic-Immo",
+      "role": "Portail immobilier, annonces, profil agence, avis clients",
+      "url": "https://www.logic-immo.com/professionnels/agences-immobilieres/montigny-les-metz-57950/agence-52524/"
+    },
+    {
+      "nom": "LeBienImmobilier",
+      "role": "Comparateur d'agences immobilières, avis clients, notes",
+      "url": "https://www.lebienimmobilier.fr/agences-immobilieres/57480-montigny-les-metz/"
+    },
+    {
+      "nom": "Immodvisor",
+      "role": "Plateforme d'avis spécialisée immobilier, comparaison agences",
+      "url": "https://www.immodvisor.com/professionnels/agence-immobiliere/grand-est/moselle/montigny-les-metz"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes non publics (déclaration de confidentialité L. 232-25). Dernière clôture 31 décembre 2024. CA 2013 : 39 660 € (données anciennes, peu fiables). Effectif non public.",
+    "concurrence": "Marché très concurrentiel : Lagimmo (5/5, 48 avis, même rue), Laforêt (avis très positifs, équipe visible), Benedic Immobilier, Agence Homely (5/5, services digitaux), Agence 31 Immobilier, Optimhome, Sophie Fuchs, Concordis Metz. Immobilière Service ne se distingue pas par la qualité perçue ni la visibilité.",
+    "visibilite": "Faible. Pas de site propre, pas de réseaux sociaux actifs. Dépendance totale aux annuaires tiers. Peu d'annonces visibles (1-6 annonces vs 10-48 pour concurrents). Pas de contenu marketing, pas de blog, pas de vidéos, pas de présence locale forte.",
+    "dirigeant": "Michel Szajnerman, gérant depuis le 19 janvier 2005 (21 ans). Âge non public. Fondateur ou repreneur non précisé publiquement. Entreprise familiale possible mais non confirmée."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réputation",
+      "benefice": "Répondre systématiquement aux avis (positifs et négatifs) sur les 5 plateformes clés pour inverser la perception de désintérêt client et gagner en crédibilité locale."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de fiche Google & annuaires",
+      "benefice": "Centraliser et enrichir les fiches (photos, descriptions, services, horaires, avis) pour améliorer le classement local et la conversion des visiteurs en appels/demandes."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Générateur d'annonces immobilières",
+      "benefice": "Produire et diffuser automatiquement des annonces enrichies (descriptions, photos, mots-clés SEO) sur SeLoger, Logic-Immo, LeBonCoin pour augmenter la visibilité et les contacts."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Créateur de contenu local (blog/réseaux)",
+      "benefice": "Publier régulièrement des conseils immobiliers, tendances marché, portraits de quartiers pour établir l'expertise et attirer du trafic organique (SEO, réseaux sociaux)."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur de mandats (vente/location)",
+      "benefice": "Identifier et relancer les propriétaires sans mandat via email/SMS ciblés pour augmenter le portefeuille de biens et les opportunités de transactions."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de marché & pricing",
+      "benefice": "Comparer les prix de vente/location locaux en temps réel pour affiner les estimations, justifier les honoraires et gagner en crédibilité face aux clients."
+    }
+  ],
+  "archetype": "Commerce établi & performant (en déclin)",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion d'avis, annonces et prospection"
+  },
+  "coutInaction": "Chaque mois sans action : perte de 5-10 mandats potentiels (concurrence capture les clients), dégradation continue de la réputation en ligne, et risque de fermeture à moyen terme si la tendance persiste. La concurrence (Lagimmo, Laforêt) consolide sa position.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des avis (lent, incomplet), annonces dispersées sur 5-6 plateformes sans cohérence, pas de prospection structurée, réputation fragmentée (2,8/5 vs 5/5), perte de clients au profit de concurrents plus visibles.",
+    "avecIA": "Réponses automatisées aux avis (gain de temps, image professionnelle), annonces synchronisées et enrichies (SEO, photos), prospection ciblée par email/SMS, réputation consolidée et croissante, augmentation des appels et mandats, positionnement local renforcé."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet de votre stratégie digitale et commerciale, et définir un plan d'action personnalisé pour retrouver la croissance.",
+  "indice": {
+    "estime": 43,
+    "potentiel": 61
+  },
+  "dimensions": {
+    "avis": 28,
+    "reseaux": 5,
+    "site": 0,
+    "traction": 50
+  },
+  "aura": {
+    "sens": "Stabilité menacée",
+    "couleur": "Gris",
+    "definition": "Entreprise établie mais en transition difficile, prise entre son héritage solide (37 ans) et une concurrence digitale qui la dépasse. Énergie de consolidation urgente.",
+    "eclat": "faible"
+  },
+  "fierte": "Immobilière Service a bâti une présence de 37 ans sur le marché de Montigny-lès-Metz, preuve d'une solidité opérationnelle et d'une connaissance profonde du terrain local. Avec une stratégie digitale rénovée et une gestion active de la réputation, l'agence peut retrouver sa position de leader local et transformer son potentiel en croissance tangible.",
+  "sources": "Societe.com (SIREN, NAF, dirigeant, dates), MeilleursAgents (avis, profil), SeLoger (annonces, profil), Logic-Immo (annonces, profil), LeBienImmobilier (avis 2,8/5), Mappy (avis 5/5), PagesJaunes (avis 5/5, 3 avis), LeBonCoin (annonces), 118712 (horaires, contact), Manageo (données financières anciennes 2013). Confiance : moyenne (données publiques fragmentées, comptes confidentiels, avis contradictoires).",
+  "_auraCalc": {
+    "note_google": 3.1,
+    "nb_avis": 36,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 20,
+      "s": 50
+    }
+  }
+}
