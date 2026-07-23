@@ -1136,10 +1136,8 @@ function sentSlides(d, targetId, cockpitHtml, banner){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
   var embedded=!!targetId;
   if(window.__sentRadar){ try{window.__sentRadar.destroy();}catch(e){} window.__sentRadar=null; }
-  var est=(d.indice&&d.indice.estime!=null)?d.indice.estime:50;
-  var gain=Math.max(0,(((d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:est+18))-est); // défaut ; remplacé par la somme des leviers si dispo
-  var coul=(d.aura&&d.aura.couleur)||'Bleu';
-  var hex=(typeof AURAS!=='undefined'&&AURAS[coul]&&AURAS[coul].h)||'#3b82f6';
+  var _sv0=synthVals(d); // MÊME source que la page et le mail → potentiel identique partout
+  var est=_sv0.est, gain=_sv0.gain, coul=_sv0.coul, hex=_sv0.hex;
   var dernStr=window.__sentDern?new Date(window.__sentDern).toLocaleDateString('fr-FR'):'';
   var ng=(d._auraCalc&&d._auraCalc.note_google!=null)?+d._auraCalc.note_google:null;
   var nbA=(d._auraCalc&&d._auraCalc.nb_avis!=null)?+d._auraCalc.nb_avis:null;
@@ -1159,7 +1157,7 @@ function sentSlides(d, targetId, cockpitHtml, banner){
     L.forEach(function(x){x.gain=Math.round(x.w*(100-x.sc)/100);});
     var top=L.filter(function(x){return x.gain>=3;}).sort(function(a,b){return b.gain-a.gain;}).slice(0,2);
     var tot=top.reduce(function(su,x){return su+x.gain;},0), rangs=['Une première option','Une deuxième option'];
-    if(top.length){ gain=tot; ouMonter=top.map(function(x,i){return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+x.gain+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+tot+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Pour en savoir plus, abonnez-vous à '+bLink+'.</div>'; }
+    if(top.length){ ouMonter=top.map(function(x,i){var dp=tot>0?Math.max(1,Math.round(x.gain/tot*gain)):x.gain; return '<div style="margin-top:4px;"><b>'+rangs[i]+'</b> — jusqu\'à <span style="color:#E8541A;font-weight:700;">+'+dp+' pts</span> <i class="ti ti-lock" style="font-size:11px;color:#cbd5e1;"></i></div>';}).join('')+'<div style="margin-top:8px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:7px 10px;text-align:center;font-weight:700;color:#1C1C1C;">Soit +'+gain+' pts au total.</div><div style="margin-top:6px;color:#9ca3af;">Pour en savoir plus, abonnez-vous à '+bLink+'.</div>'; }
   }
   var pot=Math.min(100,est+gain);   // potentiel = note + gain COHÉRENT avec les leviers affichés
   // Récap mémorisé pour l'envoi email (bouton slide 7)
