@@ -1056,6 +1056,72 @@ function shortKw(s){
   }
   return (raw[0]||'').trim();
 }
+// Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
+function synthHtml(d){
+  d=d||{};
+  var est=(d.indice&&d.indice.estime!=null)?d.indice.estime:50;
+  var pot=(d.indice&&d.indice.potentiel!=null)?d.indice.potentiel:Math.min(100,est+18);
+  var gain=Math.max(0,pot-est);
+  var coul=(d.aura&&d.aura.couleur)||'Bleu';
+  var hex=(typeof AURAS!=='undefined'&&AURAS[coul]&&AURAS[coul].h)||'#3b82f6';
+  var ac=d._auraCalc||{};
+  var ng=(ac.note_google!=null)?+ac.note_google:null;
+  var nbA=(ac.nb_avis!=null)?+ac.nb_avis:null;
+  var site=!!ac.site;
+  var nbOpp=(d.agents&&d.agents.length)?d.agents.length:6;
+  var cl=function(v){return Math.max(0,Math.min(100,Math.round(v)));};
+  var visib=cl(est*0.55+(site?22:6)+Math.min(18,(nbA||0)/2));
+  var senti=(ng!=null)?cl(ng/5*100-6):cl(est-4);
+  var posi=cl(est-2);
+  var conf=cl((ng!=null?ng/5*55:35)+Math.min(25,(nbA||0))+(site?18:0));
+  var iveTag=est>=75?'Image très positive':est>=60?'Image globalement positive':est>=45?'Image à consolider':'Image encore fragile';
+  var band=function(n){return n>=75?{l:'Solide',c:'#16a34a'}:n>=60?{l:'Bon niveau',c:'#2563EB'}:n>=45?{l:'À renforcer',c:'#d97706'}:{l:'Fragile',c:'#dc2626'};};
+  var estTag='<span style="font-size:8px;color:#9ca3af;font-weight:600;" title="Estimé à partir de données publiques">*</span>';
+  function tile(icon,icC,icBg,title,big,unit,sub,bTxt,bC,isEst,starsRow){
+    return '<div style="flex:1;min-width:108px;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:13px 10px;text-align:center;">'
+      +'<div style="width:34px;height:34px;border-radius:50%;background:'+icBg+';display:inline-flex;align-items:center;justify-content:center;"><i class="ti '+icon+'" style="font-size:17px;color:'+icC+';"></i></div>'
+      +'<div style="font-size:8.5px;font-weight:800;color:'+icC+';letter-spacing:.3px;margin-top:6px;">'+title+'</div>'
+      +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;margin-top:2px;line-height:1;">'+big+'<span style="font-size:11px;color:#6b7280;font-weight:400;">'+unit+'</span>'+(isEst?estTag:'')+'</div>'
+      +(starsRow||'')
+      +'<div style="font-size:10px;color:#6b7280;line-height:1.25;margin-top:4px;">'+sub+'</div>'
+      +'<div style="display:inline-block;margin-top:7px;font-size:9.5px;font-weight:700;color:'+bC+';background:'+bC+'18;padding:2px 8px;border-radius:8px;">'+bTxt+'</div></div>';
+  }
+  var repStars=''; if(ng!=null){ var rn=Math.max(1,Math.min(5,Math.round(ng))); repStars='<div style="font-size:11px;letter-spacing:1px;margin-top:1px;">'; for(var i=1;i<=5;i++){ repStars+='<span style="color:'+(i<=rn?'#f0a500':'#d1d5db')+';">★</span>'; } repStars+='</div>'; }
+  var head='<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.15;">Voilà ce que<br><span style="color:'+hex+';">les autres voient.</span></div>'
+    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:8px;">SENTINELLE a analysé plus de 30 sources publiques pour révéler votre image en ligne.</div>'
+    +'<div style="display:inline-flex;align-items:center;gap:7px;background:#f6f8fb;border:1px solid #eef0f3;border-radius:9px;padding:7px 11px;margin-top:10px;"><i class="ti ti-shield-check" style="color:#2563EB;font-size:16px;"></i><span style="font-size:11px;color:#4b5563;">100% données publiques — aucune donnée confidentielle utilisée.</span></div>';
+  var circle='<div style="text-align:center;"><div style="width:150px;height:150px;border-radius:50%;margin:0 auto;background:'+hex+';box-shadow:0 8px 22px '+hex+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
+    +'<span style="font-size:10px;letter-spacing:1.5px;font-weight:700;opacity:.85;">MON IVE</span>'
+    +'<span style="font-size:46px;font-weight:800;line-height:1;">'+est+'<span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>'
+    +'<span style="font-size:11px;opacity:.95;margin-top:2px;">IVE '+esc(coul)+'</span></div>'
+    +'<div style="margin-top:9px;"><span style="display:inline-block;background:'+hex+'1f;color:'+hex+';font-size:11.5px;font-weight:700;padding:4px 13px;border-radius:20px;">'+iveTag+'</span></div></div>';
+  var potBox='<div style="background:#eef5ff;border:1px solid #dbe7fb;border-radius:12px;padding:13px 15px;"><div style="font-size:11px;font-weight:700;color:#2563EB;"><i class="ti ti-trending-up"></i> Votre potentiel de progression</div><div style="font-size:22px;font-weight:800;color:#1C1C1C;margin-top:3px;">+'+gain+' <span style="font-size:12px;font-weight:600;color:#6b7280;">points possibles</span></div><div style="font-size:11.5px;color:#4b5563;margin-top:2px;">Votre IVE pourrait atteindre <b>'+pot+'/100</b> avec les bons leviers.</div></div>';
+  var scanBox='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:13px 15px;display:flex;align-items:center;gap:11px;"><i class="ti ti-calendar-event" style="font-size:20px;color:#6b7280;"></i><div><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;">Prochain scan recommandé</div><div style="font-size:11.5px;color:#6b7280;">dans 7 jours</div></div></div>';
+  var tiles='<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    +tile('ti-star','#2563EB','#eff5ff','RÉPUTATION EN LIGNE',(ng!=null?String(ng).replace('.',','):'n.c.'),(ng!=null?'/5':''),(nbA!=null?nbA+' avis Google':'à construire'),(ng!=null&&ng>=4?'Au-dessus de la moyenne':'À développer'),'#2563EB',false,repStars)
+    +tile('ti-eye','#16a34a','#effaf3','VISIBILITÉ',visib,'/100','Présence sur le web',band(visib).l,band(visib).c,true,'')
+    +tile('ti-heart','#E8541A','#fff4ee','SENTIMENT GLOBAL',senti,'%','de retours positifs',(senti>=70?'Perception positive':'Perception mitigée'),(senti>=70?'#16a34a':'#d97706'),true,'')
+    +tile('ti-building-store','#6366f1','#eef0ff','POSITIONNEMENT',posi,'/100','Clarté & différenciation',band(posi).l,band(posi).c,true,'')
+    +tile('ti-shield-check','#0ea5e9','#e0f2fe','CONFIANCE',conf,'/100','Confiance perçue en ligne',band(conf).l,band(conf).c,true,'')
+    +'</div>';
+  var vals=d.valeurs?String(d.valeurs).split(/[,;]/).map(function(x){return x.replace(/\(.*$/,'').trim();}).filter(Boolean):[];
+  vals=vals.slice(0,3).map(function(x){return x?x.charAt(0).toUpperCase()+x.slice(1):x;});
+  if(ng!=null&&ng>=4) vals.push('Bonne réputation auprès de vos clients');
+  if(!vals.length) vals=['Présence en ligne analysée sur données publiques'];
+  var ressort='<div style="font-size:11px;font-weight:800;color:#2563EB;letter-spacing:.3px;">CE QUI RESSORT DE VOTRE IMAGE PUBLIQUE</div>'
+    +vals.slice(0,5).map(function(b){return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;"><i class="ti ti-circle-check" style="color:#2563EB;font-size:16px;flex:0 0 auto;"></i><span style="font-size:12px;color:#1C1C1C;line-height:1.4;">'+esc(b)+'</span></div>';}).join('');
+  var opps='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 16px;"><div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">OPPORTUNITÉS DE PROGRESSION</div>'
+    +'<div style="display:flex;align-items:center;gap:12px;margin-top:8px;"><div style="width:46px;height:46px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><span style="font-size:22px;font-weight:800;color:#E8541A;">'+nbOpp+'</span></div>'
+    +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
+  var meth=[['ti-message-2-star','Avis clients','Google, Pages Jaunes'],['ti-users','Réseaux sociaux','LinkedIn, Facebook'],['ti-news','Presse & médias','Articles en ligne'],['ti-world','Annuaire & web','Sites, annuaires'],['ti-building-bank','Données officielles','Entreprises, INPI']];
+  var methodo='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 14px;"><div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;">NOTRE MÉTHODOLOGIE</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">SENTINELLE analyse en continu plus de 30 sources publiques vérifiées.</div><div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:9px;">'+meth.map(function(m){return '<div style="flex:1;min-width:92px;text-align:center;"><i class="ti '+m[0]+'" style="color:#2563EB;font-size:17px;"></i><div style="font-size:10px;font-weight:700;color:#1C1C1C;margin-top:3px;">'+m[1]+'</div><div style="font-size:9px;color:#9ca3af;line-height:1.2;">'+m[2]+'</div></div>';}).join('')+'</div></div>';
+  return head
+    +'<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;margin-top:16px;"><div style="flex:0 0 auto;">'+circle+'</div><div style="flex:1;min-width:210px;display:flex;flex-direction:column;gap:8px;">'+potBox+scanBox+'</div></div>'
+    +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:18px 0 8px;">VUE D\'ENSEMBLE</div>'+tiles
+    +'<div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:18px;"><div style="flex:1;min-width:210px;">'+ressort+'</div><div style="flex:1;min-width:210px;">'+opps+'</div></div>'
+    +'<div style="font-size:9.5px;color:#9ca3af;margin-top:10px;">* Visibilité, Sentiment, Positionnement et Confiance sont des indicateurs <b>estimés</b> à partir de données publiques.</div>'
+    +'<div style="margin-top:14px;">'+methodo+'</div>';
+}
 function sentSlides(d, targetId, cockpitHtml, banner){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
   var embedded=!!targetId;
