@@ -1,0 +1,183 @@
+{
+  "nom": "Immobilière Service",
+  "ville": "Montigny-lès-Metz (57950)",
+  "activite": "Agence immobilière - Vente, location, gestion, expertise",
+  "secteur": "immobilier",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Réputation en baisse",
+    "atout": "Ancienneté 35 ans, équipe établie"
+  },
+  "identite": "SIREN 350 747 713 | SARL depuis 1989 (36 ans) | NAF 6831Z (Agences immobilières) | Dirigeant : Michel Szajnerman | Effectif : Non trouvé publiquement | Comptes 2024 en confidentialité",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      45,
+      50,
+      48,
+      55,
+      52,
+      50,
+      35,
+      40
+    ],
+    "potentiel": [
+      65,
+      70,
+      68,
+      75,
+      72,
+      70,
+      65,
+      65
+    ]
+  },
+  "valeurs": "Expérience, réactivité, savoir-faire local, accompagnement personnalisé, équipe dynamique",
+  "imagePercue": "Agence établie mais en perte de visibilité digitale ; réputation en ligne dégradée (2,8/5 sur LeBienImmobilier avec 20+ avis) ; présence faible sur réseaux ; site daté ; peu d'activité récente visible",
+  "vigilance": [
+    {
+      "niveau": "🔴",
+      "texte": "Note Google/annuaires en baisse : 2,8/5 (20+ avis) sur LeBienImmobilier vs 5/5 (3 avis) sur Mappy — signal de dégradation de réputation"
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Activité commerciale faible : 2 biens vendus en 24 mois (MeilleursAgents) vs concurrents locaux (Laforêt 4,8/5 avec 74 avis, Benedic 4,6/5 avec 160+ avis)"
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale obsolète : pas de site propre, fiche Google/annuaires peu enrichie, aucune activité réseaux sociaux détectable, horaires et infos incomplètes"
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Comptes en confidentialité depuis 2022 : données financières non publiques, impossible d'évaluer la santé réelle de l'entreprise"
+    }
+  ],
+  "quickwins": [
+    "Répondre aux 5 avis négatifs les plus récents sur LeBienImmobilier et Google (2,8/5) pour montrer l'écoute et corriger les perceptions",
+    "Compléter la fiche Google Business : photos actuelles de l'agence, horaires précis, description enrichie, appel à action clair (estimation gratuite)",
+    "Créer une page Facebook simple avec 2-3 posts/mois : nouvelles annonces, témoignages clients, actualités locales (coût zéro, 30 min/semaine)"
+  ],
+  "avis": "Avis très disparates : 5/5 (3 avis Mappy, 1 avis PagesJaunes très positif sur Michel Szajnerman) vs 2,8/5 (20+ avis LeBienImmobilier). Avis positifs soulignent la disponibilité et la confiance ; avis négatifs suggèrent des problèmes de réactivité ou de suivi. Peu d'avis récents.",
+  "presence": "Présence faible et fragmentée. Listée sur MeilleursAgents, Logic-Immo, SeLoger, PagesJaunes, Mappy, 118712 mais sans vitrine active propre. Aucun site web détecté. Pas de réseaux sociaux actifs. Fiche Google incomplète. Horaires et infos dispersées entre annuaires.",
+  "plateformes": [
+    {
+      "nom": "LeBienImmobilier.fr",
+      "role": "Comparateur d'agences immobilières avec avis clients et notes",
+      "url": "https://www.lebienimmobilier.fr"
+    },
+    {
+      "nom": "MeilleursAgents.com",
+      "role": "Vitrine agences immobilières, classement par ventes, avis clients",
+      "url": "https://www.meilleursagents.com"
+    },
+    {
+      "nom": "SeLoger.com",
+      "role": "Portail annonces immobilières et annuaire agences avec avis",
+      "url": "https://www.seloger.com"
+    },
+    {
+      "nom": "Logic-Immo.com",
+      "role": "Annuaire agences immobilières et annonces avec évaluations",
+      "url": "https://www.logic-immo.com"
+    },
+    {
+      "nom": "RealAdvisor.fr",
+      "role": "Comparateur agences immobilières avec avis et transactions",
+      "url": "https://realadvisor.fr"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Comptes en confidentialité depuis 2022 (article L. 232-25). Chiffre d'affaires 2013 : 39 660 € (données très anciennes, non pertinentes). Impossible d'évaluer la santé financière actuelle.",
+    "concurrence": "Marché très concurrentiel : Laforêt (4,8/5, 74 avis, 79 rue Pont-à-Mousson), Benedic (4,6/5, 160+ avis, 93 rue Pont-à-Mousson), Agence 31 Immobilier (5/5, 10+ avis), Carrara (4,2/5, 40+ avis). Immobilière Service classée dernière ou avant-dernière sur les comparateurs locaux.",
+    "visibilite": "Très faible. Pas de site propre, pas de réseaux sociaux, fiche Google incomplète, peu d'annonces visibles sur les portails. Concurrents directs (Laforêt, Benedic) dominent la visibilité locale avec des vitrines actives et des avis massifs.",
+    "dirigeant": "Michel Szajnerman, gérant depuis 1989. Avis positifs le décrivent comme jovial, disponible et digne de confiance. Aucune information sur l'âge ou les intentions (transmission, développement, stabilisation)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réputation & réponses avis",
+      "benefice": "Monitorer les avis en temps réel (LeBienImmobilier, Google, Mappy), répondre aux avis négatifs en 48h avec empathie et solution, valoriser les avis positifs. Cible : remonter de 2,8 à 3,5+ en 3 mois."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur fiche Google & annuaires",
+      "benefice": "Enrichir la fiche Google (photos, description, CTA, horaires, services détaillés), synchroniser les infos sur PagesJaunes/118712/Mappy, ajouter des photos actuelles de l'agence et de l'équipe. Cible : +30% de clics depuis recherche locale."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire réseaux sociaux (Facebook)",
+      "benefice": "Créer une page Facebook, publier 2-3x/mois : nouvelles annonces, témoignages clients, conseils immobiliers, actualités locales. Cible : générer du trafic vers les annonces et renforcer la présence locale."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Analyseur de performance commerciale",
+      "benefice": "Tracker les annonces publiées vs vendues, analyser le taux de conversion par canal (MeilleursAgents, SeLoger, Logic-Immo), identifier les freins (prix, description, photos). Cible : optimiser le portefeuille de biens."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Prospecteur de mandats (appels + CRM)",
+      "benefice": "Relancer les anciens clients pour nouveaux mandats, prospecter par secteur géographique, tracker les appels entrants et les conversions. Cible : augmenter le flux de biens à vendre/louer."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Automatiseur de devis & estimations",
+      "benefice": "Créer des modèles de devis/estimations, automatiser les relances de demandes d'estimation, tracker les délais de réponse. Cible : réduire le délai de réponse et augmenter les conversions."
+    }
+  ],
+  "archetype": "Commerce établi mais en déclin",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Gain de marge estimé par optimisation digitale et réactivité"
+  },
+  "coutInaction": "Chaque mois sans action digitale = perte de 3-5 mandats potentiels (estimation conservatrice sur marché local). Concurrents gagnent en visibilité et en avis ; réputation continue de se dégrader ; risque de marginalisation progressive sur le marché local.",
+  "simulateur": {
+    "personnes": 1,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Agence peu visible en ligne, fiche Google incomplète, pas de réseaux, avis en baisse (2,8/5), peu d'annonces actives, réactivité perçue comme faible, perte de mandats face à concurrents mieux positionnés.",
+    "avecIA": "Fiche Google enrichie et actualisée, réponses avis systématiques, présence Facebook régulière, annonces mieux décrites et photographiées, suivi des performances par canal, relances automatisées des prospects. Cible : remonter à 3,5-4/5 en 3 mois, +20% de mandats en 6 mois."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet de votre stratégie commerciale et digitale, et définir un plan d'action personnalisé sur 12 mois.",
+  "indice": {
+    "estime": 43,
+    "potentiel": 61
+  },
+  "dimensions": {
+    "avis": 28,
+    "reseaux": 5,
+    "site": 0,
+    "traction": 35
+  },
+  "aura": {
+    "sens": "Fiabilité sous tension",
+    "couleur": "Marron",
+    "definition": "Une agence ancrée dans le local et la confiance personnelle, mais étouffée par l'absence de visibilité digitale et la dégradation progressive de sa réputation en ligne.",
+    "eclat": "faible"
+  },
+  "fierte": "Immobilière Service incarne 35 ans de présence locale et de confiance personnelle : Michel Szajnerman est reconnu pour sa disponibilité et son intégrité. Cette fondation solide est un atout majeur. Le potentiel est énorme : avec une stratégie digitale cohérente et une réactivité renforcée, l'agence peut retrouver sa place de leader local et transformer sa réputation en ligne en 6-12 mois.",
+  "sources": "SIREN/RCS (Societe.com, PagesJaunes, Manageo) | Avis clients (LeBienImmobilier 2,8/5 20+ avis, Mappy 5/5 3 avis, PagesJaunes 1 avis positif) | Présence digitale (MeilleursAgents, SeLoger, Logic-Immo, 118712, Mappy, PagesJaunes) | Concurrence (LeBienImmobilier classement local) | Activité commerciale (MeilleursAgents 2 ventes 24 mois) | Données financières (Manageo, Societe.com, confidentialité depuis 2022)",
+  "_auraCalc": {
+    "note_google": 3.1,
+    "nb_avis": 36,
+    "site": false,
+    "poids": {
+      "q": 30,
+      "v": 20,
+      "s": 50
+    }
+  }
+}
