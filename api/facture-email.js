@@ -175,9 +175,23 @@ function sentinelleHtml(s) {
     </tr></table>
   </td></tr>
 
-  <tr><td style="padding:4px 24px 2px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td style="padding:11px 15px;font-size:12.5px;color:#1C1C1C;line-height:1.4;">
-      <span style="font-weight:800;color:#2563EB;font-size:11px;">&#8599; VOTRE POTENTIEL</span> &mdash; de <b>${ive}</b> à <b>${pot}/100</b>, soit <b style="color:#E8541A;">+${gain} points possibles</b> avec les bons leviers.
+  <tr><td style="padding:6px 24px 2px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eff5ff;border:1px solid #dbe7fb;border-radius:12px;"><tr><td align="center" style="padding:14px 10px;">
+      <div style="font-size:11px;font-weight:800;color:#2563EB;letter-spacing:.3px;margin-bottom:10px;">&#8599; VOTRE POTENTIEL</div>
+      <table role="presentation" align="center" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" valign="middle">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="78" height="78" bgcolor="${hex}" style="width:78px;height:78px;background:${hex};border-radius:50%;color:#ffffff;text-align:center;">
+            <div style="font-size:8px;font-weight:700;letter-spacing:.3px;opacity:.9;">MON IVE</div><div style="font-size:27px;font-weight:800;line-height:1;">${ive}</div></td></tr></table>
+          <div style="font-size:9px;color:#6b7280;margin-top:4px;">IVE ${esc(s.couleur || "")}</div>
+        </td>
+        <td valign="middle" align="center" style="padding:0 12px;font-size:9px;color:#9ca3af;line-height:1.2;">&rarr;<br>objectif</td>
+        <td align="center" valign="middle">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" width="78" height="78" bgcolor="#E8541A" style="width:78px;height:78px;background:#E8541A;border-radius:50%;color:#ffffff;text-align:center;">
+            <div style="font-size:8px;font-weight:700;letter-spacing:.3px;opacity:.9;">POTENTIEL</div><div style="font-size:27px;font-weight:800;line-height:1;">${pot}</div></td></tr></table>
+          <div style="font-size:9px;color:#6b7280;margin-top:4px;">à viser</div>
+        </td>
+      </tr></table>
+      <div style="margin-top:11px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:800;padding:4px 15px;border-radius:20px;">+${gain} points possibles</span></div>
     </td></tr></table>
   </td></tr>
 
