@@ -49,13 +49,13 @@ function welcomeHtml(entreprise) {
   <div style="font-family:Segoe UI,Arial,sans-serif;max-width:560px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;">
     <div style="background:#1C1C1C;color:#fff;padding:26px 24px;text-align:center;">
       <div style="font-size:30px;font-weight:800;letter-spacing:3px;">L<span style="color:#E8541A;">i</span>VE</div>
-      <div style="font-size:9px;letter-spacing:2px;color:#9ca3af;margin-top:5px;">L'INDICE DES VALEURS DE L'ENTREPRISE</div>
+      <div style="font-size:9px;letter-spacing:2px;color:#9ca3af;margin-top:5px;">L'INDICE DES VALEURS D'ENTREPRISES</div>
     </div>
     <div style="padding:26px 24px;color:#1C1C1C;font-size:14.5px;line-height:1.6;">
       <p style="margin:0 0 14px;">Bonjour <b>${nom}</b>,</p>
       <p style="margin:0 0 14px;">Bienvenue chez <b>LIVE</b> 👋</p>
       <p style="margin:0 0 14px;">Vous venez de faire quelque chose que peu de dirigeants prennent le temps de faire : <b>regarder votre entreprise comme le monde extérieur la voit.</b></p>
-      <p style="margin:0 0 14px;">En quelques minutes, SENTINELLE a analysé vos signaux publics — avis, visibilité, réputation, concurrence — et calculé votre <b>IVE</b>, l'indice des valeurs de l'entreprise. <b>C'est votre point de départ.</b> Il ne bougera plus tout seul : à partir de maintenant, chaque action que vous menez peut le faire progresser, et vous le verrez.</p>
+      <p style="margin:0 0 14px;">En quelques minutes, SENTINELLE a analysé vos signaux publics — avis, visibilité, réputation, concurrence — et calculé votre <b>IVE</b>, l'indice des valeurs d'entreprises. <b>C'est votre point de départ.</b> Il ne bougera plus tout seul : à partir de maintenant, chaque action que vous menez peut le faire progresser, et vous le verrez.</p>
       <div style="background:#f8fafc;border-radius:10px;padding:14px 16px;margin:18px 0;">
         <div style="font-weight:700;margin-bottom:8px;">Ce que vous pouvez faire dès aujourd'hui :</div>
         <div style="margin-bottom:6px;">🎨 Consulter <b>votre note et sa couleur</b></div>
@@ -215,7 +215,7 @@ function sentinelleHtml(s) {
   <tr><td style="background:#0f1729;padding:16px 24px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
       <td valign="middle" style="color:#e5e7eb;font-size:12px;line-height:1.4;">&#127942; <b>SENTINELLE révèle. BOUSSOLE explique. Vous décidez.</b></td>
-      <td align="right" valign="middle"><div style="font-size:17px;font-weight:800;color:#ffffff;">L<span style="color:#E8541A;">i</span>VE</div><div style="font-size:9px;color:#9ca3af;">L'Indice des Valeurs de l'Entreprise</div></td>
+      <td align="right" valign="middle"><div style="font-size:17px;font-weight:800;color:#ffffff;">L<span style="color:#E8541A;">i</span>VE</div><div style="font-size:9px;color:#9ca3af;">L'Indice des Valeurs d'Entreprises</div></td>
     </tr></table>
   </td></tr>
 
