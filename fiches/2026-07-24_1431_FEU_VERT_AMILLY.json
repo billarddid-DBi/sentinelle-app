@@ -1,0 +1,183 @@
+{
+  "nom": "Feu Vert Amilly",
+  "ville": "Amilly (45200)",
+  "activite": "Centre auto : vente et montage de pneus, entretien et réparation automobile",
+  "secteur": "artisan",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Avis mitigés, présence digitale faible",
+    "atout": "Ancienneté, réseau établi, accueil chaleureux"
+  },
+  "identite": "SIREN 327359980, SIRET 32735998003019, NAF 4532Z (vente/montage pneus). Établissement depuis octobre 2007. Effectif 10-19 salariés. Membre du réseau Feu Vert (leader européen, 350 centres en France).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      60,
+      58,
+      45,
+      50,
+      58,
+      62,
+      60
+    ],
+    "potentiel": [
+      70,
+      75,
+      72,
+      65,
+      70,
+      75,
+      80,
+      78
+    ]
+  },
+  "valeurs": "Expertise automobile, qualité de service, accueil chaleureux, prix raisonnables, développement durable",
+  "imagePercue": "Centre auto établi et fiable, mais avec une présence digitale très faible. Réputation mitigée : accueil apprécié, mais avis clients en baisse sur certaines plateformes (3.5/5 vs 4.0/5). Absence de site propre et réseaux sociaux inactifs.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis clients divergents : 4.0/5 sur Pages Jaunes vs 3.5/5 sur Avis Vérifiés. Certains clients rapportent des délais d'attente, erreurs de montage, problèmes de qualité."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale quasi-inexistante : pas de site propre, Facebook fantôme (1 like). Fiche Google/annuaires peu à jour. Manque de visibilité en ligne."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Horaires avec fermeture midi (8h30-12h / 14h-19h en semaine) : peut freiner l'accessibilité et les ventes impulsives."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Ancienneté solide (depuis 2007) et appartenance à un réseau établi (Feu Vert, leader européen). Clientèle fidèle et accueil reconnu."
+    }
+  ],
+  "quickwins": [
+    "Répondre aux 10 avis négatifs les plus récents sur Pages Jaunes et Avis Vérifiés (délais, qualité) : montrer que vous écoutez et agissez.",
+    "Créer une fiche Google My Business complète et à jour (photos du centre, horaires, services, lien vers site Feu Vert national).",
+    "Publier 2-3 posts mensuels sur Facebook : témoignages clients, promotions saisonnières, conseils entretien auto (créer du lien)."
+  ],
+  "avis": "Avis mitigés. Pages Jaunes : 4.0/5 (859 avis). Avis Vérifiés : 3.5/5 (2272 avis). Points forts : accueil chaleureux, rapidité, prix raisonnables, fidélité client. Points faibles : délais d'attente, erreurs de montage, problèmes de qualité signalés, plateforme de réservation critiquée.",
+  "presence": "Très faible. Pas de site propre. Facebook inactif (1 like). Présence sur annuaires (Pages Jaunes, Vroomly, idGarages, AlloGarage) mais fiches peu enrichies. Email : montargis2@feuvert.fr. Téléphone : 02 38 07 14 00.",
+  "plateformes": [
+    {
+      "nom": "Avis Vérifiés",
+      "role": "Plateforme d'avis certifiée NF ISO 20488, référence pour la confiance client",
+      "url": "https://www.avis-verifies.com/avis-clients/feuvert.fr/e/230/feu-vert-montargis-geant-45200"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire professionnel français, avis et horaires, très consulté",
+      "url": "https://www.pagesjaunes.fr/pros/08417433"
+    },
+    {
+      "nom": "Vroomly",
+      "role": "Comparateur de garages et devis auto, avis clients spécialisés",
+      "url": "https://www.vroomly.com/garage-amilly-45200/centre-feuvert/"
+    },
+    {
+      "nom": "idGarages",
+      "role": "Plateforme de réservation et avis garages, tests et approuvés",
+      "url": "https://www.idgarages.com/fr-fr/garage/amilly/GB27710_feu-vert-amilly"
+    },
+    {
+      "nom": "AlloGarage",
+      "role": "Annuaire garages français, fiches détaillées et avis",
+      "url": "https://www.allogarage.fr/garages/details-garage-FEU-VERT-AMILLY-12546.html"
+    }
+  ],
+  "site": "",
+  "intel": {
+    "financier": "Non trouvé publiquement. Effectif stable (10-19 salariés). Appartenance à un réseau national solide (Feu Vert).",
+    "concurrence": "Marché local saturé : Speedy, Midas, Elephant Bleu, autres centres auto indépendants. Feu Vert bénéficie de la notoriété du réseau mais doit se différencier localement.",
+    "visibilite": "Très faible en ligne. Pas de site propre, réseaux sociaux inactifs, fiches annuaires peu enrichies. Dépend entièrement de la visibilité du réseau national et du bouche-à-oreille.",
+    "dirigeant": "Non trouvé publiquement. Directeur mentionné dans les réponses aux avis (« Le Directeur Feu Vert Montargis »), mais pas d'informations sur l'identité, l'âge ou le statut (gérant, franchisé, salarié)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réponses",
+      "benefice": "Automatiser la collecte et la réponse aux avis négatifs (délais, qualité) sur Avis Vérifiés, Pages Jaunes, Vroomly. Transformer les critiques en opportunités de fidélisation."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Fiche Google My Business & annuaires",
+      "benefice": "Enrichir et synchroniser les fiches (photos, horaires, services, lien site Feu Vert national). Augmenter la visibilité locale et la confiance des clients."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Planificateur de contenu réseaux sociaux",
+      "benefice": "Publier 2-3 posts/mois sur Facebook : témoignages, promotions, conseils entretien. Créer du lien avec la clientèle et augmenter l'engagement."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Suivi de la qualité & processus",
+      "benefice": "Tracer les erreurs de montage et délais d'attente (données internes). Identifier les goulots et mettre en place des correctifs (formation, planning, outils)."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capteur d'appels & réservations",
+      "benefice": "Enregistrer et analyser les appels manqués, les demandes de RDV non traitées. Optimiser les horaires et la staffing pour réduire les délais."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Tableau de bord performance client",
+      "benefice": "Suivre en temps réel : NPS, taux de réponse aux avis, délai moyen d'attente, taux de fidélité. Piloter les améliorations et mesurer l'impact."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Gain de marge par amélioration de la qualité et réduction des délais"
+  },
+  "coutInaction": "Chaque mois sans réponse aux avis négatifs coûte des clients perdus et une réputation dégradée. Les délais d'attente non résolus freinent les ventes impulsives et la fidélité. L'absence de présence digitale laisse la concurrence capturer les recherches locales.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Centre auto établi mais peu visible en ligne. Avis mitigés, pas de site propre, réseaux sociaux inactifs. Délais d'attente et erreurs de montage signalés. Dépend du bouche-à-oreille et de la notoriété du réseau.",
+    "avecIA": "Fiche Google enrichie et à jour. Avis négatifs traités rapidement et transformés en opportunités. Posts réguliers sur Facebook créant du lien. Processus de qualité tracés et améliorés. Appels et RDV optimisés. Tableau de bord de performance en temps réel."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet de votre organisation, vos processus et vos leviers de croissance. Identifiez ensemble les priorités pour transformer votre efficacité et votre marge.",
+  "indice": {
+    "estime": 70,
+    "potentiel": 88
+  },
+  "dimensions": {
+    "avis": 62,
+    "reseaux": 15,
+    "site": 0,
+    "traction": 70
+  },
+  "aura": {
+    "sens": "Fiabilité établie, mais présence digitale à construire",
+    "couleur": "Bleu",
+    "definition": "Feu Vert Amilly rayonne par son ancienneté, son accueil chaleureux et sa fidélité client, mais reste invisible en ligne. Une entreprise solide qui attend de se révéler.",
+    "eclat": "moyen"
+  },
+  "fierte": "Vous avez bâti un centre auto établi depuis 17 ans, avec une clientèle fidèle et un accueil reconnu. Vous appartenez à un réseau leader européen qui vous donne une crédibilité forte. Le potentiel est énorme : en renforçant votre présence digitale et en résolvant les irritants (délais, qualité), vous pouvez transformer cette solidité en croissance visible et en marge accrue.",
+  "sources": "Pages Jaunes (avis 4.0/5, 859 avis), Avis Vérifiés (3.5/5, 2272 avis), AlloGarage (fiche depuis 2007), Vroomly, idGarages, Facebook, annuaire-entreprises.data.gouv.fr (SIRET, NAF, effectif), Alternativi.fr, Opendi.fr, Trustpilot (avis réseau national). Confiance : moyenne à forte (données publiques vérifiées, avis certifiés).",
+  "_auraCalc": {
+    "note_google": 3.4,
+    "nb_avis": 930,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
