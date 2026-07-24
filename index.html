@@ -2613,6 +2613,66 @@ async function sendSentinelleEmail(){
     else { setMsg('<span style="color:#991b1b;">Envoi impossible'+((j&&j.error)?' — '+esc(j.error):'')+'.</span>'); }
   }catch(e){ setMsg('<span style="color:#991b1b;">Connexion impossible, réessayez.</span>'); }
 }
+// Liste UNIQUE des outils BOUSSOLE (utilisée par la page d'arrivée ET la page abonné → jamais deux listes qui divergent).
+// 4e élément = clé de l'outil connecté (carte cliquable) ; null = pas encore branché.
+function bouToolsHtml(){
+  var T=[['ti-clipboard-list','Questionnaire Dirigeant','Le vrai diagnostic, en entretien : votre vision, vos priorités, votre réalité interne.','questionnaire'],
+    ['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
+    ['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.','concurrence'],
+    ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
+    ['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.','simulateur'],
+    ['ti-compass','« Voilà ce qui se passe réellement »','La mesure interne réelle de votre entreprise — le miroir de votre image publique.',null],
+    ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
+  return '<div style="margin-top:10px;">'+T.map(function(f){
+    var on=!!f[3];
+    return '<div'+(on?' onclick="boussoleOutil(\''+f[3]+'\')"':'')+' style="display:flex;gap:11px;align-items:flex-start;border:1px solid '+(on?'#f5c6a5':'#eef0f3')+';border-radius:11px;padding:12px 14px;margin-top:8px;'+(on?'cursor:pointer;background:#fffaf6;':'')+'"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti ti-lock-open" style="color:#16a34a;font-size:13px;"></i> '+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div>'
+      +(on?'<div style="font-size:10.5px;color:#E8541A;font-weight:700;margin-top:5px;">Ouvrir <i class="ti ti-arrow-right"></i></div>':'')
+      +'</div>'+(on?'<i class="ti ti-chevron-right" style="color:#E8541A;font-size:18px;flex:0 0 auto;align-self:center;"></i>':'')+'</div>';
+  }).join('')+'</div>';
+}
+// Ouvre un outil BOUSSOLE depuis la liste.
+function boussoleOutil(which){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var nom=window.lastNom||(acc&&acc.name)||'';
+  if(which==='questionnaire'){
+    if($('bNom')) $('bNom').value=nom;
+    if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
+    if(typeof bMsgHide==='function') bMsgHide();
+    showView('bChoice'); window.scrollTo(0,0); return;
+  }
+  var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
+  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div></div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):''); };
+  if(which==='concurrence'){
+    var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
+    $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
+      +head('ti-map-2','La concurrence autour de vous','Les entreprises du même métier près de '+esc(nom)+'. Repère public, à aujourd\'hui.')
+      +'<div class="card"><div class="sec">'
+      +'<label>Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+      +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
+      +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de vous.</div>'
+      +'<button class="btn btn-primary" onclick="runConcurrence()"><i class="ti ti-search"></i> Trouver les 8 concurrents les plus proches</button>'
+      +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div>'
+      +back+'</div></div><div id="cOut"></div></div>';
+    showView('dirigeant'); window.scrollTo(0,0); return;
+  }
+  if(which==='simulateur'){
+    var f=window.__sentData||{}; var sim=f.simulateur||{personnes:2,heures:5,cout:40};
+    window.__bouSimH=((f.chiffre&&f.chiffre.unite)==='h');
+    $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
+      +head('ti-calculator','Simulateur de gain','Ce que l\'IA peut vous faire récupérer, selon votre réalité.')
+      +'<div class="card"><div class="sec">'
+      +'<div style="background:#1C1C1C;color:#fff;border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;opacity:.7;letter-spacing:.5px;">ESTIMATION INDICATIVE</div><div style="font-size:26px;font-weight:800;margin:2px 0;"><span id="heroV">–</span> '+(window.__bouSimH?'h':'€')+' <span style="font-size:12px;opacity:.8;">/ an</span></div><div style="font-size:11px;opacity:.85;" id="heroSub"></div></div>'
+      +'<div style="margin-top:8px;"><div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="'+sim.personnes+'"><span class="val" id="sPv"></span></div>'
+      +'<div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem.</label><input type="range" id="sH" min="1" max="15" step="1" value="'+sim.heures+'"><span class="val" id="sHv"></span></div>'
+      +'<div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="'+sim.cout+'"><span class="val" id="sCv"></span></div></div>'
+      +'<div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:8px;"><i class="ti ti-info-circle"></i> Exemple illustratif et non contractuel — les pistes réelles s\'établissent avec le Questionnaire Dirigeant.</div>'
+      +back+'</div></div></div>';
+    showView('dirigeant'); window.scrollTo(0,0);
+    window.__bouSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var hrs=p*h*45,e=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8); if(window.__bouSimH){$('heroV').textContent=hrs.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+soir+' soirées — soit ≈ '+e.toLocaleString('fr-FR')+' €';}else{$('heroV').textContent=e.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées)';} };
+    ['sP','sH','sC'].forEach(function(id){var el=$(id); if(el)el.addEventListener('input',window.__bouSim);});
+    window.__bouSim(); return;
+  }
+}
 function paywallView(){
   var html='<div style="display:flex;flex-direction:column;gap:8px;"><div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+'<div class="card">'
     +'<div class="sec"><div style="font-size:13px;color:#374151;line-height:1.6;">Votre note est <b>enregistrée</b> — c\'est votre point de départ.</div>'
@@ -2621,7 +2681,7 @@ function paywallView(){
       +'<div onclick="boussoleChoisir(\'annuel\')" style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · 2 mois offerts</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
     +'</div>'
     +'<div style="font-size:13px;color:#374151;line-height:1.6;margin-top:16px;">Avec l\'abonnement, vous débloquez :</div>'
-    +(function(){var bouTools=[['ti-clipboard-list','Questionnaire Dirigeant','Le vrai diagnostic, en entretien : votre vision, vos priorités, votre réalité interne.'],['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.'],['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.'],['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.'],['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.'],['ti-compass','« Voilà ce qui se passe réellement »','La mesure interne réelle de votre entreprise — le miroir de votre image publique.'],['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.']];return '<div style="margin-top:10px;">'+bouTools.map(function(f){return '<div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:8px;"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti ti-lock-open" style="color:#16a34a;font-size:13px;"></i> '+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div></div></div>';}).join('')+'</div>';})()
+    +bouToolsHtml()
     +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Votre note et votre diagnostic sont bien enregistrés — vous serez prévenu par email dès l\'activation, vous ne perdez rien.</div>'
     +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button></div></div></div>';
   $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
@@ -2646,14 +2706,13 @@ function boussoleChoisir(plan){
 // BOUSSOLE débloquée (abonné). Placeholder tant que le contenu réel n'est pas construit.
 function boussoleView(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  var feat=[['ti-clipboard-list','Questionnaire Dirigeant','Le vrai diagnostic, en entretien : votre vision, vos priorités, votre réalité interne.'],['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.'],['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.'],['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.'],['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.'],['ti-compass','« Voilà ce qui se passe réellement »','La mesure interne réelle de votre entreprise — le miroir de votre image publique.'],['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.']];
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#166534;"><i class="ti ti-rosette-discount-check"></i> <b>Abonnement actif</b> — vous avez accès à la BOUSSOLE.</div>'
       +'<div style="font-size:13px;color:#374151;line-height:1.55;margin-top:12px;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
-      +'<div style="margin-top:6px;">'+feat.map(function(f){return '<div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:8px;"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;">'+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div></div></div>';}).join('')+'</div>'
+      +bouToolsHtml()
       +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:9px;padding:10px 12px;font-size:12px;color:#92700c;margin-top:14px;line-height:1.5;"><i class="ti ti-tools"></i> La BOUSSOLE est en cours de finalisation. Vos accès sont ouverts — le contenu détaillé arrive très vite.</div>'
       +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>'
     +'</div></div></div>';
