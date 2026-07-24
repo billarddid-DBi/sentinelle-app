@@ -1,0 +1,183 @@
+{
+  "nom": "Feu Vert Amilly",
+  "ville": "Amilly (45200)",
+  "activite": "Centre auto, entretien & réparation véhicules, pneus, pièces, accessoires",
+  "secteur": "commerce",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟠",
+    "vigilanceLabel": "Avis en baisse, gestion des priorités",
+    "atout": "Établi, réseau national, équipe formée"
+  },
+  "identite": "Feu Vert Amilly, SIRET 32735998003019, adhérent du réseau Feu Vert (leader européen, 350 centres). Établissement depuis octobre 2007. Activité : entretien multimarques, pneus, pièces, services (carte grise, contrôle technique). Équipe formée régulièrement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      55,
+      60,
+      58,
+      50,
+      65,
+      55,
+      52,
+      58
+    ],
+    "potentiel": [
+      70,
+      75,
+      72,
+      68,
+      78,
+      70,
+      72,
+      75
+    ]
+  },
+  "valeurs": "Expertise automobile, formation continue des techniciens, service multimarques, mobilité douce (vélos électriques), devis gratuit, click & collect.",
+  "imagePercue": "Centre auto fiable et professionnel du réseau Feu Vert, bien situé (parking Géant). Accueil chaleureux mais gestion des priorités critiquée. Avis mitigés : qualité du travail appréciée, mais délais et organisation en question.",
+  "vigilance": [
+    {
+      "niveau": "🟠",
+      "texte": "Avis en baisse : 4.0/5 (Pages Jaunes, 859 avis) vs 3.5/5 (Avis Vérifiés, 2272 avis). Plaintes récurrentes sur délais, gestion des priorités (clients carte grise vs mécanique), débordement."
+    },
+    {
+      "niveau": "🟠",
+      "texte": "Présence digitale faible : pas de site propre, Facebook quasi mort (1 like), pas de LinkedIn/Instagram. Fiche feuvert.fr existe mais peu optimisée localement."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Qualité de service variable : avis positifs sur accueil et professionnalisme, mais aussi signalements de problèmes techniques (durite mal remise, gestion des urgences)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Ancienneté & structure solides : établi depuis 2007, réseau national, formation continue, services diversifiés (mécanique, pneus, accessoires, services administratifs)."
+    }
+  ],
+  "quickwins": [
+    "Avis Vérifiés à 3.5/5 (baisse vs 4.0 PJ) : répondez aux 5 avis négatifs les plus récents (délais, priorités) avec un plan d'action visible (ex : « Nous avons mis en place un système de files d'attente équitable »).",
+    "Facebook quasi inactif (1 like) : publiez 2-3 posts/semaine (conseils saisonniers, promos pneus, témoignages clients) pour relancer l'engagement local.",
+    "Pas de site propre : créez une landing page Feu Vert Amilly (ou optimisez feuvert.fr/amilly) avec horaires, services, avis, CTA « Prendre RDV »."
+  ],
+  "avis": "859 avis sur Pages Jaunes (4.0/5), 3.5/5 sur Avis Vérifiés (2272 avis), 688 avis sur chirurgien.tel. Avis mitigés : accueil chaleureux et professionnalisme appréciés, mais plaintes récurrentes sur délais, gestion des priorités (clients mécanique vs carte grise), débordement de l'équipe. Quelques signalements de problèmes techniques (durite mal remise). Fidélité client notable (clients de 8+ ans).",
+  "presence": "Présence faible. Facebook (Feu Vert Montargis) quasi inactif : 1 like, peu de posts. Pas de LinkedIn, Instagram, TikTok détecté. Fiche feuvert.fr existe (site groupe) mais peu optimisée localement. Présence sur annuaires (Pages Jaunes, Avis Vérifiés, idGarages, Vroomly, AlloGarage, chirurgien.tel) mais pas de site propre.",
+  "plateformes": [
+    {
+      "nom": "Pages Jaunes",
+      "role": "Avis clients, horaires, services, contact (859 avis, 4.0/5)",
+      "url": "https://www.pagesjaunes.fr/pros/08417433"
+    },
+    {
+      "nom": "Avis Vérifiés",
+      "role": "Avis certifiés NF ISO 20488, réputation (2272 avis, 3.5/5)",
+      "url": "https://www.avis-verifies.com/avis-clients/feuvert.fr/e/230"
+    },
+    {
+      "nom": "idGarages",
+      "role": "Comparateur garages, devis, avis, horaires",
+      "url": "https://www.idgarages.com/fr-fr/garage/amilly/GB27710_feu-vert-amilly"
+    },
+    {
+      "nom": "Vroomly",
+      "role": "Comparateur garages, devis, avis, services",
+      "url": "https://www.vroomly.com/garages/feu-vert-montargis-2-geant-amilly-45200-antibes/"
+    },
+    {
+      "nom": "AlloGarage",
+      "role": "Annuaire garages, horaires, contact, avis",
+      "url": "https://www.allogarage.fr/garages/details-garage-FEU-VERT-AMILLY-12546.html"
+    }
+  ],
+  "site": "https://www.feuvert.fr/centres-auto/amilly/feu-vert-montargis-2/230.html",
+  "intel": {
+    "financier": "Non trouvé publiquement (comptes non publics pour adhérent réseau).",
+    "concurrence": "Concurrence locale : Speedy, Midas, Elephant Bleu, First Stop, autres centres auto indépendants. Feu Vert bénéficie de la notoriété du réseau (350 centres, leader européen) mais doit se différencier localement.",
+    "visibilite": "Visibilité moyenne : bien classé sur Google Maps/annuaires, mais présence digitale faible (pas de site propre, réseaux sociaux inactifs). Avis en baisse (3.5/5 vs 4.0/5) impacte la crédibilité.",
+    "dirigeant": "Non trouvé publiquement. Directeur mentionné dans les réponses aux avis (« Le Directeur Feu Vert Montargis ») mais pas d'identité précise, âge, ou parcours détecté."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réputation",
+      "benefice": "Monitorer Avis Vérifiés & Pages Jaunes, répondre aux avis négatifs en <48h avec plan d'action visible. Cible : remonter à 4.2/5 en 3 mois."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planificateur de files d'attente & priorités",
+      "benefice": "Optimiser l'accueil (carte grise vs mécanique) avec système équitable, réduire les temps d'attente, améliorer la satisfaction. Hypothèse : 20-30% des plaintes liées à l'organisation."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Community manager réseaux sociaux",
+      "benefice": "Relancer Facebook (2-3 posts/semaine : conseils saisonniers, promos, témoignages). Créer engagement local, générer leads organiques."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de fiche locale & SEO",
+      "benefice": "Créer landing page Feu Vert Amilly (ou optimiser feuvert.fr/amilly) : horaires, services, avis, CTA. Améliorer visibilité locale sur Google."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Auditeur qualité & processus",
+      "benefice": "Vérifier la qualité du travail mécanique (durite, climatisation, etc.), former l'équipe, documenter les processus. Hypothèse : quelques incidents techniques impactent la réputation."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de fidélité client",
+      "benefice": "Créer programme fidélité (points, réductions, RDV prioritaires) pour clients réguliers (8+ ans détectés). Augmenter panier moyen & rétention."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps gagné par semaine en gestion d'avis, réseaux, qualité"
+  },
+  "coutInaction": "Avis en baisse (3.5/5) = perte de clients potentiels (-10-15% de traction estimée). Débordement non géré = turnover équipe, qualité variable, plaintes croissantes. Absence digitale = invisibilité locale vs concurrence (Speedy, Midas).",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 60
+  },
+  "avantApres": {
+    "aujourdhui": "Équipe débordée, gestion des priorités chaotique (carte grise vs mécanique), avis négatifs non traités, Facebook mort, pas de site propre. Clients attendent 50+ min, qualité variable, fidélité menacée.",
+    "avecIA": "Avis monitoriés & répondus automatiquement (avec validation), files d'attente optimisées, Facebook actif (posts auto-générés), landing page locale, audit qualité régulier. Clients satisfaits, avis remontent à 4.2+/5, équipe moins stressée, panier moyen augmente."
+  },
+  "cta": "Explorez BOUSSOLE pour un diagnostic complet : organisation, processus, trésorerie, potentiel de croissance. Confirmez les hypothèses d'IA et définissez votre plan d'action.",
+  "indice": {
+    "estime": 54,
+    "potentiel": 72
+  },
+  "dimensions": {
+    "avis": 52,
+    "reseaux": 15,
+    "site": 35,
+    "traction": 70
+  },
+  "aura": {
+    "sens": "Fiabilité sous tension",
+    "couleur": "Marron",
+    "definition": "Entreprise ancrée et solide (réseau, équipe, ancienneté) mais débordée et fragilisée par la gestion opérationnelle. Potentiel fort si organisation & communication améliorées.",
+    "eclat": "moyen"
+  },
+  "fierte": "Feu Vert Amilly incarne 17 ans de présence locale et la confiance d'un réseau leader européen. Votre équipe forme régulièrement ses techniciens et fidélise des clients depuis 8+ ans — c'est la marque d'une expertise reconnue. Avec une meilleure organisation et une présence digitale revitalisée, vous pouvez transformer ce débordement en croissance maîtrisée et retrouver les 4.5/5 que vous méritez.",
+  "sources": "Pages Jaunes (859 avis, 4.0/5, mis à jour 3j), Avis Vérifiés (2272 avis, 3.5/5, NF ISO 20488), idGarages, Vroomly, AlloGarage, chirurgien.tel (688 avis), annuaire-entreprises.data.gouv.fr (SIRET), feuvert.fr (site groupe), Facebook (Feu Vert Montargis, 1 like), alternativi.fr, 118000.fr, telephone.city, allogarage.fr. Confiance : HAUTE pour avis & horaires, MOYENNE pour dirigeant & financier (non publics).",
+  "_auraCalc": {
+    "note_google": 3.4,
+    "nb_avis": 930,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
