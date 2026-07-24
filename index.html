@@ -1094,8 +1094,8 @@ function synthHtml(d){
       +'<div style="display:inline-block;margin-top:7px;font-size:9.5px;font-weight:700;color:'+bC+';background:'+bC+'18;padding:2px 8px;border-radius:8px;">'+bTxt+'</div></div>';
   }
   var repStars=''; if(ng!=null){ var rn=Math.max(1,Math.min(5,Math.round(ng))); repStars='<div style="font-size:11px;letter-spacing:1px;margin-top:1px;">'; for(var i=1;i<=5;i++){ repStars+='<span style="color:'+(i<=rn?'#f0a500':'#d1d5db')+';">★</span>'; } repStars+='</div>'; }
-  var head='<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.15;">Voilà ce que<br><span style="color:'+hex+';">les autres voient.</span></div>'
-    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:8px;">SENTINELLE a analysé plus de 30 sources publiques pour révéler votre image en ligne.</div>'
+  var head='<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.15;">Voilà ce que<br><span style="color:'+hex+';">les autres voient.</span></div>';
+  var pubNote='<div style="font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:16px;">SENTINELLE a analysé plus de 30 sources publiques pour révéler votre image en ligne.</div>'
     +'<div style="display:inline-flex;align-items:center;gap:7px;background:#f6f8fb;border:1px solid #eef0f3;border-radius:9px;padding:7px 11px;margin-top:10px;"><i class="ti ti-shield-check" style="color:#2563EB;font-size:16px;"></i><span style="font-size:11px;color:#4b5563;">100% données publiques — aucune donnée confidentielle utilisée.</span></div>';
   var circle='<div style="text-align:center;"><div style="width:150px;height:150px;border-radius:50%;margin:0 auto;background:'+hex+';box-shadow:0 8px 22px '+hex+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
     +'<span style="font-size:10px;letter-spacing:1.5px;font-weight:700;opacity:.85;">MON IVE</span>'
@@ -1137,7 +1137,8 @@ function synthHtml(d){
     +'<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">'+idCard+potBox+meaningBox+'</div>'
     +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:18px 0 8px;">VUE D\'ENSEMBLE</div>'+tiles+evoCard
     +'<div style="font-size:9.5px;color:#9ca3af;margin-top:10px;">* Visibilité, Sentiment, Positionnement et Confiance sont des indicateurs <b>estimés</b> à partir de données publiques.</div>'
-    +'<div style="margin-top:14px;">'+methodo+'</div>';
+    +'<div style="margin-top:14px;">'+methodo+'</div>'
+    +'<div style="text-align:center;margin-top:14px;">'+pubNote+'</div>';
 }
 function sentSlides(d, targetId, cockpitHtml, banner){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
