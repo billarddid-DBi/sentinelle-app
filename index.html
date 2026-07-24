@@ -1180,9 +1180,6 @@ function sentSlides(d, targetId, cockpitHtml, banner){
 
   var slides=[];
   slides.push({t:'', s:'', synth:true, html: synthHtml(d)});
-  if(cockpitHtml){ slides.push({t:'Mon tableau de bord', s:'Votre note et son évolution.', html:cockpitHtml, cockpit:true}); }
-  else slides.push({t:'Votre IVE aujourd\'hui', s:'Ce que révèle votre présence en ligne.', html:
-    sentRing(est,hex)+'<div style="text-align:center;font-size:13px;font-weight:700;color:'+hex+';margin-top:2px;">IVE '+esc(coul)+'</div><div style="text-align:center;font-size:15px;margin-top:2px;">'+starsHTML(est)+'</div><div style="text-align:center;font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:12px;">'+esc(d.fierte||'Vous êtes déjà au-dessus de nombreuses entreprises de votre secteur.')+'</div>'});
   window.__potentielSlideIdx=slides.length;
   slides.push({t:'Votre potentiel', s:'Opportunités et comment monter votre note.', html:
     '<div style="margin-bottom:12px;"><button type="button" onclick="sentSlide(0)" style="background:#fff0e8;border:1px solid #f5c6a5;color:#E8541A;border-radius:10px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i> Retour à la synthèse</button></div>'
@@ -1231,7 +1228,7 @@ function sentSlides(d, targetId, cockpitHtml, banner){
   SENT_N=slides.length;
   var html='<div id="sentFlow">';
   slides.forEach(function(sl,i){
-    var titleBand=(sl.cockpit&&banner)?banner:'<div class="card" style="overflow:hidden;"><div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#1C1C1C;color:#fff;">'+(sl.cockpit?'<i class="ti ti-layout-dashboard" style="color:#E8541A;font-size:18px;"></i>':(i>0?'<i class="ti ti-radar-2" style="color:#E8541A;font-size:18px;"></i>':'<button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-home"></i></button>'))+'<span style="font-size:11px;letter-spacing:1px;color:#E8A07E;font-weight:600;">'+(sl.cockpit?'MON ESPACE':'SENTINELLE · <b style="color:#fff;">'+esc(d.nom||'')+'</b>')+'</span><span style="flex:1;"></span><span style="font-size:11px;color:#9ca3af;">'+(i+1)+' / '+slides.length+'</span></div></div>';
+    var titleBand=((sl.cockpit||sl.synth)&&banner)?banner:'<div class="card" style="overflow:hidden;"><div style="display:flex;align-items:center;gap:8px;padding:12px 16px;background:#1C1C1C;color:#fff;">'+(sl.cockpit?'<i class="ti ti-layout-dashboard" style="color:#E8541A;font-size:18px;"></i>':(i>0?'<i class="ti ti-radar-2" style="color:#E8541A;font-size:18px;"></i>':'<button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:20px;padding:0;"><i class="ti ti-home"></i></button>'))+'<span style="font-size:11px;letter-spacing:1px;color:#E8A07E;font-weight:600;">'+(sl.cockpit?'MON ESPACE':'SENTINELLE · <b style="color:#fff;">'+esc(d.nom||'')+'</b>')+'</span><span style="flex:1;"></span><span style="font-size:11px;color:#9ca3af;">'+(i+1)+' / '+slides.length+'</span></div></div>';
     html+='<div id="sSlide_'+i+'" style="flex-direction:column;gap:8px;'+(i===0?'display:flex;':'display:none;')+'">'
       +titleBand
       +iveNavBar('sentinelle')
