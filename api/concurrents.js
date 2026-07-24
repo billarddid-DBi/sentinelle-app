@@ -101,13 +101,15 @@ function profil(kw) { // {q: qualité avis, v: volume avis, s: site}
   if (/immobil|courtier|\bbanque|agence.?immo/.test(a)) return { q: 30, v: 30, s: 40 };
   return { q: 30, v: 35, s: 35 };
 }
-function qScore(r) { if (r == null) return 45; if (r >= 4.8) return 90; if (r >= 4.5) return 84; if (r >= 4.2) return 78; if (r >= 4.0) return 72; if (r >= 3.5) return 62; if (r >= 3.0) return 52; return 40; }
+function qScore(r) { if (r == null) return 45; if (r >= 4.8) return 90; if (r >= 4.5) return 84; if (r >= 4.2) return 78; if (r >= 4.0) return 70; if (r >= 3.5) return 58; if (r >= 3.0) return 42; if (r >= 2.5) return 30; return 20; }
+// Couplage volume x qualite (decision Didier 2026-07-24) : un gros volume d'avis MEDIOCRES n'est pas de la notoriete -> le volume n'amplifie a fond que si la note est correcte. IDENTIQUE dans sentinelle.js.
+function volFactor(r) { if (r == null) return 0.7; if (r >= 4.0) return 1.0; if (r >= 3.5) return 0.8; if (r >= 3.0) return 0.55; return 0.35; }
 function vScore(c) { c = c || 0; if (c >= 500) return 92; if (c >= 150) return 85; if (c >= 50) return 76; if (c >= 15) return 66; if (c >= 5) return 55; if (c >= 1) return 45; return 32; }
 function sScore(has) { return has ? 75 : 28; }
 // Compression du HAUT de l'échelle IVE (décision Didier) : bas inchangé (≤50), plus la note monte plus on la tasse (ex: 84->76). Évite les notes trop flatteuses qui tuent l'envie d'agir. IDENTIQUE dans sentinelle.js.
 function compress(n) { return n <= 50 ? n : n - 0.7 * Math.pow(n - 50, 2) / 100; }
 function objectiveAura(rating, count, hasSite, w) {
-  const note = Math.max(5, Math.min(97, Math.round(compress((w.q * qScore(rating) + w.v * vScore(count) + w.s * sScore(hasSite)) / 100))));
+  const note = Math.max(5, Math.min(97, Math.round(compress((w.q * qScore(rating) + w.v * vScore(count) * volFactor(rating) + w.s * sScore(hasSite)) / 100))));
   return { note, couleur: colorFor(note), eclat: (count || 0) >= 50 ? "fort" : (count || 0) >= 12 ? "moyen" : "faible" };
 }
 async function getWebsite(placeId, key) {
