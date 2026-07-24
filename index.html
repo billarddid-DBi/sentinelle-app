@@ -2254,10 +2254,9 @@ function dirigeantSpace(){
     (function(){
       var _k=sentKey(acc); var q=_k.texte;
       if(!q.trim()) return;
-      window.sbReady.then(function(){
-        if(!window.sb) return;
-        window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(_k.adresse||'')}).then(function(g){
-          if(g.error||!g.data||!g.data.found||!g.data.fiche) return;
+      var _cachedGet=(window.__lastGet && window.__lastGet.found && window.__lastGet.fiche)?window.__lastGet:null;
+      var _paint=function(g){
+          if(!g||g.error||!g.data||!g.data.found||!g.data.fiche) return;
           var dg=g.data;
           var ive=(dg.fiche.indice&&dg.fiche.indice.estime!=null)?dg.fiche.indice.estime:null;
           if(ive==null) return;
@@ -2288,7 +2287,13 @@ function dirigeantSpace(){
           var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
           $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>';
           if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit,header);
-        });
+      };
+      // Fiche déjà en mémoire (retour de BOUSSOLE, etc.) → rendu synchrone immédiat = pas de flash du teaser "50".
+      if(_cachedGet){ _paint({data:_cachedGet}); }
+      // Puis on rafraîchit depuis la base (contenu identique en général → aucun clignotement visible).
+      window.sbReady.then(function(){
+        if(!window.sb) return;
+        window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(_k.adresse||'')}).then(_paint);
       });
     })();
     return;
