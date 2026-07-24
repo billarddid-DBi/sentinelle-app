@@ -1,0 +1,292 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Dronavia",
+  "date": "2026-07-24T20:21:01.244Z",
+  "contexte": {
+    "nom": "Dronavia",
+    "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, systèmes de coupure, balises), drones industriels, solutions d'ingénierie aéronautique",
+    "archetype": "PME B2B / sous-traitant technique (ingénierie/industrie, grands comptes)",
+    "indiceInterieur": 65,
+    "indiceExterieur": 68,
+    "potentiel": 90,
+    "ecart": -3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 72,
+      "Processus": 60,
+      "Informations": 76,
+      "Outils": 60,
+      "Décisions": 60,
+      "Clients": 60,
+      "Performance": 60
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "La stratégie est écrite (pas que dans la tête du dirigeant)",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'ambiance de travail est saine",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les compétences clés sont identifiées",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "Les façons de faire sont écrites (procédures)",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les délais annoncés sont tenus",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les tâches répétitives sont identifiées",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Le savoir-faire est documenté (pas que dans les têtes)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les données sont fiables (peu d'erreurs)",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les tâches répétitives (devis, factures, rapports) sont rapides",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Les décisions s'appuient sur des données (pas au feeling)",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Le chiffrage / devis suit une méthode objective",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Les décisions sont prises rapidement quand il le faut",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "Des tableaux de bord existent et sont utilisés",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "La prospection est structurée (pas au hasard)",
+        "n": 3,
+        "p": "Clients"
+      },
+      {
+        "c": "La satisfaction client est mesurée",
+        "n": 3,
+        "p": "Clients"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": {
+      "nom": "Dronavia",
+      "mode": "express",
+      "iat": 64,
+      "imh": 63,
+      "band": "Vigilance",
+      "zone": "Vigilance",
+      "reco": "Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide.",
+      "indices": {
+        "Leadership": 80,
+        "Communication": 60,
+        "Écoute": 73,
+        "Transparence": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Adhésion": 60,
+        "Ouverture au changement": 60
+      },
+      "domaines": {
+        "Leadership": 80,
+        "Communication": 60,
+        "Confiance": 60,
+        "Coopération": 60,
+        "Climat social": 60,
+        "Maturité du changement": 60
+      },
+      "peurs": [],
+      "resistance": 40
+    }
+  },
+  "miroir": {
+    "priorite": "Documenter et stabiliser les processus clés (devis, qualité, délais) pour transformer la fiabilité opérationnelle en avantage compétitif mesurable.",
+    "economie_an": 45000,
+    "cadre": {
+      "externe": "Dronavia est une PME solide (65/100) avec une image équilibrée (68/100). Vous maîtrisez vos fondamentaux techniques et organisationnels. Le potentiel de croissance existe : passer de 65 à 90 demande de formaliser ce que vous savez déjà faire, puis d'automatiser les tâches répétitives pour libérer l'énergie créative.",
+      "interne": "Dronavia affiche une cohérence réelle (écart −3 : image et réalité alignées). Maturité organisationnelle correcte (72/100), mais 27 critères clés sont à 3/5 (seuil faible) : stratégie non écrite, procédures manquantes, données non fiables, décisions au feeling. L'IA n'est pas le levier principal ici ; c'est la FORMALISATION + l'AUTOMATISATION des tâches répétitives. Zone IAT Vigilance (64/100) : l'équipe est ouverte au changement, mais la confiance et la transparence sont fragiles (60/100 chacune). Dosage : renforcer le POURQUOI et l'implication avant d'accélérer."
+    },
+    "verite": {
+      "externe": "Vous êtes fiables techniquement (pilier Informations : 76/100), mais cette fiabilité reste invisible en interne : elle n'est pas écrite, pas mesurée, pas partagée. Vos délais glissent, votre qualité varie, vos décisions manquent de données. Il se peut que l'équipe sente une certaine ambiguïté sur la direction à 3 ans (3/5 : « le dirigeant sait où il veut aller ») et sur ce qui vous distingue vraiment (3/5). Cela crée une tension : vous êtes compétents, mais pas alignés. Le potentiel attend que la réalité rejoigne l'image — et que l'image devienne plus ambitieuse.",
+      "interne": "Dronavia souffre d'une FRAGMENTATION ORGANISATIONNELLE : savoir-faire excellent mais non capitalisé (critère « savoir-faire documenté » : 3/5), processus implicites (« façons de faire écrites » : 3/5), données non fiables (3/5), outils mal articulés (3/5). Les tâches répétitives (devis, factures, rapports) ne sont pas identifiées ni optimisées (3/5 chacun). Résultat : délais non tenus (3/5), qualité variable (3/5), décisions au feeling (3/5). Zone IAT Vigilance (64/100) : leadership fort (80/100), mais communication/transparence/confiance/coopération/adhésion toutes à 60/100 — fragiles. Hypothèse à explorer : il se peut que la stratégie non écrite crée une ambiguïté sur le cap, et que l'absence de procédures génère une charge cognitive cachée sur les équipes. Résistance estimée modérée (40/100) : l'équipe n'est pas hostile, mais elle attend du SENS et de la SÉCURITÉ avant d'embarquer dans un changement. Palier 1 = formalisation + communication du POURQUOI ; palier 2 = automatisation IA."
+    },
+    "humain": {
+      "posologie": "Zone Vigilance (64/100) : prérequis fragiles. Rythme : sécuriser EN PARALLÈLE. Sur-communiquer le POURQUOI (stratégie écrite + vision partagée). Impliquer relais internes. Démarrer par pilote non menaçant (ex : devis). Victoire rapide = confiance retrouvée. Puis accélérer palier 2.",
+      "peurs": [
+        {
+          "peur": "Perte de contrôle / autonomie si les processus sont figés par écrit.",
+          "traitement": "Cadrer explicitement : formalisation = clarté + liberté d'adaptation, pas rigidité. Impliquer équipe dans rédaction des procédures."
+        },
+        {
+          "peur": "L'IA remplace les compétences techniques / l'emploi.",
+          "traitement": "Communiquer : IA enlève tâches pénibles (devis, relances), libère temps pour l'ingénierie et l'innovation. Engagement du dirigeant : zéro suppression de poste."
+        }
+      ]
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Stratégie et vision non écrites (3/5) ; équipe incertaine sur le cap à 3 ans.",
+        "levier": "Formaliser et partager la stratégie écrite (vision 3 ans, différenciation, roadmap produit/marché).",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + 2-3 relais clés (2 jours). Synthèse écrite, affichée, revisitée trimestriellement.",
+        "indicateur": "Stratégie écrite validée. 100 % équipe peut réciter le cap à 3 ans."
+      },
+      {
+        "palier": 1,
+        "frein": "Procédures absentes (3/5) ; savoir-faire non documenté (3/5) ; délais et qualité variables (3/5 chacun).",
+        "levier": "Documenter les 5-6 processus clés (devis, fabrication, contrôle qualité, livraison, réclamation client).",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit processus + ateliers équipe (4 semaines). Fiches procédures simples, visuelles. Responsable qualité pilote.",
+        "indicateur": "6 procédures écrites et validées. Délais tenus à 90 % (vs. actuellement ~70 %). Écarts qualité documentés."
+      },
+      {
+        "palier": 2,
+        "frein": "Tâches répétitives non identifiées ni optimisées (3/5) ; devis, factures, rapports lents (3/5).",
+        "levier": "Automatiser devis et relances clients via IA (extraction données, génération devis, suivi relances).",
+        "type": "IA",
+        "mise_en_oeuvre": "Pilote 3 mois : intégration IA sur 30 % des devis. Formation équipe. Mesure temps/erreurs. Rollout progressif.",
+        "indicateur": "Temps devis −40 %. Erreurs saisie −80 %. Taux d'acceptation devis +5 % (clarté améliorée)."
+      },
+      {
+        "palier": 2,
+        "frein": "Données non fiables (3/5) ; décisions au feeling (3/5) ; tableaux de bord absents (3/5).",
+        "levier": "Mettre en place 3 tableaux de bord (délais, qualité, satisfaction client) alimentés par données fiables.",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégration ERP + IA pour nettoyage données. Dashboards simples (Excel + BI légère). Revue mensuelle dirigeant + équipe.",
+        "indicateur": "Tableaux de bord opérationnels. Décisions appuyées sur données à 80 %. Confiance données : 90 %."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps devis / relances (automatisation IA)",
+          "inaction_an": 28000,
+          "invest_1x": 8000,
+          "recurrent_an": 3000
+        },
+        {
+          "poste": "Erreurs saisie / données (formalisation + nettoyage IA)",
+          "inaction_an": 12000,
+          "invest_1x": 5000,
+          "recurrent_an": 2000
+        },
+        {
+          "poste": "Délais glissants / retouches qualité (procédures + tableaux de bord)",
+          "inaction_an": 18000,
+          "invest_1x": 6000,
+          "recurrent_an": 2000
+        }
+      ],
+      "inaction_an": 58000,
+      "invest_total": 19000,
+      "recurrent_an": 7000,
+      "gain_an": 51000,
+      "roi_net_an": 44000,
+      "payback_mois": 4,
+      "fourchette": "3 à 5 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel (15 min) pour suivre les 4 leviers. BOUSSOLE complète dans 3 mois (fin palier 1). Revue stratégie trimestrielle avec équipe.",
+    "synthese": {
+      "externe": "Votre prochaine étape : fixer ensemble la vision à 3 ans et documenter vos processus clés. Cela libère du temps pour l'innovation et consolide votre réputation de fiabilité. L'IA arrive ensuite, sur des bases solides. Commençons par l'atelier stratégie ce mois-ci.",
+      "interne": "Dronavia a les briques (leadership, compétences techniques, image équilibrée). Manque : formalisation + transparence. Zone IAT Vigilance = dosage prudent : palier 1 quasi exclusivement humain/externe (stratégie écrite, procédures, communication du POURQUOI). Peurs identifiées (contrôle, emploi) se traitent par implication + engagement du dirigeant, PAS par IA. Palier 2 (IA) démarre quand confiance/transparence remontent. Angle commercial : PME B2B fiable = valeur énorme pour grands comptes. Formalisation = différenciation visible + prix justifié. ROI net 44k€/an, payback 4 mois : crédible pour une PME. Prochaine action : lancer audit processus + atelier stratégie."
+    }
+  }
+}
