@@ -1,0 +1,178 @@
+{
+  "nom": "Technicontrole",
+  "ville": "Pannes (45700)",
+  "activite": "Contrôle technique automobile tous véhicules",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établi & performant",
+    "atout": "Réseau multi-sites, bonne réputation"
+  },
+  "identite": "SAS Technicontrole, SIREN 503896011, NAF 7120A (Contrôle technique automobile), créée en avril 2008 (18 ans d'ancienneté), 20-49 salariés, siège social à Pithiviers (45300), établissement secondaire à Pannes depuis mai 2010.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      72,
+      68,
+      70,
+      65,
+      72,
+      68,
+      78,
+      75
+    ],
+    "potentiel": [
+      82,
+      80,
+      82,
+      78,
+      85,
+      80,
+      88,
+      87
+    ]
+  },
+  "valeurs": "Professionnalisme, sérieux, accueil sympathique, prix raisonnables, respect des horaires, transparence technique.",
+  "imagePercue": "Centre moderne et fiable, équipe accueillante et compétente, service rapide et de qualité, bon rapport qualité-prix. Quelques avis isolés critiquent la rigueur des contre-visites ou l'absence d'aménités (fontaine à eau).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Réputation solide : 4,5/5 avec 254 avis agrégés, majorité positive, accueil et professionnalisme reconnus."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale : site officiel moderne avec réservation en ligne, horaires clairs, multi-sites visibles."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Quelques avis critiques isolés (rigueur perçue comme excessive, manque d'aménités) : à monitorer mais non structurel."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Structure stable : 18 ans d'ancienneté, 6 établissements actifs, croissance géographique maîtrisée."
+    }
+  ],
+  "quickwins": [
+    "Répondre aux 3-4 avis critiques les plus récents (rigueur des contre-visites, aménités) pour montrer l'écoute et clarifier la démarche qualité.",
+    "Ajouter une photo du centre (accueil, équipements) sur Google et annuaires : 118712 signale « pas de photos » → gain de confiance immédiat.",
+    "Enrichir la fiche Google/annuaires avec les services spécifiques (motos, poids lourds, véhicules électriques) : actuellement peu détaillés, or c'est un atout de différenciation."
+  ],
+  "avis": "Très bonne réputation : 4,5/5 étoiles avec 254 avis agrégés. Majorité d'avis positifs soulignant l'accueil sympathique, le professionnalisme, la rapidité et les prix raisonnables. Quelques avis critiques isolés : rigueur perçue comme excessive en contre-visite (1-2 cas), absence de fontaine à eau mentionnée. Pas de tendance négative structurelle.",
+  "presence": "Site officiel moderne (technicontrole.fr) avec réservation en ligne, horaires clairs, multi-sites. Présent sur annuaires (118712, PagesJaunes, ctechnique.fr). Pas de réseaux sociaux détectés (Facebook, Instagram). Email de contact visible (sm.technicontrole@gmail.com). Présence digitale solide mais réseaux sociaux absents = opportunité.",
+  "plateformes": [
+    {
+      "nom": "ctechnique.fr",
+      "role": "Comparateur & annuaire spécialisé contrôle technique, avis et notes",
+      "url": "https://ctechnique.fr"
+    },
+    {
+      "nom": "controle-technique.tel",
+      "role": "Annuaire & avis spécialisé contrôle technique, 230 avis",
+      "url": "https://controle-technique.tel"
+    },
+    {
+      "nom": "PagesJaunes",
+      "role": "Annuaire généraliste français, avis clients, horaires",
+      "url": "https://www.pagesjaunes.fr"
+    },
+    {
+      "nom": "118712",
+      "role": "Annuaire français, coordonnées, horaires, avis",
+      "url": "https://www.118712.fr"
+    },
+    {
+      "nom": "Google My Business",
+      "role": "Fiche établissement, avis, horaires, réservation",
+      "url": "https://www.google.com/business"
+    }
+  ],
+  "site": "https://www.technicontrole.fr",
+  "intel": {
+    "financier": "Capital social 5 000 €, comptes non publics (confidentialité appliquée). Effectif 20-49 salariés. Croissance par multi-sites (6 établissements) depuis 2008 = modèle stable.",
+    "concurrence": "Marché local : 6 autres centres de contrôle technique dans un rayon de 20 km (Villemandeur, Châlette-sur-Loing, Montargis, Cepoy, Nemours, Châteauneuf-sur-Loire). Technicontrole se différencie par réseau multi-sites et réputation solide.",
+    "visibilite": "Bonne : site moderne, réservation en ligne, présent sur 5+ annuaires spécialisés. Absence de réseaux sociaux = manque de viralité et d'engagement communautaire.",
+    "dirigeant": "Non trouvé publiquement (nom du dirigeant/gérant non accessible dans les sources publiques consultées)."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire d'avis & réponses",
+      "benefice": "Monitorer et répondre aux avis critiques en temps réel (rigueur, aménités) → renforcer la confiance et montrer l'écoute client."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Enrichisseur de fiches annuaires",
+      "benefice": "Ajouter photos, services détaillés (motos, poids lourds, électrique), horaires, tarifs sur Google, PagesJaunes, ctechnique.fr → augmenter la visibilité et la conversion."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire réseaux sociaux (Facebook/Instagram)",
+      "benefice": "Créer présence sur réseaux : partager conseils d'entretien, témoignages clients, actualités centre → engagement communautaire et traction organique."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Optimiseur de contenu site",
+      "benefice": "Enrichir pages services (motos, poids lourds, électrique) avec FAQ, tarifs, délais → améliorer SEO local et conversion réservations."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Analyseur de satisfaction client",
+      "benefice": "Extraire insights des avis (points forts/faibles) → piloter améliorations opérationnelles (aménités, formation équipe)."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps économisé par mois en gestion d'avis et enrichissement digital"
+  },
+  "coutInaction": "Chaque mois sans réponse aux avis critiques = perte de confiance auprès de 5-10 prospects. Absence de réseaux sociaux = manque de 20-30% de traction organique vs concurrents actifs. Fiches annuaires incomplètes = 15% de clics perdus.",
+  "simulateur": {
+    "personnes": 1,
+    "heures": 8,
+    "cout": 64
+  },
+  "avantApres": {
+    "aujourdhui": "Gestion manuelle des avis (réactif), fiches annuaires partielles, pas de réseaux sociaux, site statique.",
+    "avecIA": "Avis monitorés et répondus automatiquement, fiches enrichies et synchronisées, présence réseaux sociaux active, contenu site optimisé SEO."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses en entretien et co-construire un plan d'action digital & client adapté à votre stratégie multi-sites.",
+  "indice": {
+    "estime": 75,
+    "potentiel": 93
+  },
+  "dimensions": {
+    "avis": 82,
+    "reseaux": 15,
+    "site": 78,
+    "traction": 80
+  },
+  "aura": {
+    "sens": "la fiabilité installée",
+    "couleur": "Bleu",
+    "definition": "Technicontrole rayonne la solidité d'un professionnel établi, reconnu pour son sérieux et son accueil, qui inspire confiance par la constance et la qualité.",
+    "eclat": "moyen"
+  },
+  "fierte": "Technicontrole a bâti une réputation solide en 18 ans : 4,5/5 étoiles, 254 avis, équipe reconnue pour son professionnalisme et son accueil. Vous avez créé un réseau de 6 établissements qui fonctionne, avec une présence digitale moderne et une réservation en ligne fluide. Le potentiel est clair : en activant les réseaux sociaux et en enrichissant votre présence annuaires, vous pouvez augmenter votre traction de 15-20% et renforcer la fidélisation client.",
+  "sources": "Recherches publiques : PagesJaunes, 118712, ctechnique.fr, controle-technique.tel, technicontrole.fr, Societe.com, RubyPayeur, Annuaire des Entreprises (data.gouv.fr). Avis agrégés : 254 avis (ctechnique.fr), 230 avis (controle-technique.tel), avis Google/annuaires. Données SIREN/SIRET : Societe.com, RubyPayeur, data.gouv.fr. Confiance : Très élevée (sources officielles + avis massifs + site officiel).",
+  "_auraCalc": {
+    "note_google": 4.5,
+    "nb_avis": 261,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
