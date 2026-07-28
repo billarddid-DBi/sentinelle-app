@@ -1245,7 +1245,7 @@ function synthHtml(d){
     +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 6';
+var IVE_VERSION='28/07 · 7';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2481,16 +2481,26 @@ function sentApercu(){
   };
 
   var _c=iveFicheDuCompte(); if(_c) return afficher(_c.fiche);
-  var k=sentKey(acc), q=k.texte;
-  if(!q||!q.trim()) return rien();
-  window.sbReady.then(function(){
-    if(!window.sb) return rien();
-    window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(k.adresse||'')}).then(function(g){
-      if(g.error||!g.data||!g.data.found||!g.data.fiche) return rien();
-      window.__lastGet=g.data; window.__sentData=g.data.fiche; window.__sentDern=new Date(g.data.dernier||g.data.date);
-      afficher(g.data.fiche);
-    }).catch(rien);
-  }).catch(rien);
+  var k=(typeof sentKey==='function')?sentKey(acc):{texte:acc.name||'',adresse:''};
+  var q=(k&&k.texte)||'';
+  if(!q.trim()) return rien();
+  // Filet de sécurité : quoi qu'il arrive, on ne reste jamais bloqué sur « Nous cherchons… ».
+  var fini=false;
+  var termine=function(fn,arg){ if(fini) return; fini=true; fn(arg); };
+  var minuteur=setTimeout(function(){ termine(rien); },9000);
+  var echec=function(){ clearTimeout(minuteur); termine(rien); };
+  try{
+    var pret=(window.sbReady&&typeof window.sbReady.then==='function')?window.sbReady:Promise.resolve();
+    pret.then(function(){
+      if(!window.sb) return echec();
+      window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(k.adresse||'')}).then(function(g){
+        clearTimeout(minuteur);
+        if(g.error||!g.data||!g.data.found||!g.data.fiche) return termine(rien);
+        window.__lastGet=g.data; window.__sentData=g.data.fiche; window.__sentDern=new Date(g.data.dernier||g.data.date);
+        termine(afficher,g.data.fiche);
+      }).catch(echec);
+    }).catch(echec);
+  }catch(e){ echec(); }
 }
 
 /* --- RAPPORT PDF : on déplie tout, on masque la navigation, et on laisse le navigateur produire
