@@ -1,0 +1,191 @@
+MISSION — ENTRÉE DANS BOUSSOLE : LES 5 QUESTIONS ET L'ÉCRAN DU CHIFFRE
+
+Les règles du projet, l'architecture, le vocabulaire, la procédure de déploiement et le format du
+compte rendu sont dans CLAUDE.md, à la racine du dépôt. Applique-les sans que j'aie à les répéter.
+Lis docs/brief-construction-parcours.md avant de commencer.
+
+PÉRIMÈTRE — À LIRE EN PREMIER
+Tu ne construis QUE ce qui suit. La réorganisation de SENTINELLE décrite au § 6 du brief
+(déplacements vers BOUSSOLE, fusion des doublons, remontée du bloc « Ce que ça représente
+aujourd'hui ») fera l'objet d'une mission séparée. N'y touche pas.
+
+GRATUIT OU PAYANT — LEVER TOUTE AMBIGUÏTÉ
+Tout ce que tu construis ici est GRATUIT, bien que porté par la marque BOUSSOLE : l'écran
+d'introduction, les 5 questions, l'écran du chiffre et la question d'intention.
+Le paywall intervient UNIQUEMENT après l'aiguillage. On montre le chiffre, ensuite on vend.
+
+
+1. CE QUI CHANGE À L'ENTRÉE DE BOUSSOLE
+
+Aujourd'hui, la page d'accueil BOUSSOLE affiche d'emblée les 7 outils, le plan, la mesure interne.
+C'est trop, et c'est à l'envers : BOUSSOLE doit commencer par ÉCOUTER.
+
+Nouvelle entrée — un écran d'introduction très court :
+
+    SENTINELLE a étudié ce que les autres voient.
+    Maintenant, nous allons comprendre ce que vous vivez réellement au quotidien.
+
+    5 questions — environ 90 secondes.
+
+    [ Commencer ]
+
+Aucun outil, aucune recommandation, aucun plan à ce stade.
+La liste des 7 outils (bouToolsHtml) n'apparaît plus qu'APRÈS la question d'intention : sur l'écran
+d'offre (parcours tiède et chaud) et sur la page de l'abonné.
+
+
+2. LES 5 QUESTIONS
+
+Contraintes : 90 secondes · aucune saisie clavier · une question par écran · progression 1/5 à 5/5
+visible · retour arrière possible · réponses conservées. Le dirigeant doit se sentir guidé, pas en
+train de remplir un formulaire.
+
+Q1  « Vous êtes combien à faire tourner la boîte au quotidien ? »
+    Curseur 1 → 10+, défaut 2, valeur affichée en direct.            → personnes
+
+Q2  « Qu'est-ce qui vous mange le plus de temps en ce moment ? »
+    6 grandes tuiles, choix unique.                                   → postePrincipal
+      Devis et factures ............... devis_factures
+      Téléphone et rendez-vous ........ telephone_rendezvous
+      Relances et impayés ............. relances_impayes
+      Planning et équipe .............. planning_equipe
+      Paperasse et administratif ...... administratif
+      Chercher des informations ....... recherche_informations
+
+Q3  « Combien d'heures par semaine partent dans ces tâches-là ? »
+    Curseur 1 → 15 h, défaut 5, valeur affichée en direct.            → heuresSemaine
+
+Q4  « Aujourd'hui, qu'est-ce qui traîne et que vous n'arrivez pas à traiter ? »
+    5 tuiles, choix MULTIPLE.                                         → retards[]
+      Devis pas envoyés ............... devis_non_envoyes
+      Appels pas rappelés ............. appels_non_rappeles
+      Factures pas relancées .......... factures_non_relancees
+      Décisions pas prises ............ decisions_non_prises
+      Rien, je suis à jour ............ a_jour
+    Exclusivité : cocher « Rien, je suis à jour » décoche tout le reste ; cocher autre chose
+    décoche « Rien, je suis à jour ».
+    Stocker aussi nombreRetards = nombre d'éléments cochés, hors a_jour.
+
+Q5  « Une heure de travail chez vous, ça vaut combien ? »
+    Curseur 20 € → 200 €, valeur affichée en euros, toujours modifiable. → coutHoraire
+    Pré-positionner selon le champ `secteur` de la fiche SENTINELLE (btp, artisan, commerce,
+    restaurant, boulangerie, industrie, sante, juridique, immobilier, services, autre) :
+      btp 45 · artisan 45 · commerce 35 · restaurant 35 · boulangerie 35 · industrie 55
+      sante 70 · juridique 90 · immobilier 60 · services 50 · autre 50 · inconnu 50
+
+
+3. L'ÉCRAN DU CHIFFRE
+
+Il arrive après les 5 questions. Ne pas afficher la question d'intention tout de suite : le
+dirigeant doit d'abord voir et comprendre SON chiffre.
+
+Calcul — SOURCE UNIQUE OBLIGATOIRE
+Crée une fonction PURE, sur le modèle de synthVals() :
+
+    iveGain({personnes, heuresSemaine, coutHoraire}) -> {heuresAn, eurosAn, soirees}
+        heuresAn = personnes × heuresSemaine × 45
+        eurosAn  = Math.round(heuresAn × coutHoraire / 100) × 100
+        soirees  = Math.round(heuresAn / 8)
+
+Fais-la appeler par : l'écran du chiffre, window.__bouSim (qui doit cesser de porter la formule et
+se contenter du câblage DOM), la charge utile de l'e-mail, et la console admin si elle l'affiche.
+Aucun autre calcul ailleurs. api/facture-email.js ne recalcule rien : il affiche ce qu'il reçoit.
+
+Affichage
+
+    1 350 heures par an
+    soit environ 67 500 €
+
+    Sur « les devis et les factures », principalement.
+    Et en ce moment, 3 choses traînent chez vous.
+
+    Ce chiffre est le vôtre — c'est vous qui venez de nous le donner.
+
+Reprendre aussi le nombre de personnes et les heures par semaine indiqués.
+Fusionner avec un message valorisant, par exemple :
+    « Vous venez de mettre un chiffre concret sur une charge qui, jusqu'ici, restait invisible. »
+Ton : prise de conscience, jamais reproche. Vocabulaire interdit : voir CLAUDE.md § 5.
+
+Conserver le bouton de récapitulatif par e-mail. L'e-mail reprend EXACTEMENT les mêmes valeurs :
+personnes, poste principal, heures par semaine, ce qui traîne, coût horaire, heures annuelles,
+estimation annuelle.
+
+
+4. LA QUESTION D'INTENTION
+
+Uniquement après que le chiffre a été vu.
+
+    « Si on vous montrait comment récupérer une partie de ces heures, vous seriez prêt à changer
+      votre façon de faire ? »
+
+      Oui, dès maintenant ................ chaud
+      Oui, si c'est simple et progressif .. tiede
+      J'ai besoin d'y réfléchir ........... froid
+
+
+5. L'AIGUILLAGE
+
+chaud  → l'offre BOUSSOLE directement. Rappel bref de ce qui se débloque, écran épuré, appel à
+         l'action clair vers l'abonnement.
+
+tiede  → d'abord des CATÉGORIES d'accompagnement, génériques, sans rien dévoiler :
+             Gagner du temps · Réduire les tâches répétitives ·
+             Fiabiliser le suivi · Mieux organiser les informations
+         Montrer que le parcours peut être progressif, PUIS afficher l'offre.
+         Ne jamais donner gratuitement : les noms des outils, les automatisations, le mode
+         opératoire, les prompts, la feuille de route.
+
+froid  → proposer le récapitulatif par e-mail, confirmer que les réponses sont conservées,
+         prévoir une relance, aucune pression commerciale, retour simple à l'espace dirigeant.
+
+
+6. STOCKAGE — DÉCISION PRISE
+
+localStorage pour l'instant, MAIS derrière une petite couche d'abstraction (par exemple
+iveStore.save() / iveStore.load()) afin de basculer sur Supabase plus tard sans toucher au reste
+du code. Prépare en parallèle le SQL de la table dans docs/ (sans l'exécuter) : Didier le lancera
+quand il voudra passer en durable.
+
+Objet de réponses, clés en français, versionné :
+
+    {
+      v: 1,
+      personnes: 2,
+      postePrincipal: "devis_factures",
+      heuresSemaine: 5,
+      retards: ["devis_non_envoyes", "appels_non_rappeles"],
+      nombreRetards: 2,
+      coutHoraire: 50,
+      heuresAn: 450,
+      eurosAn: 22500,
+      intentionChangement: "tiede",
+      termineLe: "..."
+    }
+
+Reprise : les réponses sont enregistrées au fur et à mesure. Si le dirigeant quitte et revient, on
+le replace sur la première question sans réponse, en conservant tout. Un lien discret
+« Tout recommencer » sur l'écran d'introduction permet de repartir de zéro.
+
+Compatibilité future : cet objet devra un jour être rapproché de notes quotidiennes du type
+« j'ai encore passé deux heures sur les devis » ou « je dois rappeler trois clients ». Ne ferme
+donc pas la structure — mais ne crée AUCUN champ spéculatif tant qu'il ne sert pas. Le numéro de
+version suffit à garder la porte ouverte.
+
+
+7. NE PAS FAIRE
+
+- Aucun nouveau fichier dans api/ (limite de 12 atteinte).
+- Aucune formule dupliquée.
+- Aucune suppression de bloc protégé (CLAUDE.md § 4, règle 5).
+- Aucune fonctionnalité future affichée par anticipation.
+
+
+8. MÉTHODE
+
+Lis les documents, inspecte le code existant, repère les vues et fonctions réutilisables, propose-moi
+un plan court, puis construis. Vérifie ensuite dans le navigateur, sur la version en ligne, tout ce
+qui est listé au § 9 de CLAUDE.md — en particulier l'exclusivité de « Rien, je suis à jour », les
+retours arrière, la reprise après abandon, et la cohérence écran / e-mail.
+
+Termine par le compte rendu au format du § 10 de CLAUDE.md, en distinguant ce qui est réellement en
+ligne de ce qui reste simulé.
