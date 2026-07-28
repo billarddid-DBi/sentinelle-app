@@ -3389,9 +3389,9 @@ function bouCoutDefaut(){ var f=window.__sentData||{}; return IVE_COUT_SECTEUR[(
 // Première question sans réponse (1 à 5) ; 6 = questionnaire terminé.
 function bouEtape(){ var r=bouRep();
   if(r.personnes==null) return 1;
-  if(!r.postePrincipal) return 2;
+  if(!r.postes||!r.postes.length) return 2;
   if(r.heuresSemaine==null) return 3;
-  if(!r.retards||!r.retards.length) return 4;
+  if(!r.chronophages||!r.chronophages.length) return 4;
   if(r.coutHoraire==null) return 5;
   return 6; }
 
@@ -3434,33 +3434,47 @@ function bouIntro(){
 // --- Q1 : combien de personnes ---
 function bouQ1(){
   var r=bouRep(), v=(r.personnes!=null)?r.personnes:2;
-  bouRender(bouCadre(bouTitre('Vous êtes combien à faire tourner la boîte au quotidien ?')
-    +'<div style="text-align:center;margin-top:20px;"><span id="bq1v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+(v>=10?'10+':v)+'</span><div id="bq1l" style="font-size:12.5px;color:#6b7280;margin-top:4px;">'+(v>1?'personnes':'personne')+'</div></div>'
+  bouRender(bouCadre(bouTitre('Quel est le nombre de salariés dans l\'entreprise ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Vous compris.</div>'
+    +'<div style="text-align:center;margin-top:20px;"><span id="bq1v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+(v>=10?'10+':v)+'</span><div id="bq1l" style="font-size:12.5px;color:#6b7280;margin-top:4px;">'+(v>1?'salariés':'salarié')+'</div></div>'
     +bouCurseur('bq1',1,10,1,v)
     +bouNav(1,'bouSet(\'personnes\',+document.getElementById(\'bq1\').value);bouQ2();')
   ,1));
   var s=document.getElementById('bq1');
-  if(s) s.addEventListener('input',function(){ var n=+s.value; document.getElementById('bq1v').textContent=(n>=10?'10+':n); document.getElementById('bq1l').textContent=(n>1?'personnes':'personne'); });
+  if(s) s.addEventListener('input',function(){ var n=+s.value; document.getElementById('bq1v').textContent=(n>=10?'10+':n); document.getElementById('bq1l').textContent=(n>1?'salariés':'salarié'); });
 }
 
-// --- Q2 : ce qui mange le temps (choix unique, avance automatiquement) ---
+// --- Q2 : les postes qui prennent du temps (CHOIX MULTIPLE) ---
 function bouQ2(){
-  var r=bouRep(), cur=r.postePrincipal||'';
-  var tiles=IVE_POSTES.map(function(p){ var on=(cur===p[0]);
-    return '<div onclick="bouChoixPoste(\''+p[0]+'\')" style="flex:1 1 46%;min-width:140px;border:2px solid '+(on?'#E8541A':'#eef0f3')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:13px;padding:15px 12px;text-align:center;cursor:pointer;"><i class="ti '+p[2]+'" style="font-size:25px;color:#E8541A;"></i><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;line-height:1.3;margin-top:7px;">'+p[1]+'</div></div>';
+  var r=bouRep(), sel=r.postes||[];
+  var tiles=IVE_POSTES.map(function(p){ var on=(sel.indexOf(p[0])>-1);
+    return '<div onclick="bouTogglePoste(\''+p[0]+'\')" style="flex:1 1 46%;min-width:140px;border:2px solid '+(on?'#E8541A':'#eef0f3')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:13px;padding:15px 12px;text-align:center;cursor:pointer;position:relative;">'
+      +(on?'<i class="ti ti-circle-check-filled" style="position:absolute;top:7px;right:8px;font-size:17px;color:#E8541A;"></i>':'')
+      +'<i class="ti '+p[2]+'" style="font-size:25px;color:'+(on?'#E8541A':'#9ca3af')+';"></i><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;line-height:1.3;margin-top:7px;">'+p[1]+'</div></div>';
   }).join('');
-  bouRender(bouCadre(bouTitre('Qu\'est-ce qui vous mange le plus de temps en ce moment ?')
-    +'<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;">'+tiles+'</div>'
-    +bouNav(2,'bouQ3();',!!cur)
+  bouRender(bouCadre(bouTitre('Qu\'est-ce qui vous prend le plus de temps au quotidien dans l\'entreprise ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Plusieurs réponses possibles.</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:16px;">'+tiles+'</div>'
+    +bouNav(2,'bouQ3();',sel.length>0)
   ,2));
 }
-function bouChoixPoste(k){ bouSet('postePrincipal',k); bouQ2(); setTimeout(bouQ3,300); }
+function bouTogglePoste(k){
+  var cur=(bouRep().postes||[]).slice();
+  var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
+  bouSet('postes',cur);
+  bouSet('postePrincipal',cur[0]||'');   // le premier sert d'étiquette courte (récap, email)
+  // une case décochée en Q2 ne doit plus pouvoir rester « chronophage » en Q4
+  var ch=(bouRep().chronophages||[]).filter(function(x){ return cur.indexOf(x)>-1; });
+  bouSet('chronophages',ch); bouSet('nbChrono',ch.length);
+  bouQ2();
+}
 
 // --- Q3 : heures par semaine ---
 function bouQ3(){
-  var r=bouRep(), v=(r.heuresSemaine!=null)?r.heuresSemaine:5;
-  bouRender(bouCadre(bouTitre('Combien d\'heures par semaine partent dans ces tâches-là ?')
-    +(r.postePrincipal?'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Vous avez indiqué : '+esc(ivePosteLib(r.postePrincipal,3))+'.</div>':'')
+  var r=bouRep(), v=(r.heuresSemaine!=null)?r.heuresSemaine:5, sel=r.postes||[];
+  var rappel=sel.length?'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Vous avez indiqué : '+esc(sel.map(function(k){ return ivePosteLib(k,3); }).join(', '))+'.</div>':'';
+  bouRender(bouCadre(bouTitre('D\'après vous, combien d\'heures par semaine sont consacrées à ces tâches ?')
+    +rappel
     +'<div style="text-align:center;margin-top:18px;"><span id="bq3v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:22px;font-weight:800;color:#E8541A;"> h</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">par semaine</div></div>'
     +bouCurseur('bq3',1,15,1,v)
     +bouNav(3,'bouSet(\'heuresSemaine\',+document.getElementById(\'bq3\').value);bouQ4();')
@@ -3469,35 +3483,31 @@ function bouQ3(){
   if(s) s.addEventListener('input',function(){ document.getElementById('bq3v').textContent=s.value; });
 }
 
-// --- Q4 : ce qui traîne (choix multiple, « Rien, je suis à jour » exclusif) ---
+// --- Q4 : les plus chronophages (CHOIX MULTIPLE) — affinage de la Q2 ---
 function bouQ4(){
-  var r=bouRep(), sel=r.retards||[];
-  var tiles=IVE_RETARDS.map(function(p){ var on=(sel.indexOf(p[0])>-1), aj=(p[0]==='a_jour');
-    var c=aj?'#16a34a':'#E8541A';
-    return '<div onclick="bouToggleRetard(\''+p[0]+'\')" style="display:flex;align-items:center;gap:11px;border:2px solid '+(on?c:'#eef0f3')+';background:'+(on?(aj?'#f0fdf4':'#fff7ed'):'#fff')+';border-radius:13px;padding:14px 15px;margin-top:9px;cursor:pointer;"><i class="ti '+(on?'ti-square-check':'ti-square')+'" style="font-size:22px;color:'+(on?c:'#cbd5e1')+';flex:0 0 auto;"></i><i class="ti '+p[2]+'" style="font-size:19px;color:'+c+';flex:0 0 auto;"></i><span style="font-size:14px;font-weight:700;color:#1C1C1C;">'+p[1]+'</span></div>';
+  var r=bouRep(), sel=r.chronophages||[], postes=r.postes||[];
+  // On ne propose que ce qui a été coché en Q2 (sauf s'il n'y a qu'un seul poste : on ouvre la liste).
+  var liste=(postes.length>1)?IVE_POSTES.filter(function(p){ return postes.indexOf(p[0])>-1; }):IVE_POSTES;
+  var tiles=liste.map(function(p){ var on=(sel.indexOf(p[0])>-1);
+    return '<div onclick="bouToggleChrono(\''+p[0]+'\')" style="display:flex;align-items:center;gap:11px;border:2px solid '+(on?'#dc2626':'#eef0f3')+';background:'+(on?'#fef2f2':'#fff')+';border-radius:13px;padding:14px 15px;margin-top:9px;cursor:pointer;"><i class="ti '+(on?'ti-square-check':'ti-square')+'" style="font-size:22px;color:'+(on?'#dc2626':'#cbd5e1')+';flex:0 0 auto;"></i><i class="ti '+p[2]+'" style="font-size:19px;color:'+(on?'#dc2626':'#E8541A')+';flex:0 0 auto;"></i><span style="font-size:14px;font-weight:700;color:#1C1C1C;">'+p[1]+'</span></div>';
   }).join('');
-  bouRender(bouCadre(bouTitre('Aujourd\'hui, qu\'est-ce qui traîne et que vous n\'arrivez pas à traiter ?')
-    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Plusieurs réponses possibles.</div>'
+  bouRender(bouCadre(bouTitre('Quelles sont les tâches qui sont, pour vous, les plus chronophages ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">'+((postes.length>1)?'Parmi ce que vous venez d\'indiquer. Plusieurs réponses possibles.':'Plusieurs réponses possibles.')+'</div>'
     +'<div style="margin-top:12px;">'+tiles+'</div>'
     +bouNav(4,'bouQ5();',sel.length>0)
   ,4));
 }
-function bouToggleRetard(k){
-  var r=bouRep(), cur=(r.retards||[]).slice();
-  if(k==='a_jour'){ cur=(cur.indexOf('a_jour')>-1)?[]:['a_jour']; }
-  else{
-    cur=cur.filter(function(x){ return x!=='a_jour'; });
-    var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
-  }
-  bouSet('retards',cur);
-  bouSet('nombreRetards',cur.filter(function(x){ return x!=='a_jour'; }).length);
+function bouToggleChrono(k){
+  var cur=(bouRep().chronophages||[]).slice();
+  var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
+  bouSet('chronophages',cur); bouSet('nbChrono',cur.length);
   bouQ4();
 }
 
-// --- Q5 : combien vaut une heure (pré-positionné selon le secteur trouvé par SENTINELLE) ---
+// --- Q5 : le taux horaire moyen (pré-positionné selon le secteur trouvé par SENTINELLE) ---
 function bouQ5(){
   var r=bouRep(), v=(r.coutHoraire!=null)?r.coutHoraire:bouCoutDefaut();
-  bouRender(bouCadre(bouTitre('Une heure de travail chez vous, ça vaut combien ?')
+  bouRender(bouCadre(bouTitre('Si vous deviez estimer un taux horaire moyen, lequel choisissez-vous ?')
     +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Une estimation suffit — nous avons pré-réglé le curseur selon votre activité.</div>'
     +'<div style="text-align:center;margin-top:18px;"><span id="bq5v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:26px;font-weight:800;color:#E8541A;"> €</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">de l\'heure</div></div>'
     +bouCurseur('bq5',20,200,5,v)
@@ -3517,29 +3527,65 @@ function bouFinQuestions(){
 // --- L'écran du chiffre : sa charge, enfin visible. Prise de conscience, jamais reproche. ---
 function bouChiffre(){
   var r=bouRep(), g=iveGain(r);           // SOURCE UNIQUE — jamais de recalcul parallèle
-  var nb=r.nombreRetards||0;
-  var phraseR=(nb>0)?'Et en ce moment, <b>'+nb+' chose'+(nb>1?'s':'')+' traîne'+(nb>1?'nt':'')+'</b> chez vous.':'Et aujourd\'hui, vous êtes <b>à jour</b> — c\'est déjà beaucoup.';
+  var postes=(r.postes||[]).map(function(k){ return ivePosteLib(k,3); });
+  var chrono=(r.chronophages||[]).map(function(k){ return ivePosteLib(k,3); });
+  var nbSal=r.personnes||1;
+  // Deux chiffres côte à côte, comme sur la maquette.
+  var bloc=function(ic,icCoul,icFond,val,unite,leg,sous){
+    return '<div style="flex:1 1 0;min-width:0;text-align:center;padding:4px 6px;">'
+      +'<div style="width:46px;height:46px;border-radius:50%;background:'+icFond+';display:inline-flex;align-items:center;justify-content:center;"><i class="ti '+ic+'" style="font-size:23px;color:'+icCoul+';"></i></div>'
+      +'<div style="font-size:clamp(26px,8vw,34px);font-weight:800;color:#E8541A;line-height:1.05;margin-top:8px;">'+val+(unite?'<span style="font-size:.6em;"> '+unite+'</span>':'')+'</div>'
+      +'<div style="font-size:12.5px;font-weight:700;color:#1C1C1C;margin-top:2px;">'+leg+'</div>'
+      +'<div style="font-size:11px;color:#9ca3af;line-height:1.35;margin-top:3px;">'+sous+'</div></div>';
+  };
+  var duo=function(icG,txtG,valG,icD,txtD,valD){
+    return '<div style="display:flex;align-items:stretch;gap:10px;border:1px solid #eef0f3;border-radius:14px;padding:13px 10px;margin-top:12px;">'
+      +'<div style="flex:1 1 0;min-width:0;display:flex;gap:10px;align-items:center;"><div style="width:38px;height:38px;border-radius:50%;background:#eef5ff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+icG+'" style="font-size:19px;color:#2563EB;"></i></div><div style="min-width:0;"><div style="font-size:11.5px;color:#6b7280;line-height:1.3;">'+txtG+'</div><div style="font-size:13px;font-weight:800;color:#2563EB;line-height:1.3;margin-top:1px;">'+valG+'</div></div></div>'
+      +'<div style="width:1px;background:#eef0f3;flex:0 0 auto;"></div>'
+      +'<div style="flex:1 1 0;min-width:0;display:flex;gap:10px;align-items:center;"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+icD+'" style="font-size:19px;color:#E8541A;"></i></div><div style="min-width:0;"><div style="font-size:11.5px;color:#6b7280;line-height:1.3;">'+txtD+'</div><div style="font-size:13px;font-weight:800;color:#E8541A;line-height:1.3;margin-top:1px;">'+valD+'</div></div></div>'
+    +'</div>';
+  };
   bouRender(bouCadre(
-    '<div style="font-size:12px;font-weight:800;color:#E8541A;letter-spacing:.6px;margin-top:6px;">VOTRE CHIFFRE</div>'
-    +'<div style="background:#1C1C1C;border-radius:14px;padding:26px 18px;text-align:center;margin-top:12px;">'
-      +'<div style="font-size:34px;font-weight:800;color:#fff;line-height:1.15;">'+iveNb(g.heuresAn)+' heures</div>'
-      +'<div style="font-size:13px;color:#9ca3af;margin-top:2px;">par an</div>'
-      +'<div style="height:1px;background:#333;margin:15px 34px;"></div>'
-      +'<div style="font-size:27px;font-weight:800;color:#E8A07E;line-height:1.2;">soit environ '+iveNb(g.eurosAn)+' €</div>'
-      +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">soit à peu près '+iveNb(g.soirees)+' journées de travail</div>'
+    '<div style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.8px;margin-top:4px;">VOTRE RÉSULTAT</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:12px;margin-top:8px;">'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;">Voici ce que représente<br>votre quotidien.</div>'
+        +'<div style="font-size:13px;color:#4b5563;line-height:1.55;margin-top:8px;">Vous venez de mettre un chiffre concret sur une charge qui, jusqu\'ici, restait souvent invisible.</div></div>'
+      +'<div style="width:78px;height:78px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-clock-hour-4" style="font-size:42px;color:#E8541A;"></i></div>'
     +'</div>'
-    +'<div style="font-size:14px;color:#1C1C1C;line-height:1.6;margin-top:16px;">'
-      +(r.postePrincipal?'Sur <b>'+esc(ivePosteLib(r.postePrincipal,3))+'</b>, principalement.<br>':'')+phraseR+'</div>'
-    +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#4b5563;line-height:1.55;">'
-      +'<b>'+esc(r.personnes||1)+' personne'+((r.personnes||1)>1?'s':'')+'</b> · <b>'+esc(r.heuresSemaine||0)+' h</b> par semaine · <b>'+esc(r.coutHoraire||0)+' €</b> de l\'heure — vos réponses.</div>'
-    +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;padding:14px 15px;margin-top:14px;">'
-      +'<div style="font-size:13.5px;font-weight:800;color:#c2410c;">Ce chiffre est le vôtre</div>'
-      +'<div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">C\'est vous qui venez de nous le donner. Vous venez de mettre un chiffre concret sur une charge qui, jusqu\'ici, restait le plus souvent invisible.</div></div>'
-    +'<div style="text-align:center;margin-top:16px;"><button type="button" onclick="bouEnvoiMail()" style="border:none;background:#2563EB;color:#fff;border-radius:12px;padding:12px 22px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-mail"></i> Recevoir mon récapitulatif par email</button></div>'
-    +'<div id="sentMailMsg" style="text-align:center;margin-top:7px;min-height:16px;font-size:12px;"></div>'
-    +'<button type="button" onclick="bouIntention()" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:16px;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:18px;">Continuer <i class="ti ti-arrow-right"></i></button>'
+    // Les deux chiffres
+    +'<div style="display:flex;align-items:stretch;background:#fffaf6;border:1px solid #fed7aa;border-radius:16px;padding:16px 8px;margin-top:16px;">'
+      +bloc('ti-clock','#E8541A','#fff0e6',iveNb(g.heuresAn),'','heures par an','soit environ '+iveNb(g.soirees)+' journées de travail')
+      +'<div style="width:1px;background:#fed7aa;flex:0 0 auto;margin:6px 0;"></div>'
+      +bloc('ti-coin','#E8541A','#fff0e6',iveNb(g.eurosAn),'€','de temps mobilisé par an','basé sur votre estimation')
+    +'</div>'
+    // Ce qui prend le temps / ce qui est le plus chronophage
+    +duo('ti-folder','Principalement consacrées à',(postes.length?esc(postes.join(', ')):'—'),
+         'ti-flame','Le plus chronophage',(chrono.length?esc(chrono.join(', ')):'—'))
+    // Le détail du calcul
+    +'<div style="display:flex;gap:11px;align-items:center;background:#f5f8ff;border:1px solid #dbe7fb;border-radius:14px;padding:13px 14px;margin-top:12px;">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-calculator" style="font-size:19px;color:#2563EB;"></i></div>'
+      +'<div style="font-size:12px;color:#4b5563;line-height:1.5;">Calcul basé sur vos réponses :<br><b style="color:#1C1C1C;">'+esc(nbSal)+' salarié'+(nbSal>1?'s':'')+'</b> &nbsp;·&nbsp; <b style="color:#1C1C1C;">'+esc(r.heuresSemaine||0)+' h</b> par semaine &nbsp;·&nbsp; <b style="color:#1C1C1C;">'+esc(r.coutHoraire||0)+' €</b> par heure</div>'
+    +'</div>'
+    // Le message qui dédramatise
+    +'<div style="display:flex;gap:12px;align-items:flex-start;background:#f2fbf5;border:1px solid #bbf7d0;border-radius:14px;padding:14px 15px;margin-top:12px;">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-award" style="font-size:20px;color:#16a34a;"></i></div>'
+      +'<div><div style="font-size:14px;font-weight:800;color:#15803d;">Votre estimation personnalisée</div>'
+      +'<div style="font-size:12.5px;color:#166534;line-height:1.6;margin-top:4px;">Ce temps n\'est pas forcément perdu : il correspond à des tâches nécessaires. Mais il peut révéler un potentiel d\'organisation, de simplification ou d\'automatisation pour vous faire gagner du temps.</div></div>'
+    +'</div>'
+    // La suite est verrouillée
+    +'<div style="display:flex;gap:12px;align-items:flex-start;background:#f8fafc;border:1px dashed #c7d2fe;border-radius:14px;padding:13px 15px;margin-top:12px;">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:#eef2ff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-lock" style="font-size:18px;color:#4338ca;"></i></div>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;"><b style="color:#1C1C1C;">La suite de votre analyse est réservée à BOUSSOLE.</b><br>Découvrez les solutions adaptées à votre situation.</div>'
+    +'</div>'
+    // Les deux sorties
+    +'<div style="display:flex;gap:9px;margin-top:16px;align-items:stretch;flex-wrap:wrap;">'
+      +'<button type="button" onclick="bouEnvoiMail()" style="flex:1 1 150px;min-width:0;border:1.5px solid #2563EB;background:#fff;color:#2563EB;border-radius:13px;padding:13px 10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;line-height:1.3;"><i class="ti ti-mail"></i> Recevoir mon récapitulatif<div style="font-size:11px;font-weight:600;opacity:.8;">par email</div></button>'
+      +'<button type="button" onclick="bouIntention()" style="flex:1 1 150px;min-width:0;border:none;background:#E8541A;color:#fff;border-radius:13px;padding:13px 10px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">Découvrir la suite <i class="ti ti-arrow-right"></i></button>'
+    +'</div>'
+    +'<div id="sentMailMsg" style="text-align:center;margin-top:8px;min-height:16px;font-size:12px;"></div>'
+    +'<div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:12px;"><i class="ti ti-lock" style="font-size:12px;"></i> Vos données restent confidentielles et ne sont jamais revendues.</div>'
     +'<div style="text-align:center;margin-top:10px;"><a href="#" onclick="bouQ5();return false;" style="font-size:11.5px;color:#9ca3af;">Modifier mes réponses</a></div>'
-  , 0, 'Votre chiffre'));
+  , 0, 'Votre résultat'));
 }
 // L'email reprend EXACTEMENT les mêmes valeurs (aucun recalcul ailleurs, cf. CLAUDE.md §7).
 function bouEnvoiMail(){
@@ -3547,9 +3593,11 @@ function bouEnvoiMail(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(!window.__sentRecap) window.__sentRecap={ nom:(acc&&acc.name)||'', ville:'', activite:'' };
   var s=window.__sentRecap;
-  s.q_personnes=r.personnes; s.q_poste=ivePosteLib(r.postePrincipal,1); s.q_heuresSemaine=r.heuresSemaine;
-  s.q_coutHoraire=r.coutHoraire; s.q_nombreRetards=r.nombreRetards||0;
-  s.q_retards=(r.retards||[]).map(function(k){ for(var i=0;i<IVE_RETARDS.length;i++){ if(IVE_RETARDS[i][0]===k) return IVE_RETARDS[i][1]; } return k; });
+  s.q_personnes=r.personnes; s.q_heuresSemaine=r.heuresSemaine; s.q_coutHoraire=r.coutHoraire;
+  s.q_postes=(r.postes||[]).map(function(k){ return ivePosteLib(k,1); });
+  s.q_poste=s.q_postes.join(', ');
+  s.q_chronophages=(r.chronophages||[]).map(function(k){ return ivePosteLib(k,1); });
+  s.q_soirees=g.soirees;
   s.heuresAn=g.heuresAn; s.eurosAn=g.eurosAn;
   if(typeof sendSentinelleEmail==='function') sendSentinelleEmail();
 }
