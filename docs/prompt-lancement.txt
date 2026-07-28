@@ -1,0 +1,67 @@
+Tu reprends le projet SENTINELLE / BOUSSOLE (PWA mobile, méthode DBi360, Didier Billard).
+Dossier : C:\Users\didie\sentinelle-app — app statique mono-fichier (index.html, JS vanilla,
+navigation par showView()), API serverless Vercel dans api/, base Supabase.
+
+AVANT DE COMMENCER : lis docs/brief-construction-parcours.md — c'est le document de référence
+validé le 26/07/2026. Lis aussi docs/organigramme-modules.xlsx si tu as besoin de l'inventaire
+complet des 61 blocs.
+
+MISSION : construire les étapes 5 et 6 du parcours dirigeant.
+
+  ÉTAPE 5 — LES 5 QUESTIONS (90 s, aucune saisie clavier, une question par écran, fil 1/5…5/5)
+    Q1  « Vous êtes combien à faire tourner la boîte au quotidien ? »   curseur 1→10+, défaut 2
+    Q2  « Qu'est-ce qui vous mange le plus de temps en ce moment ? »    6 tuiles, choix unique :
+        devis et factures | téléphone et rendez-vous | relances et impayés |
+        planning et équipe | paperasse et administratif | chercher des infos
+    Q3  « Combien d'heures par semaine partent dans ces tâches-là ? »   curseur 1→15 h, défaut 5
+    Q4  « Aujourd'hui, qu'est-ce qui traîne et que vous n'arrivez pas à traiter ? »
+        5 tuiles, choix MULTIPLE : devis pas envoyés | appels pas rappelés |
+        factures pas relancées | décisions pas prises | rien, je suis à jour
+    Q5  « Une heure de travail chez vous, ça vaut combien ? »  curseur 20→200 €, pré-positionné
+        selon le métier
+
+  ÉTAPE 6 — L'ÉCRAN DU CHIFFRE, puis la 6e question
+    Calcul (RÉUTILISER la formule existante de window.__bouSim, ne pas en inventer une autre) :
+        heures_an = personnes × heures_semaine × 45
+        euros_an  = arrondi(heures_an × cout_horaire / 100) × 100
+    Affichage : « 1 350 heures par an / soit ≈ 67 500 € », le poste choisi en Q2, le nombre
+    d'éléments cochés en Q4, et la phrase « Ce chiffre est le vôtre — c'est vous qui venez de
+    nous le donner. » Y fusionner le message de fierté. Garder le bouton de récap par email.
+
+    Puis SEULEMENT APRÈS le chiffre :
+    « Si on vous montrait comment récupérer une partie de ces heures, vous seriez prêt à changer
+      votre façon de faire ? »  →  3 choix : Oui dès maintenant | Oui si c'est simple et
+      progressif | J'ai besoin d'y réfléchir
+    Aiguillage : chaud → offre BOUSSOLE directe | tiède → les outils débloqués puis l'offre |
+    froid → récap email + relance.
+
+RÈGLES NON NÉGOCIABLES
+  1. SENTINELLE dit CE QUI EST (gratuit) — BOUSSOLE dit QUOI FAIRE (payant).
+  2. On ne demande jamais rien avant d'avoir donné : le compte est le seul péage avant la
+     révélation. La révélation doit rester atteignable en < 1 minute, sans aucune saisie.
+  3. Le chiffre en euros n'est JAMAIS inventé — c'est le dirigeant qui le donne.
+  4. Zéro jargon à l'écran : bannir IVE, indice, aura, algorithme, diagnostic, pré-audit dans
+     tout libellé vu par le dirigeant.
+  5. ON PROTÈGE LES SLIDES : ne jamais supprimer du code le radar 8 piliers, les opportunités
+     détaillées, le simulateur, la carte concurrence — ils servent à BOUSSOLE.
+
+CONTRAINTES TECHNIQUES
+  - Vercel Hobby = 12 fonctions serverless MAX, et il y en a déjà 12 dans api/. Ne crée jamais
+    un nouveau fichier d'API : ajoute une branche (type: '...') dans un fichier existant.
+  - Source unique des chiffres : synthVals(d) pour l'IVE, la formule ci-dessus pour heures/euros.
+    Ne recalcule jamais ailleurs (c'est ce qui avait créé l'incohérence page ↔ email).
+  - api/sentinelle.js et api/concurrents.js doivent rester STRICTEMENT identiques sur qScore,
+    vScore, sScore, volFactor et compress.
+  - Déploiement : git push origin main, puis attendre en interrogeant l'URL publique avec un
+    marqueur UNIQUE (ne pas réutiliser une chaîne déjà présente dans le fichier). Vercel est
+    parfois lent : relancer avec un commit vide.
+  - Vérifie toujours le résultat dans le navigateur après rechargement, avant de me dire que
+    c'est fait.
+  - Admin = billard.did@gmail.com | compte de test = billard.d@outlook.fr | bouton de remise à
+    zéro dans console.html.
+
+AVANT DE CODER, pose-moi ces questions restées ouvertes :
+  1. Stockage des réponses : localStorage seul (suffisant pour la démo) ou table Supabase ?
+  2. Le prix : on garde 2,99 €/mois ou on passe à 19 €/mois (recommandation du brief) ?
+
+Puis construis, déploie, vérifie, et fais-moi un compte rendu de ce qui est réellement en ligne.
