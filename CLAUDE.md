@@ -32,9 +32,24 @@ ne proposer une solution IA **qu'une fois le besoin démontré** · puis mesurer
 | Source | données **publiques** uniquement | ce que **le dirigeant** raconte |
 | Montre | constats, image extérieure, potentiel, *existence* d'opportunités | causes, priorités, outils IA, plan, suivi |
 | Ne montre jamais | quoi faire, comment, quel outil, dans quel ordre | — |
-| Modèle | **gratuit** | **payant** (après la révélation) |
 
 BOUSSOLE **commence par écouter**, pas par exposer ses outils.
+
+### Le modèle économique (décision Didier, 28/07/2026 — ne pas y revenir sans son accord)
+
+**Rien n'est accessible sans compte, et rien de ce qui coûte n'est gratuit.**
+
+| Étape | Accès |
+|---|---|
+| Créer un compte | obligatoire, aucune exception |
+| **L'aperçu SENTINELLE** — l'aura, l'objectif, l'écart, l'encart « ce que dit votre note » | **gratuit** — c'est la vitrine |
+| Tout le reste de SENTINELLE (vue d'ensemble, réputation, concurrence, potentiel détaillé) | **payant** |
+| **Dicter et gérer ses tâches** | **payant** — ça consomme de l'IA et du stockage |
+| BOUSSOLE et le plan | **payant** |
+
+Les cases payantes restent **visibles mais grisées, avec un cadenas**, et mènent à `offreView()` : on montre que ça existe, on n'y donne pas accès. Le verrou est posé **dans les fonctions** (`dicteeEnregistrerView`, `dicteeView`, `iveNav`), pas seulement à l'écran — aucun chemin détourné ne doit permettre de consommer de l'IA ou du stockage gratuitement.
+
+Didier pourra **débloquer certaines choses plus tard, selon les retours du terrain**. D'ici là, ne rien ouvrir de sa propre initiative.
 
 ---
 
@@ -58,10 +73,11 @@ BOUSSOLE **commence par écouter**, pas par exposer ses outils.
 
 ## 4. Les 6 règles non négociables
 
-1. **SENTINELLE dit ce qui est (gratuit). BOUSSOLE dit quoi faire (payant).**
-2. **On ne demande jamais d'effort avant d'avoir donné de la valeur.** La création de compte est le
-   seul péage autorisé avant la première révélation. Cette révélation reste atteignable en **moins
-   d'une minute, sans saisie clavier, sans entretien, sans formulaire long**.
+1. **SENTINELLE dit ce qui est. BOUSSOLE dit quoi faire.** Côté accès, voir le modèle économique
+   au § 1 : seul l'**aperçu** (aura + objectif + « ce que dit votre note ») est gratuit ; tout ce
+   qui consomme de l'IA ou du stockage est payant.
+2. **Le compte est obligatoire, et c'est le seul effort demandé avant l'aperçu.** Cet aperçu reste
+   atteignable en **moins d'une minute, sans saisie clavier, sans entretien, sans formulaire long**.
 3. **Le chiffre en euros n'est jamais inventé.** Il provient toujours d'une réponse du dirigeant.
 4. **Zéro jargon** dans les textes visibles (voir § 5).
 5. **On protège les blocs existants.** Ne jamais supprimer du code : le radar 8 piliers, les
