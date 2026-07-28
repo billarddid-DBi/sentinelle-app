@@ -698,21 +698,26 @@ function bFinish(){
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
   var _pastille=function(note,coul,etiquette,sousTitre,etoiles){
-    return '<div style="width:clamp(120px,30vw,148px);flex:0 0 auto;text-align:center;">'
-      +'<div style="width:clamp(104px,26vw,128px);height:clamp(104px,26vw,128px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+    return '<div style="width:clamp(130px,34vw,190px);flex:0 0 auto;text-align:center;">'
+      +'<div style="width:clamp(112px,30vw,168px);height:clamp(112px,30vw,168px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
       +'<div style="font-size:clamp(26px,7vw,32px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;">'+note+'<span style="font-size:13px;font-weight:600;opacity:.85;">/100</span></div>'
       +'<div style="font-size:13px;color:#fff;height:17px;line-height:17px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
       +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
       +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">'+sousTitre+'</div></div>';
   };
-  var _trait='<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.45));"></div>';
-  var _traitD='<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(232,149,79,.45),rgba(232,149,79,0));"></div>';
-  // Colonne de gauche : la note justifiée. Colonne de droite : les deux auras alignées.
-  var blocNote='<div style="flex:0 1 300px;min-width:220px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:20px 18px;text-align:center;">'
-   +'<div style="font-size:clamp(40px,11vw,54px);font-weight:800;color:#fff;line-height:1;letter-spacing:-1.5px;">'+r.idx+'<span style="font-size:22px;font-weight:500;color:#9ca3af;letter-spacing:0;">/100</span></div>'
-   +'<div style="font-size:22px;color:#f59e0b;margin-top:10px;letter-spacing:3px;">'+starsHTML(r.idx)+'</div>'
-   +'<div style="font-size:12px;color:#9ca3af;line-height:1.5;margin-top:12px;">Chaque point se justifie par une note /5 traçable. · <span style="color:#8fa6d8;">'+date+'</span></div></div>';
-  var blocAuras='<div style="flex:1 1 340px;min-width:280px;">'
+  var _trait='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.45));"></div>';
+  var _traitD='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,.45),rgba(232,149,79,0));"></div>';
+  // Les auras occupent toute la largeur ; la note se lit ensuite sur une seule ligne discrète.
+  var _sep='<div style="width:1px;align-self:stretch;background:rgba(255,255,255,.12);"></div>';
+  var blocNote='<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(10px,3vw,22px);margin-top:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.07);">'
+   +'<div style="font-size:clamp(24px,6vw,30px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.8px;">'+r.idx+'<span style="font-size:14px;font-weight:500;color:#9ca3af;letter-spacing:0;">/100</span></div>'
+   +_sep
+   +'<div style="font-size:19px;color:#f59e0b;letter-spacing:2px;line-height:1;">'+starsHTML(r.idx)+'</div>'
+   +_sep
+   +'<div style="font-size:12.5px;color:#9ca3af;">Chaque point se justifie par une note /5 traçable.</div>'
+   +_sep
+   +'<div style="font-size:12.5px;color:#8fa6d8;">· '+date+'</div></div>';
+  var blocAuras='<div style="width:100%;">'
    +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
    +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'+_traitD+'</div>'
    +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(14px,5vw,44px);margin-top:16px;">'
@@ -724,8 +729,7 @@ function bFinish(){
    +'<div style="width:min(240px,60%);height:1px;margin:12px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
    +'<div style="font-size:13.5px;color:#cbd5e1;line-height:1.55;">'+ad.d+'</div></div>';
   var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
-   +'<div style="display:flex;align-items:center;gap:clamp(16px,4vw,32px);flex-wrap:wrap;justify-content:center;">'+blocNote+blocAuras+'</div>'
-   +blocSens+'</div>';
+   +blocAuras+blocNote+blocSens+'</div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
   var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
@@ -1262,7 +1266,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 15';
+var IVE_VERSION='28/07 · 16';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
