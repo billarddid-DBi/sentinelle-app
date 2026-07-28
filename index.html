@@ -2816,7 +2816,14 @@ function dicteeView(filtre){
           +'<div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px;">'
             +((t.prio||0)>0?chip(p[1],p[2],p[3],p[0]):'')
             +(e?chip(e.c,e.f,e.ic,e.txt):'')
-            +(t.rappel&&!t.done?chip('#7c3aed','#f3e8ff','ti-bell','rappel '+new Date(t.rappel).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+new Date(t.rappel).getHours()+'h'):'')
+            +(function(){
+                if(!t.rappel||t.done) return '';
+                var d=new Date(t.rappel), passe=(d<=new Date());
+                var quand=d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+d.getHours()+'h';
+                // Rappel dont l'heure est passée : en rouge, pour qu'on identifie tout de suite la tâche visée par le bandeau.
+                return passe?chip('#dc2626','#fee2e2','ti-bell-ringing','rappel passé · '+quand)
+                            :chip('#7c3aed','#f3e8ff','ti-bell','rappel '+quand);
+              })()
             +(rep>=2?chip('#c2410c','#fff7ed','ti-repeat','demandée '+rep+' fois'):'')
             +chip('#6b7280','#f8fafc',c[1],c[0])
             +'<span style="font-size:9.5px;color:#c7ccd3;"><i class="ti ti-clock"></i> '+dicteeQuand(t)+'</span>'
@@ -2856,7 +2863,7 @@ function dicteeView(filtre){
     var parts=[];
     if(nbRetard) parts.push('<b>'+nbRetard+'</b> en retard');
     if(nbUrgent) parts.push('<b>'+nbUrgent+'</b> urgente'+(nbUrgent>1?'s':''));
-    if(echus.length) parts.push('<b>'+echus.length+'</b> rappel'+(echus.length>1?'s':'')+' à traiter');
+    if(echus.length) parts.push('l\'heure du rappel est passée pour <b>'+echus.length+'</b> tâche'+(echus.length>1?'s':''));
     alerte='<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:11px;padding:11px 13px;font-size:12.5px;color:#991b1b;line-height:1.5;"><i class="ti ti-alert-triangle"></i> '+parts.join(' · ')+'.</div>';
   }
   var freq={}; (o.tasks||[]).forEach(function(t){ var n=t.norm||dicteeNorm(t.t); if(!n)return; freq[n]=freq[n]||{n:0,t:t.t}; freq[n].n++; });
