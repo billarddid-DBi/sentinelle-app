@@ -695,18 +695,24 @@ function bFinish(){
   // Aura EXTÉRIEURE (SENTINELLE) rappelée à côté de l'intérieure, pour comparer d'un coup d'œil.
   var _ax=(window.lastAura&&window.lastAura.note!=null)?window.lastAura:null;
   var _axh=(_ax&&typeof AURAS!=='undefined'&&AURAS[_ax.couleur]&&AURAS[_ax.couleur].h)||'#3b82f6';
-  var auraExt=_ax?('<div style="text-align:center;flex:0 0 auto;">'
-      +'<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 50% 42%,'+_axh+' 0%,'+_axh+' 52%,#1a1a2e 130%);box-shadow:0 0 14px 2px '+_axh+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
-      +'<span style="font-size:19px;font-weight:800;line-height:1;">'+_ax.note+'</span><span style="font-size:9px;opacity:.85;">/100</span></div>'
-      +'<div style="font-size:9.5px;color:#EEA987;letter-spacing:1px;font-weight:600;margin-top:7px;">EXTÉRIEURE</div>'
-      +'<div style="font-size:10px;color:#9ca3af;">'+esc(_ax.couleur||'')+'</div></div>'):'';
+  // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
+  // parfaitement, ce qui rend la comparaison immédiate.
+  var _pastille=function(note,coul,etiquette,sousTitre,etoiles){
+    return '<div style="width:118px;flex:0 0 auto;text-align:center;">'
+      +'<div style="width:92px;height:92px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 50% 42%,'+coul+' 0%,'+coul+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+coul+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);">'
+      +'<div style="font-size:22px;font-weight:700;color:#fff;line-height:1;">'+note+'<span style="font-size:9px;opacity:.8;">/100</span></div>'
+      +'<div style="font-size:12px;color:#fff;height:14px;line-height:14px;">'+(etoiles||'')+'</div></div>'
+      +'<div style="font-size:9.5px;color:#EEA987;letter-spacing:1px;font-weight:600;margin-top:8px;">'+etiquette+'</div>'
+      +'<div style="font-size:10px;color:#9ca3af;margin-top:2px;">'+sousTitre+'</div></div>';
+  };
   var auraBand='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;">'
    +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'
-   +(auraExt?'<div style="display:flex;justify-content:center;margin-top:10px;">'+auraExt+'</div>':'')
-   +'<div style="display:flex;align-items:center;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap;">'
-   +'<div style="text-align:center;"><div style="width:92px;height:92px;border-radius:50%;background:radial-gradient(circle at 50% 42%,'+au.h+' 0%,'+au.h+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+au.h+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);"><div style="font-size:22px;font-weight:700;color:#fff;">'+r.idx+'<span style="font-size:9px;opacity:.8;">/100</span></div><div style="font-size:12px;color:#fff;">'+starsHTML(r.idx)+'</div></div><div style="font-size:10px;color:#c4b5fd;margin-top:4px;">éclat <b>'+ec+'</b></div></div>'
-   +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#F2C6B2;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
-   +'</div></div>';
+   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:18px;margin-top:12px;">'
+   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat <b>'+ec+'</b>',starsHTML(r.idx))
+   +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
+   +'</div>'
+   +'<div style="max-width:420px;margin:14px auto 0;text-align:center;"><div style="font-size:14px;font-weight:700;color:#F2C6B2;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
+   +'</div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
   var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
@@ -1244,7 +1250,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 13';
+var IVE_VERSION='28/07 · 14';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
