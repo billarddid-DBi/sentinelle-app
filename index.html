@@ -1007,12 +1007,33 @@ function sentSlide(i){
   sentCur=i; window.scrollTo(0,0);
 }
 // Navigation de l'univers L'IVE (bandeau noir) : Accueil · Sentinelle · Boussole · Plan d'action · Historique · Réglages
+// Abonné ? (paiement simulé pour l'instant, et l'admin a tout.)
+function iveAbonne(){ return (typeof boussoleActif==='function') ? boussoleActif() : false; }
 function iveNav(s){
-  if(s==='accueil'){ renderAuth('login'); }
-  else if(s==='sentinelle'){ if(document.getElementById('sSlide_0')) sentSlide(0); else dirigeantSpace(); }
-  else if(s==='boussole'||s==='plan'){ if(typeof boussoleActif==='function'&&boussoleActif()){ boussoleView(); } else if(typeof paywallView==='function'){ paywallView(); } }
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  if(!acc){ renderAuth('login'); return; }                 // compte obligatoire, sans exception
+  if(s==='accueil'){ dirigeantSpace(); }
+  // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
+  else if(s==='sentinelle'){ if(iveAbonne()) sentComplet(); else sentApercu(); }
+  else if(s==='boussole'||s==='plan'){ if(iveAbonne()) boussoleView(); else offreView(); }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
+}
+// Écran d'offre : ce qu'on débloque + les formules. Affiché dès qu'on touche à une partie payante.
+function offreView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  $('dirigeant').innerHTML=adminBar()
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-lock"></i> RÉSERVÉ AUX ABONNÉS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Cette partie fait partie de l\'abonnement</div></div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:13px;color:#374151;line-height:1.6;">Vous avez déjà <b>votre couleur</b> et <b>votre objectif</b>. L\'abonnement ouvre le reste : le <b>pourquoi</b>, le <b>comment</b>, et le plan pour y arriver.</div>'
+      +(typeof bouToolsHtml==='function'?bouToolsHtml(true):'')
+      +(typeof bouTarifs==='function'?bouTarifs():'')
+      +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Aucun paiement ne vous est demandé pour l\'instant — vous serez prévenu par email dès l\'activation.</div>'
+      +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="sentApercu()"><i class="ti ti-eye"></i> Revoir ma couleur et mon objectif</button>'
+      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
 }
 function iveNavBar(active){
   var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
@@ -3514,7 +3535,8 @@ function bouOffre(niveau){
 
 // Liste UNIQUE des outils BOUSSOLE (utilisée par la page d'arrivée ET la page abonné → jamais deux listes qui divergent).
 // 4e élément = clé de l'outil connecté (carte cliquable) ; null = pas encore branché.
-function bouToolsHtml(){
+// verrouille = true : la liste est montrée à un non-abonné (aucun outil n'est ouvrable).
+function bouToolsHtml(verrouille){
   var T=[['ti-clipboard-list','Questionnaire Dirigeant','Le vrai diagnostic, en entretien : votre vision, vos priorités, votre réalité interne.','questionnaire'],
     ['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
     ['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.','concurrence'],
@@ -3523,8 +3545,8 @@ function bouToolsHtml(){
     ['ti-compass','« Voilà ce qui se passe réellement »','La mesure interne réelle de votre entreprise — le miroir de votre image publique.',null],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
   return '<div style="margin-top:10px;">'+T.map(function(f){
-    var on=!!f[3];
-    return '<div'+(on?' onclick="boussoleOutil(\''+f[3]+'\')"':'')+' style="display:flex;gap:11px;align-items:flex-start;border:1px solid '+(on?'#f5c6a5':'#eef0f3')+';border-radius:11px;padding:12px 14px;margin-top:8px;'+(on?'cursor:pointer;background:#fffaf6;':'')+'"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti ti-lock-open" style="color:#16a34a;font-size:13px;"></i> '+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div>'
+    var on=(!!f[3] && !verrouille);
+    return '<div'+(on?' onclick="boussoleOutil(\''+f[3]+'\')"':'')+' style="display:flex;gap:11px;align-items:flex-start;border:1px solid '+(on?'#f5c6a5':'#eef0f3')+';border-radius:11px;padding:12px 14px;margin-top:8px;'+(on?'cursor:pointer;background:#fffaf6;':'')+'"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti '+(verrouille?'ti-lock" style="color:#9ca3af;':'ti-lock-open" style="color:#16a34a;')+'font-size:13px;"></i> '+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div>'
       +(on?'<div style="font-size:10.5px;color:#E8541A;font-weight:700;margin-top:5px;">Ouvrir <i class="ti ti-arrow-right"></i></div>':'')
       +'</div>'+(on?'<i class="ti ti-chevron-right" style="color:#E8541A;font-size:18px;flex:0 0 auto;align-self:center;"></i>':'')+'</div>';
   }).join('')+'</div>';
