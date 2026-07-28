@@ -2384,6 +2384,20 @@ function dicteeDedupe(s){
   }
   return out.join(' ');
 }
+// Fusion de deux morceaux de dictée en supprimant le CHEVAUCHEMENT : la reconnaissance vocale
+// livre souvent un segment « définitif » qui reprend la fin du précédent (raffinement).
+// « rappeler le client » + « le client Dupont » → « rappeler le client Dupont ».
+function dicteeFusion(a,b){
+  a=(a||'').trim(); b=(b||'').trim();
+  if(!a) return b; if(!b) return a;
+  var cle=function(w){ return (w||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,''); };
+  var A=a.split(/\s+/), B=b.split(/\s+/);
+  var max=Math.min(A.length,B.length,14);
+  for(var k=max;k>0;k--){
+    if(A.slice(A.length-k).map(cle).join(' ')===B.slice(0,k).map(cle).join(' ')) return A.concat(B.slice(k)).join(' ');
+  }
+  return a+' '+b;
+}
 // Nettoyage d'une dictée : bégaiements, hésitations, amorces, liaison orpheline. Le sens reste intact.
 function dicteeNettoyer(s){
   s=dicteeDedupe((s||'').trim());
@@ -2496,29 +2510,45 @@ function dicteeBrancherMicro(){
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   var etat=$('micEtat'), txt=$('micTexte');
   if(!SR){ btn.onclick=function(){ if(etat) etat.textContent='Dictée vocale indisponible ici — écrivez la tâche ci-dessous.'; }; return; }
-  var dit='', rec=null;
-  var arreter=function(){ if(window.__dicteeOn&&rec){ try{ rec.stop(); }catch(e){} } };
+  // acquis = ce qui est déjà dit (y compris avant une coupure du navigateur) ; courant = session en cours.
+  var acquis='', courant='', rec=null, stopDemande=false, fatal=false, relances=0;
+  var arreter=function(){ stopDemande=true; if(window.__dicteeOn&&rec){ try{ rec.stop(); }catch(e){} } };
   var demarrer=function(){
-    dit=''; rec=new SR(); window.__dictee=rec; window.__dicteeOn=true;
+    acquis=''; courant=''; stopDemande=false; fatal=false; relances=0;
+    rec=new SR(); window.__dictee=rec; window.__dicteeOn=true;
     rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
-    rec.onstart=function(){ btn.style.background='#dc2626'; btn.innerHTML='<i class="ti ti-player-stop"></i>'; if(etat) etat.innerHTML='<b style="color:#dc2626;">Je vous écoute…</b> appuyez pour terminer'; if(txt) txt.textContent=''; };
+    rec.onstart=function(){ btn.style.background='#dc2626'; btn.innerHTML='<i class="ti ti-player-stop"></i>'; if(etat) etat.innerHTML='<b style="color:#dc2626;">Je vous écoute…</b> appuyez pour terminer'; if(txt&&!acquis) txt.textContent=''; };
     // On RECONSTRUIT le texte à partir de tous les résultats au lieu de cumuler : le navigateur
     // redélivre parfois les mêmes segments, et cumuler produisait des mots en double.
     rec.onresult=function(e){
+      // Les segments « définitifs » sont souvent des RAFFINEMENTS qui reprennent la fin du
+      // précédent. On les fusionne en supprimant le chevauchement au lieu de les coller bout à bout.
       var fin='', interim='';
       for(var i=0;i<e.results.length;i++){
-        if(e.results[i].isFinal) fin+=e.results[i][0].transcript+' ';
+        if(e.results[i].isFinal) fin=dicteeFusion(fin, e.results[i][0].transcript);
         else interim+=e.results[i][0].transcript+' ';
       }
-      dit=fin.trim();
-      if(txt) txt.textContent=dicteeDedupe((fin+interim).trim());
+      courant=fin;
+      if(txt) txt.textContent=dicteeDedupe(dicteeFusion(acquis, (fin+' '+interim).trim()));
     };
-    rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone dans votre navigateur.':'Je n\'ai pas réussi à écouter. Réessayez.'; };
+    rec.onerror=function(e){
+      var code=(e&&e.error)||'';
+      if(code==='not-allowed'||code==='service-not-allowed'){ fatal=true; if(etat) etat.textContent='Micro refusé — autorisez le microphone dans votre navigateur.'; }
+      else if(code==='no-speech'||code==='aborted'||code==='network'){ /* on laisse onend relancer */ }
+      else if(etat) etat.textContent='Je n\'ai pas réussi à écouter. Réessayez.';
+    };
     rec.onend=function(){
+      acquis=dicteeFusion(acquis, courant); courant='';
+      // Le navigateur coupe tout seul après un silence. Tant que l'utilisateur n'a pas appuyé sur
+      // stop, on relance : sa consigne n'est pas coupée en deux et rien n'est enregistré en double.
+      if(!stopDemande && !fatal && relances<40){
+        relances++;
+        try{ rec.start(); return; }catch(e){}
+      }
       window.__dicteeOn=false; btn.style.background='#E8541A'; btn.innerHTML='<i class="ti ti-microphone"></i>';
-      var t=(dit||(txt?txt.textContent:'')||'').trim();
+      var t=dicteeDedupe((acquis||'').trim());
       if(t) dicteeTraiter(t);
-      else if(etat) etat.textContent='Rien entendu — réessayez.';
+      else if(etat && !fatal) etat.textContent='Rien entendu — réessayez.';
     };
     try{ rec.start(); }catch(e){ window.__dicteeOn=false; if(etat) etat.textContent='Impossible de démarrer le micro.'; }
   };
