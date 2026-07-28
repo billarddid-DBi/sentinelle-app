@@ -2328,55 +2328,140 @@ function sentApercu(){
   }).catch(rien);
 }
 
-/* --- DICTÉE : le dirigeant parle, la tâche s'écrit et reste. Alimente la mémoire du quotidien. --- */
-function dicteeView(){
+/* ===================== DICTÉE — le dirigeant parle, l'IA découpe, tout est conservé =====================
+   Appui MAINTENU sur le micro pendant qu'il parle. Il peut enchaîner plusieurs tâches d'affilée :
+   au relâchement, l'IA sépare la dictée en tâches distinctes et les classe.
+   Chaque tâche est stockée avec sa forme normalisée et sa catégorie → base de la détection des
+   tâches répétitives (« celle-ci revient souvent, un outil peut la faire à votre place »). */
+
+var DIC_CATS={devis_factures:['Devis & factures','ti-file-invoice'],telephone_rendezvous:['Téléphone & RDV','ti-phone'],
+  relances_impayes:['Relances & impayés','ti-cash'],planning_equipe:['Planning & équipe','ti-calendar-event'],
+  administratif:['Administratif','ti-folder'],recherche_informations:['Recherche d\'infos','ti-search'],autre:['Autre','ti-point']};
+// Forme normalisée : sert UNIQUEMENT à reconnaître qu'une tâche revient (accents, casse, pluriels, mots vides).
+function dicteeNorm(s){
+  return (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()
+    .replace(/[^a-z0-9 ]/g,' ')
+    .split(/\s+/).filter(function(w){ return w.length>2 && ['les','des','une','pour','avec','dans','sur','aux','que','qui','mon','ma','mes','son','sa','ses','leur','cette','ce','du','de','la','le','et'].indexOf(w)===-1; })
+    .map(function(w){ return w.replace(/s$/,''); }).sort().join(' ');
+}
+// Combien de fois cette tâche est-elle déjà revenue (tout l'historique conservé) ?
+function dicteeRepet(o,norm){
+  if(!norm) return 0;
+  return (o.tasks||[]).filter(function(t){ return (t.norm||dicteeNorm(t.t))===norm; }).length;
+}
+// Enregistrement d'une tâche : texte + forme normalisée + catégorie + origine (voix ou clavier).
+function dicteeEnregistrer(texte,cat,src){
+  texte=(texte||'').trim(); if(!texte) return null;
+  var o=pmLoad(), td=pmTodayStr();
+  var t={id:pmUid('t'),t:texte,created:td,due:td,done:false,reports:0,norm:dicteeNorm(texte),cat:cat||'autre',src:src||'clavier'};
+  o.tasks.push(t); pmSave(o); return t;
+}
+
+function dicteeView(filtre){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
-  var o=pmLoad(), taches=pmTodayTasks(o);
-  var liste=taches.length?taches.map(function(t){
-    return '<div style="display:flex;align-items:center;gap:10px;border:1px solid #eef0f3;border-radius:11px;padding:12px 13px;margin-top:8px;background:#fff;">'
-      +'<button type="button" onclick="dicteeToggle(\''+t.id+'\')" style="border:none;background:none;cursor:pointer;color:'+(t.done?'#16a34a':'#cbd5e1')+';font-size:22px;padding:0;line-height:1;"><i class="ti '+(t.done?'ti-square-check':'ti-square')+'"></i></button>'
-      +'<span style="flex:1;font-size:13.5px;line-height:1.4;'+(t.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(t.t)+'</span>'
-      +'<button type="button" onclick="dicteeDel(\''+t.id+'\')" style="border:none;background:none;cursor:pointer;color:#e5e7eb;font-size:16px;padding:0;"><i class="ti ti-x"></i></button></div>';
-  }).join(''):'<div style="font-size:12.5px;color:#c7ccd3;text-align:center;padding:14px 0;">Rien pour aujourd\'hui. Appuyez sur le micro et dictez votre première tâche.</div>';
+  filtre=filtre||window.__dicFiltre||'afaire'; window.__dicFiltre=filtre;
+  var o=pmLoad(), jour=pmTodayTasks(o);
+  var afaire=jour.filter(function(t){ return !t.done; }), faites=jour.filter(function(t){ return t.done; });
+  var vues=(filtre==='faites')?faites:afaire;
+  var ligne=function(t){
+    var n=t.norm||dicteeNorm(t.t), rep=dicteeRepet(o,n);
+    var c=DIC_CATS[t.cat||'autre']||DIC_CATS.autre;
+    return '<div style="display:flex;align-items:flex-start;gap:10px;border:1px solid #eef0f3;border-radius:11px;padding:12px 13px;margin-top:8px;background:#fff;">'
+      +'<button type="button" onclick="dicteeToggle(\''+t.id+'\')" aria-label="Fait" style="border:none;background:none;cursor:pointer;color:'+(t.done?'#16a34a':'#cbd5e1')+';font-size:23px;padding:0;line-height:1;flex:0 0 auto;"><i class="ti '+(t.done?'ti-square-check':'ti-square')+'"></i></button>'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:13.5px;line-height:1.4;'+(t.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(t.t)+'</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px;">'
+        +'<span style="font-size:9.5px;color:#6b7280;background:#f1f5f9;border-radius:7px;padding:2px 7px;"><i class="ti '+c[1]+'"></i> '+c[0]+'</span>'
+        +(t.src==='voix'?'<span style="font-size:9.5px;color:#2563EB;background:#eff5ff;border-radius:7px;padding:2px 7px;"><i class="ti ti-microphone"></i> dictée</span>':'')
+        +(rep>=3?'<span style="font-size:9.5px;color:#c2410c;background:#fff7ed;border-radius:7px;padding:2px 7px;font-weight:700;"><i class="ti ti-repeat"></i> revient '+rep+'×</span>':'')
+        +'</div></div>'
+      +'<button type="button" onclick="dicteeDel(\''+t.id+'\')" aria-label="Supprimer" style="border:none;background:none;cursor:pointer;color:#e5e7eb;font-size:17px;padding:0;flex:0 0 auto;"><i class="ti ti-x"></i></button></div>';
+  };
+  var liste=vues.length?vues.map(ligne).join('')
+    :'<div style="font-size:12.5px;color:#c7ccd3;text-align:center;padding:16px 0;">'+(filtre==='faites'?'Rien de terminé pour l\'instant.':'Rien à faire aujourd\'hui. Maintenez le micro et dictez.')+'</div>';
+  var onglet=function(k,lbl,n){ var on=(filtre===k);
+    return '<button type="button" onclick="dicteeView(\''+k+'\')" style="flex:1;border:none;border-radius:9px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;background:'+(on?'#1C1C1C':'#f1f5f9')+';color:'+(on?'#fff':'#6b7280')+';">'+lbl+' ('+n+')</button>'; };
   var dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  // Tâches qui reviennent le plus (mémoire du quotidien) — le socle des futures automatisations.
+  var freq={}; (o.tasks||[]).forEach(function(t){ var n=t.norm||dicteeNorm(t.t); if(!n)return; freq[n]=freq[n]||{n:0,t:t.t}; freq[n].n++; });
+  var top=Object.keys(freq).map(function(k){ return freq[k]; }).filter(function(x){ return x.n>=3; }).sort(function(a,b){ return b.n-a.n; }).slice(0,3);
+  var repBloc=top.length?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:13px 15px;margin-top:18px;">'
+    +'<div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;"><i class="ti ti-repeat"></i> CES TÂCHES REVIENNENT SOUVENT</div>'
+    +top.map(function(x){ return '<div style="font-size:12.5px;color:#7c2d12;line-height:1.45;margin-top:6px;">• '+esc(x.t)+' <b>('+x.n+' fois)</b></div>'; }).join('')
+    +'<div style="font-size:11.5px;color:#9a3412;line-height:1.5;margin-top:8px;"><i class="ti ti-lock" style="font-size:11px;"></i> Une tâche qui revient est une tâche qu\'un outil peut faire à votre place. On vous montre comment dans la suite.</div></div>':'';
+
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-microphone"></i> VOS TÂCHES</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Dictez, on écrit</div></div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="text-align:center;">'
-        +'<button type="button" id="micBtn" onclick="dicteeMic()" style="width:104px;height:104px;border-radius:50%;border:none;background:'+(dispo?'#E8541A':'#cbd5e1')+';color:#fff;font-size:44px;cursor:'+(dispo?'pointer':'default')+';box-shadow:0 8px 24px rgba(232,84,26,.32);font-family:inherit;"><i class="ti ti-microphone"></i></button>'
-        +'<div id="micEtat" style="font-size:13px;color:#6b7280;margin-top:12px;min-height:20px;">'+(dispo?'Appuyez et parlez':'La dictée vocale n\'est pas disponible sur ce navigateur — écrivez ci-dessous.')+'</div>'
-        +'<div id="micTexte" style="font-size:14px;color:#1C1C1C;font-weight:600;min-height:22px;margin-top:4px;"></div>'
+        +'<button type="button" id="micBtn" style="width:112px;height:112px;border-radius:50%;border:none;background:'+(dispo?'#E8541A':'#cbd5e1')+';color:#fff;font-size:46px;cursor:'+(dispo?'pointer':'default')+';box-shadow:0 8px 24px rgba(232,84,26,.32);font-family:inherit;touch-action:none;user-select:none;-webkit-user-select:none;"><i class="ti ti-microphone"></i></button>'
+        +'<div id="micEtat" style="font-size:13px;color:#6b7280;margin-top:12px;min-height:20px;">'+(dispo?'<b>Maintenez</b> le micro et parlez':'La dictée vocale n\'est pas disponible sur ce navigateur — écrivez ci-dessous.')+'</div>'
+        +'<div id="micTexte" style="font-size:13.5px;color:#1C1C1C;font-weight:600;min-height:22px;margin-top:4px;line-height:1.4;"></div>'
+        +(dispo?'<div style="font-size:11px;color:#9ca3af;margin-top:6px;">Enchaînez vos tâches d\'affilée — on les sépare pour vous.</div>':'')
       +'</div>'
       +'<div style="display:flex;gap:7px;margin-top:16px;"><input id="dicIn" type="text" placeholder="…ou écrivez la tâche ici" onkeydown="if(event.key===\'Enter\')dicteeAjout();" style="flex:1;font-size:16px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="dicteeAjout()" style="border:none;background:#1C1C1C;color:#fff;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;"><i class="ti ti-plus"></i></button></div>'
-      +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.4px;margin-top:20px;">AUJOURD\'HUI · '+taches.length+' tâche'+(taches.length>1?'s':'')+'</div>'
-      +liste
+      +'<div style="display:flex;gap:7px;margin-top:20px;">'+onglet('afaire','À faire',afaire.length)+onglet('faites','Faites',faites.length)+'</div>'
+      +liste+repBloc
       +'<button class="btn btn-ghost" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+  dicteeBrancherMicro();
 }
-function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; pmAddTask(el.value); el.value=''; dicteeView(); }
+function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dicteeEnregistrer(el.value,'autre','clavier'); el.value=''; dicteeView(); }
 function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeView(); }
 function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeView(); }
-function dicteeMic(){
+
+// Découpe : l'IA d'abord ; si elle est indisponible, on coupe nous-mêmes sur les liaisons (rien n'est perdu).
+function dicteeDecoupeLocale(txt){
+  return (txt||'').split(/(?:[.;!?]|\bpuis\b|\bensuite\b|\bapr[eè]s\b|\bet aussi\b|\baussi\b)/i)
+    .map(function(s){ return s.replace(/^\s*(et|alors|donc|euh|voil[aà]|bon)\s+/i,'').trim(); })
+    .filter(function(s){ return s.length>2; })
+    .map(function(s){ return {texte:s.charAt(0).toUpperCase()+s.slice(1), categorie:'autre'}; });
+}
+async function dicteeTraiter(txt){
+  var etat=$('micEtat');
+  if(etat) etat.innerHTML='<span class="spin" style="width:13px;height:13px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:6px;"></span>On sépare vos tâches…';
+  var liste=null;
+  try{
+    var resp=await fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'taches',texte:txt})});
+    if(resp.ok){ var j=await resp.json(); if(j&&Array.isArray(j.taches)&&j.taches.length) liste=j.taches; }
+  }catch(e){}
+  if(!liste||!liste.length) liste=dicteeDecoupeLocale(txt);
+  if(!liste.length) liste=[{texte:txt,categorie:'autre'}];
+  liste.forEach(function(t){ dicteeEnregistrer(t.texte,t.categorie,'voix'); });
+  window.__dicFiltre='afaire';
+  dicteeView();
+  var e2=$('micEtat'); if(e2) e2.innerHTML='<span style="color:#166534;"><i class="ti ti-circle-check"></i> '+liste.length+' tâche'+(liste.length>1?'s':'')+' enregistrée'+(liste.length>1?'s':'')+'.</span>';
+}
+// Appui MAINTENU : on écoute tant que le doigt reste sur le micro.
+function dicteeBrancherMicro(){
+  var btn=$('micBtn'); if(!btn) return;
   var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  var etat=$('micEtat'), txt=$('micTexte'), btn=$('micBtn');
-  if(!SR){ if(etat) etat.textContent='Dictée vocale indisponible ici — écrivez la tâche ci-dessous.'; return; }
-  if(window.__dicteeOn&&window.__dictee){ try{ window.__dictee.stop(); }catch(e){} return; }
-  var rec=new SR(); window.__dictee=rec;
-  rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
-  var dit='';
-  rec.onstart=function(){ window.__dicteeOn=true; if(btn){ btn.style.background='#dc2626'; btn.style.animation='btnPulse 1.4s ease-in-out infinite'; } if(etat) etat.textContent='Je vous écoute… appuyez pour arrêter'; if(txt) txt.textContent=''; };
-  rec.onresult=function(e){ var s=''; for(var i=e.resultIndex;i<e.results.length;i++){ s+=e.results[i][0].transcript; if(e.results[i].isFinal) dit+=e.results[i][0].transcript; } if(txt) txt.textContent=(dit||s); };
-  rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone dans votre navigateur.':'Je n\'ai pas réussi à écouter. Réessayez.'; };
-  rec.onend=function(){
-    window.__dicteeOn=false;
-    if(btn){ btn.style.background='#E8541A'; btn.style.animation=''; }
-    var t=(dit||(txt?txt.textContent:'')||'').trim();
-    if(t){ pmAddTask(t); dicteeView(); }
-    else if(etat) etat.textContent='Rien entendu — réessayez.';
+  var etat=$('micEtat'), txt=$('micTexte');
+  if(!SR){ btn.onclick=function(){ if(etat) etat.textContent='Dictée vocale indisponible ici — écrivez la tâche ci-dessous.'; }; return; }
+  var dit='', rec=null;
+  var demarrer=function(ev){
+    if(ev&&ev.preventDefault) ev.preventDefault();
+    if(window.__dicteeOn) return;
+    dit=''; rec=new SR(); window.__dictee=rec; window.__dicteeOn=true;
+    rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
+    rec.onstart=function(){ btn.style.background='#dc2626'; btn.style.transform='scale(1.06)'; if(etat) etat.innerHTML='<b style="color:#dc2626;">Je vous écoute…</b> relâchez pour terminer'; if(txt) txt.textContent=''; };
+    rec.onresult=function(e){ var interim=''; for(var i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) dit+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } if(txt) txt.textContent=(dit+interim).trim(); };
+    rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone dans votre navigateur.':'Je n\'ai pas réussi à écouter. Réessayez.'; };
+    rec.onend=function(){
+      window.__dicteeOn=false; btn.style.background='#E8541A'; btn.style.transform='';
+      var t=(dit||(txt?txt.textContent:'')||'').trim();
+      if(t) dicteeTraiter(t);
+      else if(etat) etat.textContent='Rien entendu — maintenez le micro un peu plus longtemps.';
+    };
+    try{ rec.start(); }catch(e){ window.__dicteeOn=false; if(etat) etat.textContent='Impossible de démarrer le micro.'; }
   };
-  try{ rec.start(); }catch(e){ if(etat) etat.textContent='Impossible de démarrer le micro.'; }
+  var arreter=function(ev){ if(ev&&ev.preventDefault) ev.preventDefault(); if(window.__dicteeOn&&rec){ try{ rec.stop(); }catch(e){} } };
+  btn.addEventListener('pointerdown',demarrer);
+  btn.addEventListener('pointerup',arreter);
+  btn.addEventListener('pointercancel',arreter);
+  btn.addEventListener('pointerleave',arreter);
+  btn.addEventListener('contextmenu',function(e){ e.preventDefault(); });
 }
 
 /* --- Vue complète d'avant : CONSERVÉE (cf. CLAUDE.md règle 5), accessible aux admins --- */

@@ -22,12 +22,66 @@ function extractJSON(out) {
   try { return JSON.parse(out.slice(s, e + 1).replace(/,\s*([}\]])/g, "$1")); } catch (e2) { return null; }
 }
 
+// --- Découpe d'une dictée en tâches distinctes (branche type:"taches" — pas de nouvelle fonction
+// serverless, le plan Vercel Hobby est plafonné à 12).
+const SYS_TACHES = `Tu découpes la dictée d'un dirigeant de TPE/PME française en TÂCHES DISTINCTES.
+
+RÈGLES :
+- Le dirigeant parle librement et enchaîne plusieurs choses à faire dans une seule phrase. Sépare-les.
+- Une tâche = UNE action. Si deux actions sont collées ("rappeler Dupont et envoyer le devis à Martin"), tu fais DEUX tâches.
+- Réécris chaque tâche en français correct, à l'infinitif, courte (3 à 12 mots), en gardant les noms propres, les montants et les délais tels quels.
+- Corrige les fautes de transcription évidentes, mais N'INVENTE RIEN : pas de détail, pas de destinataire, pas d'échéance qui ne soit pas dit.
+- Ignore les hésitations ("euh", "alors", "voilà") et tout ce qui n'est pas une action.
+- Si la dictée ne contient aucune action, renvoie une liste vide.
+- Classe chaque tâche dans UNE catégorie parmi exactement : devis_factures, telephone_rendezvous, relances_impayes, planning_equipe, administratif, recherche_informations, autre.
+
+SORTIE : UNIQUEMENT un objet JSON valide, aucun texte autour, schéma exact :
+{"taches":[{"texte":"Rappeler le client Dupont","categorie":"telephone_rendezvous"}]}`;
+
+function extractJSONObj(out) {
+  out = out.replace(/```json/gi, "").replace(/```/g, "");
+  const s = out.indexOf("{"), e = out.lastIndexOf("}");
+  if (s === -1 || e === -1) return null;
+  try { return JSON.parse(out.slice(s, e + 1).replace(/,\s*([}\]])/g, "$1")); } catch (e2) { return null; }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "ANTHROPIC_API_KEY non configurée" }); return; }
   try {
     const b = req.body || {};
+
+    // ---- Branche : découpe d'une dictée en tâches ----
+    if (b.type === "taches") {
+      const brut = String(b.texte || "").trim().slice(0, 2000);
+      if (!brut) { res.status(200).json({ taches: [] }); return; }
+      const areqT = {
+        model: MODEL, max_tokens: 700, temperature: 0,
+        system: SYS_TACHES,
+        messages: [{ role: "user", content: [{ type: "text", text: "Dictée à découper :\n" + brut }] }]
+      };
+      const rt = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify(areqT)
+      });
+      if (!rt.ok) { res.status(502).json({ error: "Découpe indisponible" }); return; }
+      const dt = await rt.json();
+      let outT = ""; for (const c of (dt.content || [])) if (c.type === "text") outT += c.text;
+      const parsed = extractJSONObj(outT);
+      const CATS = ["devis_factures", "telephone_rendezvous", "relances_impayes", "planning_equipe", "administratif", "recherche_informations", "autre"];
+      const taches = (parsed && Array.isArray(parsed.taches) ? parsed.taches : [])
+        .map(t => ({
+          texte: String((t && t.texte) || "").trim().slice(0, 160),
+          categorie: CATS.indexOf((t && t.categorie) || "") > -1 ? t.categorie : "autre"
+        }))
+        .filter(t => t.texte.length > 1)
+        .slice(0, 12);
+      res.status(200).json({ taches });
+      return;
+    }
+
     const etapes = Array.isArray(b.etapes) && b.etapes.length
       ? b.etapes.slice(0, 10).map(e => `[${e.statut === "done" ? "fait" : e.statut === "blocked" ? "BLOQUÉE" : e.statut === "progress" ? "en cours" : "à faire"}] ${e.titre}`).join("\n")
       : "(pas de feuille de route détaillée disponible)";
