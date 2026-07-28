@@ -1243,6 +1243,9 @@ function synthHtml(d){
   var opps='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 16px;"><div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">OPPORTUNITÉS DE PROGRESSION</div>'
     +'<div style="display:flex;align-items:center;gap:12px;margin-top:8px;"><div style="width:46px;height:46px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><span style="font-size:22px;font-weight:800;color:#E8541A;">'+nbOpp+'</span></div>'
     +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
+// Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
+// pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
+var IVE_VERSION='28/07 · 5';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2458,8 +2461,9 @@ function sentApercu(){
       +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
       // Non abonné : l'offre. Abonné : rien à vendre, on enchaîne sur les menus déroulants.
       +(iveAbonne()?'':(typeof iveBlocOffre==='function'?iveBlocOffre():''))
-      +'<div style="margin-top:16px;">'+(typeof iveAccordeonsBas==='function'?iveAccordeonsBas(f):'')+'</div>'
-      +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
+      +'<div style="margin-top:16px;">'+(typeof iveAccordeonsBas==='function'?iveAccordeonsBas(f):'<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:11.5px;color:#991b1b;">Version ancienne en cache — rechargez la page.</div>')+'</div>'
+      +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
+      +'<div style="text-align:center;font-size:10px;color:#c7ccd3;margin-top:10px;">version '+IVE_VERSION+'</div>');
     showView('dirigeant'); window.scrollTo(0,0);
   };
 
