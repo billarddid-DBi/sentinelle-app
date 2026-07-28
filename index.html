@@ -3852,21 +3852,48 @@ function boussoleParcours(){
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
-// Lancement d'un parcours : on renseigne les champs de la grille existante, puis on démarre.
+// Charge la fiche SENTINELLE du compte et rebranche tout ce qui en dépend.
+// On ne demande jamais au dirigeant d'aller la chercher : l'application le fait.
+function iveChargerFiche(cb){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  var poser=function(dg){
+    var f=dg.fiche||{};
+    window.__lastGet=dg; window.__sentData=f; window.__sentDern=new Date(dg.dernier||dg.date||Date.now());
+    window.lastNom=f.nom||dg.nom||''; window.lastVille=f.ville||dg.ville||'';
+    window.lastActivite=f.activite||''; window.lastArchetype=f.archetype||'';
+    window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
+    window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
+    window.lastSite=f.site||'';
+  };
+  var deja=iveFicheDuCompte();
+  if(deja){ poser(deja); return cb(true); }
+  if(!acc) return cb(false);
+  var k=sentKey(acc), q=k.texte;
+  if(!q||!q.trim()) return cb(false);
+  window.sbReady.then(function(){
+    if(!window.sb) return cb(false);
+    window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(k.adresse||'')}).then(function(g){
+      if(g.error||!g.data||!g.data.found||!g.data.fiche) return cb(false);
+      poser(g.data); cb(true);
+    }).catch(function(){ cb(false); });
+  }).catch(function(){ cb(false); });
+}
+// Lancement d'un parcours : on va chercher la fiche, on renseigne la grille, puis on démarre.
 function boussoleDemarrer(mode){
-  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  var nom=window.lastNom||(acc&&acc.name)||'';
   var msg=$('bParcMsg');
-  if(!window.lastAura||!window.lastNom){
-    // Sans fiche SENTINELLE chargée, la couleur de départ n'existe pas : on le dit clairement.
-    if(msg) msg.innerHTML='<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#92700c;line-height:1.5;"><i class="ti ti-alert-triangle"></i> Ouvrez d\'abord <b>votre analyse SENTINELLE</b> : c\'est elle qui donne la couleur de départ du diagnostic.<div style="margin-top:8px;"><button type="button" onclick="sentComplet()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir mon SENTINELLE</button></div></div>';
-    return;
-  }
-  if($('bNom')) $('bNom').value=nom;
-  if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
-  if(typeof bMsgHide==='function') bMsgHide();
   if(msg) msg.innerHTML='<div style="font-size:12.5px;color:#6b7280;"><span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>Préparation du diagnostic…</div>';
-  startBoussole(mode);
+  iveChargerFiche(function(){
+    var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+    var nom=window.lastNom||(acc&&acc.name)||'';
+    // Pas encore de fiche ? On démarre quand même avec une couleur neutre : le diagnostic
+    // interne n'a pas besoin de SENTINELLE pour se faire.
+    if(!window.lastAura){ window.lastAura={note:null,couleur:'Bleu'}; }
+    if(!window.lastNom) window.lastNom=nom;
+    if($('bNom')) $('bNom').value=nom;
+    if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
+    if(typeof bMsgHide==='function') bMsgHide();
+    startBoussole(mode);
+  });
 }
 // Pastille ronde d'accès (taille adaptative pour rester côte à côte sur un petit écran).
 function bouPastille(coul,icone,libelle,action){
