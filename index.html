@@ -1143,6 +1143,23 @@ function synthVals(d){
   var iveTag=est>=75?'Image très positive':est>=60?'Image globalement positive':est>=45?'Image à consolider':'Image encore fragile';
   return {est:est,pot:pot,gain:gain,coul:coul,hex:hex,ng:ng,nbA:nbA,site:site,nbOpp:nbOpp,visib:visib,senti:senti,posi:posi,conf:conf,iveTag:iveTag};
 }
+/* Bloc « leviers & potentiel » — SOURCE UNIQUE (aperçu SENTINELLE + slide Votre potentiel).
+   On ne donne jamais le NOMBRE de leviers : on dit qu'ils existent, et qu'ils se valident en BOUSSOLE. */
+function iveBlocLeviers(){
+  return '<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:14px 16px;margin-top:16px;">'
+      +'<div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">OPPORTUNITÉS DE PROGRESSION</div>'
+      +'<div style="display:flex;gap:11px;align-items:flex-start;margin-top:9px;">'
+        +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-bolt" style="font-size:19px;color:#E8541A;"></i></div>'
+        +'<div style="font-size:12.5px;color:#7c2d12;line-height:1.55;"><b>Un fort potentiel détecté.</b> Nous avons déjà identifié des <b>leviers d\'amélioration à fort impact</b>, à valider avec votre <b>BOUSSOLE</b>.</div>'
+      +'</div></div>'
+    +'<div style="background:#f5f8ff;border:1px solid #dbe7fb;border-radius:14px;padding:14px 16px;margin-top:12px;">'
+      +'<div style="display:flex;gap:11px;align-items:flex-start;">'
+        +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-trending-up" style="font-size:19px;color:#2563EB;"></i></div>'
+        +'<div><div style="font-size:14px;font-weight:800;color:#1C1C1C;line-height:1.3;">Votre quotidien révèle un potentiel de progression</div>'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;margin-top:6px;">Les données recueillies indiquent que certaines tâches peuvent être simplifiées ou automatisées. Il reste maintenant à identifier précisément où se situent les principaux leviers et lesquels auront le plus d\'impact.</div>'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;margin-top:8px;">C\'est le rôle de <b style="color:#2563EB;">BOUSSOLE</b> : comprendre votre fonctionnement réel pour faire émerger les actions les plus pertinentes.</div>'
+      +'</div></div></div>';
+}
 // Encart « Ce que dit votre note » — SOURCE UNIQUE : page de synthèse ET aperçu SENTINELLE.
 function noteBoxHtml(d, cliquable){
   d=d||{};
@@ -1289,8 +1306,7 @@ function sentSlides(d, targetId, cockpitHtml, banner){
       +sentGlowPastille(122,'#E8541A','POTENTIEL',pot,'vers le<br>rayonnement')
     +'</div>'
     +'<div style="text-align:center;margin-top:2px;"><span style="display:inline-block;background:#fff7ed;color:#c2410c;font-weight:800;border-radius:20px;padding:6px 16px;font-size:14px;">+'+gain+' points possibles</span></div>'
-    +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:13px 15px;margin-top:14px;"><div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">OPPORTUNITÉS DE PROGRESSION</div><div style="display:flex;align-items:center;gap:11px;margin-top:8px;"><div style="width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><span style="font-size:20px;font-weight:800;color:#E8541A;">'+nbOpp+'</span></div><div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:11px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>'
-    +'<div style="display:flex;gap:9px;align-items:flex-start;background:#f8fafc;border-radius:10px;padding:11px 13px;margin-top:12px;"><i class="ti ti-bolt" style="color:#E8541A;font-size:18px;"></i><div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b>Un fort potentiel détecté.</b> Plusieurs leviers d\'amélioration à fort impact.</div></div>'+((d.coutInaction&&!/non trouv/i.test(d.coutInaction))?'<div style="display:flex;gap:10px;align-items:flex-start;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:13px 15px;margin-top:12px;"><i class="ti ti-alert-triangle" style="color:#dc2626;font-size:20px;flex:0 0 auto;"></i><div><div style="font-size:11px;font-weight:800;color:#dc2626;letter-spacing:.3px;">LE COÛT DE NE RIEN FAIRE</div><div style="font-size:12.5px;color:#7f1d1d;line-height:1.5;margin-top:3px;">'+esc(d.coutInaction)+'</div></div></div>':'')+(ouMonter?sentExp('exp_monter','<b style="font-size:13px;"><i class="ti ti-target" style="color:#E8541A;"></i> Comment monter votre note</b>',ouMonter):'')});
+    +iveBlocLeviers()});
   slides.push({t:'Votre identité publique', s:'Ce que l\'on trouve de vous en ligne.', html:
     sentIconCircle(122,'#eef2ff','<i class="ti ti-building-store" style="font-size:48px;color:#E8541A;"></i>')
     +'<div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">'+['Entreprise identifiée','Activité cohérente','Infos clés présentes'].map(function(t){return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#15803d;"><i class="ti ti-circle-check" style="font-size:14px;"></i>'+t+'</span>';}).join('')+'</div>'
@@ -2411,6 +2427,7 @@ function sentApercu(){
       +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
       +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
       +'<div style="margin-top:18px;">'+noteBoxHtml(f,false)+'</div>'
+      +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
       +(typeof iveBlocOffre==='function'?iveBlocOffre():'')
       +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
     showView('dirigeant'); window.scrollTo(0,0);
