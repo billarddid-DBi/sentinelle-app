@@ -669,8 +669,17 @@ function bFinish(){
   var date=new Date().toLocaleDateString('fr-FR');
   var aura=window.bAuraColor||'Violet';
   var au=AURAS[aura]||AURAS['Violet']; var ad=AURADEF[aura]||AURADEF['Violet']; var ec=eclat(r.idx);
+  // Aura EXTÉRIEURE (SENTINELLE) rappelée à côté de l'intérieure, pour comparer d'un coup d'œil.
+  var _ax=(window.lastAura&&window.lastAura.note!=null)?window.lastAura:null;
+  var _axh=(_ax&&typeof AURAS!=='undefined'&&AURAS[_ax.couleur]&&AURAS[_ax.couleur].h)||'#3b82f6';
+  var auraExt=_ax?('<div style="text-align:center;flex:0 0 auto;">'
+      +'<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 50% 42%,'+_axh+' 0%,'+_axh+' 52%,#1a1a2e 130%);box-shadow:0 0 14px 2px '+_axh+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
+      +'<span style="font-size:19px;font-weight:800;line-height:1;">'+_ax.note+'</span><span style="font-size:9px;opacity:.85;">/100</span></div>'
+      +'<div style="font-size:9.5px;color:#EEA987;letter-spacing:1px;font-weight:600;margin-top:7px;">EXTÉRIEURE</div>'
+      +'<div style="font-size:10px;color:#9ca3af;">'+esc(_ax.couleur||'')+'</div></div>'):'';
   var auraBand='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;">'
-   +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE</div>'
+   +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'
+   +(auraExt?'<div style="display:flex;justify-content:center;margin-top:10px;">'+auraExt+'</div>':'')
    +'<div style="display:flex;align-items:center;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap;">'
    +'<div style="text-align:center;"><div style="width:92px;height:92px;border-radius:50%;background:radial-gradient(circle at 50% 42%,'+au.h+' 0%,'+au.h+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+au.h+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);"><div style="font-size:22px;font-weight:700;color:#fff;">'+r.idx+'<span style="font-size:9px;opacity:.8;">/100</span></div><div style="font-size:12px;color:#fff;">'+starsHTML(r.idx)+'</div></div><div style="font-size:10px;color:#c4b5fd;margin-top:4px;">éclat <b>'+ec+'</b></div></div>'
    +'<div style="max-width:380px;flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:#F2C6B2;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
@@ -731,7 +740,7 @@ function bFinish(){
    +'<div style="font-size:11px;color:#9d8fd0;">Chaque point se justifie par une note /5 traçable. · '+date+'</div></div>'
    +auraBand
    +trajSec
-   +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;">Les 8 piliers /100</div><div style="margin-top:8px;">'+bars+'</div></div>'
+   /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
    +heatSec
    +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
@@ -1212,7 +1221,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 11';
+var IVE_VERSION='28/07 · 12';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
