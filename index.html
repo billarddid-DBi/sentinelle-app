@@ -2598,7 +2598,7 @@ function dicteeQuand(t){
 function dicteeArchiver(id){
   var o=pmLoad();
   o.tasks.forEach(function(t){ if(t.id===id){ t.archive=true; t.archiveLe=new Date().toISOString(); } });
-  pmSave(o); dicteeView();
+  pmSave(o); dicteeRerendu();
 }
 // Purge unique des tâches de test enregistrées pendant la mise au point (une seule fois par appareil).
 function dicteePurgeTest(){
@@ -2637,7 +2637,7 @@ function dicteeEnregistrerView(){
 }
 function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dicteeEnregistrer(el.value,null,'clavier'); el.value=''; dicteeEnregistrerView(); var e=$('micEtat'); if(e) e.innerHTML='<span style="color:#166534;"><i class="ti ti-circle-check"></i> Tâche enregistrée.</span>'; }
 // Saisie clavier depuis l'écran de gestion : on y reste, la nouvelle tâche apparaît dans la liste.
-function tacheAjoutClavier(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dicteeEnregistrer(el.value,null,'clavier'); el.value=''; dicteeView(); }
+function tacheAjoutClavier(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dicteeEnregistrer(el.value,null,'clavier'); el.value=""; dicteeRerendu(); }
 
 /* ---------- ÉCRAN 2 : GÉRER ses tâches ---------- */
 // Niveaux de priorité : 0 normale · 1 important · 2 urgent
@@ -2671,7 +2671,7 @@ function tacheTri(l,mode){
     return (A.ts<B.ts)?-1:1;
   });
 }
-function tacheMaj(id,fn){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id) fn(t); }); pmSave(o); dicteeView(); }
+function tacheMaj(id,fn){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id) fn(t); }); pmSave(o); dicteeRerendu(); }
 function tachePrio(id,n){ tacheMaj(id,function(t){ t.prio=(t.prio===n)?0:n; }); }
 // Ré-appuyer sur l'échéance active la retire (il n'y a plus de bouton « Sans »).
 function tacheEch(id,code){
@@ -2700,9 +2700,16 @@ function tacheDeplacer(id,sens){
   var j=i+sens; if(i<0||j<0||j>=l.length) return;
   var tmp=l[i]; l[i]=l[j]; l[j]=tmp;
   l.forEach(function(t,k){ var ref=(o.tasks||[]).filter(function(x){ return x.id===t.id; })[0]; if(ref) ref.ordre=k; });
-  pmSave(o); window.__dicTri='ordre'; dicteeView();
+  pmSave(o); window.__dicTri="ordre"; dicteeRerendu();
 }
-function tacheOuvrir(id){ window.__tacheOuverte=(window.__tacheOuverte===id)?null:id; dicteeView(); }
+function tacheOuvrir(id){ window.__tacheOuverte=(window.__tacheOuverte===id)?null:id; dicteeRerendu(); }
+// Réaffichage APRÈS une action sur une tâche : on reste exactement là où on était.
+// (Sans ça, chaque clic sur priorité / échéance / rappel renvoyait en haut de l'écran.)
+function dicteeRerendu(){
+  window.__dicScroll=(window.pageYOffset||document.documentElement.scrollTop||0);
+  dicteeView();
+  window.__dicScroll=null;
+}
 // Glissement à droite ou à gauche = la tâche est faite (et disparaît des en-cours).
 // Un simple appui, sans glisser, ouvre le panneau de réglage.
 function tacheBrancherSwipe(){
@@ -2752,7 +2759,7 @@ function tacheBrancherSwipe(){
     front.addEventListener('mouseleave',function(){ if(actif) fin(); });
   });
 }
-function tacheTriSet(m){ window.__dicTri=m; dicteeView(); }
+function tacheTriSet(m){ window.__dicTri=m; dicteeRerendu(); }
 // Rappels échus : bandeau dans l'écran + notification si le navigateur l'autorise.
 function tacheRappelsEchus(o){
   var now=new Date(), l=[];
@@ -2874,11 +2881,13 @@ function dicteeView(filtre){
       +liste+repBloc
       +'<button class="btn btn-ghost" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
     +'</div></div>';
-  showView('dirigeant'); window.scrollTo(0,0);
+  showView('dirigeant');
+  // On revient au même endroit après une action sur une tâche ; sinon, en haut (nouvel écran).
+  if(window.__dicScroll!=null) window.scrollTo(0,window.__dicScroll); else window.scrollTo(0,0);
   tacheBrancherSwipe();
 }
-function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeView(); }
-function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeView(); }
+function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeRerendu(); }
+function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeRerendu(); }
 
 // Une consigne par enregistrement : la dictée devient UNE tâche, nettoyée et classée.
 function dicteeTraiter(txt){
