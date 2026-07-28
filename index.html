@@ -3391,8 +3391,8 @@ function bouEtape(){ var r=bouRep();
   if(r.personnes==null) return 1;
   if(!r.postes||!r.postes.length) return 2;
   if(r.heuresSemaine==null) return 3;
-  if(!r.chronophages||!r.chronophages.length) return 4;
-  if(r.coutHoraire==null) return 5;
+  if(r.coutHoraire==null) return 4;
+  if(!r.termineLe) return 5;              // la question ouverte peut être passée, mais pas sautée
   return 6; }
 
 function bouRender(h){ $('dirigeant').innerHTML=h; showView('dirigeant'); window.scrollTo(0,0); }
@@ -3463,9 +3463,6 @@ function bouTogglePoste(k){
   var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
   bouSet('postes',cur);
   bouSet('postePrincipal',cur[0]||'');   // le premier sert d'étiquette courte (récap, email)
-  // une case décochée en Q2 ne doit plus pouvoir rester « chronophage » en Q4
-  var ch=(bouRep().chronophages||[]).filter(function(x){ return cur.indexOf(x)>-1; });
-  bouSet('chronophages',ch); bouSet('nbChrono',ch.length);
   bouQ2();
 }
 
@@ -3483,42 +3480,70 @@ function bouQ3(){
   if(s) s.addEventListener('input',function(){ document.getElementById('bq3v').textContent=s.value; });
 }
 
-// --- Q4 : les plus chronophages (CHOIX MULTIPLE) — affinage de la Q2 ---
+// --- Q4 : le taux horaire moyen (pré-positionné selon le secteur trouvé par SENTINELLE) ---
 function bouQ4(){
-  var r=bouRep(), sel=r.chronophages||[], postes=r.postes||[];
-  // On ne propose que ce qui a été coché en Q2 (sauf s'il n'y a qu'un seul poste : on ouvre la liste).
-  var liste=(postes.length>1)?IVE_POSTES.filter(function(p){ return postes.indexOf(p[0])>-1; }):IVE_POSTES;
-  var tiles=liste.map(function(p){ var on=(sel.indexOf(p[0])>-1);
-    return '<div onclick="bouToggleChrono(\''+p[0]+'\')" style="display:flex;align-items:center;gap:11px;border:2px solid '+(on?'#dc2626':'#eef0f3')+';background:'+(on?'#fef2f2':'#fff')+';border-radius:13px;padding:14px 15px;margin-top:9px;cursor:pointer;"><i class="ti '+(on?'ti-square-check':'ti-square')+'" style="font-size:22px;color:'+(on?'#dc2626':'#cbd5e1')+';flex:0 0 auto;"></i><i class="ti '+p[2]+'" style="font-size:19px;color:'+(on?'#dc2626':'#E8541A')+';flex:0 0 auto;"></i><span style="font-size:14px;font-weight:700;color:#1C1C1C;">'+p[1]+'</span></div>';
-  }).join('');
-  bouRender(bouCadre(bouTitre('Quelles sont les tâches qui sont, pour vous, les plus chronophages ?')
-    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">'+((postes.length>1)?'Parmi ce que vous venez d\'indiquer. Plusieurs réponses possibles.':'Plusieurs réponses possibles.')+'</div>'
-    +'<div style="margin-top:12px;">'+tiles+'</div>'
-    +bouNav(4,'bouQ5();',sel.length>0)
-  ,4));
-}
-function bouToggleChrono(k){
-  var cur=(bouRep().chronophages||[]).slice();
-  var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
-  bouSet('chronophages',cur); bouSet('nbChrono',cur.length);
-  bouQ4();
-}
-
-// --- Q5 : le taux horaire moyen (pré-positionné selon le secteur trouvé par SENTINELLE) ---
-function bouQ5(){
   var r=bouRep(), v=(r.coutHoraire!=null)?r.coutHoraire:bouCoutDefaut();
   bouRender(bouCadre(bouTitre('Si vous deviez estimer un taux horaire moyen, lequel choisissez-vous ?')
     +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Une estimation suffit — nous avons pré-réglé le curseur selon votre activité.</div>'
-    +'<div style="text-align:center;margin-top:18px;"><span id="bq5v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:26px;font-weight:800;color:#E8541A;"> €</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">de l\'heure</div></div>'
-    +bouCurseur('bq5',20,200,5,v)
-    +bouNav(5,'bouFinQuestions();')
-  ,5));
-  var s=document.getElementById('bq5');
-  if(s) s.addEventListener('input',function(){ document.getElementById('bq5v').textContent=s.value; });
+    +'<div style="text-align:center;margin-top:18px;"><span id="bq4v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:26px;font-weight:800;color:#E8541A;"> €</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">de l\'heure</div></div>'
+    +bouCurseur('bq4',20,200,5,v)
+    +bouNav(4,'bouSet(\'coutHoraire\',+document.getElementById(\'bq4\').value);bouQ5();')
+  ,4));
+  var s=document.getElementById('bq4');
+  if(s) s.addEventListener('input',function(){ document.getElementById('bq4v').textContent=s.value; });
 }
-function bouFinQuestions(){
-  var el=document.getElementById('bq5');
-  var r=bouSet('coutHoraire', el?+el.value:bouCoutDefaut());
+
+// --- Q5 : la question ouverte. C'est ici qu'il nomme, avec SES mots, ce qu'il veut arrêter de faire. ---
+function bouQ5(){
+  var r=bouRep(), v=(r.motDirigeant||'');
+  var dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  bouRender(bouCadre(bouTitre('S\'il y avait une seule chose que vous aimeriez ne plus avoir à faire, ce serait quoi ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Dites-le avec vos mots — c\'est souvent là que se cache le meilleur levier.</div>'
+    +'<div style="position:relative;margin-top:16px;">'
+      +'<textarea id="bq5t" rows="4" placeholder="ex : relancer les impayés, retrouver des documents, refaire les plannings…" style="width:100%;font-size:16px;padding:13px 14px;border:1.5px solid #e5e7eb;border-radius:12px;box-sizing:border-box;font-family:inherit;line-height:1.5;resize:vertical;">'+esc(v)+'</textarea>'
+      +(dispo?'<button type="button" id="bq5mic" style="position:absolute;right:9px;bottom:11px;width:40px;height:40px;border-radius:50%;border:none;background:#E8541A;color:#fff;font-size:19px;cursor:pointer;font-family:inherit;box-shadow:0 3px 10px rgba(232,84,26,.35);"><i class="ti ti-microphone"></i></button>':'')
+    +'</div>'
+    +(dispo?'<div id="bq5etat" style="font-size:11.5px;color:#9ca3af;margin-top:7px;">Vous pouvez aussi appuyer sur le micro et parler.</div>':'')
+    +bouNav(5,'bouFinQuestions();')
+    +'<div style="text-align:center;margin-top:12px;"><a href="#" onclick="bouFinQuestions(true);return false;" style="font-size:11.5px;color:#9ca3af;">Passer cette question</a></div>'
+  ,5));
+  var ta=document.getElementById('bq5t'); if(ta) ta.focus();
+  bouQ5Micro();
+}
+// Dictée dans la question ouverte (même moteur que l'enregistrement des tâches).
+function bouQ5Micro(){
+  var btn=document.getElementById('bq5mic'); if(!btn) return;
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
+  var ta=document.getElementById('bq5t'), etat=document.getElementById('bq5etat');
+  var rec=null, acquis='', courant='', stop=false;
+  btn.onclick=function(){
+    if(window.__q5on&&rec){ stop=true; try{ rec.stop(); }catch(e){} return; }
+    acquis=(ta.value||'').trim(); courant=''; stop=false;
+    rec=new SR(); window.__q5on=true;
+    rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
+    rec.onstart=function(){ btn.style.background='#dc2626'; btn.innerHTML='<i class="ti ti-player-stop"></i>'; if(etat) etat.innerHTML='<b style="color:#dc2626;">Je vous écoute…</b> appuyez pour terminer'; };
+    rec.onresult=function(e){
+      var fin='', interim='';
+      for(var i=0;i<e.results.length;i++){ if(e.results[i].isFinal) fin=dicteeFusion(fin,e.results[i][0].transcript); else interim+=e.results[i][0].transcript+' '; }
+      courant=fin;
+      ta.value=dicteeDedupe(dicteeFusion(acquis,(fin+' '+interim).trim()));
+    };
+    rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone.':'Je n\'ai pas réussi à écouter.'; };
+    rec.onend=function(){
+      if(!stop){ try{ rec.start(); return; }catch(e){} }
+      window.__q5on=false; btn.style.background='#E8541A'; btn.innerHTML='<i class="ti ti-microphone"></i>';
+      ta.value=dicteeDedupe(dicteeFusion(acquis,courant));
+      if(etat) etat.textContent='Vous pouvez aussi appuyer sur le micro et parler.';
+    };
+    try{ rec.start(); }catch(e){ window.__q5on=false; }
+  };
+}
+function bouFinQuestions(passer){
+  var ta=document.getElementById('bq5t');
+  bouSet('motDirigeant', passer?'':((ta&&ta.value||'').trim()));
+  var r=bouRep();
+  if(r.coutHoraire==null) bouSet('coutHoraire',bouCoutDefaut());
+  r=bouRep();
   var g=iveGain(r);                       // SOURCE UNIQUE
   bouSet('heuresAn',g.heuresAn); bouSet('eurosAn',g.eurosAn); bouSet('termineLe',new Date().toISOString());
   bouChiffre();
@@ -3528,7 +3553,7 @@ function bouFinQuestions(){
 function bouChiffre(){
   var r=bouRep(), g=iveGain(r);           // SOURCE UNIQUE — jamais de recalcul parallèle
   var postes=(r.postes||[]).map(function(k){ return ivePosteLib(k,3); });
-  var chrono=(r.chronophages||[]).map(function(k){ return ivePosteLib(k,3); });
+  var mot=(r.motDirigeant||'').trim();
   var nbSal=r.personnes||1;
   // Deux chiffres côte à côte, comme sur la maquette.
   var bloc=function(ic,icCoul,icFond,val,unite,leg,sous){
@@ -3558,9 +3583,17 @@ function bouChiffre(){
       +'<div style="width:1px;background:#fed7aa;flex:0 0 auto;margin:6px 0;"></div>'
       +bloc('ti-coin','#E8541A','#fff0e6',iveNb(g.eurosAn),'€','de temps mobilisé par an','basé sur votre estimation')
     +'</div>'
-    // Ce qui prend le temps / ce qui est le plus chronophage
-    +duo('ti-folder','Principalement consacrées à',(postes.length?esc(postes.join(', ')):'—'),
-         'ti-flame','Le plus chronophage',(chrono.length?esc(chrono.join(', ')):'—'))
+    // Ce qui prend le temps
+    +'<div style="display:flex;gap:11px;align-items:center;border:1px solid #eef0f3;border-radius:14px;padding:13px 14px;margin-top:12px;">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:#eef5ff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-folder" style="font-size:19px;color:#2563EB;"></i></div>'
+      +'<div style="min-width:0;"><div style="font-size:11.5px;color:#6b7280;line-height:1.3;">Principalement consacrées à</div><div style="font-size:13px;font-weight:800;color:#2563EB;line-height:1.35;margin-top:2px;">'+(postes.length?esc(postes.join(', ')):'—')+'</div></div>'
+    +'</div>'
+    // Ses propres mots — la réponse à la question ouverte
+    +(mot?'<div style="display:flex;gap:12px;align-items:flex-start;background:#fffaf6;border-left:4px solid #E8541A;border-radius:12px;padding:13px 15px;margin-top:12px;">'
+      +'<i class="ti ti-quote" style="font-size:20px;color:#E8541A;flex:0 0 auto;"></i>'
+      +'<div><div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">CE QUE VOUS AIMERIEZ NE PLUS AVOIR À FAIRE</div>'
+      +'<div style="font-size:13.5px;color:#7c2d12;line-height:1.55;margin-top:4px;font-style:italic;">« '+esc(mot)+' »</div></div>'
+    +'</div>':'')
     // Le détail du calcul
     +'<div style="display:flex;gap:11px;align-items:center;background:#f5f8ff;border:1px solid #dbe7fb;border-radius:14px;padding:13px 14px;margin-top:12px;">'
       +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-calculator" style="font-size:19px;color:#2563EB;"></i></div>'
@@ -3596,7 +3629,7 @@ function bouEnvoiMail(){
   s.q_personnes=r.personnes; s.q_heuresSemaine=r.heuresSemaine; s.q_coutHoraire=r.coutHoraire;
   s.q_postes=(r.postes||[]).map(function(k){ return ivePosteLib(k,1); });
   s.q_poste=s.q_postes.join(', ');
-  s.q_chronophages=(r.chronophages||[]).map(function(k){ return ivePosteLib(k,1); });
+  s.q_mot=(r.motDirigeant||'').trim();
   s.q_soirees=g.soirees;
   s.heuresAn=g.heuresAn; s.eurosAn=g.eurosAn;
   if(typeof sendSentinelleEmail==='function') sendSentinelleEmail();

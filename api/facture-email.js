@@ -130,16 +130,12 @@ function sentinelleHtml(s) {
     const nbSal = +s.q_personnes || 1;
     const tiret = "—";
     const postes = Array.isArray(s.q_postes) && s.q_postes.length ? s.q_postes.join(", ") : (s.q_poste || tiret);
-    const chrono = Array.isArray(s.q_chronophages) && s.q_chronophages.length ? s.q_chronophages.join(", ") : tiret;
+    const mot = (s.q_mot || "").trim();
     // Deux chiffres cote a cote, comme sur l'ecran (tables imbriquees = compatible Outlook).
     const chif = (val, unite, leg, sous) => `<td width="50%" valign="top" align="center" style="padding:8px 8px;">
       <div style="font-size:30px;font-weight:800;color:#E8541A;line-height:1.05;">${val}${unite ? ` <span style="font-size:19px;">${unite}</span>` : ""}</div>
       <div style="font-size:12.5px;font-weight:700;color:#1C1C1C;margin-top:3px;">${leg}</div>
       <div style="font-size:11px;color:#9ca3af;line-height:1.35;margin-top:3px;">${sous}</div></td>`;
-    const duo = (t1, v1, t2, v2) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #eef0f3;border-radius:12px;margin-top:10px;"><tr>
-      <td width="50%" valign="top" style="padding:11px 13px;"><div style="font-size:11.5px;color:#6b7280;">${t1}</div><div style="font-size:13px;font-weight:800;color:#2563EB;margin-top:2px;">${esc(v1)}</div></td>
-      <td width="50%" valign="top" style="padding:11px 13px;border-left:1px solid #eef0f3;"><div style="font-size:11.5px;color:#6b7280;">${t2}</div><div style="font-size:13px;font-weight:800;color:#E8541A;margin-top:2px;">${esc(v2)}</div></td>
-    </tr></table>`;
     chiffreBlock = `<tr><td style="padding:4px 24px 8px;">
       <div style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.8px;">VOTRE R&Eacute;SULTAT</div>
       <div style="font-size:19px;font-weight:800;color:#1C1C1C;line-height:1.25;margin-top:5px;">Voici ce que repr&eacute;sente votre quotidien.</div>
@@ -147,7 +143,14 @@ function sentinelleHtml(s) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fffaf6" style="background:#fffaf6;border:1px solid #fed7aa;border-radius:14px;margin-top:12px;">
         <tr>${chif(nf(s.heuresAn), "", "heures par an", `soit environ ${nf(s.q_soirees)} journ&eacute;es de travail`)}${chif(nf(s.eurosAn), "&euro;", "de temps mobilis&eacute; par an", "bas&eacute; sur votre estimation")}</tr>
       </table>
-      ${duo("Principalement consacr&eacute;es &agrave;", postes, "Le plus chronophage", chrono)}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #eef0f3;border-radius:12px;margin-top:10px;"><tr><td style="padding:11px 13px;">
+        <div style="font-size:11.5px;color:#6b7280;">Principalement consacr&eacute;es &agrave;</div>
+        <div style="font-size:13px;font-weight:800;color:#2563EB;margin-top:2px;">${esc(postes)}</div>
+      </td></tr></table>
+      ${mot ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#fffaf6" style="background:#fffaf6;border-left:4px solid #E8541A;border-radius:12px;margin-top:10px;"><tr><td style="padding:12px 14px;">
+        <div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">CE QUE VOUS AIMERIEZ NE PLUS AVOIR &Agrave; FAIRE</div>
+        <div style="font-size:13.5px;color:#7c2d12;line-height:1.55;margin-top:4px;font-style:italic;">&laquo;&nbsp;${esc(mot)}&nbsp;&raquo;</div>
+      </td></tr></table>` : ""}
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f5f8ff" style="background:#f5f8ff;border:1px solid #dbe7fb;border-radius:12px;margin-top:10px;"><tr><td style="padding:11px 13px;font-size:12px;color:#4b5563;line-height:1.55;">
         Calcul bas&eacute; sur vos r&eacute;ponses :<br><b style="color:#1C1C1C;">${nbSal} salari&eacute;${nbSal > 1 ? "s" : ""}</b> &nbsp;&middot;&nbsp; <b style="color:#1C1C1C;">${s.q_heuresSemaine != null ? s.q_heuresSemaine : tiret} h</b> par semaine &nbsp;&middot;&nbsp; <b style="color:#1C1C1C;">${s.q_coutHoraire != null ? s.q_coutHoraire : tiret} &euro;</b> par heure
       </td></tr></table>
