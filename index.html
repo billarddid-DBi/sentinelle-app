@@ -2975,6 +2975,10 @@ function boussoleChoisir(plan){
 }
 // BOUSSOLE débloquée (abonné). Placeholder tant que le contenu réel n'est pas construit.
 function boussoleView(){
+  // BOUSSOLE commence par ÉCOUTER, même pour un abonné ou l'admin : tant que les 5 questions ne
+  // sont pas faites, on ne montre ni les outils ni le plan.
+  window.__bouRep=null;
+  if(bouEtape()<6) return bouIntro();
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div></div>'
