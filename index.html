@@ -2610,6 +2610,55 @@ function tacheDeplacer(id,sens){
   pmSave(o); window.__dicTri='ordre'; dicteeView();
 }
 function tacheOuvrir(id){ window.__tacheOuverte=(window.__tacheOuverte===id)?null:id; dicteeView(); }
+// Glissement à droite ou à gauche = la tâche est faite (et disparaît des en-cours).
+// Un simple appui, sans glisser, ouvre le panneau de réglage.
+function tacheBrancherSwipe(){
+  [].slice.call(document.querySelectorAll('#dirigeant .tacheWrap')).forEach(function(w){
+    var front=w.querySelector('.tacheRow'); if(!front) return;
+    var id=w.getAttribute('data-tid');
+    var x0=0,y0=0,dx=0,actif=false,bouge=false;
+    var seuil=function(){ return Math.max(70,Math.min(140,w.offsetWidth*0.3)); };
+    var debut=function(ev){
+      if(ev.target&&ev.target.closest&&ev.target.closest('button')) return;   // les boutons gardent leur rôle
+      var p=ev.touches?ev.touches[0]:ev;
+      x0=p.clientX; y0=p.clientY; dx=0; actif=true; bouge=false; front.style.transition='';
+    };
+    var bouger=function(ev){
+      if(!actif) return;
+      var p=ev.touches?ev.touches[0]:ev, mx=p.clientX-x0, my=p.clientY-y0;
+      if(!bouge && Math.abs(my)>Math.abs(mx)+4){ actif=false; return; }        // c'est un défilement vertical
+      if(Math.abs(mx)>8) bouge=true;
+      if(bouge){
+        if(ev.cancelable) ev.preventDefault();
+        dx=mx;
+        front.style.transform='translateX('+dx+'px)';
+        front.style.opacity=String(Math.max(.4,1-Math.abs(dx)/(seuil()*2.2)));
+      }
+    };
+    var fin=function(){
+      if(!actif) return; actif=false;
+      front.style.transition='transform .18s ease, opacity .18s ease';
+      if(Math.abs(dx)>=seuil()){
+        front.style.transform='translateX('+(dx>0?w.offsetWidth:-w.offsetWidth)+'px)';
+        front.style.opacity='0';
+        var d=dx; dx=0;
+        setTimeout(function(){ dicteeToggle(id); },170);
+        return;
+      }
+      front.style.transform=''; front.style.opacity='1';
+      if(!bouge) tacheOuvrir(id);
+      dx=0;
+    };
+    front.addEventListener('touchstart',debut,{passive:true});
+    front.addEventListener('touchmove',bouger,{passive:false});
+    front.addEventListener('touchend',fin);
+    front.addEventListener('touchcancel',fin);
+    front.addEventListener('mousedown',debut);
+    front.addEventListener('mousemove',bouger);
+    front.addEventListener('mouseup',fin);
+    front.addEventListener('mouseleave',function(){ if(actif) fin(); });
+  });
+}
 function tacheTriSet(m){ window.__dicTri=m; dicteeView(); }
 // Rappels échus : bandeau dans l'écran + notification si le navigateur l'autorise.
 function tacheRappelsEchus(o){
@@ -2649,10 +2698,13 @@ function dicteeView(filtre){
       return '<button type="button" onclick="tachePrio(\''+t.id+'\','+n2+')" style="flex:1;border:1px solid '+(on?q[1]:'#e5e7eb')+';background:'+(on?q[2]:'#fff')+';color:'+(on?q[1]:'#9ca3af')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti '+q[3]+'"></i> '+q[0]+'</button>'; };
     var bEch=function(code,lbl){ return '<button type="button" onclick="tacheEch(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:9px;padding:8px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">'+lbl+'</button>'; };
     var bRap=function(code,lbl){ return '<button type="button" onclick="tacheRappel(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:9px;padding:8px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">'+lbl+'</button>'; };
-    return '<div style="border:1px solid '+((e&&e.retard)?'#fecaca':'#eef0f3')+';border-left:4px solid '+p[1]+';border-radius:11px;padding:11px 12px;margin-top:8px;background:'+((e&&e.retard)?'#fffafa':'#fff')+';">'
+    // Plus de case à cocher : on fait glisser la tâche vers la droite ou vers la gauche.
+    var fondSwipe=t.done?'#E8541A':'#16a34a', motSwipe=t.done?'À refaire':'Fait';
+    return '<div class="tacheWrap" data-tid="'+t.id+'" style="position:relative;overflow:hidden;border-radius:11px;margin-top:8px;">'
+      +'<div style="position:absolute;inset:0;background:'+fondSwipe+';display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:#fff;font-weight:800;font-size:13px;"><span><i class="ti ti-check"></i> '+motSwipe+'</span><span>'+motSwipe+' <i class="ti ti-check"></i></span></div>'
+      +'<div class="tacheRow" style="position:relative;border:1px solid '+((e&&e.retard)?'#fecaca':'#eef0f3')+';border-left:4px solid '+p[1]+';border-radius:11px;padding:11px 12px;background:'+((e&&e.retard)?'#fffafa':'#fff')+';touch-action:pan-y;cursor:pointer;">'
       +'<div style="display:flex;align-items:flex-start;gap:10px;">'
-        +'<button type="button" onclick="dicteeToggle(\''+t.id+'\')" aria-label="Fait" style="border:none;background:none;cursor:pointer;color:'+(t.done?'#16a34a':'#cbd5e1')+';font-size:23px;padding:0;line-height:1;flex:0 0 auto;"><i class="ti '+(t.done?'ti-square-check':'ti-square')+'"></i></button>'
-        +'<div style="flex:1;min-width:0;cursor:pointer;" onclick="tacheOuvrir(\''+t.id+'\')">'
+        +'<div style="flex:1;min-width:0;">'
           +'<div style="font-size:13.5px;line-height:1.4;'+(t.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;font-weight:600;')+'">'+esc(t.t)+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px;">'
             +((t.prio||0)>0?chip(p[1],p[2],p[3],p[0]):'')
@@ -2676,7 +2728,7 @@ function dicteeView(filtre){
         +'<div style="display:flex;gap:6px;margin-top:6px;">'+bRap('1h','Dans 1 h')+bRap('soir','Ce soir 18 h')+bRap('demain','Demain 9 h')+bRap('aucun','Aucun')+'</div>'
         +'<button type="button" onclick="dicteeArchiver(\''+t.id+'\')" style="width:100%;border:1px solid #fecaca;background:#fff;color:#dc2626;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;"><i class="ti ti-trash"></i> Retirer de la liste</button>'
       +'</div>':'')
-    +'</div>';
+    +'</div></div>';
   };
   var liste=vues.length?vues.map(function(t,i){ return ligne(t,i,vues.length); }).join('')
     :'<div style="font-size:12.5px;color:#c7ccd3;text-align:center;padding:18px 0;">'+(filtre==='faites'?'Rien de terminé pour l\'instant.':'Aucune tâche en attente.')+'</div>';
@@ -2706,11 +2758,13 @@ function dicteeView(filtre){
       +alerte
       +'<div style="display:flex;gap:7px;margin-top:'+(alerte?'12px':'0')+';">'+onglet('afaire','À faire',afaire.length)+onglet('faites','Faites',faites.length)+'</div>'
       +(filtre==='afaire'?'<div style="display:flex;gap:6px;align-items:center;margin-top:11px;flex-wrap:wrap;"><span style="font-size:10.5px;color:#9ca3af;font-weight:700;">TRIER PAR</span>'+bTri('auto','Priorité')+bTri('echeance','Échéance')+bTri('ordre','Mon ordre')+'</div>':'')
+      +(vues.length?'<div style="font-size:11px;color:#9ca3af;margin-top:12px;text-align:center;"><i class="ti ti-arrows-horizontal"></i> Faites glisser une tâche '+(filtre==='faites'?'pour la remettre à faire':'pour la marquer faite')+' · appuyez dessus pour la régler</div>':'')
       +liste+repBloc
       +'<button class="btn btn-primary" style="margin-top:18px;" onclick="dicteeEnregistrerView()"><i class="ti ti-microphone"></i> Enregistrer une tâche</button>'
       +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+  tacheBrancherSwipe();
 }
 function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeView(); }
 function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeView(); }
