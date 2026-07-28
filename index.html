@@ -2411,12 +2411,7 @@ function sentApercu(){
       +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
       +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
       +'<div style="margin-top:18px;">'+noteBoxHtml(f,false)+'</div>'
-      +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:13px;padding:16px;margin-top:20px;text-align:center;">'
-        +'<div style="width:46px;height:46px;border-radius:50%;background:#1C1C1C;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:23px;color:#E8A07E;"></i></div>'
-        +'<div style="font-size:15px;font-weight:800;color:#1C1C1C;margin-top:10px;">Pourquoi cette couleur ? Comment atteindre l\'objectif ?</div>'
-        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.55;margin-top:6px;">Ce que disent vos clients, votre visibilité, vos points de vigilance, vos concurrents, et surtout <b>ce qu\'il faut faire</b> — tout cela fait partie de la suite.</div>'
-      +'</div>'
-      +(typeof bouTarifs==='function'?bouTarifs():'')
+      +(typeof iveBlocOffre==='function'?iveBlocOffre():'')
       +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
     showView('dirigeant'); window.scrollTo(0,0);
   };
@@ -3717,12 +3712,59 @@ function bouIntention(){
 function bouChoixIntention(k){ bouSet('intentionChangement',k); bouOffre(k); }
 
 // --- L'aiguillage : c'est ICI que le payant commence ---
-function bouTarifs(){
-  return '<div style="display:flex;gap:8px;margin-top:14px;">'
-    +'<div onclick="boussoleChoisir(\'mensuel\')" style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
-    +'<div onclick="boussoleChoisir(\'annuel\')" style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · −31 %</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
+// Les deux formules, en cartes complètes. Économie annuelle calculée, jamais écrite en dur.
+function iveCartesTarifs(){
+  var mens=2.99, an=24.90;
+  var eco=Math.round(mens*12-an);                    // 35,88 − 24,90 ≈ 11 €
+  var remise=Math.round((1-an/(mens*12))*100);       // ≈ 31 %
+  return '<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;align-items:stretch;">'
+    // Mensuel
+    +'<div style="flex:1 1 250px;min-width:0;border:1px solid #e5e7eb;border-radius:16px;padding:16px 15px;background:#fff;display:flex;flex-direction:column;">'
+      +'<div style="display:flex;align-items:center;gap:11px;">'
+        +'<div style="width:44px;height:44px;border-radius:12px;background:#eef5ff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-calendar-month" style="font-size:22px;color:#2563EB;"></i></div>'
+        +'<div style="min-width:0;"><div style="font-size:16px;font-weight:800;color:#2563EB;line-height:1.2;">Découvrir BOUSSOLE</div><div style="font-size:12px;color:#6b7280;margin-top:1px;">Accès mensuel</div></div>'
+      +'</div>'
+      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">2,99 €</span><span style="font-size:13px;color:#9ca3af;"> / mois</span></div>'
+      +'<div style="display:flex;align-items:center;gap:7px;background:#f5f8ff;border-radius:9px;padding:9px 11px;margin-top:12px;font-size:11.5px;color:#4b5563;"><i class="ti ti-check" style="color:#2563EB;font-size:14px;flex:0 0 auto;"></i><span><b style="color:#2563EB;">Sans engagement</b> · Résiliable à tout moment</span></div>'
+      +'<button type="button" onclick="boussoleChoisir(\'mensuel\')" style="margin-top:auto;width:100%;border:1.5px solid #2563EB;background:#fff;color:#2563EB;border-radius:12px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:14px;">Choisir cette option <i class="ti ti-arrow-right"></i></button>'
+    +'</div>'
+    // Annuel — mis en avant
+    +'<div style="flex:1 1 250px;min-width:0;border:2px solid #E8541A;border-radius:16px;padding:16px 15px;background:#fffaf6;position:relative;display:flex;flex-direction:column;">'
+      +'<div style="position:absolute;top:-1px;right:-1px;background:#E8541A;color:#fff;font-size:10px;font-weight:800;letter-spacing:.5px;padding:5px 11px;border-radius:0 15px 0 12px;"><i class="ti ti-star-filled" style="font-size:10px;"></i> MEILLEUR CHOIX</div>'
+      +'<div style="display:flex;align-items:center;gap:11px;margin-top:12px;">'
+        +'<div style="width:44px;height:44px;border-radius:12px;background:#fff0e6;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-award" style="font-size:22px;color:#E8541A;"></i></div>'
+        +'<div style="min-width:0;"><div style="font-size:16px;font-weight:800;color:#E8541A;line-height:1.2;">Accès complet BOUSSOLE</div><div style="font-size:12px;color:#6b7280;margin-top:1px;">Accès annuel</div></div>'
+      +'</div>'
+      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">24,90 €</span><span style="font-size:13px;color:#9ca3af;"> / an</span> <span style="font-size:11px;font-weight:800;color:#c2410c;background:#fff0e6;border-radius:8px;padding:2px 8px;">−'+remise+' %</span></div>'
+      +'<div style="display:flex;align-items:center;gap:7px;background:#fff0e6;border-radius:9px;padding:9px 11px;margin-top:12px;font-size:11.5px;color:#7c2d12;"><i class="ti ti-check" style="color:#E8541A;font-size:14px;flex:0 0 auto;"></i><span><b>Économisez '+eco+' €</b> · Accès complet pendant 12 mois</span></div>'
+      +'<button type="button" onclick="boussoleChoisir(\'annuel\')" style="margin-top:auto;width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:14px;">Choisir cette option <i class="ti ti-arrow-right"></i></button>'
+    +'</div>'
   +'</div>';
 }
+// Le bloc complet : verrou, promesse, ce que ça apporte, les deux formules, la confidentialité.
+function iveBlocOffre(){
+  var av=[['ti-target-arrow','Comprendre les causes','de votre résultat'],
+          ['ti-chart-bar','Identifier vos priorités','et vos vrais leviers'],
+          ['ti-bolt','Découvrir des actions','concrètes et efficaces'],
+          ['ti-compass','Construire votre plan','et passer à l\'action']];
+  return '<div style="text-align:center;margin-top:22px;">'
+      +'<div style="width:56px;height:56px;border-radius:50%;background:#1C1C1C;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:27px;color:#E8A07E;"></i></div>'
+      +'<div style="font-size:clamp(18px,5vw,23px);font-weight:800;color:#1C1C1C;line-height:1.25;margin-top:12px;">Vous connaissez le constat.<br>Passez à l\'étape <span style="color:#E8541A;">qui change tout.</span></div>'
+      +'<div style="font-size:13px;color:#6b7280;line-height:1.6;margin-top:8px;">SENTINELLE révèle ce que tout le monde voit.<br>BOUSSOLE vous explique <b style="color:#4b5563;">pourquoi…</b> et surtout <b style="color:#4b5563;">comment agir</b>.</div>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:10px;border:1px solid #eef0f3;border-radius:14px;padding:13px 10px;margin-top:16px;">'
+      +av.map(function(x){ return '<div style="flex:1 1 46%;min-width:135px;display:flex;align-items:center;gap:9px;">'
+        +'<div style="width:34px;height:34px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+x[0]+'" style="font-size:17px;color:#E8541A;"></i></div>'
+        +'<div style="min-width:0;"><div style="font-size:12px;font-weight:800;color:#1C1C1C;line-height:1.25;">'+x[1]+'</div><div style="font-size:11px;color:#9ca3af;line-height:1.25;">'+x[2]+'</div></div></div>'; }).join('')
+    +'</div>'
+    +iveCartesTarifs()
+    +'<div style="display:flex;align-items:flex-start;gap:11px;background:#f5f8ff;border:1px solid #dbe7fb;border-radius:14px;padding:13px 15px;margin-top:14px;">'
+      +'<i class="ti ti-shield-check" style="font-size:21px;color:#2563EB;flex:0 0 auto;"></i>'
+      +'<div style="font-size:12px;color:#4b5563;line-height:1.5;"><b style="color:#2563EB;">Vos données sont sécurisées.</b><br>Aucune donnée publique ou privée n\'est partagée. Vous gardez le contrôle.</div>'
+    +'</div>';
+}
+// Conservé : tous les anciens appels affichent désormais les nouvelles cartes.
+function bouTarifs(){ return iveCartesTarifs(); }
 function bouOffre(niveau){
   var r=bouRep(), g=iveGain(r);
   var rappel='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;"><i class="ti ti-clock" style="color:#E8541A;"></i> Vous avez estimé <b>'+iveNb(g.heuresAn)+' heures</b> par an, soit environ <b>'+iveNb(g.eurosAn)+' €</b>.</div>';
