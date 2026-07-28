@@ -1244,7 +1244,8 @@ function sentSlides(d, targetId, cockpitHtml, banner){
     +(embedded?'':'<button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>');
   res.innerHTML=html;
 
-  window.__sentSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8); if(uH){$('heroV').textContent=hrs.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+soir+' soirées — soit ≈ '+eur.toLocaleString('fr-FR')+' €';}else{$('heroV').textContent=eur.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées)';} };
+  // Câblage DOM uniquement — le calcul vient de iveGain() (source unique, cf. CLAUDE.md §7).
+  window.__sentSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var G=iveGain({personnes:p,heuresSemaine:h,coutHoraire:c}); if(uH){$('heroV').textContent=iveNb(G.heuresAn);$('heroSub').textContent='≈ '+G.soirees+' soirées — soit ≈ '+iveNb(G.eurosAn)+' €';}else{$('heroV').textContent=iveNb(G.eurosAn);$('heroSub').textContent='≈ '+iveNb(G.heuresAn)+' h ('+G.soirees+' soirées)';} };
   ['sP','sH','sC'].forEach(function(id){var e=$(id); if(e)e.addEventListener('input',window.__sentSim);});
   window.__sentSim();
   var rd=d.radar||{labels:[],actuel:[],potentiel:[]};
@@ -2613,6 +2614,277 @@ async function sendSentinelleEmail(){
     else { setMsg('<span style="color:#991b1b;">Envoi impossible'+((j&&j.error)?' — '+esc(j.error):'')+'.</span>'); }
   }catch(e){ setMsg('<span style="color:#991b1b;">Connexion impossible, réessayez.</span>'); }
 }
+/* ===================== BOUSSOLE — L'ENTRÉE : LES 5 QUESTIONS (GRATUIT) =====================
+   Tout ce bloc est GRATUIT bien qu'il porte la marque BOUSSOLE : le paywall n'arrive qu'APRÈS la
+   question d'intention. On montre son chiffre au dirigeant, ensuite seulement on propose l'offre.
+   BOUSSOLE commence par ÉCOUTER : aucun outil, aucun plan, aucune recommandation avant. */
+
+// SOURCE UNIQUE des heures et des euros (cf. CLAUDE.md §7). Fonction PURE : aucun accès au DOM.
+function iveGain(r){
+  r=r||{};
+  var p=Math.max(1,+r.personnes||1), h=Math.max(0,+r.heuresSemaine||0), c=Math.max(0,+r.coutHoraire||0);
+  var heuresAn=Math.round(p*h*45);
+  return { heuresAn:heuresAn, eurosAn:Math.round(heuresAn*c/100)*100, soirees:Math.round(heuresAn/8) };
+}
+function iveNb(n){ return (n==null||isNaN(n))?'–':Math.round(n).toLocaleString('fr-FR').replace(/ | /g,' '); }
+
+// Couche de stockage : localStorage aujourd'hui, Supabase demain SANS toucher au reste du code.
+var iveStore={
+  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_rep_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  load:function(){ try{ var s=localStorage.getItem(iveStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
+  save:function(o){ try{ localStorage.setItem(iveStore.key(), JSON.stringify(o)); }catch(e){} return o; },
+  clear:function(){ try{ localStorage.removeItem(iveStore.key()); }catch(e){} window.__bouRep=null; }
+};
+function bouRep(){ if(!window.__bouRep) window.__bouRep=iveStore.load()||{v:1}; return window.__bouRep; }
+function bouSet(k,v){ var r=bouRep(); r[k]=v; iveStore.save(r); return r; }
+
+var IVE_POSTES=[
+  ['devis_factures','Devis et factures','ti-file-invoice','les devis et les factures'],
+  ['telephone_rendezvous','Téléphone et rendez-vous','ti-phone','le téléphone et les rendez-vous'],
+  ['relances_impayes','Relances et impayés','ti-cash','les relances et les impayés'],
+  ['planning_equipe','Planning et équipe','ti-calendar-event','le planning et l\'équipe'],
+  ['administratif','Paperasse et administratif','ti-folder','la paperasse et l\'administratif'],
+  ['recherche_informations','Chercher des informations','ti-search','la recherche d\'informations']];
+var IVE_RETARDS=[
+  ['devis_non_envoyes','Devis pas envoyés','ti-file-text'],
+  ['appels_non_rappeles','Appels pas rappelés','ti-phone-call'],
+  ['factures_non_relancees','Factures pas relancées','ti-receipt'],
+  ['decisions_non_prises','Décisions pas prises','ti-gavel'],
+  ['a_jour','Rien, je suis à jour','ti-circle-check']];
+var IVE_COUT_SECTEUR={btp:45,artisan:45,commerce:35,restaurant:35,boulangerie:35,industrie:55,sante:70,juridique:90,immobilier:60,services:50,autre:50};
+function ivePosteLib(k,i){ for(var j=0;j<IVE_POSTES.length;j++){ if(IVE_POSTES[j][0]===k) return IVE_POSTES[j][i||1]; } return ''; }
+function bouCoutDefaut(){ var f=window.__sentData||{}; return IVE_COUT_SECTEUR[((f.secteur||'')+'').toLowerCase()]||50; }
+// Première question sans réponse (1 à 5) ; 6 = questionnaire terminé.
+function bouEtape(){ var r=bouRep();
+  if(r.personnes==null) return 1;
+  if(!r.postePrincipal) return 2;
+  if(r.heuresSemaine==null) return 3;
+  if(!r.retards||!r.retards.length) return 4;
+  if(r.coutHoraire==null) return 5;
+  return 6; }
+
+function bouRender(h){ $('dirigeant').innerHTML=h; showView('dirigeant'); window.scrollTo(0,0); }
+function bouCadre(inner, etape, titre){
+  var prog='';
+  if(etape){ prog='<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.5px;">'+etape+'/5</span><span style="font-size:11px;color:#9ca3af;">environ 90 secondes</span></div><div style="height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(etape/5*100)+'%;height:100%;background:#E8541A;border-radius:4px;"></div></div></div>'; }
+  return '<div style="display:flex;flex-direction:column;gap:8px;">'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div></div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div class="sec">'+prog+inner+'</div></div></div>';
+}
+function bouTitre(t){ return '<div style="font-size:19px;font-weight:800;color:#1C1C1C;line-height:1.32;margin-top:16px;">'+t+'</div>'; }
+function bouNav(etape, action, actif){
+  var prev=(etape<=1)?'bouIntro()':'bouQ'+(etape-1)+'()';
+  var off=(actif===false);
+  return '<div style="display:flex;gap:8px;margin-top:26px;align-items:stretch;">'
+    +'<button type="button" onclick="'+prev+'" aria-label="Précédent" style="border:1px solid #e5e7eb;background:#fff;color:#9ca3af;border-radius:12px;padding:0 18px;font-size:17px;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i></button>'
+    +'<button type="button" '+(off?'disabled ':'')+'onclick="'+(off?'':action)+'" style="flex:1;border:none;background:'+(off?'#eef0f3':'#E8541A')+';color:'+(off?'#c7ccd3':'#fff')+';border-radius:12px;padding:16px;font-size:15.5px;font-weight:800;cursor:'+(off?'default':'pointer')+';font-family:inherit;">Continuer <i class="ti ti-arrow-right"></i></button></div>';
+}
+function bouCurseur(id,min,max,step,val){
+  return '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" style="width:100%;margin-top:18px;height:28px;accent-color:#E8541A;">'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;color:#c7ccd3;margin-top:-2px;"><span>'+min+'</span><span>'+max+(max===10?'+':'')+'</span></div>';
+}
+
+// --- Écran d'introduction : BOUSSOLE écoute d'abord ---
+function bouIntro(){
+  var r=bouRep(), et=bouEtape(), repris=(et>1&&et<6);
+  var reprise=repris?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#7c2d12;"><i class="ti ti-history"></i> Vous aviez commencé — on reprend à la question '+et+'.</div>':'';
+  bouRender(bouCadre(
+    '<div style="font-size:15.5px;color:#374151;line-height:1.65;margin-top:6px;">SENTINELLE a étudié <b>ce que les autres voient</b>.<br>Maintenant, nous allons comprendre <b>ce que vous vivez réellement au quotidien</b>.</div>'
+    +'<div style="display:flex;align-items:center;gap:11px;background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:13px 15px;margin-top:18px;"><i class="ti ti-clock" style="font-size:21px;color:#E8541A;"></i><div><div style="font-size:14px;font-weight:800;color:#1C1C1C;">5 questions</div><div style="font-size:12.5px;color:#6b7280;">environ 90 secondes — rien à taper.</div></div></div>'
+    +reprise
+    +'<button type="button" onclick="bouQ'+(repris?et:1)+'()" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:17px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:22px;">'+(repris?'Reprendre':'Commencer')+' <i class="ti ti-arrow-right"></i></button>'
+    +(et>1?'<div style="text-align:center;margin-top:12px;"><a href="#" onclick="iveStore.clear();bouIntro();return false;" style="font-size:11.5px;color:#9ca3af;">Tout recommencer</a></div>':'')
+    +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>'
+  , 0, 'Comprendre votre quotidien'));
+}
+
+// --- Q1 : combien de personnes ---
+function bouQ1(){
+  var r=bouRep(), v=(r.personnes!=null)?r.personnes:2;
+  bouRender(bouCadre(bouTitre('Vous êtes combien à faire tourner la boîte au quotidien ?')
+    +'<div style="text-align:center;margin-top:20px;"><span id="bq1v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+(v>=10?'10+':v)+'</span><div id="bq1l" style="font-size:12.5px;color:#6b7280;margin-top:4px;">'+(v>1?'personnes':'personne')+'</div></div>'
+    +bouCurseur('bq1',1,10,1,v)
+    +bouNav(1,'bouSet(\'personnes\',+document.getElementById(\'bq1\').value);bouQ2();')
+  ,1));
+  var s=document.getElementById('bq1');
+  if(s) s.addEventListener('input',function(){ var n=+s.value; document.getElementById('bq1v').textContent=(n>=10?'10+':n); document.getElementById('bq1l').textContent=(n>1?'personnes':'personne'); });
+}
+
+// --- Q2 : ce qui mange le temps (choix unique, avance automatiquement) ---
+function bouQ2(){
+  var r=bouRep(), cur=r.postePrincipal||'';
+  var tiles=IVE_POSTES.map(function(p){ var on=(cur===p[0]);
+    return '<div onclick="bouChoixPoste(\''+p[0]+'\')" style="flex:1 1 46%;min-width:140px;border:2px solid '+(on?'#E8541A':'#eef0f3')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:13px;padding:15px 12px;text-align:center;cursor:pointer;"><i class="ti '+p[2]+'" style="font-size:25px;color:#E8541A;"></i><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;line-height:1.3;margin-top:7px;">'+p[1]+'</div></div>';
+  }).join('');
+  bouRender(bouCadre(bouTitre('Qu\'est-ce qui vous mange le plus de temps en ce moment ?')
+    +'<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:18px;">'+tiles+'</div>'
+    +bouNav(2,'bouQ3();',!!cur)
+  ,2));
+}
+function bouChoixPoste(k){ bouSet('postePrincipal',k); bouQ2(); setTimeout(bouQ3,300); }
+
+// --- Q3 : heures par semaine ---
+function bouQ3(){
+  var r=bouRep(), v=(r.heuresSemaine!=null)?r.heuresSemaine:5;
+  bouRender(bouCadre(bouTitre('Combien d\'heures par semaine partent dans ces tâches-là ?')
+    +(r.postePrincipal?'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Vous avez indiqué : '+esc(ivePosteLib(r.postePrincipal,3))+'.</div>':'')
+    +'<div style="text-align:center;margin-top:18px;"><span id="bq3v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:22px;font-weight:800;color:#E8541A;"> h</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">par semaine</div></div>'
+    +bouCurseur('bq3',1,15,1,v)
+    +bouNav(3,'bouSet(\'heuresSemaine\',+document.getElementById(\'bq3\').value);bouQ4();')
+  ,3));
+  var s=document.getElementById('bq3');
+  if(s) s.addEventListener('input',function(){ document.getElementById('bq3v').textContent=s.value; });
+}
+
+// --- Q4 : ce qui traîne (choix multiple, « Rien, je suis à jour » exclusif) ---
+function bouQ4(){
+  var r=bouRep(), sel=r.retards||[];
+  var tiles=IVE_RETARDS.map(function(p){ var on=(sel.indexOf(p[0])>-1), aj=(p[0]==='a_jour');
+    var c=aj?'#16a34a':'#E8541A';
+    return '<div onclick="bouToggleRetard(\''+p[0]+'\')" style="display:flex;align-items:center;gap:11px;border:2px solid '+(on?c:'#eef0f3')+';background:'+(on?(aj?'#f0fdf4':'#fff7ed'):'#fff')+';border-radius:13px;padding:14px 15px;margin-top:9px;cursor:pointer;"><i class="ti '+(on?'ti-square-check':'ti-square')+'" style="font-size:22px;color:'+(on?c:'#cbd5e1')+';flex:0 0 auto;"></i><i class="ti '+p[2]+'" style="font-size:19px;color:'+c+';flex:0 0 auto;"></i><span style="font-size:14px;font-weight:700;color:#1C1C1C;">'+p[1]+'</span></div>';
+  }).join('');
+  bouRender(bouCadre(bouTitre('Aujourd\'hui, qu\'est-ce qui traîne et que vous n\'arrivez pas à traiter ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Plusieurs réponses possibles.</div>'
+    +'<div style="margin-top:12px;">'+tiles+'</div>'
+    +bouNav(4,'bouQ5();',sel.length>0)
+  ,4));
+}
+function bouToggleRetard(k){
+  var r=bouRep(), cur=(r.retards||[]).slice();
+  if(k==='a_jour'){ cur=(cur.indexOf('a_jour')>-1)?[]:['a_jour']; }
+  else{
+    cur=cur.filter(function(x){ return x!=='a_jour'; });
+    var i=cur.indexOf(k); if(i>-1) cur.splice(i,1); else cur.push(k);
+  }
+  bouSet('retards',cur);
+  bouSet('nombreRetards',cur.filter(function(x){ return x!=='a_jour'; }).length);
+  bouQ4();
+}
+
+// --- Q5 : combien vaut une heure (pré-positionné selon le secteur trouvé par SENTINELLE) ---
+function bouQ5(){
+  var r=bouRep(), v=(r.coutHoraire!=null)?r.coutHoraire:bouCoutDefaut();
+  bouRender(bouCadre(bouTitre('Une heure de travail chez vous, ça vaut combien ?')
+    +'<div style="font-size:12.5px;color:#9ca3af;margin-top:6px;">Une estimation suffit — nous avons pré-réglé le curseur selon votre activité.</div>'
+    +'<div style="text-align:center;margin-top:18px;"><span id="bq5v" style="font-size:52px;font-weight:800;color:#E8541A;line-height:1;">'+v+'</span><span style="font-size:26px;font-weight:800;color:#E8541A;"> €</span><div style="font-size:12.5px;color:#6b7280;margin-top:4px;">de l\'heure</div></div>'
+    +bouCurseur('bq5',20,200,5,v)
+    +bouNav(5,'bouFinQuestions();')
+  ,5));
+  var s=document.getElementById('bq5');
+  if(s) s.addEventListener('input',function(){ document.getElementById('bq5v').textContent=s.value; });
+}
+function bouFinQuestions(){
+  var el=document.getElementById('bq5');
+  var r=bouSet('coutHoraire', el?+el.value:bouCoutDefaut());
+  var g=iveGain(r);                       // SOURCE UNIQUE
+  bouSet('heuresAn',g.heuresAn); bouSet('eurosAn',g.eurosAn); bouSet('termineLe',new Date().toISOString());
+  bouChiffre();
+}
+
+// --- L'écran du chiffre : sa charge, enfin visible. Prise de conscience, jamais reproche. ---
+function bouChiffre(){
+  var r=bouRep(), g=iveGain(r);           // SOURCE UNIQUE — jamais de recalcul parallèle
+  var nb=r.nombreRetards||0;
+  var phraseR=(nb>0)?'Et en ce moment, <b>'+nb+' chose'+(nb>1?'s':'')+' traîne'+(nb>1?'nt':'')+'</b> chez vous.':'Et aujourd\'hui, vous êtes <b>à jour</b> — c\'est déjà beaucoup.';
+  bouRender(bouCadre(
+    '<div style="font-size:12px;font-weight:800;color:#E8541A;letter-spacing:.6px;margin-top:6px;">VOTRE CHIFFRE</div>'
+    +'<div style="background:#1C1C1C;border-radius:14px;padding:26px 18px;text-align:center;margin-top:12px;">'
+      +'<div style="font-size:34px;font-weight:800;color:#fff;line-height:1.15;">'+iveNb(g.heuresAn)+' heures</div>'
+      +'<div style="font-size:13px;color:#9ca3af;margin-top:2px;">par an</div>'
+      +'<div style="height:1px;background:#333;margin:15px 34px;"></div>'
+      +'<div style="font-size:27px;font-weight:800;color:#E8A07E;line-height:1.2;">soit environ '+iveNb(g.eurosAn)+' €</div>'
+      +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">soit à peu près '+iveNb(g.soirees)+' journées de travail</div>'
+    +'</div>'
+    +'<div style="font-size:14px;color:#1C1C1C;line-height:1.6;margin-top:16px;">'
+      +(r.postePrincipal?'Sur <b>'+esc(ivePosteLib(r.postePrincipal,3))+'</b>, principalement.<br>':'')+phraseR+'</div>'
+    +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#4b5563;line-height:1.55;">'
+      +'<b>'+esc(r.personnes||1)+' personne'+((r.personnes||1)>1?'s':'')+'</b> · <b>'+esc(r.heuresSemaine||0)+' h</b> par semaine · <b>'+esc(r.coutHoraire||0)+' €</b> de l\'heure — vos réponses.</div>'
+    +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;padding:14px 15px;margin-top:14px;">'
+      +'<div style="font-size:13.5px;font-weight:800;color:#c2410c;">Ce chiffre est le vôtre</div>'
+      +'<div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">C\'est vous qui venez de nous le donner. Vous venez de mettre un chiffre concret sur une charge qui, jusqu\'ici, restait le plus souvent invisible.</div></div>'
+    +'<div style="text-align:center;margin-top:16px;"><button type="button" onclick="bouEnvoiMail()" style="border:none;background:#2563EB;color:#fff;border-radius:12px;padding:12px 22px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-mail"></i> Recevoir mon récapitulatif par email</button></div>'
+    +'<div id="sentMailMsg" style="text-align:center;margin-top:7px;min-height:16px;font-size:12px;"></div>'
+    +'<button type="button" onclick="bouIntention()" style="width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:16px;font-size:15.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:18px;">Continuer <i class="ti ti-arrow-right"></i></button>'
+    +'<div style="text-align:center;margin-top:10px;"><a href="#" onclick="bouQ5();return false;" style="font-size:11.5px;color:#9ca3af;">Modifier mes réponses</a></div>'
+  , 0, 'Votre chiffre'));
+}
+// L'email reprend EXACTEMENT les mêmes valeurs (aucun recalcul ailleurs, cf. CLAUDE.md §7).
+function bouEnvoiMail(){
+  var r=bouRep(), g=iveGain(r);
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(!window.__sentRecap) window.__sentRecap={ nom:(acc&&acc.name)||'', ville:'', activite:'' };
+  var s=window.__sentRecap;
+  s.q_personnes=r.personnes; s.q_poste=ivePosteLib(r.postePrincipal,1); s.q_heuresSemaine=r.heuresSemaine;
+  s.q_coutHoraire=r.coutHoraire; s.q_nombreRetards=r.nombreRetards||0;
+  s.q_retards=(r.retards||[]).map(function(k){ for(var i=0;i<IVE_RETARDS.length;i++){ if(IVE_RETARDS[i][0]===k) return IVE_RETARDS[i][1]; } return k; });
+  s.heuresAn=g.heuresAn; s.eurosAn=g.eurosAn;
+  if(typeof sendSentinelleEmail==='function') sendSentinelleEmail();
+}
+
+// --- La question d'intention : seulement après que le chiffre a été vu ---
+function bouIntention(){
+  var opt=[['chaud','Oui, dès maintenant','ti-flame','#E8541A'],
+           ['tiede','Oui, si c\'est simple et progressif','ti-stairs-up','#d97706'],
+           ['froid','J\'ai besoin d\'y réfléchir','ti-clock','#6b7280']];
+  bouRender(bouCadre(bouTitre('Si on vous montrait comment récupérer une partie de ces heures, vous seriez prêt à changer votre façon de faire ?')
+    +'<div style="margin-top:20px;">'+opt.map(function(o){
+      return '<div onclick="bouChoixIntention(\''+o[0]+'\')" style="display:flex;align-items:center;gap:13px;border:2px solid #eef0f3;background:#fff;border-radius:13px;padding:17px 16px;margin-top:10px;cursor:pointer;"><i class="ti '+o[2]+'" style="font-size:23px;color:'+o[3]+';flex:0 0 auto;"></i><span style="flex:1;font-size:14.5px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+o[1]+'</span><i class="ti ti-chevron-right" style="color:#cbd5e1;font-size:19px;"></i></div>';
+    }).join('')+'</div>'
+    +'<div style="text-align:center;margin-top:14px;"><a href="#" onclick="bouChiffre();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-arrow-left"></i> Revoir mon chiffre</a></div>'
+  , 0, 'Une dernière question'));
+}
+function bouChoixIntention(k){ bouSet('intentionChangement',k); bouOffre(k); }
+
+// --- L'aiguillage : c'est ICI que le payant commence ---
+function bouTarifs(){
+  return '<div style="display:flex;gap:8px;margin-top:14px;">'
+    +'<div onclick="boussoleChoisir(\'mensuel\')" style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
+    +'<div onclick="boussoleChoisir(\'annuel\')" style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · −31 %</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
+  +'</div>';
+}
+function bouOffre(niveau){
+  var r=bouRep(), g=iveGain(r);
+  var rappel='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;"><i class="ti ti-clock" style="color:#E8541A;"></i> Vous avez estimé <b>'+iveNb(g.heuresAn)+' heures</b> par an, soit environ <b>'+iveNb(g.eurosAn)+' €</b>.</div>';
+  var attente='<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Vos réponses sont enregistrées — vous serez prévenu par email dès l\'activation, vous ne perdez rien.</div>';
+  var retour='<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>';
+
+  if(niveau==='froid'){
+    bouRender(bouCadre(
+      '<div style="font-size:15.5px;color:#374151;line-height:1.65;margin-top:6px;">C\'est noté — prenez le temps qu\'il vous faut.</div>'
+      +rappel
+      +'<div style="display:flex;gap:10px;align-items:flex-start;background:#f0fdf4;border:1px solid #86efac;border-radius:11px;padding:13px 15px;margin-top:14px;"><i class="ti ti-device-floppy" style="color:#16a34a;font-size:19px;flex:0 0 auto;"></i><div style="font-size:12.5px;color:#166534;line-height:1.55;"><b>Vos réponses sont conservées.</b> Vous les retrouverez telles quelles quand vous reviendrez, sans rien ressaisir.</div></div>'
+      +'<div style="text-align:center;margin-top:18px;"><button type="button" onclick="bouEnvoiMail()" style="border:none;background:#2563EB;color:#fff;border-radius:12px;padding:14px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-mail"></i> Recevoir mon récapitulatif par email</button></div>'
+      +'<div id="sentMailMsg" style="text-align:center;margin-top:7px;min-height:16px;font-size:12px;"></div>'
+      +'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="bouOffre(\'tiede\');return false;" style="font-size:12px;color:#9ca3af;">Voir quand même ce que propose la BOUSSOLE</a></div>'
+      +retour
+    , 0, 'On en reste là pour aujourd\'hui'));
+    return;
+  }
+  if(niveau==='tiede'){
+    var cats=[['ti-clock','Gagner du temps'],['ti-repeat','Réduire les tâches répétitives'],['ti-checkup-list','Fiabiliser le suivi'],['ti-folders','Mieux organiser les informations']];
+    bouRender(bouCadre(
+      '<div style="font-size:15.5px;color:#374151;line-height:1.65;margin-top:6px;">Ça se fait <b>par étapes</b>, à votre rythme. On commence toujours par le plus simple.</div>'
+      +rappel
+      +'<div style="font-size:11.5px;font-weight:800;color:#6b7280;letter-spacing:.4px;margin-top:18px;">LES QUATRE DIRECTIONS POSSIBLES</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:9px;">'+cats.map(function(c){
+        return '<div style="flex:1 1 46%;min-width:145px;border:1px solid #eef0f3;background:#fff;border-radius:12px;padding:14px 12px;text-align:center;"><i class="ti '+c[0]+'" style="font-size:23px;color:#E8541A;"></i><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;line-height:1.3;margin-top:6px;">'+c[1]+'</div></div>';
+      }).join('')+'</div>'
+      +'<div style="display:flex;gap:10px;align-items:flex-start;background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;padding:13px 15px;margin-top:14px;"><i class="ti ti-lock" style="color:#E8541A;font-size:18px;flex:0 0 auto;"></i><div style="font-size:12.5px;color:#7c2d12;line-height:1.55;">La direction qui vous concerne, <b>les outils précis</b> et <b>l\'ordre dans lequel avancer</b> font partie de la BOUSSOLE.</div></div>'
+      +'<div style="font-size:13px;color:#374151;line-height:1.6;margin-top:18px;">Avec l\'abonnement, vous débloquez :</div>'
+      +bouToolsHtml()+bouTarifs()+attente+retour
+    , 0, 'Avancer par étapes'));
+    return;
+  }
+  bouRender(bouCadre(
+    '<div style="font-size:15.5px;color:#374151;line-height:1.65;margin-top:6px;">Parfait — on commence par <b>le questionnaire dirigeant</b>, puis on déroule votre plan.</div>'
+    +rappel
+    +'<div style="font-size:13px;color:#374151;line-height:1.6;margin-top:18px;">Ce que vous débloquez :</div>'
+    +bouToolsHtml()+bouTarifs()+attente+retour
+  , 0, 'On y va'));
+}
+/* =================== fin du module « les 5 questions » =================== */
+
 // Liste UNIQUE des outils BOUSSOLE (utilisée par la page d'arrivée ET la page abonné → jamais deux listes qui divergent).
 // 4e élément = clé de l'outil connecté (carte cliquable) ; null = pas encore branché.
 function bouToolsHtml(){
@@ -2668,23 +2940,21 @@ function boussoleOutil(which){
       +'<div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:8px;"><i class="ti ti-info-circle"></i> Exemple illustratif et non contractuel — les pistes réelles s\'établissent avec le Questionnaire Dirigeant.</div>'
       +back+'</div></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
-    window.__bouSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var hrs=p*h*45,e=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8); if(window.__bouSimH){$('heroV').textContent=hrs.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+soir+' soirées — soit ≈ '+e.toLocaleString('fr-FR')+' €';}else{$('heroV').textContent=e.toLocaleString('fr-FR');$('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées)';} };
+    // Câblage DOM uniquement — le calcul vient de iveGain() (source unique, cf. CLAUDE.md §7).
+    window.__bouSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var G=iveGain({personnes:p,heuresSemaine:h,coutHoraire:c}); if(window.__bouSimH){$('heroV').textContent=iveNb(G.heuresAn);$('heroSub').textContent='≈ '+G.soirees+' soirées — soit ≈ '+iveNb(G.eurosAn)+' €';}else{$('heroV').textContent=iveNb(G.eurosAn);$('heroSub').textContent='≈ '+iveNb(G.heuresAn)+' h ('+G.soirees+' soirées)';} };
     ['sP','sH','sC'].forEach(function(id){var el=$(id); if(el)el.addEventListener('input',window.__bouSim);});
     window.__bouSim(); return;
   }
 }
+// ENTRÉE DE BOUSSOLE — aiguillage, pas une page de vente.
+// BOUSSOLE commence par écouter : tant que les 5 questions ne sont pas faites, on ne montre NI
+// les outils, NI le plan, NI les tarifs. L'offre n'arrive qu'après la question d'intention.
 function paywallView(){
-  var html='<div style="display:flex;flex-direction:column;gap:8px;"><div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> LA SUITE : BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Débloquez votre plan complet</div></div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+'<div class="card">'
-    +'<div class="sec"><div style="font-size:13px;color:#374151;line-height:1.6;">Votre note est <b>enregistrée</b> — c\'est votre point de départ.</div>'
-    +'<div style="display:flex;gap:8px;margin-top:12px;">'
-      +'<div onclick="boussoleChoisir(\'mensuel\')" style="flex:1;border:2px solid #e5e7eb;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Mensuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">2,99 €</div><div style="font-size:10px;color:#9ca3af;">/ mois</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
-      +'<div onclick="boussoleChoisir(\'annuel\')" style="flex:1;border:2px solid #E8541A;background:#fff7ed;border-radius:12px;padding:12px;text-align:center;cursor:pointer;"><div style="font-size:12px;font-weight:700;color:#1C1C1C;">Annuel</div><div style="font-size:19px;font-weight:800;color:#E8541A;">24,90 €</div><div style="font-size:10px;color:#9ca3af;">/ an · 2 mois offerts</div><div style="font-size:10px;color:#E8541A;font-weight:700;margin-top:6px;">Choisir <i class="ti ti-arrow-right"></i></div></div>'
-    +'</div>'
-    +'<div style="font-size:13px;color:#374151;line-height:1.6;margin-top:16px;">Avec l\'abonnement, vous débloquez :</div>'
-    +bouToolsHtml()
-    +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Votre note et votre diagnostic sont bien enregistrés — vous serez prévenu par email dès l\'activation, vous ne perdez rien.</div>'
-    +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button></div></div></div>';
-  $('dirigeant').innerHTML=html; showView('dirigeant'); window.scrollTo(0,0);
+  window.__bouRep=null;                       // relit le stockage (changement de compte possible)
+  var r=bouRep(), et=bouEtape();
+  if(et<6) return bouIntro();                 // questionnaire non terminé → on écoute d'abord
+  if(!r.intentionChangement) return bouChiffre();   // terminé mais intention non donnée → son chiffre
+  return bouOffre(r.intentionChangement);     // tout est là → l'offre, orientée selon sa réponse
 }
 // Choix d'une formule BOUSSOLE — confirmation SANS paiement (le règlement sera branché plus tard).
 function boussoleChoisir(plan){

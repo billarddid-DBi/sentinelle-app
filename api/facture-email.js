@@ -122,6 +122,32 @@ function sentinelleHtml(s) {
   // Pastille RONDE ne contenant QUE le chiffre (une seule ligne centrée → jamais coupé).
   // VML v:roundrect (arcsize 50% = cercle) pour Outlook ; border-radius pour les autres clients.
   const circle = (bg, val) => `<!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:76px;width:76px;v-text-anchor:middle;" arcsize="50%" stroke="f" fillcolor="${bg}"><v:textbox inset="0,0,0,0"><w:anchorlock/><center style="color:#ffffff;font-family:Arial,sans-serif;font-size:22px;font-weight:bold;line-height:22px;white-space:nowrap;">${val}</center></v:textbox></v:roundrect><![endif]--><!--[if !mso]><!--><table role="presentation" align="center" width="76" cellpadding="0" cellspacing="0" border="0" style="width:76px;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:50%;background:${bg};color:#ffffff;text-align:center;font-size:23px;font-weight:800;line-height:76px;white-space:nowrap;">${val}</td></tr></table><!--<![endif]-->`;
+  // Bloc « votre chiffre » (optionnel) — les 5 questions. AUCUN recalcul ici : on affiche ce que
+  // le client a envoyé, calculé une seule fois par iveGain() côté application.
+  let chiffreBlock = "";
+  if (s.heuresAn != null && s.eurosAn != null) {
+    const nf = (n) => Number(n || 0).toLocaleString("fr-FR").replace(/ | /g, " ");
+    const ligne = (l, v) => `<tr><td style="padding:3px 0;font-size:11.5px;color:#6b7280;">${l}</td><td align="right" style="padding:3px 0;font-size:11.5px;font-weight:700;color:#1C1C1C;">${esc(v)}</td></tr>`;
+    const ret = Array.isArray(s.q_retards) && s.q_retards.length ? s.q_retards.join(", ") : "—";
+    chiffreBlock = `<tr><td style="padding:4px 24px 8px;">
+      <div style="font-size:12px;font-weight:800;color:#E8541A;letter-spacing:.5px;">VOTRE CHIFFRE</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;border-radius:12px;overflow:hidden;">
+        <tr><td bgcolor="#1C1C1C" align="center" style="background:#1C1C1C;padding:20px 14px;">
+          <div style="font-size:27px;font-weight:800;color:#ffffff;line-height:1.15;">${nf(s.heuresAn)} heures</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px;">par an</div>
+          <div style="font-size:22px;font-weight:800;color:#E8A07E;margin-top:10px;">soit environ ${nf(s.eurosAn)} &euro;</div>
+        </td></tr>
+      </table>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+        ${ligne("Personnes", (s.q_personnes || "—") + "")}
+        ${ligne("Ce qui prend le plus de temps", s.q_poste || "—")}
+        ${ligne("Heures par semaine", (s.q_heuresSemaine != null ? s.q_heuresSemaine + " h" : "—"))}
+        ${ligne("Ce qui traîne", ret)}
+        ${ligne("Valeur d'une heure", (s.q_coutHoraire != null ? s.q_coutHoraire + " €" : "—"))}
+      </table>
+      <div style="font-size:11.5px;color:#7c2d12;background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:9px 11px;margin-top:10px;line-height:1.5;">Ce chiffre est le v&ocirc;tre &mdash; c'est vous qui nous l'avez donn&eacute;.</div>
+    </td></tr>`;
+  }
   // Bloc concurrence (optionnel)
   let concuBlock = "";
   if (s.prospect && Array.isArray(s.concurrents) && s.concurrents.length) {
@@ -207,6 +233,7 @@ function sentinelleHtml(s) {
     </tr></table>
   </td></tr>
 
+  ${chiffreBlock}
   ${concuBlock}
 
   <tr><td style="padding:8px 24px 6px;">
