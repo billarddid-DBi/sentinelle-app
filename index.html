@@ -2559,6 +2559,7 @@ function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dict
 var TACHE_PRIO=[['Normale','#9ca3af','#f1f5f9','ti-minus'],['Important','#d97706','#fef3c7','ti-alert-circle'],['Urgent','#dc2626','#fee2e2','ti-flame']];
 function tacheJour(d){ var x=new Date(d+'T00:00:00'); var t=new Date(); t.setHours(0,0,0,0); return Math.round((x-t)/864e5); }
 function tacheDateStr(n){ var d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function tacheFinMois(){ var d=new Date(); d=new Date(d.getFullYear(),d.getMonth()+1,0,12,0,0); return d.toISOString().slice(0,10); }
 // Échéance : libellé + couleur, avec le retard exprimé en jours.
 function tacheEcheance(t){
   if(!t.ech) return null;
@@ -2566,6 +2567,7 @@ function tacheEcheance(t){
   if(j<0)  return {txt:'en retard de '+Math.abs(j)+' j', c:'#dc2626', f:'#fee2e2', ic:'ti-alert-triangle', retard:true};
   if(j===0) return {txt:'pour aujourd\'hui', c:'#c2410c', f:'#fff7ed', ic:'ti-calendar-event'};
   if(j===1) return {txt:'pour demain', c:'#b45309', f:'#fffbeb', ic:'ti-calendar-event'};
+  if(t.ech===tacheFinMois()) return {txt:'fin du mois', c:'#6b7280', f:'#f1f5f9', ic:'ti-calendar-event'};
   return {txt:'dans '+j+' j', c:'#6b7280', f:'#f1f5f9', ic:'ti-calendar-event'};
 }
 // Tri : ce qui est en retard d'abord, puis l'urgence, puis l'échéance, puis l'ancienneté.
@@ -2586,7 +2588,13 @@ function tacheTri(l,mode){
 }
 function tacheMaj(id,fn){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id) fn(t); }); pmSave(o); dicteeView(); }
 function tachePrio(id,n){ tacheMaj(id,function(t){ t.prio=(t.prio===n)?0:n; }); }
-function tacheEch(id,code){ tacheMaj(id,function(t){ t.ech=(code==='aucune')?null:tacheDateStr(code==='jour'?0:code==='demain'?1:7); }); }
+// Ré-appuyer sur l'échéance active la retire (il n'y a plus de bouton « Sans »).
+function tacheEch(id,code){
+  tacheMaj(id,function(t){
+    var cible=(code==='jour')?tacheDateStr(0):(code==='demain')?tacheDateStr(1):(code==='semaine')?tacheDateStr(7):tacheFinMois();
+    t.ech=(t.ech===cible)?null:cible;
+  });
+}
 function tacheRappel(id,code){
   if(code!=='aucun' && typeof Notification!=='undefined' && Notification.permission==='default'){ try{ Notification.requestPermission(); }catch(e){} }
   tacheMaj(id,function(t){
@@ -2698,7 +2706,7 @@ function dicteeView(filtre){
       return '<button type="button" onclick="tachePrio(\''+t.id+'\','+n2+')" style="flex:1;border:1px solid '+(on?q[1]:'#e5e7eb')+';background:'+(on?q[2]:'#fff')+';color:'+(on?q[1]:'#9ca3af')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti '+q[3]+'"></i> '+q[0]+'</button>'; };
     // Quelle échéance / quel rappel est actif ? Le bouton correspondant se colore, comme la priorité.
     var jEch=t.ech?tacheJour(t.ech):null;
-    var echActif=(t.ech==null)?'aucune':(jEch===0?'jour':jEch===1?'demain':(jEch>1?'semaine':''));
+    var echActif=(t.ech==null)?'':(t.ech===tacheFinMois()?'mois':(jEch===0?'jour':jEch===1?'demain':(jEch>1?'semaine':'')));
     var rapActif=t.rappel?(t.rappelCode||''):'aucun';
     var bEch=function(code,lbl){ var on=(echActif===code);
       return '<button type="button" onclick="tacheEch(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid '+(on?'#c2410c':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#c2410c':'#4b5563')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:'+(on?'800':'600')+';cursor:pointer;font-family:inherit;">'+(on?'<i class="ti ti-check" style="font-size:11px;"></i> ':'')+lbl+'</button>'; };
@@ -2728,8 +2736,8 @@ function dicteeView(filtre){
       +(ouvert?'<div style="border-top:1px solid #eef0f3;margin-top:11px;padding-top:11px;">'
         +'<div style="font-size:10px;font-weight:800;color:#9ca3af;letter-spacing:.3px;">PRIORITÉ</div>'
         +'<div style="display:flex;gap:6px;margin-top:6px;">'+bPrio(0)+bPrio(1)+bPrio(2)+'</div>'
-        +'<div style="font-size:10px;font-weight:800;color:#9ca3af;letter-spacing:.3px;margin-top:12px;">POUR QUAND ?</div>'
-        +'<div style="display:flex;gap:6px;margin-top:6px;">'+bEch('jour','Aujourd\'hui')+bEch('demain','Demain')+bEch('semaine','Dans 7 j')+bEch('aucune','Sans')+'</div>'
+        +'<div style="font-size:10px;font-weight:800;color:#9ca3af;letter-spacing:.3px;margin-top:12px;">POUR QUAND ? <span style="font-weight:600;text-transform:none;letter-spacing:0;color:#c7ccd3;">— appuyez à nouveau pour retirer</span></div>'
+        +'<div style="display:flex;gap:6px;margin-top:6px;">'+bEch('jour','Aujourd\'hui')+bEch('demain','Demain')+bEch('semaine','Dans 7 j')+bEch('mois','Fin du mois')+'</div>'
         +'<div style="font-size:10px;font-weight:800;color:#9ca3af;letter-spacing:.3px;margin-top:12px;">ME LE RAPPELER</div>'
         +'<div style="display:flex;gap:6px;margin-top:6px;">'+bRap('1h','Dans 1 h')+bRap('soir','Ce soir 18 h')+bRap('demain','Demain 9 h')+bRap('aucun','Aucun')+'</div>'
         +'<button type="button" onclick="dicteeArchiver(\''+t.id+'\')" style="width:100%;border:1px solid #fecaca;background:#fff;color:#dc2626;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:14px;"><i class="ti ti-trash"></i> Retirer de la liste</button>'
