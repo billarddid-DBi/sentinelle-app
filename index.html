@@ -1158,7 +1158,11 @@ function synthHtml(d){
       +'<div style="display:inline-block;margin-top:7px;font-size:9.5px;font-weight:700;color:'+bC+';background:'+bC+'18;padding:2px 8px;border-radius:8px;">'+bTxt+'</div></div>';
   }
   var repStars=''; if(ng!=null){ var rn=Math.max(1,Math.min(5,Math.round(ng))); repStars='<div style="font-size:11px;letter-spacing:1px;margin-top:1px;">'; for(var i=1;i<=5;i++){ repStars+='<span style="color:'+(i<=rn?'#f0a500':'#d1d5db')+';">★</span>'; } repStars+='</div>'; }
-  var head='<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.15;">Voilà ce que<br><span style="color:'+hex+';">les autres voient.</span></div>';
+  // Titre + bouton PDF sur la MÊME ligne, le bouton aligné à droite.
+  var head='<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">'
+    +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.15;min-width:0;">Voilà ce que<br><span style="color:'+hex+';">les autres voient.</span></div>'
+    +'<button type="button" onclick="sentImprimer()" title="Télécharger le rapport en PDF" style="flex:0 0 auto;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-type-pdf" style="color:#dc2626;font-size:15px;vertical-align:-2px;"></i> PDF</button>'
+    +'</div>';
   var pubNote='<div style="font-size:12.5px;color:#4b5563;line-height:1.5;margin-top:16px;">SENTINELLE a analysé plus de 30 sources publiques pour révéler votre image en ligne.</div>'
     +'<div style="display:inline-flex;align-items:center;gap:7px;background:#f6f8fb;border:1px solid #eef0f3;border-radius:9px;padding:7px 11px;margin-top:10px;"><i class="ti ti-shield-check" style="color:#2563EB;font-size:16px;"></i><span style="font-size:11px;color:#4b5563;">100% données publiques — aucune donnée confidentielle utilisée.</span></div>';
   var circle='<div style="text-align:center;"><div style="width:150px;height:150px;border-radius:50%;margin:0 auto;background:'+hex+';box-shadow:0 8px 22px '+hex+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">'
@@ -2267,7 +2271,18 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
 // ici c'est purement UI : afficher le bouton « Nouvelle analyse » et la vue consultant complète.
 function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email||'').toLowerCase()==='billard.did@gmail.com'); }
 // Abonné à la BOUSSOLE ? admin, ou prix>0, ou choix simulé (tant que le vrai paiement n'est pas branché).
-function boussoleActif(){ return !!window.__boussoleActive || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
+// Formule choisie : mémorisée par compte, pour qu'elle survive au rechargement (paiement simulé).
+function ivePlanCle(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_plan_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function ivePlanGet(){ if(window.__boussolePlan) return window.__boussolePlan; try{ return localStorage.getItem(ivePlanCle())||''; }catch(e){ return ''; } }
+function ivePlanSet(p){ window.__boussolePlan=p; try{ localStorage.setItem(ivePlanCle(),p); }catch(e){} }
+function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='annuel')?'24,90 €/an':'2,99 €/mois'; }
+// Pastille verte « abonnement actif » pour les bandeaux noirs — le dirigeant voit qu'il est bien pris en compte.
+function iveAbonnementChip(){
+  if(!boussoleActif()) return '';
+  var t=iveAbonnementTxt();
+  return '<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
+}
+function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
 // Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
 // ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
 // la fiche par la clé mémorisée sur le compte (sentNom/sentVille), sinon on retombe sur le nom saisi.
@@ -2314,7 +2329,7 @@ function dirigeantSpace(){
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
   var _verrou=!iveAbonne();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;flex:0 0 auto;">'+iveAbonnementChip()+'<div style="margin-top:5px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div><div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     +'<div style="display:flex;gap:10px;margin-top:12px;">'
       +demi('ti-microphone','Enregistrer','Dictez une consigne','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
@@ -2425,7 +2440,7 @@ function sentComplet(){
     window.lastSite=f.site||'';
     var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
       +'<div style="text-align:right;flex:0 0 auto;">'
-        +'<button type="button" onclick="sentImprimer()" title="Télécharger le rapport en PDF" style="border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:9px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-type-pdf"></i> PDF</button>'
+        +iveAbonnementChip()
         +'<div style="font-size:10.5px;color:#9ca3af;white-space:nowrap;margin-top:6px;"><i class="ti ti-calendar"></i> '+window.__sentDern.toLocaleDateString('fr-FR')+'</div>'
       +'</div></div></div>';
     $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>'
@@ -3675,6 +3690,7 @@ function bouPastille(coul,icone,libelle,action){
 // Choix d'une formule BOUSSOLE — confirmation SANS paiement (le règlement sera branché plus tard).
 function boussoleChoisir(plan){
   window.__boussoleActive=true; // abonnement SIMULÉ (aucun paiement branché) → débloque la BOUSSOLE
+  ivePlanSet(plan);             // mémorisé pour l'afficher dans les bandeaux et survivre au rechargement
   var lbl=(plan==='annuel')?'Annuelle — 24,90 € / an':'Mensuelle — 2,99 € / mois';
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre choix est bien noté</div></div></div>'
