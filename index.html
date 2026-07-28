@@ -2360,9 +2360,33 @@ function dicteeCategorie(txt){
   if(/cherch|retrouv|document|classe|ranger|info|renseign/.test(a)) return 'recherche_informations';
   return 'autre';
 }
-// Nettoyage d'une dictée : hésitations, amorces, liaison orpheline. Le sens reste intact.
+// Anti-bégaiement : la reconnaissance vocale redélivre parfois les mêmes mots, ce qui donne
+// « rappeler rappeler le client client Dupont ». On supprime les répétitions COLLÉES : d'abord les
+// mots identiques qui se suivent, puis les groupes de 2 à 5 mots répétés d'affilée.
+function dicteeDedupe(s){
+  var mots=(s||'').split(/\s+/).filter(Boolean);
+  var cle=function(w){ return (w||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,''); };
+  var out=[];
+  for(var i=0;i<mots.length;i++){
+    var k=cle(mots[i]);
+    if(out.length && k && cle(out[out.length-1])===k) continue;   // « le le » → « le »
+    out.push(mots[i]);
+  }
+  var change=true, garde=0;
+  while(change && garde++<25){
+    change=false;
+    for(var n=5;n>=2 && !change;n--){
+      for(var j=0;j+2*n<=out.length;j++){
+        var a=out.slice(j,j+n).map(cle).join(' '), b=out.slice(j+n,j+2*n).map(cle).join(' ');
+        if(a && a===b){ out.splice(j+n,n); change=true; break; }   // « le devis le devis » → « le devis »
+      }
+    }
+  }
+  return out.join(' ');
+}
+// Nettoyage d'une dictée : bégaiements, hésitations, amorces, liaison orpheline. Le sens reste intact.
 function dicteeNettoyer(s){
-  s=(s||'').trim();
+  s=dicteeDedupe((s||'').trim());
   for(var i=0;i<4;i++) s=s.replace(/^\s*(et|alors|donc|euh|heu|voil[aà]|bon|ben|puis)\b[\s,]*/i,'');
   s=s.replace(/^\s*(il\s+)?faut\s+que\s+je\s+/i,'').replace(/^\s*je\s+(dois|vais|voudrais|devrais)\s+/i,'');
   s=s.replace(/[\s,]*\b(et|puis|ensuite|aussi|donc)\s*$/i,'').trim();
@@ -2478,7 +2502,17 @@ function dicteeBrancherMicro(){
     dit=''; rec=new SR(); window.__dictee=rec; window.__dicteeOn=true;
     rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=true; rec.maxAlternatives=1;
     rec.onstart=function(){ btn.style.background='#dc2626'; btn.innerHTML='<i class="ti ti-player-stop"></i>'; if(etat) etat.innerHTML='<b style="color:#dc2626;">Je vous écoute…</b> appuyez pour terminer'; if(txt) txt.textContent=''; };
-    rec.onresult=function(e){ var interim=''; for(var i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) dit+=e.results[i][0].transcript+' '; else interim+=e.results[i][0].transcript; } if(txt) txt.textContent=(dit+interim).trim(); };
+    // On RECONSTRUIT le texte à partir de tous les résultats au lieu de cumuler : le navigateur
+    // redélivre parfois les mêmes segments, et cumuler produisait des mots en double.
+    rec.onresult=function(e){
+      var fin='', interim='';
+      for(var i=0;i<e.results.length;i++){
+        if(e.results[i].isFinal) fin+=e.results[i][0].transcript+' ';
+        else interim+=e.results[i][0].transcript+' ';
+      }
+      dit=fin.trim();
+      if(txt) txt.textContent=dicteeDedupe((fin+interim).trim());
+    };
     rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone dans votre navigateur.':'Je n\'ai pas réussi à écouter. Réessayez.'; };
     rec.onend=function(){
       window.__dicteeOn=false; btn.style.background='#E8541A'; btn.innerHTML='<i class="ti ti-microphone"></i>';
