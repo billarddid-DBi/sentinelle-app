@@ -2,6 +2,14 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<!-- Nettoyage de cache : supprime tout service worker et tout cache applicatif hérités,
+     qui pouvaient figer l'application sur une ancienne version. -->
+<script>(function(){try{
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations){
+    navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ try{r.unregister();}catch(e){} }); }).catch(function(){});
+  }
+  if(window.caches&&caches.keys){ caches.keys().then(function(ks){ ks.forEach(function(k){ try{caches.delete(k);}catch(e){} }); }).catch(function(){}); }
+}catch(e){}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1C1C1C">
 <title>LIVE — SENTINELLE</title>
@@ -1245,7 +1253,7 @@ function synthHtml(d){
     +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 7';
+var IVE_VERSION='28/07 · 8';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2438,7 +2446,7 @@ function sentApercu(){
       +'<div class="card"><div class="sec">'+inner+'</div></div>';
   };
   var attente=function(msg){ $('dirigeant').innerHTML=cadre('<div style="text-align:center;padding:20px 6px;color:#6b7280;font-size:13px;"><span class="spin"></span><div style="margin-top:10px;">'+msg+'</div></div>'); showView('dirigeant'); window.scrollTo(0,0); };
-  attente('Nous cherchons votre entreprise…');
+  attente('Nous cherchons votre entreprise…<div style="font-size:10px;color:#c7ccd3;margin-top:10px;">version '+IVE_VERSION+'</div>');
 
   var afficher=function(f){
     var v=synthVals(f);                                   // SOURCE UNIQUE (cf. CLAUDE.md §7)
