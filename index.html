@@ -698,21 +698,34 @@ function bFinish(){
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
   var _pastille=function(note,coul,etiquette,sousTitre,etoiles){
-    return '<div style="width:118px;flex:0 0 auto;text-align:center;">'
-      +'<div style="width:92px;height:92px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 50% 42%,'+coul+' 0%,'+coul+' 52%,#1a1a2e 130%);box-shadow:0 0 18px 3px '+coul+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.15);">'
-      +'<div style="font-size:22px;font-weight:700;color:#fff;line-height:1;">'+note+'<span style="font-size:9px;opacity:.8;">/100</span></div>'
-      +'<div style="font-size:12px;color:#fff;height:14px;line-height:14px;">'+(etoiles||'')+'</div></div>'
-      +'<div style="font-size:9.5px;color:#EEA987;letter-spacing:1px;font-weight:600;margin-top:8px;">'+etiquette+'</div>'
-      +'<div style="font-size:10px;color:#9ca3af;margin-top:2px;">'+sousTitre+'</div></div>';
+    return '<div style="width:clamp(120px,30vw,148px);flex:0 0 auto;text-align:center;">'
+      +'<div style="width:clamp(104px,26vw,128px);height:clamp(104px,26vw,128px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+      +'<div style="font-size:clamp(26px,7vw,32px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;">'+note+'<span style="font-size:13px;font-weight:600;opacity:.85;">/100</span></div>'
+      +'<div style="font-size:13px;color:#fff;height:17px;line-height:17px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
+      +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
+      +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">'+sousTitre+'</div></div>';
   };
-  var auraBand='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;">'
-   +'<div style="text-align:center;font-size:10px;letter-spacing:2px;color:#EEA987;font-weight:600;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'
-   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:18px;margin-top:12px;">'
-   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat <b>'+ec+'</b>',starsHTML(r.idx))
+  var _trait='<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.45));"></div>';
+  var _traitD='<div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(232,149,79,.45),rgba(232,149,79,0));"></div>';
+  // Colonne de gauche : la note justifiée. Colonne de droite : les deux auras alignées.
+  var blocNote='<div style="flex:0 1 300px;min-width:220px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:20px 18px;text-align:center;">'
+   +'<div style="font-size:clamp(40px,11vw,54px);font-weight:800;color:#fff;line-height:1;letter-spacing:-1.5px;">'+r.idx+'<span style="font-size:22px;font-weight:500;color:#9ca3af;letter-spacing:0;">/100</span></div>'
+   +'<div style="font-size:22px;color:#f59e0b;margin-top:10px;letter-spacing:3px;">'+starsHTML(r.idx)+'</div>'
+   +'<div style="font-size:12px;color:#9ca3af;line-height:1.5;margin-top:12px;">Chaque point se justifie par une note /5 traçable. · <span style="color:#8fa6d8;">'+date+'</span></div></div>';
+  var blocAuras='<div style="flex:1 1 340px;min-width:280px;">'
+   +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
+   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'+_traitD+'</div>'
+   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(14px,5vw,44px);margin-top:16px;">'
+   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
    +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
-   +'</div>'
-   +'<div style="max-width:420px;margin:14px auto 0;text-align:center;"><div style="font-size:14px;font-weight:700;color:#F2C6B2;">IVE '+aura+' — '+ad.s+'</div><div style="font-size:12px;color:#cbd5e1;line-height:1.5;margin-top:3px;">'+ad.d+'</div></div>'
-   +'</div>';
+   +'</div></div>';
+  var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
+   +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
+   +'<div style="width:min(240px,60%);height:1px;margin:12px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
+   +'<div style="font-size:13.5px;color:#cbd5e1;line-height:1.55;">'+ad.d+'</div></div>';
+  var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
+   +'<div style="display:flex;align-items:center;gap:clamp(16px,4vw,32px);flex-wrap:wrap;justify-content:center;">'+blocNote+blocAuras+'</div>'
+   +blocSens+'</div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
   var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
@@ -763,10 +776,9 @@ function bFinish(){
   var sh=r.faibles.slice(0,14),ex=r.faibles.length-sh.length;
   var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   var card='<div class="card">'
-   +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:12px;color:#c7b3ff;"><i class="ti ti-compass"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
-   +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(nom)+'</div>'
-   +'<div style="font-size:36px;font-weight:700;margin-top:4px;">'+r.idx+'<span style="font-size:15px;font-weight:400;opacity:.75;">/100</span> <span style="font-size:18px;color:#f59e0b;">'+starsHTML(r.idx)+'</span></div>'
-   +'<div style="font-size:11px;color:#9d8fd0;">Chaque point se justifie par une note /5 traçable. · '+date+'</div></div>'
+   /* En-tête épuré : la note, les étoiles et la date sont désormais dans l'encadré de gauche. */
+   +'<div style="background:#0d0d0f;color:#fff;padding:18px 18px 4px;"><div style="font-size:12.5px;color:#9ca3af;"><i class="ti ti-compass" style="color:#E8954F;"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
+   +'<div style="font-size:clamp(21px,5.5vw,26px);font-weight:700;margin-top:6px;letter-spacing:-.3px;">'+esc(nom)+'</div></div>'
    +auraBand
    +trajSec
    /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
@@ -1250,7 +1262,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 14';
+var IVE_VERSION='28/07 · 15';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
