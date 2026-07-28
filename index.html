@@ -1052,7 +1052,7 @@ function iveNav(s){
   if(!acc){ renderAuth('login'); return; }                 // compte obligatoire, sans exception
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
-  else if(s==='sentinelle'){ if(iveAbonne()) sentComplet(); else sentApercu(); }
+  else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
   else if(s==='boussole'||s==='plan'){ if(iveAbonne()) boussoleView(); else offreView(); }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
@@ -1177,6 +1177,30 @@ function noteBoxHtml(d, cliquable){
     +(cliquable?'<div style="margin-top:11px;font-size:10px;color:'+hex+';font-weight:800;letter-spacing:.2px;">Réputation, forces &amp; opportunités <i class="ti ti-arrow-right"></i></div>':'')
     +'</div>';
 }
+// Les 5 tuiles « Vue d'ensemble » — SOURCE UNIQUE (page SENTINELLE + rapport complet).
+function iveTuilesHtml(d){
+  d=d||{};
+  var v=synthVals(d), ng=v.ng, nbA=v.nbA;
+  var band=function(n){ return n>=75?{l:'Solide',c:'#16a34a'}:n>=60?{l:'Bon niveau',c:'#2563EB'}:n>=45?{l:'À renforcer',c:'#d97706'}:{l:'Fragile',c:'#dc2626'}; };
+  var estTag='<span style="font-size:8px;color:#9ca3af;font-weight:600;" title="Estimé à partir de données publiques">*</span>';
+  var repStars=''; if(ng!=null){ var rn=Math.max(1,Math.min(5,Math.round(ng))); repStars='<div style="font-size:11px;letter-spacing:1px;margin-top:1px;">'; for(var i=1;i<=5;i++){ repStars+='<span style="color:'+(i<=rn?'#f0a500':'#d1d5db')+';">★</span>'; } repStars+='</div>'; }
+  var tile=function(icon,icC,icBg,title,big,unit,sub,bTxt,bC,isEst,starsRow){
+    return '<div style="flex:1;min-width:108px;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:13px 10px;text-align:center;">'
+      +'<div style="width:34px;height:34px;border-radius:50%;background:'+icBg+';display:inline-flex;align-items:center;justify-content:center;"><i class="ti '+icon+'" style="font-size:17px;color:'+icC+';"></i></div>'
+      +'<div style="font-size:8.5px;font-weight:800;color:'+icC+';letter-spacing:.3px;margin-top:6px;">'+title+'</div>'
+      +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;margin-top:2px;line-height:1;">'+big+'<span style="font-size:11px;color:#6b7280;font-weight:400;">'+unit+'</span>'+(isEst?estTag:'')+'</div>'
+      +(starsRow||'')
+      +'<div style="font-size:10px;color:#6b7280;line-height:1.25;margin-top:4px;">'+sub+'</div>'
+      +'<div style="display:inline-block;margin-top:7px;font-size:9.5px;font-weight:700;color:'+bC+';background:'+bC+'18;padding:2px 8px;border-radius:8px;">'+bTxt+'</div></div>';
+  };
+  return '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    +tile('ti-star','#2563EB','#eff5ff','RÉPUTATION EN LIGNE',(ng!=null?String(ng).replace('.',','):'n.c.'),(ng!=null?'/5':''),(nbA!=null?nbA+' avis Google':'à construire'),(ng!=null&&ng>=4?'Au-dessus de la moyenne':'À développer'),'#2563EB',false,repStars)
+    +tile('ti-eye','#16a34a','#effaf3','VISIBILITÉ',v.visib,'/100','Présence sur le web',band(v.visib).l,band(v.visib).c,true,'')
+    +tile('ti-heart','#E8541A','#fff4ee','SENTIMENT GLOBAL',v.senti,'%','de retours positifs',(v.senti>=70?'Perception positive':'Perception mitigée'),(v.senti>=70?'#16a34a':'#d97706'),true,'')
+    +tile('ti-building-store','#6366f1','#eef0ff','POSITIONNEMENT',v.posi,'/100','Clarté & différenciation',band(v.posi).l,band(v.posi).c,true,'')
+    +tile('ti-shield-check','#0ea5e9','#e0f2fe','CONFIANCE',v.conf,'/100','Confiance perçue en ligne',band(v.conf).l,band(v.conf).c,true,'')
+    +'</div>';
+}
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 function synthHtml(d){
   d=d||{};
@@ -1209,13 +1233,7 @@ function synthHtml(d){
   var mc=function(bg,lab,v,sub){return '<div style="text-align:center;flex:0 0 auto;"><div style="width:92px;height:92px;border-radius:50%;margin:0 auto;background:'+bg+';display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;box-shadow:0 6px 18px '+bg+'66;"><span style="font-size:9.5px;font-weight:700;letter-spacing:.5px;opacity:.9;">'+lab+'</span><span style="font-size:32px;font-weight:800;line-height:1;">'+v+'</span></div><div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.15;font-weight:600;">'+sub+'</div></div>';};
   var potBox='<div onclick="if(window.__potentielSlideIdx!=null)sentSlide(window.__potentielSlideIdx);" style="background:#eef5ff;border:1px solid #dbe7fb;border-radius:12px;padding:16px 12px;height:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;"><span style="position:absolute;top:9px;right:9px;width:22px;height:22px;border-radius:50%;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(37,99,235,.4);"><i class="ti ti-arrow-up-right" style="font-size:13px;"></i></span><div style="font-size:13px;font-weight:800;color:#2563EB;letter-spacing:.4px;text-align:center;"><i class="ti ti-trending-up"></i> VOTRE POTENTIEL</div><div style="display:flex;align-items:center;gap:16px;margin-top:14px;">'+mc(hex,'MON IVE',est,'IVE '+esc(coul))+'<div style="font-size:9.5px;color:#9ca3af;text-align:center;flex:0 0 auto;font-weight:600;"><i class="ti ti-arrow-right" style="font-size:24px;color:#E8541A;"></i><br>objectif</div>'+mc('#E8541A','POTENTIEL',pot,'à viser')+'</div><div style="margin-top:16px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-size:14px;font-weight:800;padding:6px 20px;border-radius:20px;white-space:nowrap;">+'+gain+' points possibles</div><div style="margin-top:9px;font-size:10.5px;color:#2563EB;font-weight:700;">Opportunités &amp; comment monter <i class="ti ti-arrow-right"></i></div></div>';
   var scanBox='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:13px 15px;display:flex;align-items:center;gap:11px;"><i class="ti ti-calendar-event" style="font-size:20px;color:#6b7280;"></i><div><div style="font-size:12.5px;font-weight:700;color:#1C1C1C;">Prochain scan recommandé</div><div style="font-size:11.5px;color:#6b7280;">dans 7 jours</div></div></div>';
-  var tiles='<div style="display:flex;flex-wrap:wrap;gap:8px;">'
-    +tile('ti-star','#2563EB','#eff5ff','RÉPUTATION EN LIGNE',(ng!=null?String(ng).replace('.',','):'n.c.'),(ng!=null?'/5':''),(nbA!=null?nbA+' avis Google':'à construire'),(ng!=null&&ng>=4?'Au-dessus de la moyenne':'À développer'),'#2563EB',false,repStars)
-    +tile('ti-eye','#16a34a','#effaf3','VISIBILITÉ',visib,'/100','Présence sur le web',band(visib).l,band(visib).c,true,'')
-    +tile('ti-heart','#E8541A','#fff4ee','SENTIMENT GLOBAL',senti,'%','de retours positifs',(senti>=70?'Perception positive':'Perception mitigée'),(senti>=70?'#16a34a':'#d97706'),true,'')
-    +tile('ti-building-store','#6366f1','#eef0ff','POSITIONNEMENT',posi,'/100','Clarté & différenciation',band(posi).l,band(posi).c,true,'')
-    +tile('ti-shield-check','#0ea5e9','#e0f2fe','CONFIANCE',conf,'/100','Confiance perçue en ligne',band(conf).l,band(conf).c,true,'')
-    +'</div>';
+  var tiles=iveTuilesHtml(d);   // source unique, partagee avec la page SENTINELLE
   var vals=d.valeurs?String(d.valeurs).split(/[,;]/).map(function(x){return x.replace(/\(.*$/,'').trim();}).filter(Boolean):[];
   vals=vals.slice(0,3).map(function(x){return x?x.charAt(0).toUpperCase()+x.slice(1):x;});
   if(ng!=null&&ng>=4) vals.push('Bonne réputation auprès de vos clients');
@@ -2422,9 +2440,14 @@ function sentApercu(){
       +'</div>'
       +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
       +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
+      +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:20px 0 8px;"><i class="ti ti-layout-grid" style="color:#2563EB;"></i> VUE D\'ENSEMBLE</div>'
+      +(typeof iveTuilesHtml==='function'?iveTuilesHtml(f):'')
       +'<div style="margin-top:18px;">'+noteBoxHtml(f,false)+'</div>'
       +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
-      +(typeof iveBlocOffre==='function'?iveBlocOffre():'')
+      // Abonné : accès au rapport détaillé. Sinon : l'offre.
+      +(iveAbonne()
+        ?'<button type="button" onclick="sentComplet()" style="width:100%;border:none;background:#2563EB;color:#fff;border-radius:13px;padding:15px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:18px;"><i class="ti ti-file-analytics"></i> Voir le rapport détaillé <i class="ti ti-arrow-right"></i></button>'
+        :(typeof iveBlocOffre==='function'?iveBlocOffre():''))
       +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
     showView('dirigeant'); window.scrollTo(0,0);
   };
