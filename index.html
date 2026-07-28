@@ -1245,7 +1245,7 @@ function synthHtml(d){
     +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 5';
+var IVE_VERSION='28/07 · 6';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2474,6 +2474,7 @@ function sentApercu(){
       +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;margin-top:12px;">Découvrez votre couleur</div>'
       +'<div style="font-size:13px;color:#4b5563;line-height:1.6;margin-top:8px;">Nous analysons ce qui est public sur votre entreprise et nous vous donnons votre couleur et votre objectif. Comptez moins d\'une minute.</div>'
       +'<button class="btn btn-primary" style="margin-top:16px;" onclick="window.__versApercu=true;lancerMaSentinelle();"><i class="ti ti-player-play"></i> Lancer mon analyse</button>'
+      +'<div style="font-size:11px;color:#c7ccd3;margin-top:14px;">Aucune analyse trouvée pour « '+esc(((typeof sentKey==='function'?sentKey(acc):null)||{}).texte||acc.name||'—')+' » · version '+IVE_VERSION+'</div>'
       +'</div>'
       +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
     showView('dirigeant'); window.scrollTo(0,0);
