@@ -2373,8 +2373,8 @@ function dirigeantSpace(){
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'+iveBandDroite(true)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     +'<div style="display:flex;gap:10px;margin-top:12px;">'
-      +demi('ti-microphone','Enregistrer','Dictez une consigne','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
-      +demi('ti-list-check','Mes tâches','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''),_verrou)
+      +demi('ti-microphone','Enregistrer une tâche','Dictez-la ou écrivez-la','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
+      +demi('ti-list-check','Consulter les tâches en cours','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''),_verrou)
     +'</div>'
     +'<div style="margin-top:12px;">'
       +porte('ti-eye','Voir votre entreprise de l\'extérieur','Découvrez ce que votre présence en ligne raconte de vous.','sentApercu()','linear-gradient(135deg,#2563EB,#1d4ed8)','#2563EB')
