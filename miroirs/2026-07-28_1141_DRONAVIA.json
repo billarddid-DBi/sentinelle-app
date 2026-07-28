@@ -1,0 +1,197 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Dronavia",
+  "date": "2026-07-28T11:41:48.692Z",
+  "contexte": {
+    "nom": "Dronavia",
+    "activite": "Conception, fabrication et vente d'accessoires de sécurité pour drones civils (parachutes, systèmes de coupure, balises), drones industriels, solutions d'ingénierie aéronautique",
+    "archetype": "PME B2B / sous-traitant technique (ingénierie/industrie, grands comptes)",
+    "indiceInterieur": 78,
+    "indiceExterieur": 68,
+    "potentiel": 100,
+    "ecart": 10,
+    "zoneVerite": "Élan",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 76,
+      "Processus": 76,
+      "Informations": 72,
+      "Outils": 80,
+      "Décisions": 80,
+      "Clients": 92,
+      "Performance": 76
+    },
+    "faibles": [],
+    "criteres": [
+      {
+        "c": "Le dirigeant sait où il veut emmener l'entreprise à 3 ans",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "L'entreprise surveille les évolutions de son marché",
+        "n": 3,
+        "p": "Vision"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 3,
+        "p": "Organisation"
+      },
+      {
+        "c": "La qualité des livrables est constante",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "Les outils et les process sont bien articulés",
+        "n": 3,
+        "p": "Processus"
+      },
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 3,
+        "p": "Informations"
+      },
+      {
+        "c": "Les outils et équipements du quotidien sont performants",
+        "n": 3,
+        "p": "Outils"
+      },
+      {
+        "c": "Des tableaux de bord existent et sont utilisés",
+        "n": 3,
+        "p": "Décisions"
+      },
+      {
+        "c": "La productivité est mesurée",
+        "n": 3,
+        "p": "Performance"
+      },
+      {
+        "c": "La croissance est maîtrisée et soutenable",
+        "n": 3,
+        "p": "Performance"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": {
+      "nom": "Dronavia",
+      "mode": "express",
+      "iat": 80,
+      "imh": 83,
+      "band": "Appui",
+      "zone": "Appui",
+      "reco": "L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis.",
+      "indices": {
+        "Leadership": 80,
+        "Communication": 80,
+        "Écoute": 87,
+        "Transparence": 80,
+        "Confiance": 80,
+        "Coopération": 90,
+        "Adhésion": 80,
+        "Ouverture au changement": 80
+      },
+      "domaines": {
+        "Leadership": 80,
+        "Communication": 80,
+        "Confiance": 90,
+        "Coopération": 90,
+        "Climat social": 80,
+        "Maturité du changement": 80
+      },
+      "peurs": [],
+      "resistance": 20
+    }
+  },
+  "miroir": {
+    "priorite": "Clarifier la vision stratégique 3 ans et traduire l'avance technique en différenciation marché visible.",
+    "economie_an": 145000,
+    "cadre": {
+      "externe": "Dronavia possède une réalité solide (78/100) : équipe fiable, processus maîtrisés, clients satisfaits. Mais l'image externe (68/100) sous-estime cet élan. Le vrai levier : transformer cette cohésion interne en stratégie claire et en avantage concurrentiel explicite.",
+      "interne": "PME B2B technique en zone Appui (IAT 80, IMH 83) : organisation humaine saine, faible résistance. Frein principal = flou stratégique (Vision 68, différenciation 3/5, marché 3/5) qui bride la croissance maîtrisée (3/5) et la productivité mesurée (3/5). Opportunité : capitaliser sur la confiance/coopération pour accélérer sans rupture."
+    },
+    "verite": {
+      "externe": "Vous avez construit une PME fiable et compétente. Mais l'écart entre votre réalité (78) et votre image (68) signale que vos clients et le marché ne voient pas clairement ce qui vous rend unique. Sans vision 3 ans affichée et sans tableaux de bord partagés, la croissance reste réactive, pas proactive. C'est du potentiel en attente de clarté.",
+      "interne": "Dronavia bénéficie d'une équipe engagée (coopération 90, écoute 87, confiance 80) et d'une gouvernance transparente. Le blocage n'est pas humain : c'est organisationnel. Vision floue (68/100), différenciation non formalisée (3/5), surveillance marché insuffisante (3/5), tableaux de bord absents (3/5). Ces freins empêchent la mesure de productivité (3/5) et la croissance maîtrisée (3/5). L'IA seule ne règle pas cela : d'abord le cap, puis les outils."
+    },
+    "humain": {
+      "posologie": "Zone Appui (IAT 80) : équipe prête. Accélérer sans rupture. Impliquer les relais (direction technique, commercial) dans co-construction stratégie + tableaux de bord. Rythme : cadence mensuelle, victoires rapides visibles.",
+      "peurs": []
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Vision 3 ans floue (3/5), différenciation non formalisée (3/5), marché non surveillé (3/5).",
+        "levier": "Formaliser la vision 3 ans et la proposition de valeur unique (ateliers dirigeant + équipe leadership).",
+        "type": "humain",
+        "mise_en_oeuvre": "2 ateliers (4h chacun) : cap stratégique + différenciation. Livrable : 1 page vision, 3 piliers de différenciation, feuille de route 3 ans.",
+        "indicateur": "Vision validée, communiquée à 100% équipe, déclinée en OKR trimestriels."
+      },
+      {
+        "palier": 1,
+        "frein": "Tableaux de bord inexistants (3/5), productivité non mesurée (3/5), croissance non maîtrisée (3/5).",
+        "levier": "Déployer 3 tableaux de bord opérationnels (commercial, production, qualité) avec indicateurs clés.",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit rapide des données existantes (CRM, ERP, feuilles de calcul). Design 3 dashboards simples. Formation équipe. Mise à jour hebdomadaire/mensuelle.",
+        "indicateur": "Tableaux de bord actifs, consultés 2× par semaine, décisions tracées."
+      },
+      {
+        "palier": 2,
+        "frein": "Qualité livrables inconstante (3/5), articulation outils/process imparfaite (3/5), raison des victoires commerciales floue (3/5).",
+        "levier": "Automatiser la capitalisation des dossiers gagnés et des écarts qualité via IA (analyse documents, alertes anomalies).",
+        "type": "IA",
+        "mise_en_oeuvre": "Outil IA légère : analyse des devis/contrats gagnés (pattern extraction), alertes qualité sur écarts process. Intégration CRM/ERP. Pilote 3 mois sur 10 dossiers.",
+        "indicateur": "Taux de dossiers analysés >80%, écarts qualité détectés <1 semaine, raison victoire documentée."
+      },
+      {
+        "palier": 2,
+        "frein": "Recrutement non anticipé (3/5), croissance réactive, information entre personnes imparfaite (3/5).",
+        "levier": "Mettre en place une veille RH anticipée et un système de partage d'information (intranet léger ou outil collaboratif).",
+        "type": "externe",
+        "mise_en_oeuvre": "Planification RH 12 mois (besoins par fonction). Outil collaboratif simple (Slack/Teams/wiki interne). Formation usage. Synchrone hebdomadaire.",
+        "indicateur": "Besoins RH identifiés 3 mois avant, taux d'utilisation outil >70%, circulation info mesurée."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Tableaux de bord + analyse dossiers gagnés (IA légère)",
+          "inaction_an": 95000,
+          "invest_1x": 8000,
+          "recurrent_an": 3000
+        },
+        {
+          "poste": "Veille RH anticipée + outil collaboratif",
+          "inaction_an": 50000,
+          "invest_1x": 2000,
+          "recurrent_an": 2000
+        }
+      ],
+      "inaction_an": 145000,
+      "invest_total": 10000,
+      "recurrent_an": 5000,
+      "gain_an": 140000,
+      "roi_net_an": 140000,
+      "payback_mois": 1,
+      "fourchette": "Retour immédiat (mois 1) ; ROI net annuel 1400% sur investissement initial."
+    },
+    "cadence": "Point stratégie mensuel (30 min). Tableau de bord hebdomadaire. Réévaluation BOUSSOLE dans 3 mois (post-vision + dashboards actifs). Audit IA légère à J+45.",
+    "synthese": {
+      "externe": "Votre prochaine étape : clarifier où vous allez en 3 ans et ce qui vous rend unique. Puis mesurer ce qui compte (productivité, qualité, raison des victoires). Avec votre équipe engagée, vous pouvez passer de 78 à 90+ en 6 mois. L'IA viendra renforcer, pas révolutionner.",
+      "interne": "Dronavia est en zone Appui : équipe saine, confiance élevée, faible résistance. Levier = clarté stratégique + mesure opérationnelle (dashboards) + capitalisation IA légère sur dossiers gagnés. Pas de rupture, accélération maîtrisée. Angle commercial : PME technique qui se dote d'une vraie gouvernance data/stratégie = attractivité grands comptes renforcée, différenciation visible, croissance prévisible."
+    }
+  }
+}
