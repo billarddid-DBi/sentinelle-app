@@ -1,0 +1,183 @@
+{
+  "nom": "Feu Vert Metz Marly",
+  "ville": "Marly (57155)",
+  "activite": "Centre auto - entretien, réparation, pneus",
+  "secteur": "artisan",
+  "resume": {
+    "enjeu": "Efficacité & marge",
+    "vigilanceNiveau": "🟡",
+    "vigilanceLabel": "Réputation volatile",
+    "atout": "Traction établie, équipe compétente"
+  },
+  "identite": "SIREN 420477366 (MARLY CENTRE AUTO, SARL créée 2 nov 1998, 28 ans d'ancienneté). Effectif 20-49 salariés. Forme juridique : Société à responsabilité limitée. Dirigeant : non trouvé publiquement.",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      62,
+      58,
+      55,
+      48,
+      52,
+      54,
+      58,
+      60
+    ],
+    "potentiel": [
+      75,
+      72,
+      70,
+      68,
+      70,
+      72,
+      75,
+      78
+    ]
+  },
+  "valeurs": "Expertise, confiance, rapidité d'exécution, accueil chaleureux, respect des délais, clarté des devis.",
+  "imagePercue": "Centre auto établi et fiable du réseau Feu Vert, bien implanté en ZAC. Réputation solide mais contrastée : excellents avis sur accueil et compétence technique, mais critiques récurrentes sur tarification opaque (frais annexes non annoncés) et quelques incidents de qualité signalés.",
+  "vigilance": [
+    {
+      "niveau": "🟡",
+      "texte": "Avis polarisés : 4,6/5 sur Avis Vérifiés (1038 avis) mais critiques sur frais cachés (recyclage, covid) et tarification non transparente. Risque de dégradation de réputation si pratiques tarifaires non clarifiées."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Quelques avis négatifs graves (incident de sécurité signalé : jante brûlante après changement disques/plaquettes). Nécessite vérification des processus qualité et traçabilité des interventions."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale correcte : site Feu Vert à jour, Facebook actif, horaires clairs, e-réservation fonctionnelle. Bonne visibilité sur comparateurs (Vroomly, Allogarage)."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Traction solide : 28 ans d'activité, 20-49 salariés, équipe reconnue compétente, offre B2B (Feu Vert Entreprises). Chiffre d'affaires non public mais comptes déposés régulièrement."
+    }
+  ],
+  "quickwins": [
+    "Clarifier et afficher TOUS les frais annexes (recyclage, protection, etc.) AVANT la facturation : 3 avis critiquent les frais cachés → créer un devis détaillé standardisé et le montrer au client avant intervention.",
+    "Répondre aux 5 avis négatifs les plus récents (notamment celui du 24 avr 2026 sur incident de sécurité) : montrer que vous prenez au sérieux les réclamations et proposer une solution.",
+    "Ajouter un encadré « Garantie qualité » sur la fiche Google et le site : 1 avis mentionne un incident grave → rassurer sur les contrôles post-intervention et la traçabilité."
+  ],
+  "avis": "Moyenne 4,6/5 sur Avis Vérifiés (1038 avis). Points forts : excellent accueil, rapidité, compétence technique, respect des délais. Points faibles : tarification perçue comme opaque (frais annexes non annoncés : recyclage 2,90€, protection covid 3,50€), quelques incidents de qualité (jante brûlante après changement disques, vidange non effectuée selon un avis). Avis polarisés : beaucoup de 5/5 et quelques 1/5 graves. Réactivité modérée aux avis négatifs.",
+  "presence": "Site officiel Feu Vert à jour (feuvert.fr/centres-auto/marly/feu-vert-metz-marly/253.html). Facebook actif (dernière publication juin 2026, promotions pneus). Horaires clairs et e-réservation fonctionnelle. Présence sur comparateurs majeurs (Vroomly, Allogarage, Avis Vérifiés, Pages Jaunes). Pas de site propre au centre, dépend du réseau Feu Vert.",
+  "plateformes": [
+    {
+      "nom": "Avis Vérifiés",
+      "role": "Collecte et modération d'avis clients certifiés (NF ISO 20488)",
+      "url": "https://www.avis-verifies.com/avis-clients/feuvert.fr/e/253/feu-vert-metz-marly-57155"
+    },
+    {
+      "nom": "Vroomly",
+      "role": "Comparateur de garages et devis auto en ligne",
+      "url": "https://www.vroomly.com/garages/feu-vert-metz-marly-marly-57155-longeau/"
+    },
+    {
+      "nom": "Pages Jaunes",
+      "role": "Annuaire professionnel avec avis clients et horaires",
+      "url": "https://www.pagesjaunes.fr/pros/08191960"
+    },
+    {
+      "nom": "Allogarage",
+      "role": "Annuaire de garages avec fiches détaillées et avis",
+      "url": "https://www.allogarage.fr/garages/details-garage-FEU-VERT-METZ-12558.html"
+    },
+    {
+      "nom": "Feu Vert (site réseau)",
+      "role": "Portail officiel du réseau avec localisation et e-réservation",
+      "url": "https://www.feuvert.fr/centres-auto/marly/feu-vert-metz-marly/253.html"
+    }
+  ],
+  "site": "https://www.feuvert.fr/centres-auto/marly/feu-vert-metz-marly/253.html",
+  "intel": {
+    "financier": "Comptes annuels déposés régulièrement (clôture 31 déc 2024). Effectif stable 20-49 salariés. Pas de données publiques sur CA ou résultat (confidentialité SARL). Pas de procédure judiciaire détectée.",
+    "concurrence": "Marché local saturé : E.Leclerc Centre Auto, Ok Pneu Services, Marly Auto Pièces, Moulins-lès-Metz Feu Vert (6 km), Hauconcourt Feu Vert (25 km). Feu Vert Marly est le centre du réseau le plus proche de Metz (19 min). Concurrence forte sur tarifs et transparence.",
+    "visibilite": "Bonne visibilité réseau (354 centres Feu Vert en France). Présence stable sur comparateurs. Pas de campagne marketing locale détectée. Facebook actif mais engagement modéré. Dépend entièrement de la marque Feu Vert pour la notoriété.",
+    "dirigeant": "Non trouvé publiquement. Entreprise constituée en 1998 (28 ans). Pas d'information sur fondateur, repreneur ou transmission."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de tarification transparente",
+      "benefice": "Automatiser l'affichage de TOUS les frais (recyclage, protection, diagnostic) AVANT devis : réduire les réclamations tarifaires et améliorer la confiance client. Hypothèse : 15-20% des avis négatifs liés à frais cachés."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Système de traçabilité post-intervention",
+      "benefice": "Enregistrer et valider chaque étape critique (changement disques/plaquettes, géométrie, etc.) avec photos/checklist : prévenir les incidents de qualité et documenter les garanties. Hypothèse : 1-2 incidents graves/an à éviter."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Gestionnaire de réponses aux avis",
+      "benefice": "Répondre systématiquement aux avis négatifs dans les 48h avec proposition de solution : transformer les 1/5 en opportunité de fidélisation. Hypothèse : 30-40% des clients insatisfaits accepteraient une correction."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Planificateur de RDV et gestion des appels",
+      "benefice": "Capturer et qualifier les appels entrants (devis, RDV, urgences) : réduire les pertes de clients et optimiser le taux de conversion. Hypothèse : 10-15% des appels non convertis actuellement."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Analyseur de panier moyen et fidélité",
+      "benefice": "Identifier les clients réguliers et proposer des offres de fidélité (révisions groupées, pneus + équilibrage, etc.) : augmenter le panier moyen et la rétention. Hypothèse : +8-12% de CA par client fidélisé."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestionnaire de conformité et documentation",
+      "benefice": "Centraliser les devis, factures, garanties et incidents : faciliter les audits qualité et les réclamations clients. Hypothèse : réduire les litiges de 20-30%."
+    }
+  ],
+  "archetype": "Commerce établi & performant",
+  "posture": "Efficacité & fidélisation",
+  "chiffre": {
+    "unite": "€",
+    "label": "Gain annuel estimé par optimisation tarifaire + fidélité"
+  },
+  "coutInaction": "Chaque avis négatif non traité coûte ~50-100€ en perte de clients potentiels (taux de conversion -2-3%). Avec ~10 avis négatifs/mois, c'est 500-1000€/mois de CA perdu. Tarification opaque génère des retours et des litiges (coût administratif + perte de réputation).",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 8,
+    "cout": 80
+  },
+  "avantApres": {
+    "aujourdhui": "Appels entrants non qualifiés, devis sans détail des frais annexes, avis négatifs sans réponse, pas de suivi post-intervention, panier moyen stagnant, incidents de qualité non documentés.",
+    "avecIA": "Appels captés et qualifiés automatiquement, devis détaillé avec tous les frais affichés d'emblée, réponses systématiques aux avis en 48h, traçabilité complète des interventions, offres de fidélité ciblées, incidents documentés et résolus rapidement."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses en entretien : quels sont vos vrais freins (tarification, qualité, fidélité) ? Quel levier aurait le plus d'impact sur votre marge ?",
+  "indice": {
+    "estime": 66,
+    "potentiel": 84
+  },
+  "dimensions": {
+    "avis": 72,
+    "reseaux": 58,
+    "site": 65,
+    "traction": 75
+  },
+  "aura": {
+    "sens": "la fiabilité sous tension",
+    "couleur": "Bleu",
+    "definition": "Centre auto établi et compétent, reconnu pour son expertise technique et son accueil, mais fragilisé par des critiques récurrentes sur la transparence tarifaire et quelques incidents de qualité. L'énergie est celle d'une entreprise solide qui doit clarifier ses pratiques pour retrouver la confiance totale.",
+    "eclat": "moyen"
+  },
+  "fierte": "Vous avez bâti un centre auto de 28 ans avec une équipe de 20-49 salariés, reconnu pour sa compétence technique et son accueil chaleureux (4,6/5 en moyenne). Vous servez aussi les flottes d'entreprises et vous êtes bien implanté dans le réseau Feu Vert. Le potentiel est énorme : en clarifiant votre tarification et en renforçant la traçabilité, vous pouvez transformer les critiques en opportunités de fidélisation et augmenter votre marge de 8-15%.",
+  "sources": "Pages Jaunes (SIREN, forme juridique, comptes), Avis Vérifiés (1038 avis, 4,6/5), Feu Vert.fr (site officiel, horaires, services), Vroomly (comparateur, tarifs), Allogarage (fiche garage), Facebook (présence réseau), 118712.fr (effectif, création), Annuaire-garagiste.fr (100 avis, 4,0/5), UpMyShop (avis polarisés). Confiance : HAUTE pour identité et avis ; MOYENNE pour dirigeant (non trouvé) et financier (confidentialité SARL).",
+  "_auraCalc": {
+    "note_google": 3.9,
+    "nb_avis": 545,
+    "site": true,
+    "poids": {
+      "q": 35,
+      "v": 40,
+      "s": 25
+    }
+  }
+}
