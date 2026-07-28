@@ -729,7 +729,8 @@ function bFinish(){
    +'<div style="width:min(240px,60%);height:1px;margin:12px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
    +'<div style="font-size:13.5px;color:#cbd5e1;line-height:1.55;">'+ad.d+'</div></div>';
   var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
-   +blocAuras+blocNote+blocSens+'</div>';
+   /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
+   +blocAuras+blocSens+'</div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
   var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
@@ -1266,7 +1267,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 16';
+var IVE_VERSION='28/07 · 17';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
