@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1660" height="1200" viewBox="0 0 1660 1200" font-family="Arial, Helvetica, sans-serif">
+  <rect width="1660" height="1200" fill="#FFFFFF"/>
+
+  <!-- ================= TITRE ================= -->
+  <rect x="0" y="0" width="1660" height="82" fill="#1C1C1C"/>
+  <text x="30" y="36" fill="#E8A07E" font-size="13" font-weight="bold" letter-spacing="3">DBi360 — SENTINELLE / BOUSSOLE</text>
+  <text x="30" y="64" fill="#FFFFFF" font-size="23" font-weight="bold">Parcours cible — du pitch à l'abonnement</text>
+  <text x="1630" y="38" fill="#9CA3AF" font-size="12.5" text-anchor="end">38 blocs gratuits · 21 payants · 61 au total</text>
+  <text x="1630" y="62" fill="#9CA3AF" font-size="12.5" text-anchor="end">Proposition d'optimisation — 26/07/2026</text>
+
+  <!-- ================= RANGEE 1 ================= -->
+
+  <!-- CARD 1 : LE PITCH -->
+  <rect x="30" y="110" width="380" height="310" rx="14" fill="#F8FAFC" stroke="#DCE3EA" stroke-width="1.5"/>
+  <rect x="30" y="110" width="380" height="46" rx="14" fill="#475569"/>
+  <rect x="30" y="133" width="380" height="23" fill="#475569"/>
+  <text x="50" y="140" fill="#FFFFFF" font-size="15" font-weight="bold">0 · LE PITCH</text>
+  <text x="390" y="140" fill="#CBD5E1" font-size="11" text-anchor="end">10 secondes</text>
+  <text x="50" y="182" fill="#64748B" font-size="10.5" font-weight="bold" letter-spacing="1">HORS APPLICATION — C'EST TOI</text>
+  <text x="50" y="212" fill="#1C1C1C" font-size="13" font-style="italic">« Qui, ici, sait exactement ce</text>
+  <text x="50" y="232" fill="#1C1C1C" font-size="13" font-style="italic">qu'un client trouve sur son</text>
+  <text x="50" y="252" fill="#1C1C1C" font-size="13" font-style="italic">entreprise quand il la cherche ? »</text>
+  <text x="50" y="286" fill="#4B5563" font-size="12.5">Promesse : 1 minute,</text>
+  <text x="50" y="305" fill="#4B5563" font-size="12.5">rien à remplir.</text>
+  <rect x="50" y="330" width="340" height="34" rx="8" fill="#FEF3C7"/>
+  <text x="64" y="352" fill="#92700C" font-size="12.5" font-weight="bold">Puis tu te tais. Le silence travaille.</text>
+
+  <!-- CARD 2 : LE COMPTE -->
+  <rect x="436" y="110" width="380" height="310" rx="14" fill="#F8FAFC" stroke="#DCE3EA" stroke-width="1.5"/>
+  <rect x="436" y="110" width="380" height="46" rx="14" fill="#475569"/>
+  <rect x="436" y="133" width="380" height="23" fill="#475569"/>
+  <text x="456" y="140" fill="#FFFFFF" font-size="15" font-weight="bold">1 · LE COMPTE</text>
+  <text x="796" y="140" fill="#CBD5E1" font-size="11" text-anchor="end">30 secondes</text>
+  <text x="456" y="186" fill="#1C1C1C" font-size="13">Nom de l'entreprise · ville</text>
+  <text x="456" y="208" fill="#1C1C1C" font-size="13">email · mot de passe</text>
+  <rect x="456" y="232" width="340" height="96" rx="10" fill="#FFF7ED" stroke="#FED7AA" stroke-width="1.5"/>
+  <text x="472" y="258" fill="#E8541A" font-size="13" font-weight="bold">★  TON VRAI PÉAGE</text>
+  <text x="472" y="282" fill="#7C2D12" font-size="12.5">Rien n'est payant, mais tu captes</text>
+  <text x="472" y="301" fill="#7C2D12" font-size="12.5">un contact qualifié. Le lead vaut</text>
+  <text x="472" y="320" fill="#7C2D12" font-size="12.5">plus cher que l'abonnement.</text>
+  <text x="456" y="360" fill="#9CA3AF" font-size="11.5">C'est le seul moment où tu demandes</text>
+  <text x="456" y="378" fill="#9CA3AF" font-size="11.5">quelque chose avant d'avoir donné.</text>
+
+  <!-- CARD 3 : LE SCAN -->
+  <rect x="842" y="110" width="380" height="310" rx="14" fill="#F8FAFC" stroke="#DCE3EA" stroke-width="1.5"/>
+  <rect x="842" y="110" width="380" height="46" rx="14" fill="#475569"/>
+  <rect x="842" y="133" width="380" height="23" fill="#475569"/>
+  <text x="862" y="140" fill="#FFFFFF" font-size="15" font-weight="bold">2 · LE SCAN</text>
+  <text x="1202" y="140" fill="#CBD5E1" font-size="11" text-anchor="end">≈ 40 secondes</text>
+  <text x="862" y="186" fill="#1C1C1C" font-size="13">Analyse de 30+ sources publiques :</text>
+  <text x="862" y="212" fill="#4B5563" font-size="12.5">• Avis clients (Google, annuaires)</text>
+  <text x="862" y="234" fill="#4B5563" font-size="12.5">• Réseaux sociaux</text>
+  <text x="862" y="256" fill="#4B5563" font-size="12.5">• Presse &amp; médias en ligne</text>
+  <text x="862" y="278" fill="#4B5563" font-size="12.5">• Site web &amp; annuaires</text>
+  <text x="862" y="300" fill="#4B5563" font-size="12.5">• Données officielles (SIREN, INPI)</text>
+  <rect x="862" y="326" width="340" height="38" rx="8" fill="#EEF2FF"/>
+  <text x="876" y="343" fill="#3730A3" font-size="12">Il ne fait rien — et c'est voulu :</text>
+  <text x="876" y="359" fill="#3730A3" font-size="12">l'attente crée la valeur.</text>
+
+  <!-- CARD 4 : LA REVELATION -->
+  <rect x="1248" y="110" width="380" height="310" rx="14" fill="#FDEDE4" stroke="#E8541A" stroke-width="2"/>
+  <rect x="1248" y="110" width="380" height="46" rx="14" fill="#E8541A"/>
+  <rect x="1248" y="133" width="380" height="23" fill="#E8541A"/>
+  <text x="1268" y="140" fill="#FFFFFF" font-size="15" font-weight="bold">3 · LA RÉVÉLATION</text>
+  <text x="1608" y="140" fill="#FFE8D9" font-size="11" text-anchor="end">GRATUIT</text>
+  <rect x="1268" y="170" width="112" height="22" rx="11" fill="#1C1C1C"/>
+  <text x="1324" y="185" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle">WAOUH N°1</text>
+  <text x="1268" y="216" fill="#1C1C1C" font-size="12.5">• Titre + couleur d'aura</text>
+  <text x="1268" y="238" fill="#1C1C1C" font-size="12.5">• Carte d'identité de l'entreprise</text>
+  <text x="1268" y="260" fill="#1C1C1C" font-size="12.5">• Ce que dit votre note</text>
+  <text x="1268" y="282" fill="#1C1C1C" font-size="12.5">• Votre potentiel (+X points)</text>
+  <text x="1268" y="304" fill="#C2410C" font-size="12.5" font-weight="bold">• Le coût de ne rien faire  ↑ remonté</text>
+  <text x="1268" y="326" fill="#1C1C1C" font-size="12.5">• Vue d'ensemble — 5 tuiles</text>
+  <text x="1268" y="348" fill="#1C1C1C" font-size="12.5">• Évolution · Méthodologie · À propos</text>
+  <text x="1268" y="382" fill="#7C2D12" font-size="11.5" font-style="italic">« Voilà ce que les autres voient. »</text>
+  <text x="1268" y="400" fill="#9CA3AF" font-size="11">Il n'a rien rempli — c'est ta preuve.</text>
+
+  <!-- Fleches rangee 1 -->
+  <g stroke="#CBD5E1" stroke-width="2.5" fill="none">
+    <path d="M410 265 H428" marker-end="url(#ar)"/>
+    <path d="M816 265 H834" marker-end="url(#ar)"/>
+    <path d="M1222 265 H1240" marker-end="url(#ar)"/>
+  </g>
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#CBD5E1"/>
+    </marker>
+    <marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#E8541A"/>
+    </marker>
+  </defs>
+
+  <!-- Retour a la ligne -->
+  <path d="M1438 420 V446 H220 V470" stroke="#CBD5E1" stroke-width="2.5" fill="none" marker-end="url(#ar)"/>
+
+  <!-- ================= RANGEE 2 ================= -->
+
+  <!-- CARD 5 : LA PREUVE PUBLIQUE -->
+  <rect x="30" y="478" width="380" height="310" rx="14" fill="#FDEDE4" stroke="#F5C6A5" stroke-width="1.5"/>
+  <rect x="30" y="478" width="380" height="46" rx="14" fill="#C2410C"/>
+  <rect x="30" y="501" width="380" height="23" fill="#C2410C"/>
+  <text x="50" y="508" fill="#FFFFFF" font-size="15" font-weight="bold">4 · LA PREUVE PUBLIQUE</text>
+  <text x="390" y="508" fill="#FFE8D9" font-size="11" text-anchor="end">GRATUIT</text>
+  <text x="50" y="552" fill="#6B7280" font-size="10.5" font-weight="bold" letter-spacing="1">EN DÉROULANTS — S'IL VEUT CREUSER</text>
+  <text x="50" y="584" fill="#1C1C1C" font-size="12.5">• Avis clients Google (note + volume)</text>
+  <text x="50" y="608" fill="#1C1C1C" font-size="12.5">• Présence — site &amp; réseaux</text>
+  <text x="50" y="632" fill="#1C1C1C" font-size="12.5">• Plateformes du secteur</text>
+  <text x="50" y="656" fill="#1C1C1C" font-size="12.5">• Points de vigilance</text>
+  <rect x="50" y="676" width="340" height="52" rx="9" fill="#FFF7ED" stroke="#FED7AA"/>
+  <text x="64" y="697" fill="#C2410C" font-size="12" font-weight="bold">🔒 Vos forces &amp; vos opportunités</text>
+  <text x="64" y="716" fill="#7C2D12" font-size="12">majeures font partie de BOUSSOLE.</text>
+  <text x="50" y="756" fill="#9CA3AF" font-size="11.5">SENTINELLE dit CE QUI EST.</text>
+  <text x="50" y="774" fill="#9CA3AF" font-size="11.5">BOUSSOLE dit QUOI FAIRE.</text>
+
+  <!-- CARD 6 : LES 5 QUESTIONS -->
+  <rect x="436" y="478" width="380" height="310" rx="14" fill="#FEF3C7" stroke="#F0B429" stroke-width="2"/>
+  <rect x="436" y="478" width="380" height="46" rx="14" fill="#B45309"/>
+  <rect x="436" y="501" width="380" height="23" fill="#B45309"/>
+  <text x="456" y="508" fill="#FFFFFF" font-size="15" font-weight="bold">5 · LES 5 QUESTIONS</text>
+  <text x="796" y="508" fill="#FDE68A" font-size="11" text-anchor="end">GRATUIT · 90 s</text>
+  <rect x="456" y="538" width="128" height="22" rx="11" fill="#1C1C1C"/>
+  <text x="520" y="553" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle">À CONSTRUIRE</text>
+  <text x="456" y="588" fill="#1C1C1C" font-size="12.5"><tspan font-weight="bold">Q1</tspan>  Vous êtes combien ?</text>
+  <text x="456" y="614" fill="#1C1C1C" font-size="12.5"><tspan font-weight="bold">Q2</tspan>  Qu'est-ce qui mange le temps ?</text>
+  <text x="456" y="640" fill="#1C1C1C" font-size="12.5"><tspan font-weight="bold">Q3</tspan>  Combien d'heures / semaine ?</text>
+  <text x="456" y="666" fill="#1C1C1C" font-size="12.5"><tspan font-weight="bold">Q4</tspan>  Qu'est-ce qui traîne ?</text>
+  <text x="456" y="692" fill="#1C1C1C" font-size="12.5"><tspan font-weight="bold">Q5</tspan>  Une heure vaut combien ?</text>
+  <text x="456" y="726" fill="#92700C" font-size="11.5">Aucune saisie clavier —</text>
+  <text x="456" y="744" fill="#92700C" font-size="11.5">que des curseurs et des tuiles.</text>
+  <text x="456" y="770" fill="#9CA3AF" font-size="11">Q4 alimente aussi l'écran quotidien ↓</text>
+
+  <!-- CARD 7 : VOTRE CHIFFRE -->
+  <rect x="842" y="478" width="380" height="310" rx="14" fill="#FDEDE4" stroke="#E8541A" stroke-width="2.5"/>
+  <rect x="842" y="478" width="380" height="46" rx="14" fill="#E8541A"/>
+  <rect x="842" y="501" width="380" height="23" fill="#E8541A"/>
+  <text x="862" y="508" fill="#FFFFFF" font-size="15" font-weight="bold">6 · VOTRE CHIFFRE</text>
+  <text x="1202" y="508" fill="#FFE8D9" font-size="11" text-anchor="end">GRATUIT</text>
+  <rect x="862" y="538" width="112" height="22" rx="11" fill="#1C1C1C"/>
+  <text x="918" y="553" fill="#FFFFFF" font-size="11" font-weight="bold" text-anchor="middle">WAOUH N°2</text>
+  <rect x="862" y="572" width="340" height="82" rx="10" fill="#1C1C1C"/>
+  <text x="1032" y="604" fill="#FFFFFF" font-size="26" font-weight="bold" text-anchor="middle">1 350 h par an</text>
+  <text x="1032" y="636" fill="#E8A07E" font-size="20" font-weight="bold" text-anchor="middle">soit ≈ 67 500 €</text>
+  <text x="862" y="678" fill="#7C2D12" font-size="12" font-style="italic">« Ce chiffre est le vôtre — c'est vous</text>
+  <text x="862" y="696" fill="#7C2D12" font-size="12" font-style="italic">qui venez de nous le donner. »</text>
+  <text x="862" y="726" fill="#1C1C1C" font-size="12.5">+ Prêt à changer ? — 3 choix</text>
+  <text x="862" y="748" fill="#1C1C1C" font-size="12.5">+ Recevoir mon récap par email</text>
+  <text x="862" y="772" fill="#9CA3AF" font-size="11">L'argent et le temps : enfin leur langue.</text>
+
+  <!-- CARD 8 : BOUSSOLE -->
+  <rect x="1248" y="478" width="380" height="310" rx="14" fill="#E7EEFB" stroke="#2563EB" stroke-width="2.5"/>
+  <rect x="1248" y="478" width="380" height="46" rx="14" fill="#1D4ED8"/>
+  <rect x="1248" y="501" width="380" height="23" fill="#1D4ED8"/>
+  <text x="1268" y="508" fill="#FFFFFF" font-size="15" font-weight="bold">7 · BOUSSOLE</text>
+  <text x="1608" y="508" fill="#BFDBFE" font-size="11" text-anchor="end">🔒 PAYANT</text>
+  <rect x="1268" y="538" width="196" height="24" rx="12" fill="#1C1C1C"/>
+  <text x="1366" y="554" fill="#FFFFFF" font-size="11.5" font-weight="bold" text-anchor="middle">19 € / mois · 190 € / an</text>
+  <text x="1470" y="555" fill="#DC2626" font-size="10.5" font-weight="bold">prix à revoir</text>
+  <text x="1268" y="588" fill="#1C1C1C" font-size="12.5">• Questionnaire Dirigeant (entretien)</text>
+  <text x="1268" y="610" fill="#1C1C1C" font-size="12.5">• Indice intérieur — 8 piliers</text>
+  <text x="1268" y="632" fill="#1C1C1C" font-size="12.5" font-weight="bold">• Indice de vérité (image ↔ réalité)</text>
+  <text x="1268" y="654" fill="#1C1C1C" font-size="12.5" font-weight="bold">• « Voilà ce qui se passe réellement »</text>
+  <text x="1268" y="676" fill="#1D4ED8" font-size="12.5">• Carte de la concurrence  ← reçue</text>
+  <text x="1268" y="698" fill="#1D4ED8" font-size="12.5">• Forces (radar) · Outils IA détaillés</text>
+  <text x="1268" y="720" fill="#1D4ED8" font-size="12.5">• Intelligence stratégique  ← reçue</text>
+  <text x="1268" y="742" fill="#1C1C1C" font-size="12.5">• Simulateur · ROI · Plan · Feuille de route</text>
+  <text x="1268" y="772" fill="#1E40AF" font-size="11.5" font-weight="bold">WAOUH N°3 — la page miroir</text>
+
+  <!-- Fleches rangee 2 -->
+  <g stroke="#CBD5E1" stroke-width="2.5" fill="none">
+    <path d="M410 633 H428" marker-end="url(#ar)"/>
+    <path d="M816 633 H834" marker-end="url(#ar)"/>
+  </g>
+  <path d="M1222 633 H1240" stroke="#E8541A" stroke-width="3" fill="none" marker-end="url(#ar2)"/>
+
+  <!-- ================= BANDE QUOTIDIEN ================= -->
+  <rect x="30" y="838" width="1598" height="160" rx="14" fill="#E8F6EC" stroke="#86EFAC" stroke-width="2"/>
+  <rect x="30" y="838" width="1598" height="42" rx="14" fill="#15803D"/>
+  <rect x="30" y="859" width="1598" height="21" fill="#15803D"/>
+  <text x="50" y="866" fill="#FFFFFF" font-size="15" font-weight="bold">LE QUOTIDIEN — il revient chaque matin</text>
+  <text x="1608" y="866" fill="#BBF7D0" font-size="11" text-anchor="end">GRATUIT — c'est l'habitude qui fidélise</text>
+
+  <rect x="50" y="900" width="238" height="80" rx="10" fill="#FFFFFF" stroke="#BBF7D0"/>
+  <text x="66" y="924" fill="#15803D" font-size="12" font-weight="bold">1 · Pouls trésorerie</text>
+  <text x="66" y="945" fill="#4B5563" font-size="11.5">L'angoisse n°1 du matin.</text>
+  <text x="66" y="964" fill="#9CA3AF" font-size="11">1 tap — remonté en premier.</text>
+
+  <rect x="302" y="900" width="200" height="80" rx="10" fill="#FFFFFF" stroke="#BBF7D0"/>
+  <text x="318" y="924" fill="#15803D" font-size="12" font-weight="bold">2 · Climat équipe</text>
+  <text x="318" y="945" fill="#4B5563" font-size="11.5">Bien / moyen / tendu.</text>
+  <text x="318" y="964" fill="#9CA3AF" font-size="11">1 tap.</text>
+
+  <rect x="516" y="900" width="392" height="80" rx="10" fill="#FFF7ED" stroke="#E8541A" stroke-width="2"/>
+  <text x="532" y="924" fill="#C2410C" font-size="12.5" font-weight="bold">3 · CE QUI TRAÎNE — la pile qui vieillit</text>
+  <text x="532" y="945" fill="#7C2D12" font-size="11.5">Devis · appels · factures · décisions — triés par ÂGE.</text>
+  <text x="532" y="964" fill="#9CA3AF" font-size="11">Fusion des 3 listes actuelles. Le cœur du quotidien.</text>
+
+  <rect x="922" y="900" width="270" height="80" rx="10" fill="#FFFFFF" stroke="#BBF7D0"/>
+  <text x="938" y="924" fill="#15803D" font-size="12" font-weight="bold">4 · Priorité du jour (IA)</text>
+  <text x="938" y="945" fill="#4B5563" font-size="11.5">UNE action, choisie dans</text>
+  <text x="938" y="964" fill="#4B5563" font-size="11.5">la pile la plus vieille.</text>
+
+  <rect x="1206" y="900" width="176" height="80" rx="10" fill="#FFFFFF" stroke="#BBF7D0"/>
+  <text x="1222" y="924" fill="#15803D" font-size="12" font-weight="bold">5 · Série</text>
+  <text x="1222" y="945" fill="#4B5563" font-size="11.5">Le « feu » qui</text>
+  <text x="1222" y="964" fill="#4B5563" font-size="11.5">récompense la régularité.</text>
+
+  <rect x="1396" y="900" width="212" height="80" rx="10" fill="#E7EEFB" stroke="#2563EB" stroke-width="1.5"/>
+  <text x="1412" y="924" fill="#1D4ED8" font-size="12" font-weight="bold">6 · Cap du trimestre  🔒</text>
+  <text x="1412" y="945" fill="#1E40AF" font-size="11.5">Palier, IAT, objectif.</text>
+  <text x="1412" y="964" fill="#9CA3AF" font-size="11">Relève du plan → payant.</text>
+
+  <!-- Boucle de retour -->
+  <path d="M1628 918 H1642 V793 H1438" stroke="#86EFAC" stroke-width="2.5" fill="none" stroke-dasharray="6 5"/>
+
+  <!-- ================= LEGENDE ================= -->
+  <rect x="30" y="1024" width="1598" height="150" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <text x="50" y="1052" fill="#1C1C1C" font-size="13" font-weight="bold">LÉGENDE &amp; PARTIS PRIS</text>
+
+  <rect x="50" y="1068" width="16" height="16" rx="4" fill="#FDEDE4" stroke="#E8541A"/>
+  <text x="76" y="1081" fill="#4B5563" font-size="12">Gratuit — la preuve et le waouh</text>
+  <rect x="330" y="1068" width="16" height="16" rx="4" fill="#E7EEFB" stroke="#2563EB"/>
+  <text x="356" y="1081" fill="#4B5563" font-size="12">Payant — le « comment »</text>
+  <rect x="580" y="1068" width="16" height="16" rx="4" fill="#E8F6EC" stroke="#86EFAC"/>
+  <text x="606" y="1081" fill="#4B5563" font-size="12">Quotidien — la rétention</text>
+  <rect x="850" y="1068" width="16" height="16" rx="4" fill="#FEF3C7" stroke="#F0B429"/>
+  <text x="876" y="1081" fill="#4B5563" font-size="12">À construire</text>
+  <text x="1030" y="1081" fill="#4B5563" font-size="12">★ = capture du lead</text>
+  <text x="1230" y="1081" fill="#4B5563" font-size="12">🔒 = verrouillé</text>
+  <text x="1390" y="1081" fill="#4B5563" font-size="12">← → = bloc déplacé</text>
+
+  <line x1="50" y1="1098" x2="1608" y2="1098" stroke="#E2E8F0"/>
+  <text x="50" y="1122" fill="#1C1C1C" font-size="12"><tspan font-weight="bold">Règle n°1 :</tspan>  SENTINELLE dit CE QUI EST (gratuit) — BOUSSOLE dit QUOI FAIRE (payant).</text>
+  <text x="50" y="1144" fill="#1C1C1C" font-size="12"><tspan font-weight="bold">Règle n°2 :</tspan>  on ne demande jamais rien avant d'avoir donné. Le compte est le seul péage avant la révélation.</text>
+  <text x="50" y="1166" fill="#1C1C1C" font-size="12"><tspan font-weight="bold">Règle n°3 :</tspan>  le chiffre en euros n'est jamais inventé — c'est le dirigeant qui le donne (5 questions).</text>
+</svg>
