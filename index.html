@@ -219,7 +219,7 @@
       <button class="btn btn-ghost" style="margin-top:10px;" onclick="startBoussole('complet')">Démarrer le Complet</button>
     </div>
 
-    <button class="btn btn-ghost" style="margin-top:14px;color:#9ca3af;border:none;" onclick="goHome()">← Retour à l'accueil</button>
+    <button id="bChoiceBack" class="btn btn-ghost" style="margin-top:14px;color:#9ca3af;border:none;" onclick="goHome()">← Retour à l'accueil</button>
   </div>
 
   <div id="bGrille" style="display:none;"></div>
@@ -310,6 +310,27 @@ function showView(v){
   renderTabbar(v);
   $('err').style.display='none'; $('loading').style.display='none'; $('result').innerHTML='';
   window.scrollTo(0,0);
+  setTimeout(iveBandesFixes,0);
+}
+// Les deux bandeaux noirs (titre + navigation) restent VISIBLES en haut, quel que soit l'écran
+// et quoi qu'on ouvre en dessous : on peut naviguer à tout moment sans remonter.
+function iveBandesFixes(){
+  try{
+    var hote=$('dirigeant');
+    if(!hote||getComputedStyle(hote).display==='none') return;
+    var zones=[hote];
+    var sl=hote.querySelectorAll('[id^="sSlide_"]');
+    for(var i=0;i<sl.length;i++){ if(getComputedStyle(sl[i]).display!=='none') zones.push(sl[i]); }
+    zones.forEach(function(z){
+      var nav=z.querySelector('.ivenav'); if(!nav) return;
+      var head=nav.previousElementSibling, h=0;
+      if(head && head.classList && head.classList.contains('card')){
+        head.style.position='sticky'; head.style.top='0px'; head.style.zIndex='61';
+        h=Math.round(head.getBoundingClientRect().height);
+      }
+      nav.style.position='sticky'; nav.style.top=(h?h+8:0)+'px'; nav.style.zIndex='60';
+    });
+  }catch(e){}
 }
 const bkey = s => s.replace(/[^A-Za-z]/g,'');
 const BPILIERS = ['Vision','Organisation','Processus','Informations','Outils','Décisions','Clients','Performance'];
@@ -1018,6 +1039,7 @@ function sentSlide(i){
   // « Que pouvez-vous nous dire sur cette entreprise ? » : uniquement sur la slide 1 (cockpit)
   var fab=$('capfab'); if(fab && window.currentSpace==='dirigeant' && document.getElementById('sSlide_0')) fab.className=(i===0)?'show':'';
   sentCur=i; window.scrollTo(0,0);
+  if(typeof iveBandesFixes==='function') setTimeout(iveBandesFixes,0);   // la slide affichée garde ses bandeaux fixes
 }
 // Navigation de l'univers L'IVE (bandeau noir) : Accueil · Sentinelle · Boussole · Plan d'action · Historique · Réglages
 // Abonné ? (paiement simulé pour l'instant, et l'admin a tout.)
@@ -3731,6 +3753,9 @@ function boussoleOutil(which){
     if($('bNom')) $('bNom').value=nom;
     if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
     if(typeof bMsgHide==='function') bMsgHide();
+    // On vient de BOUSSOLE : le bouton du bas doit y ramener, pas à l'accueil.
+    var bk=$('bChoiceBack');
+    if(bk){ bk.innerHTML='<i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE'; bk.setAttribute('onclick','boussoleView()'); }
     showView('bChoice'); window.scrollTo(0,0); return;
   }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
