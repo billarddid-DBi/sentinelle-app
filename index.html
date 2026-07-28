@@ -97,6 +97,19 @@
   #capbar{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:90;align-items:flex-end;}
   #capbar.show{display:flex;}
   @media print{ #tabbar,#capfab,#capbar{display:none!important;} }
+  /* Rapport PDF : on n'imprime que le contenu, sans navigation ni boutons. */
+  @media print{
+    body{background:#fff!important;}
+    body.impression .wrap>*:not(#dirigeant){display:none!important;}
+    body.impression #dirigeant .ivenav,
+    body.impression #dirigeant button,
+    body.impression #dirigeant .btn,
+    body.impression #dirigeant .adminbar{display:none!important;}
+    body.impression .card{box-shadow:none!important;border:1px solid #e5e7eb!important;}
+    body.impression .sSlide{page-break-inside:avoid;break-inside:avoid;}
+    body.impression [id^="sSlide_"]{page-break-after:always;break-after:page;}
+    body.impression [id^="sSlide_"]:last-child{page-break-after:auto;break-after:auto;}
+  }
 </style>
 </head>
 <body>
@@ -1041,7 +1054,7 @@ function offreView(){
 }
 function iveNavBar(active){
   var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
-  return '<div style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
+  return '<div class="ivenav" style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
     +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+(x[3]?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
 }
@@ -2376,6 +2389,26 @@ function sentApercu(){
   }).catch(rien);
 }
 
+/* --- RAPPORT PDF : on déplie tout, on masque la navigation, et on laisse le navigateur produire
+   le PDF (« Enregistrer au format PDF » dans la boîte d'impression). Aucune bibliothèque externe. --- */
+function sentImprimer(){
+  var etat=[], fait=false;
+  // 1) toutes les slides visibles (au lieu d'une seule)
+  for(var i=0;;i++){ var el=document.getElementById('sSlide_'+i); if(!el) break; etat.push([el,el.style.display]); el.style.display='flex'; }
+  // 2) tous les menus déroulants ouverts (accordéons de la synthèse + panneaux de détail)
+  var ouvrables=[].slice.call(document.querySelectorAll('#dirigeant [id^="exp_"], #dirigeant #synthIdBody, #dirigeant #synthVueBody, #dirigeant #synthEvoBody, #dirigeant #synthMethBody, #dirigeant #synthApBody'));
+  ouvrables.forEach(function(e){ etat.push([e,e.style.display]); e.style.display='block'; });
+  document.body.classList.add('impression');
+  var restaurer=function(){
+    if(fait) return; fait=true;
+    document.body.classList.remove('impression');
+    etat.forEach(function(x){ x[0].style.display=x[1]; });
+    window.removeEventListener('afterprint',restaurer);
+  };
+  window.addEventListener('afterprint',restaurer);
+  setTimeout(function(){ try{ window.print(); }catch(e){} setTimeout(restaurer,1500); },80);
+}
+
 /* --- SENTINELLE COMPLET : tout ce qu'on a préparé (synthèse, potentiel, réputation, concurrence…).
    Débloqué une fois la formule choisie. --- */
 function sentComplet(){
@@ -2390,7 +2423,11 @@ function sentComplet(){
     window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
     window.lastSite=f.site||'';
-    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+window.__sentDern.toLocaleDateString('fr-FR')+'</div></div></div>';
+    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
+      +'<div style="text-align:right;flex:0 0 auto;">'
+        +'<button type="button" onclick="sentImprimer()" title="Télécharger le rapport en PDF" style="border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:9px;padding:7px 11px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-type-pdf"></i> PDF</button>'
+        +'<div style="font-size:10.5px;color:#9ca3af;white-space:nowrap;margin-top:6px;"><i class="ti ti-calendar"></i> '+window.__sentDern.toLocaleDateString('fr-FR')+'</div>'
+      +'</div></div></div>';
     $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>'
       +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>';
     showView('dirigeant'); window.scrollTo(0,0);
