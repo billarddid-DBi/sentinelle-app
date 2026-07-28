@@ -2384,6 +2384,42 @@ function dicteeDedupe(s){
   }
   return out.join(' ');
 }
+// Pourquoi le micro ne marche pas ici ? On le dit précisément au lieu de laisser un bouton muet.
+function dicteeDiag(){
+  var ua=navigator.userAgent||'';
+  var nav = /Edg\//.test(ua) ? 'Edge'
+          : /Firefox\//.test(ua) ? 'Firefox'
+          : /OPR\//.test(ua) ? 'Opera'
+          : /Chrome\//.test(ua) ? 'Chrome'
+          : /Safari\//.test(ua) ? 'Safari' : 'votre navigateur';
+  return {
+    api: !!(window.SpeechRecognition||window.webkitSpeechRecognition),
+    micro: !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia),
+    securise: (location.protocol==='https:'||location.hostname==='localhost'),
+    nav: nav,
+    mobile: /Android|iPhone|iPad|iPod/i.test(ua)
+  };
+}
+function dicteeDiagAffiche(){
+  var z=$('micDiag'); if(!z) return;
+  var d=dicteeDiag(), h='';
+  var enc=function(ic,coul,fond,bord,txt){ return '<div style="display:flex;gap:9px;align-items:flex-start;background:'+fond+';border:1px solid '+bord+';border-radius:11px;padding:11px 13px;margin-top:12px;text-align:left;"><i class="ti '+ic+'" style="color:'+coul+';font-size:18px;flex:0 0 auto;"></i><div style="font-size:12px;color:#4b5563;line-height:1.5;">'+txt+'</div></div>'; };
+  if(!d.securise){
+    h=enc('ti-lock-off','#dc2626','#fef2f2','#fecaca','La dictée exige une connexion sécurisée (https). Ouvrez l\'application depuis son adresse habituelle.');
+  } else if(!d.api){
+    h=enc('ti-browser-x','#d97706','#fffbeb','#fde68a','<b>'+esc(d.nav)+' ne gère pas la dictée vocale.</b> Seuls <b>Chrome</b> et <b>Edge</b> la proposent aujourd\'hui'+(d.mobile?'':' sur ordinateur')+'. Ouvrez l\'application dans l\'un des deux, ou écrivez votre tâche juste en dessous — le résultat est identique.');
+  } else if(navigator.permissions&&navigator.permissions.query){
+    try{
+      navigator.permissions.query({name:'microphone'}).then(function(p){
+        if(!p) return;
+        if(p.state==='denied'){
+          z.innerHTML=enc('ti-microphone-off','#dc2626','#fef2f2','#fecaca','<b>Le micro est bloqué pour ce site.</b> Cliquez sur le cadenas 🔒 à gauche de l\'adresse, puis autorisez le microphone et rechargez la page.'+(d.mobile?'':' Vérifiez aussi Windows : <i>Paramètres › Confidentialité › Microphone</i>.'));
+        }
+      }).catch(function(){});
+    }catch(e){}
+  }
+  z.innerHTML=h;
+}
 // Fusion de deux morceaux de dictée en supprimant le CHEVAUCHEMENT : la reconnaissance vocale
 // livre souvent un segment « définitif » qui reprend la fin du précédent (raffinement).
 // « rappeler le client » + « le client Dupont » → « rappeler le client Dupont ».
@@ -2482,6 +2518,7 @@ function dicteeView(filtre){
         +'<div id="micEtat" style="font-size:13px;color:#6b7280;margin-top:12px;min-height:20px;">'+(dispo?'Appuyez pour enregistrer':'La dictée vocale n\'est pas disponible sur ce navigateur — écrivez ci-dessous.')+'</div>'
         +'<div id="micTexte" style="font-size:13.5px;color:#1C1C1C;font-weight:600;min-height:22px;margin-top:4px;line-height:1.4;"></div>'
         +(dispo?'<div style="font-size:11px;color:#9ca3af;margin-top:6px;">Une consigne par enregistrement. Appuyez à nouveau pour terminer.</div>':'')
+        +'<div id="micDiag"></div>'
       +'</div>'
       +'<div style="display:flex;gap:7px;margin-top:16px;"><input id="dicIn" type="text" placeholder="…ou écrivez la tâche ici" onkeydown="if(event.key===\'Enter\')dicteeAjout();" style="flex:1;font-size:16px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="dicteeAjout()" style="border:none;background:#1C1C1C;color:#fff;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;"><i class="ti ti-plus"></i></button></div>'
       +'<div style="display:flex;gap:7px;margin-top:20px;">'+onglet('afaire','À faire',afaire.length)+onglet('faites','Faites',faites.length)+'</div>'
@@ -2490,6 +2527,7 @@ function dicteeView(filtre){
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
   dicteeBrancherMicro();
+  dicteeDiagAffiche();
 }
 function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; dicteeEnregistrer(el.value,'autre','clavier'); el.value=''; dicteeView(); }
 function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeView(); }
