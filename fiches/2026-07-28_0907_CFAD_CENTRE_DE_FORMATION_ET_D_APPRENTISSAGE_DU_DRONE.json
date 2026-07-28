@@ -1,0 +1,183 @@
+{
+  "nom": "CFAD - Centre de Formation et d'Apprentissage du Drone",
+  "ville": "Nancy (54000)",
+  "activite": "Formation professionnelle aux métiers du drone",
+  "secteur": "services",
+  "resume": {
+    "enjeu": "Temps facturable",
+    "vigilanceNiveau": "🟢",
+    "vigilanceLabel": "Établie & rayonnante",
+    "atout": "Expertise reconnue, multi-sites"
+  },
+  "identite": "SIREN 800404428, SARL créée 02/2014 (12 ans), NAF 8559A (formation continue adultes), 3-5 salariés (2023), siège 24 rue des Jardiniers 54000 Nancy. Dirigeant : Christopher Courtois (depuis 2019).",
+  "radar": {
+    "labels": [
+      "Vision",
+      "Organisation",
+      "Processus",
+      "Informations",
+      "Outils",
+      "Décisions",
+      "Clients",
+      "Performance"
+    ],
+    "actuel": [
+      78,
+      72,
+      75,
+      68,
+      70,
+      72,
+      82,
+      80
+    ],
+    "potentiel": [
+      88,
+      85,
+      88,
+      82,
+      85,
+      85,
+      92,
+      92
+    ]
+  },
+  "valeurs": "Excellence pédagogique, accessibilité (handicap), transmission du savoir, infrastructures exceptionnelles, certification Qualiopi, agrément DIRECCTE.",
+  "imagePercue": "Centre de référence en France pour la formation drone, réputé auprès de la DGAC, formateurs experts, satisfaction client très élevée (4,9/5), multi-sites en expansion (Nancy, Metz, Remiremont, Dijon, Dieppe-Rouen).",
+  "vigilance": [
+    {
+      "niveau": "🟢",
+      "texte": "Traction solide : 12 ans d'ancienneté, 5 centres actifs, 97% de réussite à l'examen théorique, 4,9/5 de satisfaction globale."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Présence digitale active : site moderne (avril 2026), LinkedIn actif, présent sur annuaires de formation (Carif-Oref, Emfor, etc.), horaires clairs."
+    },
+    {
+      "niveau": "🟡",
+      "texte": "Peu d'avis clients publics sur Google/annuaires généralistes (6 avis trouvés sur centre.contact, tous positifs). Réputation forte mais peu visible en ligne grand public."
+    },
+    {
+      "niveau": "🟢",
+      "texte": "Modèle économique sain : finançable par OPco, CPF, régions, Pôle Emploi, France Travail. Croissance multi-sites observable (2014→2026)."
+    }
+  ],
+  "quickwins": [
+    "Créer une fiche Google My Business complète pour le siège Nancy (24 rue des Jardiniers) avec photos, horaires, lien vers catalogue formations — actuellement peu visible en recherche locale.",
+    "Publier mensuellement 2-3 témoignages vidéo courts (30-60s) de stagiaires satisfaits sur LinkedIn et YouTube — capitaliser sur le 4,9/5 et 100% satisfaction affichés.",
+    "Ajouter un formulaire de demande de devis/inscription en ligne sur la page d'accueil du site (actuellement : contact par mail/téléphone uniquement) — réduire friction pour prospects."
+  ],
+  "avis": "6 avis trouvés sur centre.contact, tous très positifs (formateurs à l'écoute, cours compréhensibles, apprentissage progressif et pointu, recommandé par la DGAC). Site officiel affiche 4,9/5 de satisfaction globale et 100% des élèves satisfaits. Aucun avis négatif détecté publiquement.",
+  "presence": "Site officiel cfad.fr moderne et à jour (avril 2026), LinkedIn actif avec publications régulières, présent sur annuaires de formation (Carif-Oref, Emfor BFC, Trouver Ma Formation, Formation Grand Est). Horaires clairs (lun-ven 9h-12h / 13h30-17h). Pas de présence Facebook/Instagram détectée.",
+  "plateformes": [
+    {
+      "nom": "Carif-Oref (Réseau des Carif-Oref)",
+      "role": "Annuaire officiel des organismes de formation en France, référence pour financeurs et stagiaires",
+      "url": "https://www.intercariforef.org/formations/cfad/organisme-17_7067.html"
+    },
+    {
+      "nom": "Emfor BFC",
+      "role": "Portail régional Bourgogne-Franche-Comté pour formations professionnelles et organismes",
+      "url": "https://www.emfor-bfc.org/formation/structure/7217-centre-de-formation-aux-metiers-du-drone-cfad"
+    },
+    {
+      "nom": "Formation Grand Est",
+      "role": "Plateforme régionale Grand Est pour recherche et inscription formations continues",
+      "url": "https://formation.grandest.fr/Organisme/CFAD-80040442800024-1546"
+    },
+    {
+      "nom": "Trouver Ma Formation (TMF)",
+      "role": "Comparateur national formations professionnelles, référence Normandie et régions",
+      "url": "https://www.trouvermaformation.fr/organismes/organisme/3785P"
+    },
+    {
+      "nom": "Centre.contact",
+      "role": "Annuaire local formations avec avis clients (6 avis positifs pour CFAD)",
+      "url": "https://centre.contact/54-meurthe-et-moselle/nancy/centre-de-formation/7434-cfad.html"
+    }
+  ],
+  "site": "https://cfad.fr",
+  "intel": {
+    "financier": "Chiffre d'affaires < 700 k€ en 2021 (comptes non publics 2022-2026). Modèle de financement diversifié (OPco, CPF, régions, Pôle Emploi, France Travail) = trésorerie stable. Capital social 1 000 €.",
+    "concurrence": "Marché de niche (formation drone) peu saturé. Principaux concurrents : autres centres drone régionaux (Metz, Remiremont, Dijon, Dieppe). CFAD positionné comme centre de référence France (affirmé sur site). Pas de concurrence directe majeure détectée publiquement.",
+    "visibilite": "Très bonne auprès des financeurs (OPco, CPF, régions) et de la DGAC. Faible visibilité grand public (peu d'avis Google, pas de réseaux sociaux grand public). Présence forte sur annuaires professionnels de formation.",
+    "dirigeant": "Christopher Courtois, gérant depuis 2019 (changement de gérant en 26/09/2019, passage de Florent Marandon à DBI Conception SARL / Courtois). Pas d'année de naissance trouvée publiquement. Entreprise familiale ou reprise non confirmée."
+  },
+  "agents": [
+    {
+      "tag": "🔥",
+      "nom": "Captation & diffusion de témoignages vidéo",
+      "benefice": "Transformer les 4,9/5 et 100% satisfaction en preuve sociale virale (LinkedIn, YouTube) — augmenter traction organique et crédibilité auprès prospects B2B (entreprises, collectivités)."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Automatisation des demandes de devis & inscriptions",
+      "benefice": "Réduire charge administrative (mail/téléphone), qualifier leads en temps réel, accélérer conversion prospect→stagiaire, libérer temps formateurs pour pédagogie."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Veille & prospection appels d'offres (collectivités, entreprises)",
+      "benefice": "Identifier marchés publics formation drone (BTP, audiovisuel, agriculture), proposer formations sur-mesure, diversifier revenus au-delà CPF/OPco."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Gestion & optimisation du planning formations",
+      "benefice": "Maximiser taux de remplissage sessions, réduire invendus places, équilibrer charge formateurs, anticiper demandes saisonnières."
+    },
+    {
+      "tag": "🔥",
+      "nom": "Capitalisation savoir-faire pédagogique",
+      "benefice": "Documenter méthodes formateurs (progressivité, points clés), créer ressources e-learning enrichies, faciliter onboarding nouveaux formateurs, standardiser qualité."
+    },
+    {
+      "tag": "🧱",
+      "nom": "Suivi & fidélisation stagiaires post-formation",
+      "benefice": "Collecter avis/témoignages systématiquement, proposer formations complémentaires, créer communauté alumni, générer bouche-à-oreille et recommandations."
+    }
+  ],
+  "archetype": "Structure en croissance",
+  "posture": "Structuration & pilotage",
+  "chiffre": {
+    "unite": "h",
+    "label": "Temps administratif/pédagogique à libérer par semaine"
+  },
+  "coutInaction": "Chaque mois sans optimisation : 40-50h perdues en gestion manuelle devis/inscriptions, 10-15 places formations non remplies (perte ~3-5 k€), avis clients non systématisés (traction organique plafonnée). Croissance multi-sites freinée par manque de pilotage centralisé.",
+  "simulateur": {
+    "personnes": 2,
+    "heures": 5,
+    "cout": 40
+  },
+  "avantApres": {
+    "aujourdhui": "Demandes devis par mail/téléphone, suivi manuel, planning sur Excel, avis clients non collectés systématiquement, formateurs débordés par administratif, croissance limitée par capacité opérationnelle.",
+    "avecIA": "Formulaires en ligne auto-qualifiants, devis générés en 2h, planning optimisé (taux remplissage +15%), avis collectés & publiés auto, formateurs 100% sur pédagogie, expansion multi-sites pilotée."
+  },
+  "cta": "Explorez BOUSSOLE pour valider ces hypothèses et co-construire votre feuille de route IA : quels processus prioritaires ? Quel ROI attendu ? Quel timeline ?",
+  "indice": {
+    "estime": 69,
+    "potentiel": 87
+  },
+  "dimensions": {
+    "avis": 72,
+    "reseaux": 65,
+    "site": 82,
+    "traction": 85
+  },
+  "aura": {
+    "sens": "L'expertise rayonnante",
+    "couleur": "Doré",
+    "definition": "CFAD dégage la fierté d'une institution établie, reconnue par ses pairs (DGAC, OPco, régions), qui a bâti une excellence pédagogique observable (4,9/5, 97% réussite) et qui grandit intelligemment (5 centres, 9 formateurs, 25 formations).",
+    "eclat": "fort"
+  },
+  "fierte": "Vous avez construit en 12 ans un centre de référence France, reconnu par la DGAC et les financeurs publics, avec une satisfaction client exceptionnelle (4,9/5) et une croissance multi-sites maîtrisée. Votre expertise pédagogique et vos infrastructures sont des atouts rares. Le potentiel est énorme : structurer l'administratif et la prospection pour libérer l'énergie de vos formateurs et accélérer la conquête de nouveaux marchés (collectivités, entreprises, secteurs émergents).",
+  "sources": "Annuaire des Entreprises (data.gouv.fr), Pappers, Societe.com, Carif-Oref, Emfor BFC, Formation Grand Est, Trouver Ma Formation, LinkedIn CFAD, site cfad.fr (avril 2026), centre.contact (6 avis). Confiance : très élevée (sources officielles + site à jour). Comptes financiers 2022-2026 non publics (PME < 2M€ CA).",
+  "_auraCalc": {
+    "note_google": 5,
+    "nb_avis": 6,
+    "site": true,
+    "poids": {
+      "q": 30,
+      "v": 35,
+      "s": 35
+    }
+  }
+}
