@@ -2391,7 +2391,7 @@ function sentApercu(){
     showView('dirigeant'); window.scrollTo(0,0);
   };
 
-  if(window.__lastGet&&window.__lastGet.found&&window.__lastGet.fiche) return afficher(window.__lastGet.fiche);
+  var _c=iveFicheDuCompte(); if(_c) return afficher(_c.fiche);
   var k=sentKey(acc), q=k.texte;
   if(!q||!q.trim()) return rien();
   window.sbReady.then(function(){
@@ -2448,7 +2448,7 @@ function sentComplet(){
     showView('dirigeant'); window.scrollTo(0,0);
     if(typeof sentSlides==='function') sentSlides(f,'homeSlides','',header);
   };
-  if(window.__lastGet&&window.__lastGet.found&&window.__lastGet.fiche) return rendre(window.__lastGet);
+  var _c=iveFicheDuCompte(); if(_c) return rendre(_c);
   $('dirigeant').innerHTML=adminBar()+'<div class="card"><div class="sec" style="text-align:center;padding:26px;color:#6b7280;font-size:13px;"><span class="spin"></span><div style="margin-top:10px;">Nous rassemblons votre analyse…</div></div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
   var k=sentKey(acc), q=k.texte;
@@ -2995,7 +2995,7 @@ function dirigeantSpaceComplet(){
     (function(){
       var _k=sentKey(acc); var q=_k.texte;
       if(!q.trim()) return;
-      var _cachedGet=(window.__lastGet && window.__lastGet.found && window.__lastGet.fiche)?window.__lastGet:null;
+      var _cachedGet=iveFicheDuCompte();
       var _paint=function(g){
           if(!g||g.error||!g.data||!g.data.found||!g.data.fiche) return;
           var dg=g.data;
@@ -3244,7 +3244,7 @@ function syncPush(now){
     }catch(e){ console.warn('syncPush', e && e.message); }
   }, now?0:1200);
 }
-async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; window.lastMiroir=null; window.lastAH=null; window.frData=null; renderAuth('login'); }
+async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; if(typeof authResetState==='function') authResetState(); renderAuth('login'); }
 async function sendHandoff(){
   var email=prompt("Email du dirigeant qui recevra ce diagnostic dans son espace :");
   if(!email||!email.trim()) return;
@@ -3829,6 +3829,22 @@ function authResetState(){
   // Changement de compte : on repart de zéro (sinon les données de la session précédente contaminent la nouvelle)
   window.lastMiroir=null; window.lastAH=null; window.frData=null; window.miroirData=null;
   window.dbEnt=null; window.__gotHandoff=false; window.ahNom='';
+  // La fiche SENTINELLE et tout ce qui en dépend : sinon un nouveau compte voyait l'entreprise du précédent.
+  window.__lastGet=null; window.__sentData=null; window.__sentRecap=null; window.__sentDern=null;
+  window.__concuData=null; window.__bouRep=null; window.__boussolePlan=null; window.__boussoleActive=false;
+  window.lastNom=''; window.lastVille=''; window.lastActivite=''; window.lastArchetype='';
+  window.lastAura=null; window.lastAvis=null; window.lastSite='';
+}
+// La fiche en cache appartient-elle BIEN au compte connecté ? Sinon on l'ignore et on relit la base.
+function iveFicheDuCompte(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  var g=window.__lastGet;
+  if(!acc||!g||!g.found||!g.fiche) return null;
+  var n=function(s){ return (s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,''); };
+  var attendu=n(acc.sentNom||acc.name||''), trouve=n(g.nom||g.fiche.nom||'');
+  if(!attendu||!trouve) return null;
+  if(trouve.indexOf(attendu)===-1 && attendu.indexOf(trouve)===-1) return null;   // pas la même entreprise
+  return g;
 }
 async function authLogin(){
   var mail=($('auMail')&&$('auMail').value.trim().toLowerCase())||'', pass=($('auPass')&&$('auPass').value)||'';
