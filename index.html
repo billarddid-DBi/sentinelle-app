@@ -111,7 +111,7 @@
     </div>
     <div id="introCap" style="font-size:14px;color:#374151;text-align:center;min-height:38px;font-weight:600;"></div>
     <div id="introDots" style="display:flex;gap:6px;"></div>
-    <button onclick="introClose();renderAuth('signup');" style="background:#E8541A;color:#fff;border:none;border-radius:14px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;max-width:300px;">Tester gratuitement mon entreprise</button>
+    <button onclick="introClose();renderAuth('signup');" style="background:#E8541A;color:#fff;border:none;border-radius:14px;padding:13px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;max-width:300px;">Créer mon compte pour commencer</button>
   </div>
 </div>
 <div class="wrap">
@@ -2218,9 +2218,147 @@ function adminBar(){
     +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Nouvelle analyse</button>'
     +'</div>';
 }
+/* ===================== ACCUEIL DIRIGEANT — DEUX PORTES =====================
+   Rien n'est accessible sans compte. Une fois connecté, le dirigeant a exactement deux choix :
+   dicter ses tâches, ou voir sa couleur et son objectif. Tout le reste est payant.
+   La vue complète d'avant est CONSERVÉE sous dirigeantSpaceComplet() (accès admin). */
 function dirigeantSpace(){
   window.currentSpace='dirigeant';
   if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
+  var acc=currentAccount();
+  if(!acc){ renderAuth('login'); return; }                    // compte obligatoire, sans exception
+  if(window.__versApercu){ window.__versApercu=false; return sentApercu(); }
+  var nom=(window.lastMiroir&&window.lastMiroir.nom)||acc.name||'';
+  var porte=function(ic,titre,sous,action,bg,col){
+    return '<div onclick="'+action+'" style="background:'+bg+';border-radius:18px;padding:22px 20px;cursor:pointer;display:flex;align-items:center;gap:16px;box-shadow:0 6px 20px '+col+'26;">'
+      +'<div style="width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+ic+'" style="font-size:30px;color:#fff;"></i></div>'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:17px;font-weight:800;color:#fff;line-height:1.25;">'+titre+'</div><div style="font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.4;margin-top:4px;">'+sous+'</div></div>'
+      +'<i class="ti ti-chevron-right" style="font-size:24px;color:rgba(255,255,255,.7);flex:0 0 auto;"></i></div>';
+  };
+  $('dirigeant').innerHTML=adminBar()
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
+    +'<div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">'
+      +porte('ti-microphone','Dictez vos tâches','Appuyez, parlez : votre tâche s\'écrit toute seule et reste enregistrée.','dicteeView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A')
+      +porte('ti-eye','Voir ce que les autres voient','Votre couleur et l\'objectif à atteindre.','sentApercu()','linear-gradient(135deg,#2563EB,#1d4ed8)','#2563EB')
+    +'</div>'
+    +(iveIsAdmin()?'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="dirigeantSpaceComplet();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-lock-open"></i> Vue complète (admin)</a></div>':'')
+    +'<div class="foot" style="margin-top:14px;"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+'</div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
+
+/* --- APERÇU SENTINELLE : la couleur et l'objectif. Rien d'autre — la suite est payante. --- */
+function sentApercu(){
+  var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  var cadre=function(inner){
+    return adminBar()
+      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div></div></div>'
+      +(typeof iveNavBar==='function'?iveNavBar('sentinelle'):'')
+      +'<div class="card"><div class="sec">'+inner+'</div></div>';
+  };
+  var attente=function(msg){ $('dirigeant').innerHTML=cadre('<div style="text-align:center;padding:20px 6px;color:#6b7280;font-size:13px;"><span class="spin"></span><div style="margin-top:10px;">'+msg+'</div></div>'); showView('dirigeant'); window.scrollTo(0,0); };
+  attente('Nous cherchons votre entreprise…');
+
+  var afficher=function(f){
+    var v=synthVals(f);                                   // SOURCE UNIQUE (cf. CLAUDE.md §7)
+    var past=function(bg,lab,val,sub){ return '<div style="text-align:center;flex:0 0 auto;"><div style="width:124px;height:124px;border-radius:50%;margin:0 auto;background:'+bg+';box-shadow:0 8px 26px '+bg+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;"><span style="font-size:10px;font-weight:700;letter-spacing:1.2px;opacity:.9;">'+lab+'</span><span style="font-size:42px;font-weight:800;line-height:1;">'+val+'</span><span style="font-size:11px;opacity:.85;">/100</span></div><div style="font-size:11.5px;color:#6b7280;margin-top:8px;font-weight:600;">'+sub+'</div></div>'; };
+    $('dirigeant').innerHTML=cadre(
+      '<div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:6px;">'
+        +past(v.hex,'MON AURA',v.est,'Aura '+esc(v.coul))
+        +'<div style="text-align:center;flex:0 0 auto;color:#9ca3af;"><i class="ti ti-arrow-right" style="font-size:26px;color:#E8541A;"></i><div style="font-size:9.5px;color:#c2410c;font-weight:700;">objectif</div></div>'
+        +past('#E8541A','OBJECTIF',v.pot,'à atteindre')
+      +'</div>'
+      +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
+      +'<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:13px;padding:16px;margin-top:20px;text-align:center;">'
+        +'<div style="width:46px;height:46px;border-radius:50%;background:#1C1C1C;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:23px;color:#E8A07E;"></i></div>'
+        +'<div style="font-size:15px;font-weight:800;color:#1C1C1C;margin-top:10px;">Pourquoi cette couleur ? Comment atteindre l\'objectif ?</div>'
+        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.55;margin-top:6px;">Ce que disent vos clients, votre visibilité, vos points de vigilance, vos concurrents, et surtout <b>ce qu\'il faut faire</b> — tout cela fait partie de la suite.</div>'
+      +'</div>'
+      +(typeof bouTarifs==='function'?bouTarifs():'')
+      +'<button class="btn btn-ghost" style="margin-top:14px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
+    showView('dirigeant'); window.scrollTo(0,0);
+  };
+
+  var rien=function(){
+    $('dirigeant').innerHTML=cadre(
+      '<div style="text-align:center;padding:8px 4px;">'
+      +'<div style="width:64px;height:64px;border-radius:50%;background:#eef5ff;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-radar-2" style="font-size:32px;color:#2563EB;"></i></div>'
+      +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;margin-top:12px;">Découvrez votre couleur</div>'
+      +'<div style="font-size:13px;color:#4b5563;line-height:1.6;margin-top:8px;">Nous analysons ce qui est public sur votre entreprise et nous vous donnons votre couleur et votre objectif. Comptez moins d\'une minute.</div>'
+      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="window.__versApercu=true;lancerMaSentinelle();"><i class="ti ti-player-play"></i> Lancer mon analyse</button>'
+      +'</div>'
+      +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>');
+    showView('dirigeant'); window.scrollTo(0,0);
+  };
+
+  if(window.__lastGet&&window.__lastGet.found&&window.__lastGet.fiche) return afficher(window.__lastGet.fiche);
+  var k=sentKey(acc), q=k.texte;
+  if(!q||!q.trim()) return rien();
+  window.sbReady.then(function(){
+    if(!window.sb) return rien();
+    window.sb.rpc('sentinelle_get',{p_texte:q,p_adresse:(k.adresse||'')}).then(function(g){
+      if(g.error||!g.data||!g.data.found||!g.data.fiche) return rien();
+      window.__lastGet=g.data; window.__sentData=g.data.fiche; window.__sentDern=new Date(g.data.dernier||g.data.date);
+      afficher(g.data.fiche);
+    }).catch(rien);
+  }).catch(rien);
+}
+
+/* --- DICTÉE : le dirigeant parle, la tâche s'écrit et reste. Alimente la mémoire du quotidien. --- */
+function dicteeView(){
+  var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  var o=pmLoad(), taches=pmTodayTasks(o);
+  var liste=taches.length?taches.map(function(t){
+    return '<div style="display:flex;align-items:center;gap:10px;border:1px solid #eef0f3;border-radius:11px;padding:12px 13px;margin-top:8px;background:#fff;">'
+      +'<button type="button" onclick="dicteeToggle(\''+t.id+'\')" style="border:none;background:none;cursor:pointer;color:'+(t.done?'#16a34a':'#cbd5e1')+';font-size:22px;padding:0;line-height:1;"><i class="ti '+(t.done?'ti-square-check':'ti-square')+'"></i></button>'
+      +'<span style="flex:1;font-size:13.5px;line-height:1.4;'+(t.done?'text-decoration:line-through;color:#9ca3af;':'color:#1C1C1C;')+'">'+esc(t.t)+'</span>'
+      +'<button type="button" onclick="dicteeDel(\''+t.id+'\')" style="border:none;background:none;cursor:pointer;color:#e5e7eb;font-size:16px;padding:0;"><i class="ti ti-x"></i></button></div>';
+  }).join(''):'<div style="font-size:12.5px;color:#c7ccd3;text-align:center;padding:14px 0;">Rien pour aujourd\'hui. Appuyez sur le micro et dictez votre première tâche.</div>';
+  var dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
+  $('dirigeant').innerHTML=adminBar()
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-microphone"></i> VOS TÂCHES</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Dictez, on écrit</div></div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
+    +'<div class="card"><div class="sec">'
+      +'<div style="text-align:center;">'
+        +'<button type="button" id="micBtn" onclick="dicteeMic()" style="width:104px;height:104px;border-radius:50%;border:none;background:'+(dispo?'#E8541A':'#cbd5e1')+';color:#fff;font-size:44px;cursor:'+(dispo?'pointer':'default')+';box-shadow:0 8px 24px rgba(232,84,26,.32);font-family:inherit;"><i class="ti ti-microphone"></i></button>'
+        +'<div id="micEtat" style="font-size:13px;color:#6b7280;margin-top:12px;min-height:20px;">'+(dispo?'Appuyez et parlez':'La dictée vocale n\'est pas disponible sur ce navigateur — écrivez ci-dessous.')+'</div>'
+        +'<div id="micTexte" style="font-size:14px;color:#1C1C1C;font-weight:600;min-height:22px;margin-top:4px;"></div>'
+      +'</div>'
+      +'<div style="display:flex;gap:7px;margin-top:16px;"><input id="dicIn" type="text" placeholder="…ou écrivez la tâche ici" onkeydown="if(event.key===\'Enter\')dicteeAjout();" style="flex:1;font-size:16px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="dicteeAjout()" style="border:none;background:#1C1C1C;color:#fff;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;"><i class="ti ti-plus"></i></button></div>'
+      +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.4px;margin-top:20px;">AUJOURD\'HUI · '+taches.length+' tâche'+(taches.length>1?'s':'')+'</div>'
+      +liste
+      +'<button class="btn btn-ghost" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
+function dicteeAjout(){ var el=$('dicIn'); if(!el||!el.value.trim())return; pmAddTask(el.value); el.value=''; dicteeView(); }
+function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeView(); }
+function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeView(); }
+function dicteeMic(){
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var etat=$('micEtat'), txt=$('micTexte'), btn=$('micBtn');
+  if(!SR){ if(etat) etat.textContent='Dictée vocale indisponible ici — écrivez la tâche ci-dessous.'; return; }
+  if(window.__dicteeOn&&window.__dictee){ try{ window.__dictee.stop(); }catch(e){} return; }
+  var rec=new SR(); window.__dictee=rec;
+  rec.lang='fr-FR'; rec.interimResults=true; rec.continuous=false; rec.maxAlternatives=1;
+  var dit='';
+  rec.onstart=function(){ window.__dicteeOn=true; if(btn){ btn.style.background='#dc2626'; btn.style.animation='btnPulse 1.4s ease-in-out infinite'; } if(etat) etat.textContent='Je vous écoute… appuyez pour arrêter'; if(txt) txt.textContent=''; };
+  rec.onresult=function(e){ var s=''; for(var i=e.resultIndex;i<e.results.length;i++){ s+=e.results[i][0].transcript; if(e.results[i].isFinal) dit+=e.results[i][0].transcript; } if(txt) txt.textContent=(dit||s); };
+  rec.onerror=function(e){ if(etat) etat.textContent=(e&&e.error==='not-allowed')?'Micro refusé — autorisez le microphone dans votre navigateur.':'Je n\'ai pas réussi à écouter. Réessayez.'; };
+  rec.onend=function(){
+    window.__dicteeOn=false;
+    if(btn){ btn.style.background='#E8541A'; btn.style.animation=''; }
+    var t=(dit||(txt?txt.textContent:'')||'').trim();
+    if(t){ pmAddTask(t); dicteeView(); }
+    else if(etat) etat.textContent='Rien entendu — réessayez.';
+  };
+  try{ rec.start(); }catch(e){ if(etat) etat.textContent='Impossible de démarrer le micro.'; }
+}
+
+/* --- Vue complète d'avant : CONSERVÉE (cf. CLAUDE.md règle 5), accessible aux admins --- */
+function dirigeantSpaceComplet(){
+  window.currentSpace='dirigeant';
+  if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpaceComplet(); }); return; }
   var acc=currentAccount();
   if(!acc){ renderAuth('login'); return; }
   if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:acc.name};
