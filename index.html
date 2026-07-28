@@ -1027,6 +1027,7 @@ function offreView(){
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;color:#374151;line-height:1.6;">Vous avez déjà <b>votre couleur</b> et <b>votre objectif</b>. L\'abonnement ouvre le reste : le <b>pourquoi</b>, le <b>comment</b>, et le plan pour y arriver.</div>'
+      +'<div style="display:flex;gap:11px;align-items:flex-start;border:1px solid #eef0f3;border-radius:11px;padding:12px 14px;margin-top:12px;"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-microphone" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti ti-lock" style="color:#9ca3af;font-size:13px;"></i> Dictez vos tâches</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">Vos consignes dictées, classées et conservées : priorités, délais, rappels, et les tâches qui reviennent trop souvent.</div></div></div>'
       +(typeof bouToolsHtml==='function'?bouToolsHtml(true):'')
       +(typeof bouTarifs==='function'?bouTarifs():'')
       +'<div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:12px;color:#7c4a03;margin-top:12px;line-height:1.5;"><i class="ti ti-clock"></i> <b>Ouverture imminente.</b> Aucun paiement ne vous est demandé pour l\'instant — vous serez prévenu par email dès l\'activation.</div>'
@@ -2283,20 +2284,25 @@ function dirigeantSpace(){
       +'<i class="ti ti-chevron-right" style="font-size:24px;color:rgba(255,255,255,.7);flex:0 0 auto;"></i></div>';
   };
   // Les deux gestes du quotidien, côte à côte : enregistrer une consigne, ou gérer ses tâches.
-  var demi=function(ic,titre,sous,action,bg,col,pastille){
+  // Sans abonnement, ils restent VISIBLES mais grisés : la dictée et le stockage des tâches
+  // consomment de l'IA et de l'espace, ils ne peuvent pas être offerts.
+  var demi=function(ic,titre,sous,action,bg,col,pastille,verrou){
+    if(verrou){ bg='linear-gradient(135deg,#c7ccd3,#9ca3af)'; col='#9ca3af'; action='offreView()'; pastille=''; }
     return '<div onclick="'+action+'" style="flex:1 1 0;min-width:0;background:'+bg+';border-radius:18px;padding:18px 12px;cursor:pointer;text-align:center;box-shadow:0 6px 20px '+col+'26;position:relative;">'
+      +(verrou?'<span style="position:absolute;top:10px;right:12px;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:13px;color:#fff;"></i></span>':'')
       +(pastille?'<span style="position:absolute;top:10px;right:12px;background:#fff;color:'+col+';font-size:11.5px;font-weight:800;border-radius:11px;padding:2px 8px;">'+pastille+'</span>':'')
       +'<div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+ic+'" style="font-size:26px;color:#fff;"></i></div>'
       +'<div style="font-size:clamp(14px,4vw,15.5px);font-weight:800;color:#fff;margin-top:10px;line-height:1.25;">'+titre+'</div>'
-      +'<div style="font-size:clamp(10.5px,3vw,11.5px);color:rgba(255,255,255,.85);line-height:1.35;margin-top:3px;">'+sous+'</div></div>';
+      +'<div style="font-size:clamp(10.5px,3vw,11.5px);color:rgba(255,255,255,.85);line-height:1.35;margin-top:3px;">'+(verrou?'Réservé aux abonnés':sous)+'</div></div>';
   };
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
+  var _verrou=!iveAbonne();
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     +'<div style="display:flex;gap:10px;margin-top:12px;">'
-      +demi('ti-microphone','Enregistrer','Dictez une consigne','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','')
-      +demi('ti-list-check','Mes tâches','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''))
+      +demi('ti-microphone','Enregistrer','Dictez une consigne','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
+      +demi('ti-list-check','Mes tâches','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''),_verrou)
     +'</div>'
     +'<div style="margin-top:12px;">'
       +porte('ti-eye','Voir votre entreprise de l\'extérieur','Découvrez ce que votre présence en ligne raconte de vous.','sentApercu()','linear-gradient(135deg,#2563EB,#1d4ed8)','#2563EB')
@@ -2551,6 +2557,7 @@ function dicteePurgeTest(){
 /* ---------- ÉCRAN 1 : ENREGISTRER une consigne ---------- */
 function dicteeEnregistrerView(){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  if(!iveAbonne()) return offreView();      // dictée = IA + stockage : réservé aux abonnés
   dicteePurgeTest();
   var dispo=!!(window.SpeechRecognition||window.webkitSpeechRecognition);
   var o=pmLoad(), att=(o.tasks||[]).filter(function(t){ return !t.done&&!t.archive; }).length;
@@ -2708,6 +2715,7 @@ function tacheRappelsEchus(o){
 
 function dicteeView(filtre){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
+  if(!iveAbonne()) return offreView();      // liste des tâches = stockage : réservé aux abonnés
   filtre=filtre||window.__dicFiltre||'afaire'; window.__dicFiltre=filtre;
   var tri=window.__dicTri||'auto';
   dicteePurgeTest();
