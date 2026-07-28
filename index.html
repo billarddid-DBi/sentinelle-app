@@ -2590,12 +2590,12 @@ function tacheEch(id,code){ tacheMaj(id,function(t){ t.ech=(code==='aucune')?nul
 function tacheRappel(id,code){
   if(code!=='aucun' && typeof Notification!=='undefined' && Notification.permission==='default'){ try{ Notification.requestPermission(); }catch(e){} }
   tacheMaj(id,function(t){
-    if(code==='aucun'){ t.rappel=null; t.rappelFait=false; return; }
+    if(code==='aucun'){ t.rappel=null; t.rappelCode=null; t.rappelFait=false; return; }
     var d=new Date();
     if(code==='1h') d.setHours(d.getHours()+1);
     else if(code==='soir'){ d.setHours(18,0,0,0); if(d<new Date()) d.setDate(d.getDate()+1); }
     else { d.setDate(d.getDate()+1); d.setHours(9,0,0,0); }
-    t.rappel=d.toISOString(); t.rappelFait=false;
+    t.rappel=d.toISOString(); t.rappelCode=code; t.rappelFait=false;   // le code sert à colorer le bouton actif
   });
 }
 function tacheMonter(id){ tacheDeplacer(id,-1); }
@@ -2696,8 +2696,14 @@ function dicteeView(filtre){
     var chip=function(coul,fond,ic,txt){ return '<span style="font-size:9.5px;color:'+coul+';background:'+fond+';border-radius:7px;padding:2px 7px;font-weight:700;white-space:nowrap;"><i class="ti '+ic+'"></i> '+txt+'</span>'; };
     var bPrio=function(n2){ var q=TACHE_PRIO[n2], on=((t.prio||0)===n2);
       return '<button type="button" onclick="tachePrio(\''+t.id+'\','+n2+')" style="flex:1;border:1px solid '+(on?q[1]:'#e5e7eb')+';background:'+(on?q[2]:'#fff')+';color:'+(on?q[1]:'#9ca3af')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti '+q[3]+'"></i> '+q[0]+'</button>'; };
-    var bEch=function(code,lbl){ return '<button type="button" onclick="tacheEch(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:9px;padding:8px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">'+lbl+'</button>'; };
-    var bRap=function(code,lbl){ return '<button type="button" onclick="tacheRappel(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid #e5e7eb;background:#fff;color:#4b5563;border-radius:9px;padding:8px 4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">'+lbl+'</button>'; };
+    // Quelle échéance / quel rappel est actif ? Le bouton correspondant se colore, comme la priorité.
+    var jEch=t.ech?tacheJour(t.ech):null;
+    var echActif=(t.ech==null)?'aucune':(jEch===0?'jour':jEch===1?'demain':(jEch>1?'semaine':''));
+    var rapActif=t.rappel?(t.rappelCode||''):'aucun';
+    var bEch=function(code,lbl){ var on=(echActif===code);
+      return '<button type="button" onclick="tacheEch(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid '+(on?'#c2410c':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#c2410c':'#4b5563')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:'+(on?'800':'600')+';cursor:pointer;font-family:inherit;">'+(on?'<i class="ti ti-check" style="font-size:11px;"></i> ':'')+lbl+'</button>'; };
+    var bRap=function(code,lbl){ var on=(rapActif===code);
+      return '<button type="button" onclick="tacheRappel(\''+t.id+'\',\''+code+'\')" style="flex:1;border:1px solid '+(on?'#7c3aed':'#e5e7eb')+';background:'+(on?'#f3e8ff':'#fff')+';color:'+(on?'#7c3aed':'#4b5563')+';border-radius:9px;padding:8px 4px;font-size:11px;font-weight:'+(on?'800':'600')+';cursor:pointer;font-family:inherit;">'+(on?'<i class="ti ti-check" style="font-size:11px;"></i> ':'')+lbl+'</button>'; };
     // Plus de case à cocher : on fait glisser la tâche vers la droite ou vers la gauche.
     var fondSwipe=t.done?'#E8541A':'#16a34a', motSwipe=t.done?'À refaire':'Fait';
     return '<div class="tacheWrap" data-tid="'+t.id+'" style="position:relative;overflow:hidden;border-radius:11px;margin-top:8px;">'
