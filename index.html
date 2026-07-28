@@ -77,7 +77,10 @@
   body.hastab .wrap{padding-bottom:76px;}
   #capfab{position:fixed;right:16px;bottom:88px;height:46px;border-radius:23px;background:#E8541A;color:#fff;display:none;align-items:center;justify-content:center;gap:6px;padding:0 16px 0 13px;font-size:13px;font-weight:700;box-shadow:0 8px 20px rgba(232,84,26,.4);z-index:70;cursor:pointer;}
   #capfab i{font-size:19px;}
-  #capfab.show{display:flex;}
+  /* Bouton flottant « Que pouvez-vous nous dire… » : RETIRÉ de toute l'application (décision Didier).
+     Le code est conservé, mais il ne doit apparaître sur aucun écran. */
+  #capfab, #capfab.show{display:none!important;}
+  #capbar, #capbar.show{display:none!important;}
   @keyframes iveGlow{0%{background:#E8541A;box-shadow:0 0 34px 8px rgba(232,84,26,.55);}20%{background:#d4a017;box-shadow:0 0 34px 8px rgba(212,160,23,.55);}40%{background:#16a34a;box-shadow:0 0 34px 8px rgba(22,163,74,.5);}60%{background:#2563eb;box-shadow:0 0 34px 8px rgba(37,99,235,.5);}80%{background:#7c3aed;box-shadow:0 0 34px 8px rgba(124,58,237,.5);}100%{background:#E8541A;box-shadow:0 0 34px 8px rgba(232,84,26,.55);}}
   .ivePastille{width:165px;height:165px;border-radius:50%;border:3px dashed rgba(255,255,255,.5);cursor:pointer;font-family:inherit;color:#fff;animation:iveGlow 9s linear infinite;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
   .liveAnim span{display:inline-block;color:#fff;}
