@@ -109,7 +109,10 @@
     body.impression .sSlide{page-break-inside:avoid;break-inside:avoid;}
     body.impression [id^="sSlide_"]{page-break-after:always;break-after:page;}
     body.impression [id^="sSlide_"]:last-child{page-break-after:auto;break-after:auto;}
+    /* En-tête propre au document imprimé : nom, date d'analyse, date d'export. */
+    body.impression .impressionEntete{display:block!important;}
   }
+  .impressionEntete{display:none;}
 </style>
 </head>
 <body>
@@ -2447,6 +2450,25 @@ function sentApercu(){
    le PDF (« Enregistrer au format PDF » dans la boîte d'impression). Aucune bibliothèque externe. --- */
 function sentImprimer(){
   var etat=[], fait=false;
+  // En-tête du document : entreprise, date de l'analyse, date de l'export. Visible au PDF uniquement.
+  var hote=$('dirigeant'), entete=null;
+  if(hote){
+    var f=window.__sentData||{}, acc=(typeof currentAccount==='function')?currentAccount():null;
+    var nomEnt=f.nom||(window.__lastGet&&window.__lastGet.nom)||(acc&&acc.name)||'';
+    var dA=window.__sentDern||((window.__lastGet)?new Date(window.__lastGet.dernier||window.__lastGet.date):null);
+    var fmt=function(d){ return (d&&!isNaN(new Date(d)))?new Date(d).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''; };
+    entete=document.createElement('div');
+    entete.className='impressionEntete';
+    entete.style.cssText='border-bottom:2px solid #1C1C1C;padding-bottom:8px;margin-bottom:14px;';
+    entete.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;">'
+      +'<div><div style="font-size:10px;letter-spacing:2px;color:#E8541A;font-weight:800;">SENTINELLE</div>'
+      +'<div style="font-size:17px;font-weight:800;color:#1C1C1C;line-height:1.2;">'+esc(nomEnt)+'</div></div>'
+      +'<div style="text-align:right;font-size:10.5px;color:#6b7280;line-height:1.5;">'
+        +(fmt(dA)?'Analyse réalisée le <b>'+fmt(dA)+'</b><br>':'')
+        +'Document édité le '+fmt(new Date())
+      +'</div></div>';
+    hote.insertBefore(entete,hote.firstChild);
+  }
   // 1) toutes les slides visibles (au lieu d'une seule)
   for(var i=0;;i++){ var el=document.getElementById('sSlide_'+i); if(!el) break; etat.push([el,el.style.display]); el.style.display='flex'; }
   // 2) tous les menus déroulants ouverts (accordéons de la synthèse + panneaux de détail)
@@ -2457,6 +2479,7 @@ function sentImprimer(){
     if(fait) return; fait=true;
     document.body.classList.remove('impression');
     etat.forEach(function(x){ x[0].style.display=x[1]; });
+    if(entete&&entete.parentNode) entete.parentNode.removeChild(entete);
     window.removeEventListener('afterprint',restaurer);
   };
   window.addEventListener('afterprint',restaurer);
