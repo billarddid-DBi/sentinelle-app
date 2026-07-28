@@ -2772,10 +2772,11 @@ function dicteeView(filtre){
       +alerte
       +'<div style="display:flex;gap:7px;margin-top:'+(alerte?'12px':'0')+';">'+onglet('afaire','À faire',afaire.length)+onglet('faites','Faites',faites.length)+'</div>'
       +(filtre==='afaire'?'<div style="display:flex;gap:6px;align-items:center;margin-top:11px;flex-wrap:wrap;"><span style="font-size:10.5px;color:#9ca3af;font-weight:700;">TRIER PAR</span>'+bTri('auto','Priorité')+bTri('echeance','Échéance')+bTri('ordre','Mon ordre')+'</div>':'')
-      +(vues.length?'<div style="font-size:11px;color:#9ca3af;margin-top:12px;text-align:center;"><i class="ti ti-arrows-horizontal"></i> Faites glisser une tâche '+(filtre==='faites'?'pour la remettre à faire':'pour la marquer faite')+' · appuyez dessus pour la régler</div>':'')
+      // Enregistrer se place AVANT la liste, et seulement dans les en-cours (inutile dans « Faites »).
+      +(filtre==='afaire'?'<button class="btn btn-primary" style="margin-top:14px;" onclick="dicteeEnregistrerView()"><i class="ti ti-microphone"></i> Enregistrer une tâche</button>':'')
+      +(vues.length?'<div style="font-size:11px;color:#9ca3af;margin-top:14px;text-align:center;"><i class="ti ti-arrows-horizontal"></i> Faites glisser une tâche '+(filtre==='faites'?'pour la remettre à faire':'pour la marquer faite')+' · appuyez dessus pour la régler</div>':'')
       +liste+repBloc
-      +'<button class="btn btn-primary" style="margin-top:18px;" onclick="dicteeEnregistrerView()"><i class="ti ti-microphone"></i> Enregistrer une tâche</button>'
-      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
+      +'<button class="btn btn-ghost" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
   tacheBrancherSwipe();
