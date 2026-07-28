@@ -610,9 +610,14 @@ function startBoussole(mode){
 }
 function startGrille(mode){
   showView('bGrille');
-  var items=buildItems(mode); window.bItems=items;
+  var items=buildItems(mode); window.bItems=items; window.bMode=mode;
   var label = (mode==='express') ? 'Express' : 'Complet';
-  var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
+  // Les deux bandeaux noirs, comme sur toutes les pages : on peut repartir vers SENTINELLE
+  // ou l'accueil à tout moment — les réponses sont enregistrées à chaque geste.
+  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div id="bSauveChip" style="font-size:11.5px;color:#16a34a;font-weight:600;margin:2px 2px 6px;"></div>'
+    +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-compass"></i> BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="bIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100</span> <span id="bStars" style="font-size:16px;color:#f59e0b;"></span></div>'
     +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>';
@@ -629,9 +634,25 @@ function startGrille(mode){
   if(open)html+='</div>';
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
     +'<button class="btn btn-primary" onclick="bFinish()"><i class="ti ti-circle-check"></i> Terminer & voir le diagnostic</button>'
+    +'<button class="btn" style="background:#fff;border:1px solid #d7dbe3;color:#1C1C1C;" onclick="bouGrilleQuitter(\'accueil\')"><i class="ti ti-device-floppy"></i> Enregistrer et reprendre plus tard</button>'
+    +'<button class="btn" style="background:#fff;border:1px solid #d7dbe3;color:#1C1C1C;" onclick="bouGrilleQuitter(\'sentinelle\')"><i class="ti ti-radar-2"></i> Enregistrer et aller sur SENTINELLE</button>'
+    +'<button class="btn btn-ghost" onclick="bouGrilleEffacer()"><i class="ti ti-trash"></i> Effacer mes réponses</button>'
     +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">← Retour</button>';
   $('bGrille').innerHTML=html;
+  // On remet les réponses déjà données (même formule uniquement) : le questionnaire se modifie.
+  var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
+  if(sv && sv.mode===mode && sv.notes){
+    window.bResto=1;
+    items.forEach(function(it){
+      if(!(it.id in sv.notes)) return;
+      var v=sv.notes[it.id], el=$(it.id); if(!el) return;
+      if(v===null){ if(el.dataset.na!=='1') toggleNA(it.id); }
+      else { el.value=v; }
+    });
+    window.bResto=0;
+  }
   bcalc();
+  if(typeof iveBandesFixes==='function') iveBandesFixes();
 }
 function bScan(){
   var items=window.bItems||[], sum=0,n=0,pil={},faibles=[];
@@ -654,6 +675,8 @@ function bcalc(){
   var fz=$('bFaibles');
   if(r.faibles.length){var sh=r.faibles.slice(0,10),ex=r.faibles.length-sh.length;fz.style.display='block';fz.innerHTML='<b><i class="ti ti-alert-triangle"></i> Points faibles (≤2/5) — '+r.faibles.length+' besoin(s) à creuser :</b><br>• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres…</i>':'');}
   else fz.style.display='none';
+  // Sauvegarde à chaque geste : quitter la page ne fait jamais perdre une réponse.
+  if(typeof bouGrilleStore!=='undefined'){ bouGrilleStore.save(); bouGrilleChip(); }
 }
 function toggleNA(id){
   var el=$(id),btn=$(id+'_na'),lab=$(id+'v'),row=$(id+'_row');
@@ -1221,7 +1244,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 12';
+var IVE_VERSION='28/07 · 13';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -3512,6 +3535,42 @@ var iveStore={
   save:function(o){ try{ localStorage.setItem(iveStore.key(), JSON.stringify(o)); }catch(e){} return o; },
   clear:function(){ try{ localStorage.removeItem(iveStore.key()); }catch(e){} window.__bouRep=null; }
 };
+// Sauvegarde du questionnaire BOUSSOLE (la grille de critères) : on le reprend là où on l'a laissé.
+// Même principe que iveStore : localStorage aujourd'hui, Supabase demain, sans toucher au reste.
+var bouGrilleStore={
+  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_grille_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  load:function(){ try{ var s=localStorage.getItem(bouGrilleStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
+  save:function(){
+    if(window.bResto) return;            // pendant la restauration, on n'écrase rien
+    var items=window.bItems||[]; if(!items.length) return;
+    try{
+      var n={}; items.forEach(function(it){ var el=$(it.id); if(!el) return; n[it.id]=(el.dataset.na==='1')?null:+el.value; });
+      localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:n,ts:Date.now()}));
+    }catch(e){}
+  },
+  clear:function(){ try{ localStorage.removeItem(bouGrilleStore.key()); }catch(e){} }
+};
+// « Enregistré le 28/07 à 14h32 » — la preuve visible que rien n'est perdu.
+function bouGrilleQuand(){
+  var s=bouGrilleStore.load(); if(!s||!s.ts) return '';
+  var d=new Date(s.ts);
+  return d.toLocaleDateString('fr-FR')+' à '+('0'+d.getHours()).slice(-2)+'h'+('0'+d.getMinutes()).slice(-2);
+}
+function bouGrilleChip(){
+  var e=$('bSauveChip'); if(!e) return;
+  var q=bouGrilleQuand();
+  e.innerHTML=q?('<i class="ti ti-device-floppy"></i> Enregistré automatiquement · '+q):'';
+}
+// Quitter en gardant tout : la grille est déjà sauvegardée à chaque geste, on ne fait que confirmer.
+function bouGrilleQuitter(dest){
+  bouGrilleStore.save();
+  if(typeof iveNav==='function') iveNav(dest||'accueil'); else showView('dirigeant');
+}
+function bouGrilleEffacer(){
+  if(!confirm('Effacer toutes vos réponses de ce questionnaire ?')) return;
+  bouGrilleStore.clear();
+  startGrille(window.bMode||'express');
+}
 function bouRep(){ if(!window.__bouRep) window.__bouRep=iveStore.load()||{v:1}; return window.__bouRep; }
 function bouSet(k,v){ var r=bouRep(); r[k]=v; iveStore.save(r); return r; }
 
