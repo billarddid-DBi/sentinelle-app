@@ -2304,6 +2304,15 @@ function iveAbonnementChip(){
   var t=iveAbonnementTxt();
   return '<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
 }
+// Partie droite des bandeaux noirs, IDENTIQUE partout : l'abonnement, puis la date du jour.
+// « Déconnexion » n'apparaît que sur l'accueil.
+function iveBandDroite(avecDeconnexion){
+  return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
+    +iveAbonnementChip()
+    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
+    +(avecDeconnexion?'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a></div>':'')
+  +'</div>';
+}
 function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
 // Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
 // ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
@@ -2351,7 +2360,7 @@ function dirigeantSpace(){
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
   var _verrou=!iveAbonne();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;flex:0 0 auto;">'+iveAbonnementChip()+'<div style="margin-top:5px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div><div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'+iveBandDroite(true)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     +'<div style="display:flex;gap:10px;margin-top:12px;">'
       +demi('ti-microphone','Enregistrer','Dictez une consigne','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
@@ -2461,10 +2470,8 @@ function sentComplet(){
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
     window.lastSite=f.site||'';
     var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
-      +'<div style="text-align:right;flex:0 0 auto;">'
-        +iveAbonnementChip()
-        +'<div style="font-size:10.5px;color:#9ca3af;white-space:nowrap;margin-top:6px;"><i class="ti ti-calendar"></i> '+window.__sentDern.toLocaleDateString('fr-FR')+'</div>'
-      +'</div></div></div>';
+      +iveBandDroite(false)
+      +'</div></div>';
     $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>'
       +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>';
     showView('dirigeant'); window.scrollTo(0,0);
@@ -3429,7 +3436,7 @@ function bouCadre(inner, etape, titre){
   var prog='';
   if(etape){ prog='<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.5px;">'+etape+'/5</span><span style="font-size:11px;color:#9ca3af;">environ 90 secondes</span></div><div style="height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(etape/5*100)+'%;height:100%;background:#E8541A;border-radius:4px;"></div></div></div>'; }
   return '<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div></div><div style="flex:0 0 auto;">'+iveAbonnementChip()+'</div></div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div></div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'+prog+inner+'</div></div></div>';
 }
@@ -3751,7 +3758,7 @@ function boussoleOutil(which){
   var nom=window.lastNom||(acc&&acc.name)||'';
   if(which==='questionnaire'){ return boussoleParcours(); }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
-  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div></div><div style="flex:0 0 auto;">'+iveAbonnementChip()+'</div></div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):''); };
+  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div></div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):''); };
   if(which==='concurrence'){
     var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
@@ -3816,7 +3823,7 @@ function boussoleParcours(){
     +'</div>';
   };
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div></div><div style="flex:0 0 auto;">'+iveAbonnementChip()+'</div></div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div></div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       // Accroche + boussole
@@ -3932,7 +3939,7 @@ function boussoleView(){
   if(bouEtape()<6) return bouIntro();
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div><div style="flex:0 0 auto;">'+iveAbonnementChip()+'</div></div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;color:#374151;line-height:1.55;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
