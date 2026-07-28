@@ -3749,15 +3749,7 @@ function bouToolsHtml(verrouille){
 function boussoleOutil(which){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var nom=window.lastNom||(acc&&acc.name)||'';
-  if(which==='questionnaire'){
-    if($('bNom')) $('bNom').value=nom;
-    if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
-    if(typeof bMsgHide==='function') bMsgHide();
-    // On vient de BOUSSOLE : le bouton du bas doit y ramener, pas à l'accueil.
-    var bk=$('bChoiceBack');
-    if(bk){ bk.innerHTML='<i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE'; bk.setAttribute('onclick','boussoleView()'); }
-    showView('bChoice'); window.scrollTo(0,0); return;
-  }
+  if(which==='questionnaire'){ return boussoleParcours(); }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
   var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div></div></div>'+(typeof iveNavBar==='function'?iveNavBar('boussole'):''); };
   if(which==='concurrence'){
@@ -3801,6 +3793,80 @@ function paywallView(){
   if(et<6) return bouIntro();                 // questionnaire non terminé → on écoute d'abord
   if(!r.intentionChangement) return bouChiffre();   // terminé mais intention non donnée → son chiffre
   return bouOffre(r.intentionChangement);     // tout est là → l'offre, orientée selon sa réponse
+}
+/* --- CHOIX DU PARCOURS BOUSSOLE (Express / Complet) — écran de la vue dirigeant, donc avec les
+   deux bandeaux noirs fixes en haut. L'ancien écran « bChoice » reste dans le code (vue consultant). --- */
+function boussoleParcours(){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(!acc){ renderAuth('login'); return; }
+  var nom=window.lastNom||(acc&&acc.name)||'';
+  var ligne=function(ic,txt){
+    return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:10px 12px;margin-top:7px;">'
+      +'<i class="ti '+ic+'" style="font-size:17px;color:#6b7280;flex:0 0 auto;"></i>'
+      +'<span style="font-size:12.5px;color:#1C1C1C;line-height:1.35;">'+txt+'</span></div>';
+  };
+  var carte=function(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
+    return '<div style="flex:1 1 250px;min-width:0;background:'+fond+';border:1px solid '+bord+';border-radius:16px;padding:18px 15px;">'
+      +'<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+icone+'" style="font-size:25px;color:'+coul+';"></i></div>'
+      +'<div style="text-align:center;font-size:17px;font-weight:800;color:'+coul+';line-height:1.2;margin-top:10px;letter-spacing:.3px;">'+titre+'</div>'
+      +'<div style="height:1px;background:'+bord+';margin:11px 6px;"></div>'
+      +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
+      +'<div style="margin-top:10px;">'+lignes+'</div>'
+      +'<button type="button" onclick="'+action+'" style="width:100%;border:none;background:'+coul+';color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:14px;">'+libBouton+' <i class="ti ti-arrow-right"></i></button>'
+    +'</div>';
+  };
+  $('dirigeant').innerHTML=adminBar()
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div></div><div style="flex:0 0 auto;">'+iveAbonnementChip()+'</div></div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div class="sec">'
+      // Accroche + boussole
+      +'<div style="display:flex;align-items:flex-start;gap:12px;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="font-size:14px;font-weight:800;color:#E8541A;">Bonjour 👋</div>'
+          +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;margin-top:4px;">Quel parcours<br>souhaitez-vous <span style="color:#E8541A;">choisir&nbsp;?</span></div>'
+          +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">Le même référentiel. Deux niveaux d\'accompagnement pour répondre à vos besoins.</div>'
+        +'</div>'
+        +'<div style="width:92px;height:92px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+(typeof boussoleSVG==='function'?boussoleSVG(62):'<i class="ti ti-compass" style="font-size:44px;color:#E8541A;"></i>')+'</div>'
+      +'</div>'
+      // L'entreprise concernée
+      +'<div style="display:flex;align-items:center;gap:12px;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:16px;">'
+        +'<div style="width:44px;height:44px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:22px;color:#E8541A;"></i></div>'
+        +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;line-height:1.25;">'+esc(nom||'votre entreprise')+'</div></div>'
+      +'</div>'
+      // Les deux parcours
+      +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
+        +carte('#E8541A','#fffaf6','#fed7aa','ti-bolt','BOUSSOLE<br>EXPRESS','Comprendre l\'essentiel rapidement',
+            ligne('ti-target-arrow','40 critères prioritaires')+ligne('ti-clock','Environ 1 h 30')+ligne('ti-star','3 à 5 actions prioritaires')+ligne('ti-chart-line','Une première vision claire de vos priorités'),
+            'Commencer le parcours Express','boussoleDemarrer(\'express\')')
+        +carte('#2563EB','#f5f8ff','#dbe7fb','ti-compass','BOUSSOLE<br>COMPLET','Construire votre feuille de route',
+            ligne('ti-checkbox','Référentiel complet')+ligne('ti-list-details','200 critères détaillés')+ligne('ti-map','Plan d\'action sur 12 mois')+ligne('ti-users-group','Accompagnement dans la durée'),
+            'Commencer le parcours Complet','boussoleDemarrer(\'complet\')')
+      +'</div>'
+      // Rassurance
+      +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
+        +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-refresh" style="font-size:19px;color:#6b7280;"></i></div>'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">Vous pourrez passer de l\'Express au Complet à tout moment.</b><br>Vos données sont conservées et votre progression sauvegardée.</div>'
+      +'</div>'
+      +'<div id="bParcMsg" style="margin-top:12px;"></div>'
+      +'<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
+// Lancement d'un parcours : on renseigne les champs de la grille existante, puis on démarre.
+function boussoleDemarrer(mode){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var nom=window.lastNom||(acc&&acc.name)||'';
+  var msg=$('bParcMsg');
+  if(!window.lastAura||!window.lastNom){
+    // Sans fiche SENTINELLE chargée, la couleur de départ n'existe pas : on le dit clairement.
+    if(msg) msg.innerHTML='<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:11px;padding:12px 14px;font-size:12.5px;color:#92700c;line-height:1.5;"><i class="ti ti-alert-triangle"></i> Ouvrez d\'abord <b>votre analyse SENTINELLE</b> : c\'est elle qui donne la couleur de départ du diagnostic.<div style="margin-top:8px;"><button type="button" onclick="sentComplet()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir mon SENTINELLE</button></div></div>';
+    return;
+  }
+  if($('bNom')) $('bNom').value=nom;
+  if($('bExt')) $('bExt').value=(window.lastAura&&window.lastAura.note!=null)?window.lastAura.note:'';
+  if(typeof bMsgHide==='function') bMsgHide();
+  if(msg) msg.innerHTML='<div style="font-size:12.5px;color:#6b7280;"><span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>Préparation du diagnostic…</div>';
+  startBoussole(mode);
 }
 // Pastille ronde d'accès (taille adaptative pour rester côte à côte sur un petit écran).
 function bouPastille(coul,icone,libelle,action){
