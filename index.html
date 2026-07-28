@@ -2413,8 +2413,17 @@ function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ retu
 
 // Découpe : l'IA d'abord ; si elle est indisponible, on coupe nous-mêmes sur les liaisons (rien n'est perdu).
 function dicteeDecoupeLocale(txt){
-  return (txt||'').split(/(?:[.;!?]|\bpuis\b|\bensuite\b|\bapr[eè]s\b|\bet aussi\b|\baussi\b)/i)
-    .map(function(s){ return s.replace(/^\s*(et|alors|donc|euh|voil[aà]|bon)\s+/i,'').trim(); })
+  return (txt||'').split(/(?:[.;!?]|\bpuis\b|\bensuite\b|\bapr[eè]s [cç]a\b|\bet aussi\b)/i)
+    .map(function(s){
+      s=s.trim();
+      // hésitations et amorces en début de phrase
+      for(var i=0;i<4;i++) s=s.replace(/^\s*(et|alors|donc|euh|heu|voil[aà]|bon|ben|puis)\b[\s,]*/i,'');
+      // « il faut que je / je dois / je vais / faut que je » → on garde l'action seule
+      s=s.replace(/^\s*(il\s+)?faut\s+que\s+je\s+/i,'').replace(/^\s*je\s+(dois|vais|voudrais|devrais)\s+/i,'');
+      // liaison orpheline en fin de phrase
+      s=s.replace(/[\s,]*\b(et|puis|ensuite|aussi|donc)\s*$/i,'').trim();
+      return s;
+    })
     .filter(function(s){ return s.length>2; })
     .map(function(s){ return {texte:s.charAt(0).toUpperCase()+s.slice(1), categorie:'autre'}; });
 }
