@@ -1339,14 +1339,9 @@ function mesResultatsView(){
       +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
   };
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-chart-dots','RÉSULTATS','Ce que l\'application vous rend','resultats')
+    +iveEntete('ti-chart-dots','RÉSULTATS','Vos outils d\'analyse','resultats')
     +'<div class="card"><div class="sec">'
-      +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence.','Prêt',"sentApercu()",false)
-      +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : indice réel, potentiel et 8 piliers.',
-          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
-          "iveNav('boussole')",!abo)
-      +etape('','ti-sparkles','MIROIR','La confrontation de votre image publique et de votre réalité interne.',
-          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
+      /* SENTINELLE, BOUSSOLE et MIROIR restent dans « Mes actions » : ici, les outils. */
       +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
       +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
     +'</div></div>';
@@ -1391,7 +1386,16 @@ function mesActionsView(){
       +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 questionnaires')
       +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
       +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
-      /* La partie « Vos résultats » a son propre onglet : voir mesResultatsView(). */
+      +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.',(concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
+      +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.',(simOk?'Terminé':'À faire'),"boussoleOutil('simulateur')",!abo)
+      // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
+      +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
+      +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
+      +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
+          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
+          "iveNav('boussole')",!abo)
+      +etape('','ti-sparkles','MIROIR','Ce que révèle la confrontation entre votre image publique et votre réalité interne : la racine des écarts, et l\'ordonnance pour les combler.',
+          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
@@ -1640,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 57';
+var IVE_VERSION='29/07 · 58';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
