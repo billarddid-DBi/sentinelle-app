@@ -305,7 +305,9 @@ function eclat(idx){return idx>=75?'éclatant':idx>=60?'rayonnant':idx>=45?'vif'
 function energyColor(v){v=Math.max(0,Math.min(100,v));var s=[[30,58,138],[59,130,246],[16,185,129],[245,158,11],[239,68,68]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
 function energyWord(v){return v<25?'glacial':v<40?'froid':v<55?'tiède':v<70?'chaud':'en feu';}
 // PERFORMANCE (piliers + carte d'énergie) : rouge=faible -> vert=fort (intuition universelle). Distinct de energyColor (trajectoire).
-function perfColor(v){v=Math.max(0,Math.min(100,v));var s=[[220,38,38],[249,115,22],[234,179,8],[101,163,13],[22,163,74]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
+/* Nuancier pastel froid → chaud : bleu = énergie faible, rouge = énergie forte.
+   Même logique que le cadran de trajectoire, en teintes douces (décision Didier). */
+function perfColor(v){v=Math.max(0,Math.min(100,v));var s=[[167,199,231],[201,220,234],[237,228,216],[243,196,168],[232,150,140]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
 function perfWord(v){return v<25?'fragile':v<45?'à renforcer':v<60?'correct':v<78?'solide':'excellent';}
 // Cadran de trajectoire (statique, export-safe) : 5 zones colorées code énergie + curseur ▼ sur la zone active
 /* Cadran de position : cinq pastilles du froid vers le chaud. Celle où l'on se trouve est
@@ -839,17 +841,24 @@ function bFinish(){
   // Carte de chaleur des sous-domaines (code couleur énergie, HTML statique)
   var sdmap={},sdord=[];
   details.forEach(function(d){var k=d.pilier+'|'+d.sous;if(!sdmap[k]){sdmap[k]={pil:d.pilier,sous:d.sous,s:0,n:0};sdord.push(k);}if(d.note!=null){sdmap[k].s+=d.note;sdmap[k].n++;}});
+  // Échelle adaptative : les couleurs se déploient sur l'étendue réellement observée,
+  // sinon des notes toutes comprises entre 60 et 100 donneraient un aplat illisible.
+  var scs=[]; sdord.forEach(function(k){var o=sdmap[k]; if(o.n) scs.push(Math.round(o.s/(o.n*5)*100));});
+  var smin=scs.length?Math.min.apply(null,scs):0, smax=scs.length?Math.max.apply(null,scs):100;
+  var etendue=(smax-smin)>=10; // en dessous, l'étirement exagérerait des écarts insignifiants
+  var heatEch=function(v){ return etendue?Math.round((v-smin)/(smax-smin)*100):v; };
   var heatRows='',curHP=null,hopen=false;
   sdord.forEach(function(k){var o=sdmap[k];var na=(o.n===0);var sc=na?0:Math.round(o.s/(o.n*5)*100);
     if(o.pil!==curHP){if(hopen)heatRows+='</div>';heatRows+='<div style="display:flex;align-items:stretch;gap:3px;margin-bottom:3px;"><div style="width:58px;font-size:10px;font-weight:600;color:#4b5563;display:flex;align-items:center;">'+esc(o.pil)+'</div>';curHP=o.pil;hopen=true;}
     var info=na?(esc(o.sous)+' — non concerné'):(esc(o.sous)+' — '+sc+'/100 · '+perfWord(sc));
-    heatRows+='<div style="flex:1;background:'+(na?'#d1d5db':perfColor(sc))+';border-radius:4px;padding:4px 1px;text-align:center;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35);" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+(na?'n/c':sc)+'</div></div>';
+    heatRows+='<div style="flex:1;background:'+(na?'#e5e7eb':perfColor(heatEch(sc)))+';border-radius:4px;padding:4px 1px;text-align:center;color:'+(na?'#6b7280':'#4a3b2f')+';" title="'+info+'"><div style="font-size:13px;font-weight:700;">'+(na?'n/c':sc)+'</div></div>';
   });
   if(hopen)heatRows+='</div>';
   var heatSec='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-temperature"></i> Carte d\'énergie — sous-domaines</div>'
-   +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 8px;">Rouge = à renforcer · Vert = point fort. Survolez une case pour le détail.</div>'
+   +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 8px;">Bleu = énergie faible · Rouge = énergie forte. Survolez une case pour le détail.</div>'
    +'<div style="overflow-x:auto;">'+heatRows+'</div>'
-   +'<div style="display:flex;align-items:center;margin-top:8px;"><span style="font-size:9px;color:#6b7280;margin-right:5px;">faible</span><div style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,#dc2626,#f97316,#eab308,#65a30d,#16a34a);"></div><span style="font-size:9px;color:#6b7280;margin-left:5px;">fort</span></div></div>';
+   +'<div style="display:flex;align-items:center;margin-top:8px;"><span style="font-size:9px;color:#6b7280;margin-right:5px;">'+(etendue?smin:'faible')+'</span><div style="flex:1;height:10px;border-radius:5px;background:linear-gradient(90deg,#A7C7E7,#C9DCEA,#EDE4D8,#F3C4A8,#E8968C);"></div><span style="font-size:9px;color:#6b7280;margin-left:5px;">'+(etendue?smax:'fort')+'</span></div>'
+   +(etendue?'<div style="font-size:9.5px;color:#9ca3af;margin-top:5px;">Nuancier calé sur vos écarts réels ('+smin+' à '+smax+'/100) pour rendre les différences visibles.</div>':'')+'</div>';
   var sh=r.faibles.slice(0,14),ex=r.faibles.length-sh.length;
   var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   var card='<div class="card">'
@@ -1339,7 +1348,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 26';
+var IVE_VERSION='29/07 · 27';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
