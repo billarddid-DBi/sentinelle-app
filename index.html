@@ -1223,6 +1223,7 @@ function iveNav(s){
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
+  else if(s==='actions'){ mesActionsView(); }
   // Le questionnaire : on reprend la formule déjà commencée, sinon on choisit.
   else if(s==='questionnaire'){
     if(!iveAbonne()){ offreView(); return; }
@@ -1237,6 +1238,36 @@ function iveNav(s){
   }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
+}
+// « Mes actions » : tout le parcours au même endroit, dans l'ordre où on le vit.
+function mesActionsView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(!acc){ renderAuth('login'); return; }
+  var abo=iveAbonne();
+  var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
+  var etapeQ=et?(et.complet?'Terminé':(et.fait+' / '+et.total+' critères')):'À démarrer';
+  // Une étape = un numéro, un titre, ce qu'elle apporte, et où elle en est.
+  var etape=function(n,ic,titre,sous,statut,action,verrou){
+    var cliq=verrou?'offreView()':action;
+    return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
+      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';">'+n+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'<i class="ti '+ic+'" style="font-size:13px;color:#E8541A;"></i> ')+titre+'</div>'
+      +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
+      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':'#15803d')+';margin-top:4px;">'+statut+'</div>':'')
+      +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
+  };
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
+    +'<div class="card"><div class="sec">'
+      +etape(1,'ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','',"sentApercu()",false)
+      +etape(2,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
+      +etape(3,'ti-compass','BOUSSOLE','Vos résultats : cohérence, potentiel, carte d\'énergie.','',"iveNav('boussole')",!abo)
+      +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
+      +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
 }
 // Les résultats : on rejoue la grille enregistrée puis on lance le calcul, sans rien ressaisir.
 function boussoleResultats(mode){
@@ -1285,8 +1316,12 @@ function offreView(){
 function iveNavBar(active){
   // Les cadenas ne concernent que les non-abonnés : une fois la formule prise, ils disparaissent.
   var verrouOff=(typeof iveAbonne==='function')?iveAbonne():false;
+  // Toutes les pages du parcours allument le même onglet.
+  if(['sentinelle','questionnaire','boussole','plan','actions'].indexOf(active)>=0) active='actions';
   // Le questionnaire a son propre onglet : BOUSSOLE n'affiche plus que les résultats.
-  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['questionnaire','ti-clipboard-list','Questionnaire Dirigeant',1],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0]];
+  // Trois onglets seulement : sur un téléphone, six libellés se chevauchaient.
+  // Tout le parcours (Sentinelle, Questionnaire, Boussole, outils) vit sous « Mes actions ».
+  var items=[['accueil','ti-home','Accueil',0],['actions','ti-layout-grid','Mes actions',0],['historique','ti-history','Historique',0]];
   return '<div class="ivenav" style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
     +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+((x[3]&&!verrouOff)?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
@@ -1412,7 +1447,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 33';
+var IVE_VERSION='29/07 · 34';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2634,9 +2669,7 @@ function dirigeantSpace(){
       +demi('ti-microphone','Enregistrer une tâche','Dictez-la ou écrivez-la','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
       +demi('ti-list-check','Consulter les tâches en cours','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''),_verrou)
     +'</div>'
-    +'<div style="margin-top:12px;">'
-      +porte('ti-eye','Voir votre entreprise de l\'extérieur','Découvrez ce que votre présence en ligne raconte de vous.','sentApercu()','linear-gradient(135deg,#2563EB,#1d4ed8)','#2563EB')
-    +'</div>'
+    /* Le bouton bleu a rejoint « Mes actions » : l'accueil ne garde que les deux gestes du jour. */
     +(iveIsAdmin()?'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="dirigeantSpaceComplet();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-lock-open"></i> Vue complète (admin)</a></div>':'')
     +'<div class="foot" style="margin-top:14px;"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+'</div>';
   showView('dirigeant'); window.scrollTo(0,0);
