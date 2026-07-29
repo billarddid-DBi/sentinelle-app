@@ -1311,7 +1311,8 @@ function mesActionsView(){
     +'<div class="card"><div class="sec">'
       +etape(1,'ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','',"sentApercu()",false)
       +etape(2,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(3,'ti-compass','BOUSSOLE','Vos résultats : cohérence, potentiel, carte d\'énergie.','',"iveNav('boussole')",!abo)
+      +etape(3,'ti-compass','BOUSSOLE','Vos résultats : cohérence, potentiel, radar des 8 piliers.','',"iveNav('boussole')",!abo)
+      +etape(4,'ti-users-group','L\'AURA Humaine','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.','',"ahChoice()",!abo)
       +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
       +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
     +'</div></div>';
@@ -1501,7 +1502,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 37';
+var IVE_VERSION='29/07 · 38';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4233,8 +4234,8 @@ function bouOffre(niveau){
 // 4e élément = clé de l'outil connecté (carte cliquable) ; null = pas encore branché.
 // verrouille = true : la liste est montrée à un non-abonné (aucun outil n'est ouvrable).
 function bouToolsHtml(verrouille){
-  var T=[['ti-clipboard-list','Questionnaire Dirigeant','Le vrai diagnostic, en entretien : votre vision, vos priorités, votre réalité interne.','questionnaire'],
-    ['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
+  /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
+  var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
     ['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.','concurrence'],
     ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
     ['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.','simulateur'],
