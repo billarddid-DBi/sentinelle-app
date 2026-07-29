@@ -652,9 +652,14 @@ function miroirQuand(){
 }
 function runMiroir(forcer){
   var b=window.lastMiroir;
+  var sv=miroirStore.load();
+  // Après un rechargement, la BOUSSOLE n'est plus en mémoire : la sauvegarde reste lisible.
+  if(!b && sv && sv.m){
+    window.miroirPerime=false; window.miroirData=sv.m; window.miroirAud='externe';
+    showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
+  }
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
   // Déjà généré pour cette entreprise ? on relit la sauvegarde, sans rappeler l'IA.
-  var sv=miroirStore.load();
   if(!forcer && sv && sv.m && (!sv.nom || !b.nom || sv.nom===b.nom)){
     window.miroirPerime=(sv.sig!==miroirSignature());   // les données ont-elles bougé depuis ?
     window.miroirData=sv.m; window.miroirAud='externe';
@@ -665,7 +670,7 @@ function runMiroir(forcer){
   var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
-    .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
+    .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
     .catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps. Réessayez dans un instant.</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; });
 }
 function startBoussole(mode){
@@ -1572,7 +1577,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 45';
+var IVE_VERSION='29/07 · 46';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
