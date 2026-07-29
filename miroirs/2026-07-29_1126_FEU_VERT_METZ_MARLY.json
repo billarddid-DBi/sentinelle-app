@@ -1,0 +1,183 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Metz Marly",
+  "date": "2026-07-29T11:26:27.394Z",
+  "contexte": {
+    "nom": "Feu Vert Metz Marly",
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 69,
+    "indiceExterieur": 66,
+    "potentiel": 84,
+    "ecart": 3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 64,
+      "Processus": 88,
+      "Informations": 64,
+      "Outils": 56,
+      "Décisions": 70,
+      "Clients": 72,
+      "Performance": 72
+    },
+    "faibles": [
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "Le dirigeant délègue réellement (pas tout sur lui) (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (1/5)",
+      "L'information circule bien entre les personnes (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (2/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (2/5)",
+      "L'entreprise teste de nouvelles solutions (2/5)",
+      "On mesure les résultats des décisions prises (2/5)",
+      "La réputation de l'entreprise est bonne (2/5)",
+      "La rentabilité est suivie et maîtrisée (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 1,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 2,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 2,
+        "p": "Performance"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer la visibilité interne (qui gagne, pourquoi, comment) en levier de croissance et de délégation.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Feu Vert Metz Marly est un centre auto fiable et bien organisé (69/100). Vous maîtrisez vos processus, mais l'image que vous projetez (66/100) ne capture pas encore votre potentiel. Le vrai levier : transformer la transparence interne en moteur de performance.",
+      "interne": "BOUSSOLE 69, SENTINELLE 66 : équilibre sain, écart mineur. Archétype bleu (fiabilité) confirmé. Frein majeur : invisibilité des causes de succès (1/5 « on sait pourquoi on gagne ») + délégation bloquée (2/5). Outils fragmentés (2/5 « pas de double saisie »), équipe non autonome sur logiciels (2/5). Potentiel 84 : +15 pts réalistes si on répare la visibilité et la délégation."
+    },
+    "verite": {
+      "externe": "Vous êtes solides, mais vous ne savez pas POURQUOI vous gagnez (critère 1/5). Cela signifie : pas de capitalisation, pas de réplication, pas de différenciation claire auprès du client. Votre équipe connaît mal la direction (2/5), le dirigeant porte trop (2/5), l'info ne circule pas (2/5). Résultat : vous restez au même niveau, sans croissance ni attractivité. L'IA peut vous aider, mais d'abord il faut rendre visible ce qui marche.",
+      "interne": "Racine : SYSTÈME DE VISIBILITÉ ABSENT. Pas de traçabilité des dossiers gagnants (CRM/analyse), pas de capitalisation des savoir-faire, pas de tableau de bord de rentabilité (2/5). Outils en silo (Processus 88 mais Outils 56, Informations 64). Délégation freinée : dirigeant n'a pas les données pour confier. Recrutement en urgence (2/5) car pas d'anticipation. Hypothèse à confirmer : équipe capable mais non outillée ni guidée. Potentiel réel si on crée la transparence."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "On ignore pourquoi on gagne un dossier (1/5) — pas de traçabilité, pas de capitalisation, pas de réplication.",
+        "levier": "Mettre en place un tableau de bord simple (dossiers gagnants/perdus, critères de succès, rentabilité par type).",
+        "type": "IA",
+        "mise_en_oeuvre": "Intégrer CRM léger + automatiser extraction données existantes (devis, factures). Tableau mensuel.",
+        "indicateur": "% dossiers tracés, taux de réplication des gagnants, écart réel vs estimé."
+      },
+      {
+        "palier": 1,
+        "frein": "Dirigeant porte tout (2/5 délégation), équipe ne connaît pas la direction (2/5) — pas de cap partagé.",
+        "levier": "Formaliser et communiquer la stratégie : qui sommes-nous, où allons-nous, comment on gagne.",
+        "type": "humain",
+        "mise_en_oeuvre": "Réunion d'équipe + document simple (1 page vision + 3 priorités). Affichage, rappel mensuel.",
+        "indicateur": "Taux de compréhension (sondage), cohérence des décisions locales avec cap."
+      },
+      {
+        "palier": 2,
+        "frein": "Outils fragmentés (2/5 « pas de double saisie »), équipe peu autonome (2/5 maîtrise logiciels).",
+        "levier": "Intégrer outils (CRM + compta + planning) + former équipe à l'autonomie sur logiciels clés.",
+        "type": "IA",
+        "mise_en_oeuvre": "Audit des flux actuels, connecteurs API ou import/export automatisés. Formation ciblée (2 sessions).",
+        "indicateur": "Temps de double saisie éliminé, taux d'erreur saisie, satisfaction équipe."
+      },
+      {
+        "palier": 2,
+        "frein": "Rentabilité non suivie (2/5), décisions non mesurées (2/5) — pas de pilotage réel.",
+        "levier": "Automatiser reporting mensuel : marge par service, coût réel vs devis, ROI actions.",
+        "type": "IA",
+        "mise_en_oeuvre": "Connecter compta + CRM, générer rapports automatiques. Tableau de bord dirigeant.",
+        "indicateur": "Délai de clôture comptable, écart marge réelle, taux d'action corrective."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps dirigeant (délégation, décisions éclairées)",
+          "inaction_an": 12000,
+          "invest_1x": 2000,
+          "recurrent_an": 1500
+        },
+        {
+          "poste": "Erreurs saisie, double travail (outils fragmentés)",
+          "inaction_an": 8000,
+          "invest_1x": 3000,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Perte de dossiers, non-réplication (invisibilité succès)",
+          "inaction_an": 15000,
+          "invest_1x": 1500,
+          "recurrent_an": 1200
+        }
+      ],
+      "inaction_an": 35000,
+      "invest_total": 6500,
+      "recurrent_an": 3500,
+      "gain_an": 18000,
+      "roi_net_an": 14500,
+      "payback_mois": 5,
+      "fourchette": "4 à 7 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel sur tableau de bord (dossiers, rentabilité, délégation). Prochaine BOUSSOLE dans 3 mois (mesurer impact vision + outils).",
+    "synthese": {
+      "externe": "Vous êtes fiables. Maintenant, rendez-vous visibles : capturez pourquoi vous gagnez, partagez le cap, outillez votre équipe. En 3 mois, vous aurez un tableau de bord clair et une équipe autonome. C'est le chemin vers 84/100.",
+      "interne": "Feu Vert est un bon candidat DBi360 : BOUSSOLE solide (69), frein clair et réparable (visibilité + délégation), potentiel +15 pts. Plan court (4 leviers, 3 mois), ROI net 14.5k€/an, payback 5 mois. Angle commercial : montrer que l'IA sans cap/transparence = gaspillage ; ici, on répare le système PUIS on accélère. Prochaine étape : entretien approfondi sur causes de succès réelles (interviews clients/équipe)."
+    }
+  }
+}
