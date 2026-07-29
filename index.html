@@ -1357,6 +1357,7 @@ function mesActionsView(){
       +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
       // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
       +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.','',"boussoleOutil('concurrence')",!abo)
+      +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.','',"boussoleOutil('simulateur')",!abo)
       +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
       +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
       +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
@@ -1578,7 +1579,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 50';
+var IVE_VERSION='29/07 · 51';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4342,7 +4343,6 @@ function bouToolsHtml(verrouille){
   /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
   var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
     ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
-    ['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.','simulateur'],
     ['ti-sparkles','MIROIR','La mesure interne réelle de votre entreprise — le miroir de votre image publique.',null],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
   return '<div style="margin-top:10px;">'+T.map(function(f){
