@@ -698,10 +698,10 @@ function bFinish(){
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
   var _pastille=function(note,coul,etiquette,sousTitre,etoiles){
-    return '<div style="width:clamp(130px,34vw,190px);flex:0 0 auto;text-align:center;">'
-      +'<div style="width:clamp(112px,30vw,168px);height:clamp(112px,30vw,168px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-      +'<div style="font-size:clamp(26px,7vw,32px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.5px;">'+note+'<span style="font-size:13px;font-weight:600;opacity:.85;">/100</span></div>'
-      +'<div style="font-size:13px;color:#fff;height:17px;line-height:17px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
+    return '<div style="width:clamp(98px,26vw,143px);flex:0 0 auto;text-align:center;">'
+      +'<div style="width:clamp(84px,22vw,126px);height:clamp(84px,22vw,126px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+      +'<div style="font-size:clamp(20px,5.3vw,24px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
+      +'<div style="font-size:11px;color:#fff;height:14px;line-height:14px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
       +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
       +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">'+sousTitre+'</div></div>';
   };
@@ -719,10 +719,11 @@ function bFinish(){
    +'<div style="font-size:12.5px;color:#8fa6d8;">· '+date+'</div></div>';
   var blocAuras='<div style="width:100%;">'
    +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
-   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE'+(_ax?' &amp; EXTÉRIEURE':'')+'</div>'+_traitD+'</div>'
+   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA'+(_ax?' EXTÉRIEURE &amp;':'')+' INTÉRIEURE</div>'+_traitD+'</div>'
+   // L'extérieure d'abord : c'est ce que les autres voient. L'intérieure ensuite, en réponse.
    +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(14px,5vw,44px);margin-top:16px;">'
-   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
    +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
+   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
    +'</div></div>';
   var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
    +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
@@ -1267,7 +1268,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 17';
+var IVE_VERSION='28/07 · 18';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
