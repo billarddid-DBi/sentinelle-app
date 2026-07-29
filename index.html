@@ -1578,7 +1578,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 47';
+var IVE_VERSION='29/07 · 48';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2135,6 +2135,14 @@ function runConcurrence(){
   var out=document.getElementById('cOut');
   if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
+  // Le nom de l'entreprise vient de la fiche du compte : le dirigeant n'a pas à le retaper.
+  // Ouvert directement depuis « Mes actions », la fiche n'est pas encore chargée — on la va chercher.
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(!window.lastNom){ window.lastNom=(window.lastMiroir&&window.lastMiroir.nom)||(acc&&acc.name)||''; }
+  if(!window.lastNom && !window.__concFiche && typeof iveChargerFiche==='function'){
+    window.__concFiche=1; iveChargerFiche(function(){ runConcurrence(); }); return;
+  }
+  if(!window.lastNom){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Lancez d\'abord SENTINELLE : la carte de la concurrence part de votre fiche entreprise.</div>'; return; }
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
    .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } renderConcu(d); })
