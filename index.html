@@ -668,7 +668,7 @@ function startGrille(mode){
   // Les deux bandeaux noirs, comme sur toutes les pages : on peut repartir vers SENTINELLE
   // ou l'accueil à tout moment — les réponses sont enregistrées à chaque geste.
   var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
-    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div id="bSauveChip" style="font-size:11.5px;color:#16a34a;font-weight:600;margin:2px 2px 6px;"></div>'
     +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-compass"></i> BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
@@ -894,7 +894,8 @@ function bFinish(){
    +(r.faibles.length?'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>':'')
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
   window.lastMiroir={nom:nom,activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
-  $('bGrille').innerHTML=card
+  // Les résultats vivent sous l'onglet BOUSSOLE : la barre de navigation le montre.
+  $('bGrille').innerHTML=(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+card
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
    +'<button class="btn btn-primary" onclick="ahChoice()"><i class="ti ti-users-group"></i> Lancer l\'AURA Humaine →</button>'
    +'<button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Aller directement au MIROIR</button>'
@@ -1406,7 +1407,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 30';
+var IVE_VERSION='29/07 · 31';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
