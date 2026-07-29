@@ -1294,25 +1294,45 @@ function mesActionsView(){
   var abo=iveAbonne();
   var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
   var etapeQ=et?(et.complet?'Terminé':(et.fait+' / '+et.total+' critères')):'À démarrer';
+  var ahOk=!!(window.lastAH && window.lastAH.iat!=null);
+  var etapeAH=ahOk?'Terminé':'À démarrer';
+  var qFait=(et&&et.complet)?1:0, ahFait=ahOk?1:0;
+  // Un intertitre de section : ce qu'on y trouve, et où l'on en est.
+  var titreSec=function(ic,titre,sous,compteur){
+    return '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:18px;">'
+      +'<div><div style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.6px;"><i class="ti '+ic+'"></i> '+titre+'</div>'
+      +'<div style="font-size:11.5px;color:#9ca3af;margin-top:1px;">'+sous+'</div></div>'
+      +(compteur?'<div style="font-size:11.5px;font-weight:700;color:#6b7280;white-space:nowrap;">'+compteur+'</div>':'')
+      +'</div>';
+  };
   // Une étape = un numéro, un titre, ce qu'elle apporte, et où elle en est.
   var etape=function(n,ic,titre,sous,statut,action,verrou){
     var cliq=verrou?'offreView()':action;
     return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
-      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';">'+n+'</div>'
+      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:'+(n?'13px':'15px')+';font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';">'+(n||'<i class="ti '+ic+'"></i>')+'</div>'
       +'<div style="flex:1;min-width:0;">'
       +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'<i class="ti '+ic+'" style="font-size:13px;color:#E8541A;"></i> ')+titre+'</div>'
       +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
-      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':'#15803d')+';margin-top:4px;">'+statut+'</div>':'')
+      // Vert quand c'est fait ou disponible, ambre quand il reste quelque chose à faire.
+      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':(/^(Prêt|Terminé)/.test(statut)?'#15803d':'#b45309'))+';margin-top:4px;">'+statut+'</div>':'')
       +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
   };
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
     +'<div class="card"><div class="sec">'
-      +etape(1,'ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','',"sentApercu()",false)
-      +etape(2,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(3,'ti-compass','BOUSSOLE','Vos résultats : cohérence, potentiel, radar des 8 piliers.','',"iveNav('boussole')",!abo)
-      +etape(4,'ti-users-group','L\'AURA Humaine','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.','',"ahChoice()",!abo)
+      // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
+      +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 terminé'+((qFait+ahFait)>1?'s':''))
+      +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
+      +etape(2,'ti-users-group','L\'AURA Humaine','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.',etapeAH,"ahChoice()",!abo)
+      // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
+      +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
+      +etape('','ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','Prêt',"sentApercu()",false)
+      +etape('','ti-compass','BOUSSOLE','Cohérence, potentiel, radar des 8 piliers.',
+          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
+          "iveNav('boussole')",!abo)
+      +etape('','ti-sparkles','« Voilà ce qui se passe réellement »','Le miroir de votre image publique et de votre réalité interne.',
+          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
       +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
       +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
     +'</div></div>';
@@ -1502,7 +1522,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 38';
+var IVE_VERSION='29/07 · 39';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
