@@ -1,0 +1,183 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Metz Marly",
+  "date": "2026-07-29T11:47:50.204Z",
+  "contexte": {
+    "nom": "Feu Vert Metz Marly",
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 69,
+    "indiceExterieur": 66,
+    "potentiel": 84,
+    "ecart": 3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 64,
+      "Processus": 88,
+      "Informations": 64,
+      "Outils": 56,
+      "Décisions": 70,
+      "Clients": 72,
+      "Performance": 72
+    },
+    "faibles": [
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "Le dirigeant délègue réellement (pas tout sur lui) (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (1/5)",
+      "L'information circule bien entre les personnes (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (2/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (2/5)",
+      "L'entreprise teste de nouvelles solutions (2/5)",
+      "On mesure les résultats des décisions prises (2/5)",
+      "La réputation de l'entreprise est bonne (2/5)",
+      "La rentabilité est suivie et maîtrisée (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 1,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 2,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 2,
+        "p": "Performance"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer la connaissance tacite en avantage compétitif : clarifier pourquoi vous gagnez, le dire à l'équipe, le mesurer systématiquement.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Feu Vert Metz Marly est un centre auto fiable et bien organisé (69/100). Vous avez les fondations solides. Le pas suivant : transformer votre savoir-faire implicite en différenciation explicite, mesurable, partagée — et en gagner davantage.",
+      "interne": "Commerce établi, processus robustes (88/100), mais vision/délégation/outils fragmentés. Écart nul (équilibre image/réalité) : pas de faux positif, mais aussi pas de pépite cachée. Levier principal : passer du tacite au systématique (pourquoi on gagne, qui le sait, comment on le reproduit)."
+    },
+    "verite": {
+      "externe": "Vous êtes fiables, mais vous ne savez pas — ou ne dites pas — pourquoi vous gagnez des clients (critère 1/5). Votre équipe ignore votre direction (2/5). Vos outils ne parlent pas entre eux (2/5), donc l'information se perd, la rentabilité n'est pas suivie (2/5). Résultat : vous avez du potentiel (84 visé), mais vous le laissez sur la table. Trois freins : le dirigeant porte trop (délégation 2/5), l'équipe n'est pas alignée, les données ne circulent pas.",
+      "interne": "Processus solides (88/100) mais orphelins : pas de vision partagée (68/100), pas de délégation réelle (2/5), pas de mesure des décisions (2/5). L'information (64/100) et les outils (56/100) sont les vrais goulots. Double saisie probable, pas d'intégration logiciels. Réputation (2/5) et rentabilité (2/5) non suivies = pas de feedback client ni financier systématique. Racine : organisation en silos, dirigeant en surcharge, équipe non formée aux outils (2/5). Opportunité : 15 à 20 % de gain opérationnel en clarifiant le modèle de victoire et en l'automatisant."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "On ne sait pas pourquoi on gagne (critère 1/5) — donc on ne peut pas le reproduire ni le vendre.",
+        "levier": "Analyser les 20 derniers dossiers gagnés : profil client, service clé, prix, délai. Codifier le modèle de victoire.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 2h dirigeant + équipe clé. Documenter 3-4 scénarios gagnants. Afficher.",
+        "indicateur": "Modèle validé, équipe peut citer 2 raisons de victoire."
+      },
+      {
+        "palier": 1,
+        "frein": "L'équipe ne connaît pas la direction (2/5) et le dirigeant ne délègue pas (2/5) — paralysie et turnover.",
+        "levier": "Écrire la vision 2-3 ans, les 3 priorités annuelles, les rôles clés. Réunion mensuelle de suivi.",
+        "type": "humain",
+        "mise_en_oeuvre": "Dirigeant rédige avec un tiers. Présentation équipe. Affichage. Point mensuel 30 min.",
+        "indicateur": "100 % équipe cite la vision. Délégation observée sur 2 décisions."
+      },
+      {
+        "palier": 1,
+        "frein": "Outils ne parlent pas (2/5), double saisie, rentabilité non suivie (2/5) — perte de temps et de visibilité.",
+        "levier": "Audit logiciels : identifier intégrations manquantes. Prioriser 2 flux critiques (devis→facture, client→historique).",
+        "type": "IA",
+        "mise_en_oeuvre": "Consultant 3 jours. Cartographie outils actuels. Recommandations intégration ou API légère.",
+        "indicateur": "Flux identifiés, coût/bénéfice par intégration. Décision d'implémentation."
+      },
+      {
+        "palier": 2,
+        "frein": "Pas de mesure des résultats (2/5), pas de feedback client (réputation 2/5) — aveugle sur la performance.",
+        "levier": "Mettre en place 5 KPIs : taux de fermeture devis, délai moyen, satisfaction client (NPS), marge par service, taux de fidélité.",
+        "type": "IA",
+        "mise_en_oeuvre": "Tableau de bord simple (Excel ou BI légère). Mise à jour hebdo. Revue mensuelle dirigeant + équipe.",
+        "indicateur": "5 KPIs suivis, tendances visibles, 1 action corrective par mois."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps dirigeant libéré (délégation, moins de double saisie)",
+          "inaction_an": 8000,
+          "invest_1x": 2000,
+          "recurrent_an": 1500
+        },
+        {
+          "poste": "Gain de fermeture (modèle de victoire appliqué, +3-5 % taux)",
+          "inaction_an": 7000,
+          "invest_1x": 1000,
+          "recurrent_an": 500
+        },
+        {
+          "poste": "Réduction double saisie, erreurs (intégration outils)",
+          "inaction_an": 5000,
+          "invest_1x": 3000,
+          "recurrent_an": 1000
+        }
+      ],
+      "inaction_an": 20000,
+      "invest_total": 6000,
+      "recurrent_an": 3000,
+      "gain_an": 17000,
+      "roi_net_an": 14000,
+      "payback_mois": 5,
+      "fourchette": "4 à 7 mois de retour sur investissement."
+    },
+    "cadence": "Point mensuel 30 min (vision + KPIs). Prochaine BOUSSOLE dans 6 mois pour mesurer progression vers 84/100.",
+    "synthese": {
+      "externe": "Vous avez la fiabilité. Prochaine étape : clarifier votre différence, l'enseigner à l'équipe, la mesurer. Trois mois pour avoir une vision partagée et un tableau de bord. Cela libère le dirigeant et accélère la croissance.",
+      "interne": "Levier principal : passer du tacite au systématique. Palier 1 = vision + modèle de victoire + intégration outils (6-8 semaines, 6 k€). Palier 2 = KPIs et boucle de feedback (semaines 9-12). ROI net 14 k€/an, payback 5 mois. Angle commercial : montrer que la clarté interne = plus de fermetures + moins de surcharge dirigeant = croissance durable."
+    }
+  }
+}
