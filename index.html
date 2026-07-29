@@ -699,7 +699,7 @@ function bFinish(){
   // parfaitement, ce qui rend la comparaison immédiate.
   var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur){
     // « futur » = le potentiel : pas encore atteint, donc en pointillés et plus discret.
-    var _st=futur?'opacity:.62;border:2px dashed rgba(255,255,255,.45);box-sizing:border-box;':'box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);';
+    var _st=futur?'box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 26px 7px '+coul+'66, inset 0 -10px 24px rgba(0,0,0,.28);':'box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);';
     return '<div style="width:clamp(98px,26vw,143px);flex:0 0 auto;text-align:center;">'
       +'<div style="width:clamp(84px,22vw,126px);height:clamp(84px,22vw,126px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'+_st+'display:flex;flex-direction:column;align-items:center;justify-content:center;">'
       +'<div style="font-size:clamp(20px,5.3vw,24px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
@@ -733,8 +733,9 @@ function bFinish(){
    +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3.5vw,30px);margin-top:16px;flex-wrap:wrap;">'
    +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
    +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
-   /* Le potentiel reprend la couleur de SENTINELLE, et l'écart est explicitement rapporté à l'intérieure. */
-   +_pastille(pot,_axh,'POTENTIEL','+'+progression+' vs intérieure','',true)
+   /* L'objectif est en orange, comme sur SENTINELLE, et cerclé de blanc : impossible de le confondre
+      avec les deux mesures constatées. L'écart est explicitement rapporté à l'intérieure. */
+   +_pastille(pot,'#E8541A','POTENTIEL','+'+progression+' vs intérieure','',true)
    +'</div></div>';
   var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
    +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
@@ -1274,7 +1275,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 20';
+var IVE_VERSION='28/07 · 21';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
