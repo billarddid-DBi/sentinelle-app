@@ -1323,9 +1323,11 @@ function mesActionsView(){
   if(!acc){ renderAuth('login'); return; }
   var abo=iveAbonne();
   var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
-  var etapeQ=et?(et.complet?'Terminé':(et.fait+' / '+et.total+' critères')):'À démarrer';
+  var etapeQ=et?(et.complet?'Terminé':(et.fait?('En cours — '+et.fait+' / '+et.total+' critères'):'À faire')):'À faire';
   var ahOk=!!(window.lastAH && window.lastAH.iat!=null);
-  var etapeAH=ahOk?'Terminé':'À démarrer';
+  var etapeAH=ahOk?'Terminé':'À faire';
+  var concOk=(typeof concFaite==='function')&&concFaite();
+  var simOk=(typeof iveFaitGet==='function')&&iveFaitGet('simulateur');
   var qFait=(et&&et.complet)?1:0, ahFait=ahOk?1:0;
   // Un intertitre de section : ce qu'on y trouve, et où l'on en est.
   var titreSec=function(ic,titre,sous,compteur){
@@ -1356,8 +1358,8 @@ function mesActionsView(){
       +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
       +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
       // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
-      +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.','',"boussoleOutil('concurrence')",!abo)
-      +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.','',"boussoleOutil('simulateur')",!abo)
+      +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.',(concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
+      +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.',(simOk?'Terminé':'À faire'),"boussoleOutil('simulateur')",!abo)
       +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
       +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
       +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
@@ -1438,6 +1440,11 @@ function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
       /* Les boutons de départ sont remontés au-dessus des deux cartes (décision Didier). */
     +'</div>';
 }
+/* Petit registre des actions déjà faites (par compte) : sert aux états « Terminé / À faire ». */
+function iveFaitsKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_faits_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveFaits(){ try{ var s=localStorage.getItem(iveFaitsKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function iveFaitGet(k){ return !!iveFaits()[k]; }
+function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.setItem(iveFaitsKey(), JSON.stringify(o)); }catch(e){} }
 function iveEntete(icone,surtitre,titre,actif){
   return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
     +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
@@ -1579,7 +1586,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 51';
+var IVE_VERSION='29/07 · 52';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2131,6 +2138,14 @@ function presBadge(p){
 }
 function avisTxt(av){ if(!av||av.note==null) return '<span style="color:#9ca3af;">n.c.</span>'; return '<b>'+av.note+'</b>/5'+(av.nombre?' <span style="color:#9ca3af;font-size:11px;">('+av.nombre+')</span>':''); }
 function auraCell(au,est){ if(!au||au.note==null) return '<span style="color:#9ca3af;">n.c.</span>'; var a=AURAS[au.couleur]||AURAS['Bleu']; return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+a.h+';box-shadow:0 0 4px '+a.h+'88;vertical-align:middle;margin-right:5px;"></span><b>'+(est?'≈':'')+au.note+'</b> <span style="color:#f59e0b;font-size:10px;">'+starsHTML(au.note)+'</span>'; }
+/* La carte de la concurrence coûte une recherche web + un appel IA : on la garde et on la relit. */
+var concStore={
+  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_conc_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  load:function(){ try{ var s=localStorage.getItem(concStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
+  save:function(d,kw){ try{ localStorage.setItem(concStore.key(), JSON.stringify({d:d,kw:kw||'',ts:Date.now()})); }catch(e){} }
+};
+function concQuand(){ var s=concStore.load(); if(!s||!s.ts) return ''; return new Date(s.ts).toLocaleDateString('fr-FR'); }
+function concFaite(){ var s=concStore.load(); return !!(s&&s.d); }
 function runConcurrence(){
   var kw=(document.getElementById('cKw')&&document.getElementById('cKw').value.trim())||'';
   var out=document.getElementById('cOut');
@@ -2146,7 +2161,7 @@ function runConcurrence(){
   if(!window.lastNom){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Lancez d\'abord SENTINELLE : la carte de la concurrence part de votre fiche entreprise.</div>'; return; }
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
-   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } renderConcu(d); })
+   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } concStore.save(d,kw); renderConcu(d); })
    .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>'; });
 }
 function renderConcu(d){
@@ -4370,9 +4385,21 @@ function boussoleOutil(which){
       +'<button class="btn btn-primary" onclick="runConcurrence()"><i class="ti ti-search"></i> Trouver les 8 concurrents les plus proches</button>'
       /* Note d'attente et bouton de retour retirés : la navigation se fait par le haut. */
       +'</div></div><div id="cOut"></div></div>';
-    showView('dirigeant'); window.scrollTo(0,0); return;
+    showView('dirigeant'); window.scrollTo(0,0);
+    // Déjà cherchée ? on ressort l'analyse enregistrée, sans relancer la recherche ni l'IA.
+    var _cs=(typeof concStore!=='undefined')?concStore.load():null;
+    if(_cs && _cs.d){
+      var _co=document.getElementById('cOut');
+      if(_co){
+        // renderConcu réécrit cOut : on pose la barre de date APRÈS, en tête.
+        try{ renderConcu(_cs.d); }catch(e){}
+        _co.insertAdjacentHTML('afterbegin','<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+concQuand()+'</span><span onclick="runConcurrence()" style="cursor:pointer;color:#E8541A;font-weight:700;"><i class="ti ti-refresh"></i> Relancer</span></div>');
+      }
+    }
+    return;
   }
   if(which==='simulateur'){
+    if(typeof iveFaitSet==='function') iveFaitSet('simulateur');   // l'action compte comme faite dès l'ouverture
     var f=window.__sentData||{}; var sim=f.simulateur||{personnes:2,heures:5,cout:40};
     window.__bouSimH=((f.chiffre&&f.chiffre.unite)==='h');
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
