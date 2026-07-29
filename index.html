@@ -718,6 +718,47 @@ function startGrille(mode){
   bcalc();
   if(typeof iveBandesFixes==='function') iveBandesFixes();
 }
+/* Toile d'araignée des 8 piliers : le polygone plein = aujourd'hui, le pointillé = le potentiel.
+   L'écart entre les deux, c'est la marge. Tracé en SVG à la main, sans bibliothèque. */
+function bRadarHtml(r){
+  var noms=BPILIERS.filter(function(p){ return r.pil[p]!=null; });
+  if(noms.length<3) return '';
+  var C=170, CY=150, R=95, n=noms.length;
+  var pt=function(i,v){
+    var a=(-Math.PI/2)+(i*2*Math.PI/n), d=R*Math.max(0,Math.min(100,v))/100;
+    return [(C+d*Math.cos(a)).toFixed(1),(CY+d*Math.sin(a)).toFixed(1)];
+  };
+  var poly=function(vals){ return vals.map(function(v,i){ return pt(i,v).join(','); }).join(' '); };
+  var svg='<svg viewBox="0 0 340 300" style="width:100%;height:auto;display:block;" role="img" aria-label="Radar des piliers : niveau actuel et potentiel">';
+  [25,50,75,100].forEach(function(g){
+    svg+='<polygon points="'+poly(noms.map(function(){return g;}))+'" fill="none" stroke="#e5e7eb" stroke-width="1"/>';
+  });
+  noms.forEach(function(p,i){
+    var e=pt(i,100);
+    svg+='<line x1="'+C+'" y1="'+CY+'" x2="'+e[0]+'" y2="'+e[1]+'" stroke="#e5e7eb" stroke-width="1"/>';
+  });
+  var vAct=noms.map(function(p){ return r.pil[p]; });
+  var vPot=noms.map(function(p){ return (r.pilPot&&r.pilPot[p]!=null)?r.pilPot[p]:r.pil[p]; });
+  svg+='<polygon points="'+poly(vPot)+'" fill="#E8541A" fill-opacity=".10" stroke="#E8541A" stroke-width="2" stroke-dasharray="5 4"/>';
+  svg+='<polygon points="'+poly(vAct)+'" fill="#2563EB" fill-opacity=".18" stroke="#2563EB" stroke-width="2"/>';
+  vAct.forEach(function(v,i){ var q=pt(i,v); svg+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="3.2" fill="#2563EB"/>'; });
+  // Les étiquettes : nom du pilier, puis « actuel → potentiel » juste dessous.
+  noms.forEach(function(p,i){
+    var a=(-Math.PI/2)+(i*2*Math.PI/n);
+    var x=C+(R+22)*Math.cos(a), y=CY+(R+22)*Math.sin(a);
+    var anc=(Math.abs(Math.cos(a))<0.25)?'middle':(Math.cos(a)>0?'start':'end');
+    svg+='<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anc+'" style="font-size:10.5px;font-weight:700;fill:#1C1C1C;">'+esc(p)+'</text>'
+      +'<text x="'+x.toFixed(1)+'" y="'+(y+11).toFixed(1)+'" text-anchor="'+anc+'" style="font-size:9.5px;fill:#6b7280;">'+r.pil[p]+' → '+vPot[i]+'</text>';
+  });
+  svg+='</svg>';
+  return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Vos 8 piliers — aujourd\'hui et demain</div>'
+   +'<div style="font-size:10.5px;color:#9ca3af;margin:2px 0 4px;">Plus la forme est large, plus le pilier est solide. L\'écart entre les deux tracés, c\'est votre marge.</div>'
+   +svg
+   +'<div style="display:flex;justify-content:center;gap:18px;margin-top:2px;font-size:11.5px;">'
+   +'<span style="display:inline-flex;align-items:center;gap:6px;color:#2563EB;font-weight:700;"><span style="width:14px;height:3px;background:#2563EB;border-radius:2px;"></span>Aujourd\'hui</span>'
+   +'<span style="display:inline-flex;align-items:center;gap:6px;color:#E8541A;font-weight:700;"><span style="width:14px;height:0;border-top:3px dashed #E8541A;"></span>Potentiel</span>'
+   +'</div></div>';
+}
 // Taux de récupération réaliste par niveau constaté : plus un critère est déjà bon, moins il
 // reste à gagner et plus le dernier point coûte cher. SOURCE UNIQUE du potentiel BOUSSOLE.
 var BTAUX=[0.70,0.70,0.60,0.50,0.30,0.00]; // index = note /5
@@ -892,7 +933,8 @@ function bFinish(){
    +auraBand
    +trajSec
    /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
-   +heatSec
+   /* La carte d'énergie est remplacée par le radar (décision Didier) — son code reste plus haut. */
+   +bRadarHtml(r)
    /* L'encart n'apparaît que s'il y a vraiment des critères faibles : sinon il n'apprend rien. */
    +(r.faibles.length?'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>':'')
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
@@ -1446,7 +1488,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 35';
+var IVE_VERSION='29/07 · 36';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
