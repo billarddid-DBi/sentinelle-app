@@ -1644,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 59';
+var IVE_VERSION='29/07 · 60';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4674,6 +4674,9 @@ function renderTabbar(v){
     fab.className=(sp==='dirigeant'&&['dirigeant','soir','journal','vivante','frView','compare','cockpit','form'].indexOf(v)>-1)?'show':'';
     fab.innerHTML=(typeof capMode==='function'&&capMode()==='info')?'<i class="ti ti-info-circle"></i> Que pouvez-vous nous dire sur cette entreprise ?':'<i class="ti ti-pencil-plus"></i> Noter une tâche';
   }
+  // Barre du bas retirée partout (décision Didier) : la navigation passe par les bandeaux du haut.
+  tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return;
+  /* eslint-disable no-unreachable */
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
     ? [['dirigeantSpace()','ti-home','Accueil',['dirigeant']],['goFeuille()','ti-list-check','Feuille',['frView']],['cockpitCompare()','ti-activity-heartbeat','Évolution',['compare']],['cockpitBuild()','ti-dashboard','Cockpit',['cockpit']]]
