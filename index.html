@@ -308,7 +308,33 @@ function energyWord(v){return v<25?'glacial':v<40?'froid':v<55?'tiède':v<70?'ch
 function perfColor(v){v=Math.max(0,Math.min(100,v));var s=[[220,38,38],[249,115,22],[234,179,8],[101,163,13],[22,163,74]];var x=v/25,i=Math.min(3,Math.floor(x)),t=x-i,a=s[i],b=s[i+1];function L(m,n){return Math.round(m+(n-m)*t);}return 'rgb('+L(a[0],b[0])+','+L(a[1],b[1])+','+L(a[2],b[2])+')';}
 function perfWord(v){return v<25?'fragile':v<45?'à renforcer':v<60?'correct':v<78?'solide':'excellent';}
 // Cadran de trajectoire (statique, export-safe) : 5 zones colorées code énergie + curseur ▼ sur la zone active
-function trajDial(zones,active){var stops=[0,25,50,75,100];return '<div style="display:flex;gap:3px;align-items:flex-end;margin-top:6px;">'+zones.map(function(z,i){var on=i===active;return '<div style="flex:1;text-align:center;">'+'<div style="font-size:11px;height:13px;color:#111;">'+(on?'▼':'')+'</div>'+'<div style="height:'+(on?18:11)+'px;background:'+energyColor(stops[i])+';border-radius:3px;'+(on?'box-shadow:0 0 0 2px #fff,0 0 0 3px '+energyColor(stops[i])+';':'opacity:.5;')+'"></div>'+'<div style="font-size:8px;margin-top:4px;line-height:1.1;color:'+(on?'#111':'#9ca3af')+';font-weight:'+(on?700:400)+';">'+z+'</div>'+'</div>';}).join('')+'</div>';}
+/* Cadran de position : cinq pastilles du froid vers le chaud. Celle où l'on se trouve est
+   cerclée de sa propre couleur et porte son nom à l'intérieur ; les autres restent en retrait. */
+var TRAJ_COUL=['#818cf8','#38bdf8','#10b981','#f59e0b','#ef4444'];
+var TRAJ_ICONES={'Glaciation':'ti-snowflake','Refroidissement':'ti-droplet','Équilibre':'ti-scale','Élan':'ti-ripple','Combustion':'ti-flame',
+  'Plafond':'ti-arrow-bar-to-up','Palier':'ti-stairs','Montée':'ti-trending-up','Envol':'ti-rocket','Ascension':'ti-mountain'};
+// Le message de lecture, dans une barre claire marquée de la couleur de la zone atteinte.
+function trajMsg(texte,i){
+  var c=TRAJ_COUL[i]||'#9ca3af';
+  return '<div style="display:flex;align-items:flex-start;gap:8px;margin-top:10px;border:1px solid rgba(0,0,0,.06);border-radius:10px;background:rgba(255,255,255,.6);padding:9px 11px;">'
+    +'<i class="ti ti-circle-check" style="font-size:15px;color:'+c+';flex:0 0 auto;margin-top:1px;"></i>'
+    +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;">'+texte+'</div></div>';
+}
+function trajDial(zones,active){
+  return '<div style="display:flex;gap:6px;align-items:flex-start;margin-top:8px;">'+zones.map(function(z,i){
+    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af', ic=TRAJ_ICONES[z]||'ti-point';
+    return '<div style="flex:1;min-width:0;text-align:center;">'
+      +'<div style="font-size:10px;height:14px;line-height:14px;color:#111;">'+(on?'▼':'')+'</div>'
+      +'<div style="border-radius:10px;padding:9px 4px;background:'+c+(on?'0f':'14')+';'
+        +(on?'border:2px solid '+c+';background:#fff;':'border:1px solid '+c+'26;')
+        +'display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;box-sizing:border-box;">'
+      +'<i class="ti '+ic+'" style="font-size:15px;color:'+c+';"></i>'
+      +(on?'<span style="font-size:12px;font-weight:700;color:#111;">'+z+'</span>':'')
+      +'</div>'
+      +(on?'':'<div style="font-size:9.5px;margin-top:5px;line-height:1.15;color:'+c+';">'+z+'</div>')
+      +'</div>';
+  }).join('')+'</div>';
+}
 function starsHTML(v){var n=Math.max(1,Math.min(5,Math.round((v||0)/20)));return '★'.repeat(n)+'<span style="opacity:.3">'+'★'.repeat(5-n)+'</span>';}
 const $ = id => document.getElementById(id);
 const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -770,7 +796,7 @@ function bFinish(){
     trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Cohérence <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
      +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
-     +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:9px;">'+vmsg+'</div></div>';
+     +trajMsg(vmsg,vz)+'</div>';
   } else {
     trajSec+='<div class="sec" style="background:#FBF4EF;"><div style="font-size:11.5px;color:#cf4712;line-height:1.5;"><b><i class="ti ti-target"></i> Indice de Cohérence :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
   }
@@ -779,7 +805,7 @@ function bFinish(){
   trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-trending-up"></i> Indice de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
    +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
    +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
-   +'<div style="font-size:11px;color:#9ca3af;line-height:1.45;margin-top:8px;">Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.</div></div>';
+   +trajMsg('Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.',pz)+'</div>';
   var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:(!el||el.dataset.na==='1')?null:+el.value};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
   var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
@@ -1289,7 +1315,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 24';
+var IVE_VERSION='29/07 · 25';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
