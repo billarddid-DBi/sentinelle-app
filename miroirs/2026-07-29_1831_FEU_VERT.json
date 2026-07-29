@@ -1,0 +1,78 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-29T18:31:40.414Z",
+  "contexte": {
+    "nom": "feu vert",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Mesurer la réalité opérationnelle avant toute transformation IA : BOUSSOLE et piliers manquent.",
+    "economie_an": 0,
+    "cadre": {
+      "externe": "Feu Vert : avant d'avancer, établissons ensemble votre photographie actuelle. Sans données de maturité, impossible de prescrire.",
+      "interne": "Dossier incomplet : ni BOUSSOLE, ni piliers, ni critères notés, ni archétype/activité précisés. Pré-audit avorté. Redémarrage obligatoire."
+    },
+    "verite": {
+      "externe": "Vous avez raison de vous interroger sur l'IA. Mais commencer sans mesurer où vous êtes, c'est naviguer sans boussole. Investissons 2-3 heures ensemble pour cartographier vos forces et vos freins réels.",
+      "interne": "Absence totale de données d'entrée : ni score BOUSSOLE, ni piliers évalués, ni critères faibles identifiés, ni archétype métier. Impossible de rédiger un ordonnance sérieuse. Relancer le questionnaire complet ou renoncer."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de diagnostic de maturité IA : aucune baseline établie.",
+        "levier": "Administrer le questionnaire BOUSSOLE complet : 8 piliers + critères détaillés.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien structuré 2h avec dirigeant + 1-2 collaborateurs clés.",
+        "indicateur": "BOUSSOLE et 8 piliers /100 obtenus ; critères faibles listés."
+      },
+      {
+        "palier": 1,
+        "frein": "Archétype et activité non précisés : impossible de contextualiser.",
+        "levier": "Clarifier secteur, taille, modèle économique, métier principal Feu Vert.",
+        "type": "externe",
+        "mise_en_oeuvre": "Questionnaire court (30 min) : activité, CA, effectif, enjeux métier.",
+        "indicateur": "Archétype et activité documentés ; contexte métier clair."
+      },
+      {
+        "palier": 1,
+        "frein": "Image perçue (SENTINELLE) non mesurée : impossible d'évaluer l'écart de cohérence.",
+        "levier": "Mesurer l'image externe : perception clients/partenaires sur capacités numériques.",
+        "type": "externe",
+        "mise_en_oeuvre": "Sondage court auprès de 5-10 clients/partenaires clés (15 min).",
+        "indicateur": "SENTINELLE /100 obtenu ; écart de Vérité calculé."
+      },
+      {
+        "palier": 2,
+        "frein": "Potentiel visé non défini : pas de cap stratégique IA.",
+        "levier": "Co-construire la vision IA à 2-3 ans : objectifs métier et priorités.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier stratégique 1h30 : dirigeant + prescripteur DBi360.",
+        "indicateur": "Potentiel visé /100 défini ; 3 priorités métier IA alignées."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Diagnostic complet (BOUSSOLE + SENTINELLE + entretiens)",
+          "inaction_an": 0,
+          "invest_1x": 2500,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 0,
+      "invest_total": 2500,
+      "recurrent_an": 0,
+      "gain_an": 0,
+      "roi_net_an": -2500,
+      "payback_mois": 0,
+      "fourchette": "Investissement de clarté : ROI mesurable après palier 2 seulement."
+    },
+    "cadence": "Diagnostic complet dans 2 semaines ; point de restitution + plan d'action dans 3 semaines.",
+    "synthese": {
+      "externe": "Prochaine étape : 2h ensemble pour mesurer votre maturité réelle et dessiner votre route IA. Ensuite seulement, nous agirons avec certitude.",
+      "interne": "Relancer questionnaire complet ou clôturer. Pré-audit incomplet = pas de prescription valide. Coût diagnostic : 2500 € ; ROI du plan d'action : à calculer post-mesure."
+    }
+  }
+}
