@@ -615,11 +615,8 @@ function renderMiroir(){
     +'<div class="foot">MIROIR = ordonnance de pré-audit, à partir du LIVE (image) et de la BOUSSOLE (réalité). Le dirigeant garde son libre arbitre.</div>'
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
-  +'<button class="btn btn-primary" onclick="frBuild()"><i class="ti ti-route"></i> Créer ma feuille de route →</button>'
-  +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
-  +'<button class="btn btn-ghost" onclick="sendHandoff()"><i class="ti ti-send"></i> Envoyer au dirigeant (cloud)</button>'
-  +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>';
-  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Voilà ce qui se passe réellement')+html; window.scrollTo(0,0);
+  /* Boutons du bas retirés : tout se pilote par la barre du haut (décision Didier). */;
+  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité')+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
 function saveMiroir(m){
@@ -1323,15 +1320,15 @@ function mesActionsView(){
     +'<div class="card"><div class="sec">'
       // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
       +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 terminé'+((qFait+ahFait)>1?'s':''))
-      +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(2,'ti-users-group','Questionnaire aux salariés','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.',etapeAH,"ahChoice()",!abo)
+      +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
+      +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, peurs. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
       // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
       +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
-      +etape('','ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','Prêt',"sentApercu()",false)
-      +etape('','ti-compass','BOUSSOLE','Cohérence, potentiel, radar des 8 piliers.',
+      +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
+      +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
           (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
           "iveNav('boussole')",!abo)
-      +etape('','ti-sparkles','« Voilà ce qui se passe réellement »','Le miroir de votre image publique et de votre réalité interne.',
+      +etape('','ti-sparkles','MIROIR','Ce que révèle la confrontation entre votre image publique et votre réalité interne : la racine des écarts, et l\'ordonnance pour les combler.',
           (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
       +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
       +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
@@ -1531,7 +1528,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 40';
+var IVE_VERSION='29/07 · 41';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4268,7 +4265,7 @@ function bouToolsHtml(verrouille){
     ['ti-map-2','Carte de la concurrence','Où vous vous situez face à vos concurrents locaux — sur la carte et en tableau.','concurrence'],
     ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
     ['ti-calculator','Simulateur de gain','Estimez le temps et l\'argent récupérables grâce à l\'IA, selon votre réalité.','simulateur'],
-    ['ti-compass','« Voilà ce qui se passe réellement »','La mesure interne réelle de votre entreprise — le miroir de votre image publique.',null],
+    ['ti-sparkles','MIROIR','La mesure interne réelle de votre entreprise — le miroir de votre image publique.',null],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
   return '<div style="margin-top:10px;">'+T.map(function(f){
     var on=(!!f[3] && !verrouille);
