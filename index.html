@@ -673,7 +673,15 @@ function startGrille(mode){
     +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-compass"></i> BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="bIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100</span> <span id="bStars" style="font-size:16px;color:#f59e0b;"></span></div>'
-    +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>';
+    +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>'
+    // La sortie se joue en une seule question, en haut : terminé ou pas encore.
+    +'<div class="panel" style="margin-bottom:10px;">'
+    +'<div style="font-size:13px;font-weight:700;color:#1C1C1C;">Avez-vous terminé de remplir tous les champs ?</div>'
+    +'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;">Vos réponses sont enregistrées automatiquement à chaque geste.</div>'
+    +'<div style="display:flex;gap:8px;margin-top:10px;">'
+    +'<button class="btn btn-primary" style="flex:1;margin:0;min-width:0;" onclick="bFinish()"><i class="ti ti-circle-check"></i> Oui — voir le diagnostic</button>'
+    +'<button class="btn" style="flex:1;margin:0;min-width:0;background:#fff;border:1px solid #d7dbe3;color:#1C1C1C;" onclick="bouGrilleQuitter(\'accueil\')"><i class="ti ti-device-floppy"></i> Non — reprendre plus tard</button>'
+    +'</div></div>';
   var curP=null,curS=null,open=false;
   items.forEach(function(it){
     if(it.pilier!==curP){ if(open)html+='</div>'; curP=it.pilier; curS=null;
@@ -686,11 +694,11 @@ function startGrille(mode){
   });
   if(open)html+='</div>';
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
-    +'<button class="btn btn-primary" onclick="bFinish()"><i class="ti ti-circle-check"></i> Terminer & voir le diagnostic</button>'
-    +'<button class="btn" style="background:#fff;border:1px solid #d7dbe3;color:#1C1C1C;" onclick="bouGrilleQuitter(\'accueil\')"><i class="ti ti-device-floppy"></i> Enregistrer et reprendre plus tard</button>'
-    +'<button class="btn" style="background:#fff;border:1px solid #d7dbe3;color:#1C1C1C;" onclick="bouGrilleQuitter(\'sentinelle\')"><i class="ti ti-radar-2"></i> Enregistrer et aller sur SENTINELLE</button>'
-    +'<button class="btn btn-ghost" onclick="bouGrilleEffacer()"><i class="ti ti-trash"></i> Effacer mes réponses</button>'
-    +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')">← Retour</button>';
+    // En bas, uniquement les actions secondaires — sur une seule ligne.
+    +'<div style="display:flex;gap:10px;justify-content:center;align-items:center;margin-top:12px;font-size:11.5px;">'
+    +'<span onclick="bouGrilleEffacer()" style="cursor:pointer;color:#991b1b;"><i class="ti ti-trash"></i> Effacer mes réponses</span>'
+    +'<span style="color:#d7dbe3;">|</span>'
+    +'<span onclick="showView(\'bChoice\')" style="cursor:pointer;color:#6b7280;">← Retour</span></div>';
   $('bGrille').innerHTML=html;
   // On remet les réponses déjà données (même formule uniquement) : le questionnaire se modifie.
   var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
@@ -1352,7 +1360,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 28';
+var IVE_VERSION='29/07 · 29';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
