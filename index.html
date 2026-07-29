@@ -313,6 +313,8 @@ function perfWord(v){return v<25?'fragile':v<45?'à renforcer':v<60?'correct':v<
 /* Cadran de position : cinq pastilles du froid vers le chaud. Celle où l'on se trouve est
    cerclée de sa propre couleur et porte son nom à l'intérieur ; les autres restent en retrait. */
 var TRAJ_COUL=['#818cf8','#38bdf8','#10b981','#f59e0b','#ef4444'];
+// Mêmes teintes assombries : sur fond blanc, les pastels ne tiennent pas comme couleur de texte.
+var TRAJ_TXT=['#4f46e5','#0284c7','#047857','#b45309','#b91c1c'];
 var TRAJ_ICONES={'Glaciation':'ti-snowflake','Refroidissement':'ti-droplet','Équilibre':'ti-scale','Élan':'ti-ripple','Combustion':'ti-flame',
   'Plafond':'ti-arrow-bar-to-up','Palier':'ti-stairs','Montée':'ti-trending-up','Envol':'ti-rocket','Ascension':'ti-mountain'};
 // Ce que veut dire chaque zone, en une ligne — affiché sous les barres pour que le mot
@@ -331,10 +333,11 @@ var TRAJ_DEFS={
 };
 function trajLegende(zones,active){
   return '<div style="margin-top:9px;display:flex;flex-direction:column;gap:4px;">'+zones.map(function(z,i){
-    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af';
-    return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.45;'+(on?'':'opacity:.72;')+'">'
-      +'<span style="flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:'+c+';margin-top:4px;"></span>'
-      +'<div><b style="color:'+(on?'#111':c)+';">'+z+'</b> <span style="color:#6b7280;">— '+(TRAJ_DEFS[z]||'')+'</span></div></div>';
+    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af', ct=TRAJ_TXT[i]||'#6b7280';
+    // La zone atteinte : toute la ligne en gras et en noir, pour se distinguer d'un coup d'œil.
+    return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:'+(on?'11.5px':'10.5px')+';line-height:1.45;'+(on?'font-weight:700;color:#111;':'')+'">'
+      +'<span style="flex:0 0 auto;width:'+(on?9:7)+'px;height:'+(on?9:7)+'px;border-radius:50%;background:'+c+';margin-top:4px;"></span>'
+      +'<div><b style="color:'+(on?'#111':ct)+';">'+z+'</b> <span style="color:'+(on?'#111':'#5b616e')+';">— '+(TRAJ_DEFS[z]||'')+'</span></div></div>';
   }).join('')+'</div>';
 }
 // Le message de lecture, dans une barre claire marquée de la couleur de la zone atteinte.
@@ -346,16 +349,16 @@ function trajMsg(texte,i){
 }
 function trajDial(zones,active){
   return '<div style="display:flex;gap:6px;align-items:flex-start;margin-top:8px;">'+zones.map(function(z,i){
-    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af', ic=TRAJ_ICONES[z]||'ti-point';
+    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af', ct=TRAJ_TXT[i]||'#6b7280', ic=TRAJ_ICONES[z]||'ti-point';
     return '<div style="flex:1;min-width:0;text-align:center;">'
       +'<div style="font-size:10px;height:14px;line-height:14px;color:#111;">'+(on?'▼':'')+'</div>'
-      +'<div style="border-radius:10px;padding:9px 4px;background:'+c+(on?'0f':'14')+';'
-        +(on?'border:2px solid '+c+';background:#fff;':'border:1px solid '+c+'26;')
+      +'<div style="border-radius:10px;padding:9px 4px;background:'+c+(on?'0f':'22')+';'
+        +(on?'border:2px solid '+c+';background:#fff;':'border:1px solid '+c+'4d;')
         +'display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;box-sizing:border-box;">'
-      +'<i class="ti '+ic+'" style="font-size:15px;color:'+c+';"></i>'
+      +'<i class="ti '+ic+'" style="font-size:'+(on?17:16)+'px;color:'+c+';"></i>'
       +(on?'<span style="font-size:12px;font-weight:700;color:#111;">'+z+'</span>':'')
       +'</div>'
-      +(on?'':'<div style="font-size:9.5px;margin-top:5px;line-height:1.15;color:'+c+';">'+z+'</div>')
+      +(on?'':'<div style="font-size:9.5px;margin-top:5px;line-height:1.15;font-weight:600;color:'+ct+';">'+z+'</div>')
       +'</div>';
   }).join('')+'</div>';
 }
@@ -869,7 +872,8 @@ function bFinish(){
    +trajSec
    /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
    +heatSec
-   +'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>'
+   /* L'encart n'apparaît que s'il y a vraiment des critères faibles : sinon il n'apprend rien. */
+   +(r.faibles.length?'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>':'')
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
   window.lastMiroir={nom:nom,activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
   $('bGrille').innerHTML=card
@@ -1348,7 +1352,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 27';
+var IVE_VERSION='29/07 · 28';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
