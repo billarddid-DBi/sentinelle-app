@@ -733,7 +733,8 @@ function bFinish(){
    +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3.5vw,30px);margin-top:16px;flex-wrap:wrap;">'
    +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
    +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
-   +_pastille(pot,au.h,'POTENTIEL','+'+progression+' points','',true)
+   /* Le potentiel reprend la couleur de SENTINELLE, et l'écart est explicitement rapporté à l'intérieure. */
+   +_pastille(pot,_axh,'POTENTIEL','+'+progression+' vs intérieure','',true)
    +'</div></div>';
   var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
    +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
@@ -1273,7 +1274,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 19';
+var IVE_VERSION='28/07 · 20';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
