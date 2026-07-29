@@ -413,7 +413,7 @@ const AH_CRITERES = [
   {c:'C5',d:'Communication',x:0,t:"Les changements sont annoncés et expliqués en amont (pas de fait accompli)."},
   {c:'T1',d:'Confiance',x:1,t:"Droit à l'erreur : on peut se tromper sans être humilié ni sanctionné."},
   {c:'T2',d:'Confiance',x:1,t:"On ose exprimer un désaccord ou poser une question, même à la hiérarchie."},
-  {c:'T3',d:'Confiance',x:0,t:"Sécurité d'emploi ressentie : la peur de perdre son poste n'est pas dominante."},
+  {c:'T3',d:'Confiance',x:0,t:"Sécurité d'emploi ressentie : la crainte de perdre son poste n'est pas dominante."},
   {c:'T4',d:'Confiance',x:0,t:"Les équipes font confiance aux intentions de la direction."},
   {c:'T5',d:'Confiance',x:0,t:"L'IA est perçue comme une aide plutôt qu'une menace ou une surveillance."},
   {c:'P1',d:'Coopération',x:1,t:"Les services / personnes travaillent ensemble (pas de silos étanches)."},
@@ -443,7 +443,7 @@ const AH_INDICES = {
   'Ouverture au changement':['T3','T5','M2','M3','M4']
 };
 const AH_IAT_W = {'Ouverture au changement':0.25,'Adhésion':0.20,'Confiance':0.20,'Leadership':0.15,'Communication':0.10,'Écoute':0.05,'Transparence':0.05};
-const AH_PEURS = {T3:"Peur pour l'emploi face à l'IA",T5:"IA vécue comme menace / surveillance",T1:"Peur de l'erreur, de se tromper",T2:"Peur de parler, de dire son désaccord",C4:"Non-dits et rumeurs",C5:"Changements subis, découverts trop tard",M2:"Changement subi plutôt que désiré",S2:"Surcharge / stress, frein au changement"};
+const AH_CRAINTES = {T3:"Crainte pour l'emploi face à l'IA",T5:"IA vécue comme menace / surveillance",T1:"Crainte de l'erreur, de se tromper",T2:"Crainte de parler, de dire son désaccord",C4:"Non-dits et rumeurs",C5:"Changements subis, découverts trop tard",M2:"Changement subi plutôt que désiré",S2:"Surcharge / stress, frein au changement"};
 const ahkey = s => s.replace(/[^A-Za-z]/g,'');
 const AH_SCALE = ['absent','fragile','partiel','installé','solide','ancré'];
 /* Référentiel des 200 critères : 8 piliers × 5 sous-domaines × 5 critères.
@@ -582,7 +582,7 @@ function renderMiroir(){
     var bandCol=ah.band==='Blocage'?'#dc2626':ah.band==='Appui'?'#16a34a':'#ea580c';
     var bandBg=ah.band==='Blocage'?'#fef2f2':ah.band==='Appui'?'#f0fdf4':'#fff7ed';
     var hum=m.humain;
-    var peursH=(ah.peurs&&ah.peurs.length)?ah.peurs.slice(0,6).map(function(p){return '<span style="display:inline-block;background:#fff;border:1px solid '+bandCol+'44;color:#7c2d12;border-radius:12px;padding:2px 9px;font-size:11px;margin:2px 3px 0 0;">'+esc(p.txt||p.code)+'</span>';}).join(''):'<span style="font-size:11.5px;color:#16a34a;">Aucune peur majeure détectée</span>';
+    var craintesH=(ah.craintes&&ah.craintes.length)?ah.craintes.slice(0,6).map(function(p){return '<span style="display:inline-block;background:#fff;border:1px solid '+bandCol+'44;color:#7c2d12;border-radius:12px;padding:2px 9px;font-size:11px;margin:2px 3px 0 0;">'+esc(p.txt||p.code)+'</span>';}).join(''):'<span style="font-size:11.5px;color:#16a34a;">Aucune crainte majeure détectée</span>';
     ahSec='<div class="sec" style="background:'+bandBg+';"><div class="ktitle" style="color:'+bandCol+';"><i class="ti ti-users-group"></i> Volet humain — AURA (le pouls de l\'organisation)</div>'
       +'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;">'
         +'<div style="text-align:center;min-width:78px;"><div style="font-size:28px;font-weight:700;color:'+bandCol+';line-height:1;">'+ah.iat+'</div><div style="font-size:9.5px;color:#6b7280;">IAT · acceptabilité</div><div style="font-size:11px;font-weight:700;color:'+bandCol+';margin-top:3px;">'+esc(ah.band)+'</div></div>'
@@ -590,9 +590,9 @@ function renderMiroir(){
           +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
       +'</div>'
       +(hum&&hum.posologie?'<div style="margin-top:8px;font-size:12px;color:'+bandCol+';background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;"><b><i class="ti ti-adjustments-alt"></i> Dosage adapté :</b> '+esc(hum.posologie)+'</div>':'')
-      +'<div style="margin-top:8px;font-size:11px;color:#6b7280;">Peurs / résistances à traiter :</div><div style="margin-top:3px;">'+peursH+'</div>';
-    if(hum&&Array.isArray(hum.peurs)&&hum.peurs.length){
-      ahSec+='<div style="margin-top:10px;">'+hum.peurs.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.peur||'')+'</div>'+(p.traduction?'<div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction)+'</i></div>':'')+'<div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
+      +'<div style="margin-top:8px;font-size:11px;color:#6b7280;">Craintes / résistances à traiter :</div><div style="margin-top:3px;">'+craintesH+'</div>';
+    if(hum&&Array.isArray(hum.craintes)&&hum.craintes.length){
+      ahSec+='<div style="margin-top:10px;">'+hum.craintes.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.crainte||'')+'</div>'+(p.traduction?'<div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction)+'</i></div>':'')+'<div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
     }
     ahSec+='<div style="margin-top:8px;font-size:10px;color:#9ca3af;">On analyse le SYSTÈME, jamais les personnes.</div></div>';
   }
@@ -1349,7 +1349,7 @@ function mesActionsView(){
       // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
       +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 terminé'+((qFait+ahFait)>1?'s':''))
       +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, peurs. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
+      +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
       // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
       +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
       +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
@@ -1556,7 +1556,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 43';
+var IVE_VERSION='29/07 · 44';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2233,7 +2233,7 @@ function ahChoice(){
    +'<div style="font-size:12px;color:#6b7280;margin:6px 0 4px;line-height:1.5;">Le 4ᵉ temps : la <b>maturité humaine</b> — la capacité de l\'organisation à <b>accepter le changement</b> (surtout l\'IA). On note le <b>système</b>, jamais les personnes.</div>'
    +'<div style="font-size:12px;color:#1C1C1C;margin:8px 0;"><b>'+esc(nom)+'</b></div>'
    +'<div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-weight:700;color:#1C1C1C;"><i class="ti ti-bolt"></i> Express — 12 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice indicatif, ~5-7 min. Premier contact ou &lt; 5 salariés.</div><button class="btn btn-primary" style="margin-top:10px;" onclick="ahStart(\'express\')">Démarrer l\'Express</button></div>'
-   +'<div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;"><div style="font-weight:700;color:#374151;"><i class="ti ti-list-check"></i> Complet — 30 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice définitif + IAT/IMH + cartographie des peurs.</div><button class="btn btn-ghost" style="margin-top:10px;" onclick="ahStart(\'complet\')">Démarrer le Complet</button></div>'
+   +'<div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;"><div style="font-weight:700;color:#374151;"><i class="ti ti-list-check"></i> Complet — 30 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice définitif + IAT/IMH + cartographie des craintes.</div><button class="btn btn-ghost" style="margin-top:10px;" onclick="ahStart(\'complet\')">Démarrer le Complet</button></div>'
    +'<button class="btn btn-ghost" style="margin-top:12px;color:#9ca3af;border:none;" onclick="showView(\'bGrille\')">← Retour au diagnostic</button></div>';
   window.scrollTo(0,0);
 }
@@ -2276,9 +2276,9 @@ function ahScan(){
   var iat= w? Math.round(wsum/w):null;
   var imhV=AH_DOMAINS.map(function(d){return dom[d];}).filter(function(x){return x!=null;});
   var imh= imhV.length? Math.round(imhV.reduce(function(a,b){return a+b;},0)/imhV.length):null;
-  var peurs=[]; Object.keys(AH_PEURS).forEach(function(c){ if(byCode[c]!=null && byCode[c]<40) peurs.push({code:c,txt:AH_PEURS[c],intensite:100-byCode[c]}); });
-  peurs.sort(function(a,b){return b.intensite-a.intensite;});
-  return {byCode:byCode,dom:dom,idx:idx,iat:iat,imh:imh,peurs:peurs};
+  var craintes=[]; Object.keys(AH_CRAINTES).forEach(function(c){ if(byCode[c]!=null && byCode[c]<40) craintes.push({code:c,txt:AH_CRAINTES[c],intensite:100-byCode[c]}); });
+  craintes.sort(function(a,b){return b.intensite-a.intensite;});
+  return {byCode:byCode,dom:dom,idx:idx,iat:iat,imh:imh,craintes:craintes};
 }
 function ahCalc(){
   var r=ahScan();
@@ -2288,7 +2288,7 @@ function ahCalc(){
 }
 function ahReco(iat){
   if(iat==null) return {key:'—',zone:'—',color:'#9ca3af',bg:'#f3f4f6',icon:'ti-help',msg:''};
-  if(iat<=40) return {key:'Blocage',zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les peurs, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
+  if(iat<=40) return {key:'Blocage',zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les craintes, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
   if(iat<=70) return {key:'Vigilance',zone:'Vigilance',color:'#ea580c',bg:'#fff7ed',icon:'ti-alert-triangle',msg:"Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide."};
   return {key:'Appui',zone:'Appui',color:'#16a34a',bg:'#f0fdf4',icon:'ti-rocket',msg:"L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis."};
 }
@@ -2299,7 +2299,7 @@ function ahFinish(){
   var idxBars=idxKeys.map(function(k){return bar(k,r.idx[k]);}).join('');
   var domBars=AH_DOMAINS.map(function(d){return bar(d,r.dom[d]);}).join('');
   var ouv=r.idx['Ouverture au changement']; var resist= ouv!=null?(100-ouv):null;
-  var peursHTML= r.peurs.length ? r.peurs.map(function(p){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #fde0d0;font-size:12px;"><span style="color:#7c2d12;">'+esc(p.txt)+'</span><span style="color:#dc2626;font-weight:600;white-space:nowrap;">intensité '+p.intensite+'</span></div>';}).join('') : '<div style="font-size:12px;color:#6b7280;">Aucune peur saillante (tous les signaux sensibles ≥ 40).</div>';
+  var craintesHTML= r.craintes.length ? r.craintes.map(function(p){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #fde0d0;font-size:12px;"><span style="color:#7c2d12;">'+esc(p.txt)+'</span><span style="color:#dc2626;font-weight:600;white-space:nowrap;">intensité '+p.intensite+'</span></div>';}).join('') : '<div style="font-size:12px;color:#6b7280;">Aucune crainte saillante (tous les signaux sensibles ≥ 40).</div>';
   var card='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-users-group"></i> QUESTIONNAIRE AUX SALARIÉS · MATURITÉ AU CHANGEMENT</div>'
       +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(nom)+'</div>'
@@ -2312,7 +2312,7 @@ function ahFinish(){
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Radar des 8 indices humains</div><div style="position:relative;height:280px;margin-top:8px;"><canvas id="ahRadar"></canvas></div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Les 8 indices</div><div style="margin-top:8px;">'+idxBars+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-layout-grid"></i> Les 6 domaines</div><div style="margin-top:8px;">'+domBars+'</div></div>'
-    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-mood-nervous"></i> Cartographie des peurs</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 4px;">Signaux sensibles sous 40/100 — à traiter dans le plan de communication.</div>'+peursHTML+'</div>'
+    +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-mood-nervous"></i> Cartographie des craintes</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 4px;">Signaux sensibles sous 40/100 — à traiter dans le plan de communication.</div>'+craintesHTML+'</div>'
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-arrow-right"></i> Recommandation pour MIROIR</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;"><b>'+reco.zone+'.</b> '+reco.msg+'</div></div>'
     +'<div class="foot">On analyse le SYSTÈME, jamais les personnes. Vue auditeur / dirigeant — l\'écart avec les équipes (questionnaire anonyme) viendra en phase 2. Indices /100 = moyenne des critères /5 × 20.</div></div>';
   $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Le résultat de vos équipes") + card
@@ -2321,7 +2321,7 @@ function ahFinish(){
    +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>';
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
-  window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,peurs:r.peurs,resistance:resist};
+  window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,craintes:r.craintes,resistance:resist};
   if(window.ahControleMode){ window.ahControleMode=false; try{ var _o=pmLoad(); _o.lastCtrl=pmTodayStr(); pmSave(_o); }catch(e){} cpSnapshot(true); cockpitCompare(); return; }
   saveAura(r,card);
 }
@@ -2330,7 +2330,7 @@ function saveAura(r,card){
     var css=document.querySelector('style')?document.querySelector('style').textContent:'';
     var body=card.replace(/<canvas[^>]*><\/canvas>/,'<div style="font-size:11px;color:#9ca3af;">(radar interactif dans l\'app)</div>');
     var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
-    var payload={type:'aura',mode:window.ahMode,nom:window.ahNom,date:new Date().toISOString(),iat:r.iat,imh:r.imh,indices:r.idx,domaines:r.dom,peurs:r.peurs};
+    var payload={type:'aura',mode:window.ahMode,nom:window.ahNom,date:new Date().toISOString(),iat:r.iat,imh:r.imh,indices:r.idx,domaines:r.dom,craintes:r.craintes};
     fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'aura',nom:window.ahNom,json:payload,html:html})})
       .then(function(x){return x.json();}).then(function(x){var s=$('ahSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> AURA enregistrée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';}).catch(function(){});
   }catch(e){}
@@ -2421,7 +2421,7 @@ function frChatSend(){
   window.frChat=window.frChat||[]; window.frChat.push({role:'user',content:val});
   window.frChatBusy=true; frChatRender(); frSaveLocal();
   var d=window.frData||{}, ah=window.lastAH||{}, b=window.lastMiroir||{};
-  var ctx={nom:d.nom,activite:b.activite||'',iat:ah.iat,band:ah.band,peurs:(ah.peurs||[]).map(function(p){return p.txt||p.code;}),
+  var ctx={nom:d.nom,activite:b.activite||'',iat:ah.iat,band:ah.band,craintes:(ah.craintes||[]).map(function(p){return p.txt||p.code;}),
     steps:(d.steps||[]).map(function(s){return {titre:s.titre,statut:s.status,note:s.note||'',palier:s.palier,type:s.type,echeance:s.echeance};}),
     messages:window.frChat.slice(-10)};
   fetch('/api/assistant-route',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(ctx)})
@@ -2457,7 +2457,7 @@ function frHelp(id){
   var d=window.frData; if(!d) return; var s=null; d.steps.forEach(function(x){ if(x.id===id) s=x; }); if(!s) return;
   var el=$(id+'_help'); if(el) el.innerHTML='<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:8px;"><span class="spin" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px;margin-right:6px;"></span>DBi360 réfléchit avec vous…</div>';
   var ah=window.lastAH||{}, b=window.lastMiroir||{};
-  fetch('/api/coup-de-main',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,activite:b.activite||'',etape:{titre:s.titre,detail:s.detail,palier:s.palier,type:s.type,indicateur:s.indicateur},note:s.note||'',iat:ah.iat,band:ah.band,peurs:(ah.peurs||[]).map(function(p){return p.txt||p.code;})})})
+  fetch('/api/coup-de-main',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,activite:b.activite||'',etape:{titre:s.titre,detail:s.detail,palier:s.palier,type:s.type,indicateur:s.indicateur},note:s.note||'',iat:ah.iat,band:ah.band,craintes:(ah.craintes||[]).map(function(p){return p.txt||p.code;})})})
     .then(function(r){return r.json();})
     .then(function(x){ if(!x||x.error){ if(el)el.innerHTML='<div style="font-size:12px;color:#991b1b;margin-top:8px;"><i class="ti ti-alert-triangle"></i> Indisponible un instant. <button type="button" onclick="frHelp(\''+id+'\')" style="border:none;background:none;color:#E8541A;text-decoration:underline;cursor:pointer;">Réessayer</button></div>'; return; } s.help=x; frSaveLocal(); frRender(); })
     .catch(function(){ if(el)el.innerHTML='<div style="font-size:12px;color:#991b1b;margin-top:8px;"><i class="ti ti-alert-triangle"></i> Connexion lente. <button type="button" onclick="frHelp(\''+id+'\')" style="border:none;background:none;color:#E8541A;text-decoration:underline;cursor:pointer;">Réessayer</button></div>'; });
@@ -2506,8 +2506,8 @@ function cockpitBuild(){
   if(pilBars||idxBars){ matSec='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 14px;">'
       +'<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;"><div style="font-size:10.5px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-tools"></i> Maturité technique</div>'+(pilBars||'<div style="font-size:10px;color:#cbd5e1;">non mesuré</div>')+'</div>'
       +'<div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:10px;"><div style="font-size:10.5px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-users-group"></i> Maturité humaine</div>'+(idxBars||'<div style="font-size:10px;color:#cbd5e1;">non mesuré</div>')+'</div></div>'; }
-  var peurSec='';
-  if(ah&&ah.peurs&&ah.peurs.length){ peurSec='<div style="padding:9px 14px 0;"><div style="font-size:10px;color:#9ca3af;margin-bottom:4px;">Peurs à traiter</div><div style="display:flex;flex-wrap:wrap;gap:5px;">'+ah.peurs.slice(0,6).map(function(p){return '<span style="font-size:10.5px;color:#991b1b;background:#fef2f2;border-radius:10px;padding:3px 9px;">'+esc(p.txt||p.code)+'</span>';}).join('')+'</div></div>'; }
+  var crainteSec='';
+  if(ah&&ah.craintes&&ah.craintes.length){ crainteSec='<div style="padding:9px 14px 0;"><div style="font-size:10px;color:#9ca3af;margin-bottom:4px;">Craintes à traiter</div><div style="display:flex;flex-wrap:wrap;gap:5px;">'+ah.craintes.slice(0,6).map(function(p){return '<span style="font-size:10.5px;color:#991b1b;background:#fef2f2;border-radius:10px;padding:3px 9px;">'+esc(p.txt||p.code)+'</span>';}).join('')+'</div></div>'; }
   var avancSec='';
   if(avanc!=null){ avancSec='<div style="padding:10px 14px 0;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:#6b7280;margin-bottom:4px;"><span><i class="ti ti-route"></i> Feuille de route</span><span>'+done+' / '+total+' étapes</span></div><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;"><div style="width:'+avanc+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
   var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('Questionnaire aux salariés'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
@@ -2520,7 +2520,7 @@ function cockpitBuild(){
   var card='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-dashboard"></i> COCKPIT · LA SYNTHÈSE</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;line-height:1.5;">'+date+(act?'<br>'+esc(act):'')+'</div></div></div>'
     +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px 14px 0;">'+tile(reel,perfColor(reel||0),'IVE · valeur')+tile(iat,cpBand(band),'IAT · humain')+tile(avanc,'#2563eb','plan · avancé','%')+'</div>'
-    +ecartSec+roiSec+priSec+matSec+peurSec+avancSec+missSec+followSec
+    +ecartSec+roiSec+priSec+matSec+crainteSec+avancSec+missSec+followSec
     +'<div class="foot">La transformation de votre entreprise en un coup d\'œil : image, réalité, humain, plan et retour sur investissement. On refait le point à 3 mois pour mesurer le chemin parcouru.</div></div>';
   var prog=(snaps.length>=2);
   $('cockpit').innerHTML=card
@@ -2537,7 +2537,7 @@ function cpSnapshot(force){
   var snap={d:new Date().toISOString().slice(0,10), t:Date.now(),
     ive:(b.indiceInterieur!=null?b.indiceInterieur:null), image:(b.indiceExterieur!=null?b.indiceExterieur:null), pot:(b.potentiel!=null?b.potentiel:null),
     iat:(ah?ah.iat:null), imh:(ah?ah.imh:null), resist:(ah?ah.resistance:null),
-    piliers:(b.piliers||null), indices:(ah?ah.indices:null), peurs:(ah&&ah.peurs?ah.peurs.length:null),
+    piliers:(b.piliers||null), indices:(ah?ah.indices:null), craintes:(ah&&ah.craintes?ah.craintes.length:null),
     av:((fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):null)};
   var key='cp_snaps_'+cpSlug(), arr=[]; try{arr=JSON.parse(localStorage.getItem(key))||[];}catch(e){}
   if(!force) arr=arr.filter(function(x){return x.d!==snap.d;});
@@ -2572,7 +2572,7 @@ function cockpitCompare(){
   if(cur.indices){ var ks=Object.keys(cur.indices);
     idxTable='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:4px;"><i class="ti ti-users-group"></i> Les 8 indices humains</div>'+colHdr
       +ks.map(function(k){return triRow(k, init.indices?init.indices[k]:null, prev&&prev.indices?prev.indices[k]:null, cur.indices[k], true);}).join('')+'</div>'; }
-  var peurRow=(init.peurs!=null&&cur.peurs!=null)?('<div class="sec">'+colHdr.replace('Init.','Init.')+triRow('Peurs actives (moins = mieux)',init.peurs,prev?prev.peurs:null,cur.peurs,false)+'</div>'):'';
+  var crainteRow=(init.craintes!=null&&cur.craintes!=null)?('<div class="sec">'+colHdr.replace('Init.','Init.')+triRow('Craintes actives (moins = mieux)',init.craintes,prev?prev.craintes:null,cur.craintes,false)+'</div>'):'';
   var ref=prev||init, iatD=(ref.iat!=null&&cur.iat!=null)?cur.iat-ref.iat:null;
   var msg;
   if(iatD!=null&&iatD>=8) msg='Depuis '+(prev?'le dernier contrôle':'le départ')+', l\'acceptabilité progresse ('+ref.iat+' → '+cur.iat+'). Vos actions portent, l\'équipe suit. Continuez.';
@@ -2582,7 +2582,7 @@ function cockpitCompare(){
     +'<div style="background:#1C1C1C;color:#fff;padding:15px 17px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-activity-heartbeat"></i> ÉVOLUTION · CONTRÔLE N°'+nCtrl+'</div><div style="font-size:18px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div><div style="font-size:11px;color:#9ca3af;margin-top:4px;">situation initiale le '+new Date(init.t).toLocaleDateString('fr-FR')+' · '+lapse+' de recul</div></div>'
     +heads
     +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12.5px;color:#166534;line-height:1.55;"><i class="ti ti-sparkles"></i> '+esc(msg)+'</div></div>'
-    +idxTable+peurRow
+    +idxTable+crainteRow
     +'<div class="foot">On compare votre situation actuelle à votre point de départ'+(prev?' et à votre contrôle précédent':'')+'. Lancez un contrôle après chaque vague d\'actions : c\'est ainsi qu\'on voit — et qu\'on prouve — le chemin parcouru. (Le contrôle mesure le pouls humain ; la valeur externe se re-mesure lors d\'un diagnostic complet.)</div></div>'
     +'<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un nouveau contrôle</button>';
   $('compare').innerHTML=card; showView('compare'); window.scrollTo(0,0);
@@ -2685,7 +2685,7 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
   var ctx={ nom:b.nom||(ah&&ah.nom)||'', activite:b.activite||'',
     climat:(['','bonne','moyenne','tendue'][t.climat||0])||'', treso:(['','ça rentre','tendue','serrée'][t.treso||0])||'',
     band:cap?cap.band:'', iat:cap?cap.iat:null, objectif:cap?(cap.palier+' (IAT '+cap.iat+' → objectif '+cap.obj+')'):'',
-    peurs:(ah&&ah.peurs?ah.peurs.map(function(p){return p.txt||p.code;}):[]),
+    craintes:(ah&&ah.craintes?ah.craintes.map(function(p){return p.txt||p.code;}):[]),
     etapes:(fr&&fr.steps?fr.steps.map(function(s){return {titre:s.titre,statut:s.status};}):[]),
     crise:(function(){var c=pmCrisis();return c?c.signals.join(' · '):'';})() };
   var done=function(prio){ window.pmFetching=false; var oo=pmLoad(); pmDay(oo).prio=prio; pmSave(oo); if($('dirigeant').style.display==='block') dirigeantSpace(); };
@@ -4566,7 +4566,7 @@ var INTRO_SLIDES=[
 {c:"Votre positionnement face à la concurrence locale",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">Face à 4 concurrents à Metz</div>'+[["Concurrent A",78],["Boulangerie Éclair",62],["Concurrent B",55],["Concurrent C",41]].map(function(b,i){return '<div style="margin-bottom:9px"><div style="font-size:11px;margin-bottom:3px;'+(i===1?'font-weight:700;color:#E8541A':'color:#6b7280')+'">'+b[0]+'</div><div style="height:10px;background:#f1f3f4;border-radius:5px"><div class="inBar" style="height:10px;width:0;border-radius:5px;background:'+(i===1?'#E8541A':'#cbd5e1')+';transition:width .8s" data-w="'+b[1]+'"></div></div></div>';}).join('')},
 {c:"Un rapport PDF généré et envoyé dans votre boîte mail",h:'<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:280px;gap:12px"><i class="ti ti-file-text" style="font-size:52px;color:#E8541A"></i><div style="font-size:13px;font-weight:700;color:#1C1C1C">Rapport SENTINELLE.pdf</div><div style="background:#dcfce7;color:#166534;border-radius:8px;padding:8px 14px;font-size:12px"><i class="ti ti-mail"></i> Envoyé au dirigeant</div></div>'},
 {c:"BOUSSOLE : des actions concrètes à mettre en place",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">BOUSSOLE — vos actions</div>'+["Répondre aux avis avec l’IA","Digitaliser la prise de commande","Automatiser les relances clients"].map(function(t){return '<div class="inAct" style="display:flex;gap:8px;align-items:center;border:1px solid #e5e7eb;border-radius:8px;padding:9px 11px;font-size:12px;margin-bottom:8px;opacity:0;transition:opacity .5s;color:#1C1C1C"><i class="ti ti-circle-check" style="color:#16a34a;font-size:16px"></i>'+t+'</div>';}).join('')},
-{c:"AURA : votre équipe est-elle prête pour l’IA ?",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">AURA humaine — le relationnel</div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#6d28d9" id="inN2">0</div><div style="font-size:11px;color:#6b7280">Maturité humaine</div></div><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#1C1C1C">3</div><div style="font-size:11px;color:#6b7280">Peurs à lever</div></div></div><div style="background:#e0e7ff;border-radius:8px;padding:9px 11px;font-size:12px;color:#3730a3">L’équipe est prête, à condition de rassurer sur l’emploi</div>'},
+{c:"AURA : votre équipe est-elle prête pour l’IA ?",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">AURA humaine — le relationnel</div><div style="display:flex;gap:8px;margin-bottom:10px"><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#6d28d9" id="inN2">0</div><div style="font-size:11px;color:#6b7280">Maturité humaine</div></div><div style="flex:1;background:#f8f9fa;border-radius:8px;padding:10px;text-align:center"><div style="font-size:24px;font-weight:700;color:#1C1C1C">3</div><div style="font-size:11px;color:#6b7280">Craintes à lever</div></div></div><div style="background:#e0e7ff;border-radius:8px;padding:9px 11px;font-size:12px;color:#3730a3">L’équipe est prête, à condition de rassurer sur l’emploi</div>'},
 {c:"MIROIR : le retour sur investissement et la feuille de route",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:10px">MIROIR — votre trajectoire</div><div style="background:#f8f9fa;border-radius:8px;padding:10px;margin-bottom:10px"><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Temps gagné estimé</div><div style="font-size:20px;font-weight:700;color:#16a34a">6 h / semaine</div></div><div style="font-size:11px;color:#6b7280;margin-bottom:4px">Feuille de route</div><div style="height:12px;background:#f1f3f4;border-radius:6px"><div id="inProg" style="height:12px;width:0;background:#16a34a;border-radius:6px;transition:width 1s"></div></div><div style="font-size:11px;color:#9aa0a6;margin-top:4px">Palier 1 → Palier 3 sur 12 mois</div>'},
 {c:"Et au quotidien : vos tâches notées… et analysées par l’IA",h:'<div style="font-size:12px;color:#9aa0a6;margin-bottom:8px">Le quotidien du dirigeant</div>'+["Relancer les impayés (3e fois)","Refaire les plannings","Répondre aux avis Google"].map(function(t){return '<div style="display:flex;gap:7px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #f1f3f4;color:#1C1C1C"><i class="ti ti-checkbox" style="font-size:15px;color:#9aa0a6"></i>'+t+'</div>';}).join('')+'<div class="inGraft" style="margin-top:10px;background:#e0e7ff;border-radius:8px;padding:9px 11px;font-size:12px;color:#3730a3;opacity:0;transition:opacity .6s"><i class="ti ti-sparkles"></i> Tâche répétitive détectée → un outil IA peut la faire pour vous</div>'}
 ];
