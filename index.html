@@ -697,9 +697,11 @@ function bFinish(){
   var _axh=(_ax&&typeof AURAS!=='undefined'&&AURAS[_ax.couleur]&&AURAS[_ax.couleur].h)||'#3b82f6';
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
-  var _pastille=function(note,coul,etiquette,sousTitre,etoiles){
+  var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur){
+    // « futur » = le potentiel : pas encore atteint, donc en pointillés et plus discret.
+    var _st=futur?'opacity:.62;border:2px dashed rgba(255,255,255,.45);box-sizing:border-box;':'box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);';
     return '<div style="width:clamp(98px,26vw,143px);flex:0 0 auto;text-align:center;">'
-      +'<div style="width:clamp(84px,22vw,126px);height:clamp(84px,22vw,126px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+      +'<div style="width:clamp(84px,22vw,126px);height:clamp(84px,22vw,126px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'+_st+'display:flex;flex-direction:column;align-items:center;justify-content:center;">'
       +'<div style="font-size:clamp(20px,5.3vw,24px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
       +'<div style="font-size:11px;color:#fff;height:14px;line-height:14px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
       +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
@@ -707,7 +709,14 @@ function bFinish(){
   };
   var _trait='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.45));"></div>';
   var _traitD='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,.45),rgba(232,149,79,0));"></div>';
-  // Les auras occupent toute la largeur ; la note se lit ensuite sur une seule ligne discrète.
+  // La chaîne complète se lit sur une seule ligne : ce que les autres voient → ce que vous vivez
+  // → ce que vous pouvez atteindre. Ces valeurs servent aussi aux indices plus bas.
+  var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
+  var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
+  var potV=(($('bPot')&&$('bPot').value)||'').replace(',','.').trim();
+  var pot=(potV!=='' && !isNaN(parseFloat(potV)))?Math.max(0,Math.min(100,Math.round(parseFloat(potV)))):Math.min(100,r.idx+25);
+  var verite=(ext!=null)?(r.idx-ext):null;
+  var progression=Math.round(pot-r.idx);
   var _sep='<div style="width:1px;align-self:stretch;background:rgba(255,255,255,.12);"></div>';
   var blocNote='<div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:clamp(10px,3vw,22px);margin-top:20px;padding-bottom:18px;border-bottom:1px solid rgba(255,255,255,.07);">'
    +'<div style="font-size:clamp(24px,6vw,30px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.8px;">'+r.idx+'<span style="font-size:14px;font-weight:500;color:#9ca3af;letter-spacing:0;">/100</span></div>'
@@ -719,11 +728,12 @@ function bFinish(){
    +'<div style="font-size:12.5px;color:#8fa6d8;">· '+date+'</div></div>';
   var blocAuras='<div style="width:100%;">'
    +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
-   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA'+(_ax?' EXTÉRIEURE &amp;':'')+' INTÉRIEURE</div>'+_traitD+'</div>'
-   // L'extérieure d'abord : c'est ce que les autres voient. L'intérieure ensuite, en réponse.
-   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(14px,5vw,44px);margin-top:16px;">'
+   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA'+(_ax?' EXTÉRIEURE &amp;':'')+' INTÉRIEURE &amp; POTENTIEL</div>'+_traitD+'</div>'
+   // Toute la chaîne : l'extérieure (ce qu'on voit), l'intérieure (ce qu'on vit), le potentiel (ce qu'on vise).
+   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3.5vw,30px);margin-top:16px;flex-wrap:wrap;">'
    +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
    +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
+   +_pastille(pot,au.h,'POTENTIEL','+'+progression+' points','',true)
    +'</div></div>';
   var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
    +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
@@ -733,12 +743,7 @@ function bFinish(){
    /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
    +blocAuras+blocSens+'</div>';
   // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
-  var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
-  var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
-  var potV=(($('bPot')&&$('bPot').value)||'').replace(',','.').trim();
-  var pot=(potV!=='' && !isNaN(parseFloat(potV)))?Math.max(0,Math.min(100,Math.round(parseFloat(potV)))):Math.min(100,r.idx+25);
-  var verite=(ext!=null)?(r.idx-ext):null;
-  var progression=Math.round(pot-r.idx);
+  // ext, pot, verite et progression sont calculés plus haut (source unique, partagée avec les pastilles).
   var trajSec='';
   if(ext!=null){
     var dv=verite;
@@ -1268,7 +1273,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 18';
+var IVE_VERSION='28/07 · 19';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
