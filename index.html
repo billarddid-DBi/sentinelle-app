@@ -1415,6 +1415,22 @@ function offreView(){
 }
 /* Les deux bandeaux noirs — présentation + navigation — sur toutes les slides.
    SOURCE UNIQUE : ne jamais recopier ce bloc ailleurs. */
+/* Gabarit des ecrans de choix de parcours (BOUSSOLE et salaries) - SOURCE UNIQUE. */
+function parcoursLigne(ic,txt){
+    return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:10px 12px;margin-top:7px;">'
+      +'<i class="ti '+ic+'" style="font-size:17px;color:#6b7280;flex:0 0 auto;"></i>'
+      +'<span style="font-size:12.5px;color:#1C1C1C;line-height:1.35;">'+txt+'</span></div>';
+}
+function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
+    return '<div style="flex:1 1 250px;min-width:0;background:'+fond+';border:1px solid '+bord+';border-radius:16px;padding:18px 15px;">'
+      +'<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+icone+'" style="font-size:25px;color:'+coul+';"></i></div>'
+      +'<div style="text-align:center;font-size:17px;font-weight:800;color:'+coul+';line-height:1.2;margin-top:10px;letter-spacing:.3px;">'+titre+'</div>'
+      +'<div style="height:1px;background:'+bord+';margin:11px 6px;"></div>'
+      +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
+      +'<div style="margin-top:10px;">'+lignes+'</div>'
+      /* Les boutons de départ sont remontés au-dessus des deux cartes (décision Didier). */
+    +'</div>';
+}
 function iveEntete(icone,surtitre,titre,actif){
   return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
     +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
@@ -1556,7 +1572,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 44';
+var IVE_VERSION='29/07 · 45';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2228,13 +2244,34 @@ function ahChoice(){
   var nom = (window.lastMiroir&&window.lastMiroir.nom) || ($('bNom')&&$('bNom').value.trim()) || 'Entreprise';
   window.ahNom = nom;
   showView('ahView');
-  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent") +
-   '<div class="panel"><div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#1C1C1C;"><i class="ti ti-users-group"></i> Questionnaire aux salariés</div>'
-   +'<div style="font-size:12px;color:#6b7280;margin:6px 0 4px;line-height:1.5;">Le 4ᵉ temps : la <b>maturité humaine</b> — la capacité de l\'organisation à <b>accepter le changement</b> (surtout l\'IA). On note le <b>système</b>, jamais les personnes.</div>'
-   +'<div style="font-size:12px;color:#1C1C1C;margin:8px 0;"><b>'+esc(nom)+'</b></div>'
-   +'<div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-weight:700;color:#1C1C1C;"><i class="ti ti-bolt"></i> Express — 12 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice indicatif, ~5-7 min. Premier contact ou &lt; 5 salariés.</div><button class="btn btn-primary" style="margin-top:10px;" onclick="ahStart(\'express\')">Démarrer l\'Express</button></div>'
-   +'<div style="border:1px solid #d1d5db;border-radius:12px;padding:14px;"><div style="font-weight:700;color:#374151;"><i class="ti ti-list-check"></i> Complet — 30 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice définitif + IAT/IMH + cartographie des craintes.</div><button class="btn btn-ghost" style="margin-top:10px;" onclick="ahStart(\'complet\')">Démarrer le Complet</button></div>'
-   +'<button class="btn btn-ghost" style="margin-top:12px;color:#9ca3af;border:none;" onclick="showView(\'bGrille\')">← Retour au diagnostic</button></div>';
+  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent")
+   +'<div class="card"><div class="sec">'
+    +'<div style="display:flex;align-items:flex-start;gap:12px;">'
+      +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;">Questionnaire<br>aux salariés</div>'
+        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">La capacité de votre organisation à accepter le changement. <b style="color:#1C1C1C;">On note le système, jamais les personnes.</b></div>'
+      +'</div>'
+      +'<div style="width:92px;height:92px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-users-group" style="font-size:42px;color:#15803d;"></i></div>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;gap:12px;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
+      +'<div style="width:44px;height:44px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:21px;color:#15803d;"></i></div>'
+      +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;">'+esc(nom)+'</div></div>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
+      +'<button type="button" onclick="ahStart(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#15803d;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer l\'Express <i class="ti ti-arrow-right"></i></button>'
+      +'<button type="button" onclick="ahStart(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#166534;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le Complet <i class="ti ti-arrow-right"></i></button>'
+    +'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
+      +parcoursCarte('#15803d','#f4fbf6','#bbf7d0','ti-bolt','SALARIÉS<br>EXPRESS','Prendre la température humaine',
+          parcoursLigne('ti-target-arrow','12 critères')+parcoursLigne('ti-clock','5 à 7 minutes')+parcoursLigne('ti-user-check','Anonyme')+parcoursLigne('ti-users','Idéal sous 5 salariés'))
+      +parcoursCarte('#166534','#f2f9f4','#a7e3bd','ti-users-group','SALARIÉS<br>COMPLET','Approfondir la maturité humaine',
+          parcoursLigne('ti-list-details','30 critères détaillés')+parcoursLigne('ti-shield-check','Indice définitif')+parcoursLigne('ti-chart-bar','IAT / IMH')+parcoursLigne('ti-map','Cartographie des craintes'))
+    +'</div>'
+    +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-lock" style="font-size:18px;color:#15803d;"></i></div>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">Les réponses sont anonymes.</b> Aucun salarié n\'est identifié : on mesure le fonctionnement de l\'entreprise, pas les personnes.</div>'
+    +'</div>'
+   +'</div></div>';
   window.scrollTo(0,0);
 }
 function ahStart(mode){
@@ -4357,21 +4394,7 @@ function boussoleParcours(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(!acc){ renderAuth('login'); return; }
   var nom=window.lastNom||(acc&&acc.name)||'';
-  var ligne=function(ic,txt){
-    return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:10px 12px;margin-top:7px;">'
-      +'<i class="ti '+ic+'" style="font-size:17px;color:#6b7280;flex:0 0 auto;"></i>'
-      +'<span style="font-size:12.5px;color:#1C1C1C;line-height:1.35;">'+txt+'</span></div>';
-  };
-  var carte=function(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
-    return '<div style="flex:1 1 250px;min-width:0;background:'+fond+';border:1px solid '+bord+';border-radius:16px;padding:18px 15px;">'
-      +'<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+icone+'" style="font-size:25px;color:'+coul+';"></i></div>'
-      +'<div style="text-align:center;font-size:17px;font-weight:800;color:'+coul+';line-height:1.2;margin-top:10px;letter-spacing:.3px;">'+titre+'</div>'
-      +'<div style="height:1px;background:'+bord+';margin:11px 6px;"></div>'
-      +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
-      +'<div style="margin-top:10px;">'+lignes+'</div>'
-      /* Les boutons de départ sont remontés au-dessus des deux cartes (décision Didier). */
-    +'</div>';
-  };
+  var ligne=parcoursLigne, carte=parcoursCarte;
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div></div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
