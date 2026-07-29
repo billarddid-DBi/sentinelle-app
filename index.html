@@ -1227,8 +1227,7 @@ function iveNav(s){
   // Le questionnaire : on reprend la formule déjà commencée, sinon on choisit.
   else if(s==='questionnaire'){
     if(!iveAbonne()){ offreView(); return; }
-    var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
-    if(sv&&sv.mode) boussoleDemarrer(sv.mode); else boussoleParcours();
+    boussoleParcours();   // toujours par l'écran de choix ; les réponses déjà données sont reprises ensuite
   }
   // BOUSSOLE : les résultats si tout est renseigné, sinon l'invitation à terminer.
   else if(s==='boussole'||s==='plan'){
@@ -1447,7 +1446,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 34';
+var IVE_VERSION='29/07 · 35';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4260,7 +4259,7 @@ function boussoleParcours(){
       +'<div style="height:1px;background:'+bord+';margin:11px 6px;"></div>'
       +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
       +'<div style="margin-top:10px;">'+lignes+'</div>'
-      +'<button type="button" onclick="'+action+'" style="width:100%;border:none;background:'+coul+';color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:14px;">'+libBouton+' <i class="ti ti-arrow-right"></i></button>'
+      /* Les boutons de départ sont remontés au-dessus des deux cartes (décision Didier). */
     +'</div>';
   };
   $('dirigeant').innerHTML=adminBar()
@@ -4280,6 +4279,11 @@ function boussoleParcours(){
       +'<div style="display:flex;align-items:center;gap:12px;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:16px;">'
         +'<div style="width:44px;height:44px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:22px;color:#E8541A;"></i></div>'
         +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;line-height:1.25;">'+esc(nom||'votre entreprise')+'</div></div>'
+      +'</div>'
+      // On choisit d'abord, on lit le détail ensuite : les deux départs sont juste sous l'entreprise.
+      +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
+        +'<button type="button" onclick="boussoleDemarrer(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le parcours Express <i class="ti ti-arrow-right"></i></button>'
+        +'<button type="button" onclick="boussoleDemarrer(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#2563EB;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le parcours Complet <i class="ti ti-arrow-right"></i></button>'
       +'</div>'
       // Les deux parcours
       +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
