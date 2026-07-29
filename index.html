@@ -654,19 +654,26 @@ function startGrille(mode){
   bcalc();
   if(typeof iveBandesFixes==='function') iveBandesFixes();
 }
+// Taux de récupération réaliste par niveau constaté : plus un critère est déjà bon, moins il
+// reste à gagner et plus le dernier point coûte cher. SOURCE UNIQUE du potentiel BOUSSOLE.
+var BTAUX=[0.70,0.70,0.60,0.50,0.30,0.00]; // index = note /5
 function bScan(){
-  var items=window.bItems||[], sum=0,n=0,pil={},faibles=[];
+  var items=window.bItems||[], sum=0,n=0,pil={},faibles=[],gain=0;
   items.forEach(function(it){
     var el=$(it.id); if(!el) return;
     if(el.dataset.na==='1') return;
     var v=+el.value; var lab=$(it.id+'v'); if(lab) lab.textContent=v;
     sum+=v;n++;
-    if(!pil[it.pilier]) pil[it.pilier]={s:0,n:0};
-    pil[it.pilier].s+=v; pil[it.pilier].n++;
+    var g=(5-v)*BTAUX[v]; gain+=g;
+    if(!pil[it.pilier]) pil[it.pilier]={s:0,n:0,g:0};
+    pil[it.pilier].s+=v; pil[it.pilier].n++; pil[it.pilier].g+=g;
     if(v<=2) faibles.push(it.crit+' ('+v+'/5)');
   });
-  var pct={}; BPILIERS.forEach(function(p){ if(pil[p]) pct[p]=Math.round(pil[p].s/(pil[p].n*5)*100); });
-  return {idx:n?Math.round(sum/(n*5)*100):0,n:n,pil:pct,faibles:faibles};
+  var pct={},ppot={};
+  BPILIERS.forEach(function(p){ if(pil[p]){ pct[p]=Math.round(pil[p].s/(pil[p].n*5)*100); ppot[p]=Math.round((pil[p].s+pil[p].g)/(pil[p].n*5)*100); } });
+  return {idx:n?Math.round(sum/(n*5)*100):0,n:n,pil:pct,
+    // Potentiel = indice + marge récupérable, critère par critère (jamais un forfait).
+    pot:n?Math.min(100,Math.round((sum+gain)/(n*5)*100)):0, pilPot:ppot, faibles:faibles};
 }
 function bcalc(){
   var r=bScan();
@@ -714,7 +721,8 @@ function bFinish(){
   var extV=(($('bExt')&&$('bExt').value)||'').replace(',','.').trim();
   var ext=(extV!=='' && !isNaN(parseFloat(extV)))?Math.max(0,Math.min(100,Math.round(parseFloat(extV)))):null;
   var potV=(($('bPot')&&$('bPot').value)||'').replace(',','.').trim();
-  var pot=(potV!=='' && !isNaN(parseFloat(potV)))?Math.max(0,Math.min(100,Math.round(parseFloat(potV)))):Math.min(100,r.idx+25);
+  // À défaut d'une valeur saisie, le potentiel vient de la formule (bScan) — plus aucun forfait.
+  var pot=(potV!=='' && !isNaN(parseFloat(potV)))?Math.max(0,Math.min(100,Math.round(parseFloat(potV)))):r.pot;
   var verite=(ext!=null)?(r.idx-ext):null;
   var progression=Math.round(pot-r.idx);
   var _sep='<div style="width:1px;align-self:stretch;background:rgba(255,255,255,.12);"></div>';
@@ -1275,7 +1283,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='28/07 · 21';
+var IVE_VERSION='29/07 · 22';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
