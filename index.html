@@ -1441,6 +1441,20 @@ function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
     +'</div>';
 }
 /* Petit registre des actions déjà faites (par compte) : sert aux états « Terminé / À faire ». */
+/* Identité de l'entreprise (nom + ville) retenue durablement, par compte : une fois connue,
+   elle n'est plus jamais redemandée ni rechargée. */
+function iveIdentKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_ident_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveIdentSauver(){
+  try{ if(window.lastNom) localStorage.setItem(iveIdentKey(), JSON.stringify({nom:window.lastNom,ville:window.lastVille||'',activite:window.lastActivite||''})); }catch(e){}
+}
+function iveIdentRestaurer(){
+  try{ var s=localStorage.getItem(iveIdentKey()); if(!s) return null; var o=JSON.parse(s);
+    if(!window.lastNom && o.nom) window.lastNom=o.nom;
+    if(!window.lastVille && o.ville) window.lastVille=o.ville;
+    if(!window.lastActivite && o.activite) window.lastActivite=o.activite;
+    return o;
+  }catch(e){ return null; }
+}
 function iveFaitsKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_faits_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function iveFaits(){ try{ var s=localStorage.getItem(iveFaitsKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function iveFaitGet(k){ return !!iveFaits()[k]; }
@@ -1586,7 +1600,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 53';
+var IVE_VERSION='29/07 · 54';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -1866,7 +1880,7 @@ function identiteHtml(d){
   return t;
 }
 function render(d,skipSave){
-  window.lastNom=d.nom; window.lastVille=d.ville; window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
+  window.lastNom=d.nom; window.lastVille=d.ville; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
   const SS = !!window.selfServe; // dirigeant autonome : constat offert, prescription verrouillée
@@ -2153,13 +2167,13 @@ function runConcurrence(){
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
   // Le nom de l'entreprise vient de la fiche du compte : le dirigeant n'a pas à le retaper.
   // Ouvert directement depuis « Mes actions », la fiche n'est pas encore chargée — on la va chercher.
-  // Il faut le nom ET LA VILLE : sans ville, la recherche tombe sur un homonyme à l'autre bout
-  // du pays (un « Feu Vert » de Clermont-Ferrand au lieu de celui de Metz). La fiche fait foi.
+  // Nom et ville sont retenus en mémoire durable : on les relit, sans jamais les redemander.
+  // Sans la ville, la recherche tomberait sur un homonyme d'une autre région.
+  iveIdentRestaurer();
+  if(!window.lastNom && window.lastMiroir && window.lastMiroir.nom) window.lastNom=window.lastMiroir.nom;
   if((!window.lastNom || !window.lastVille) && !window.__concFiche && typeof iveChargerFiche==='function'){
-    window.__concFiche=1; iveChargerFiche(function(){ runConcurrence(); }); return;
+    window.__concFiche=1; iveChargerFiche(function(){ iveIdentSauver(); runConcurrence(); }); return;
   }
-  if(!window.lastNom){ window.lastNom=(window.lastMiroir&&window.lastMiroir.nom)||''; }
-  if(!window.lastNom){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Lancez d\'abord SENTINELLE : la carte de la concurrence part de votre fiche entreprise.</div>'; return; }
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
    .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } concStore.save(d,kw); renderConcu(d); })
@@ -2976,7 +2990,7 @@ function sentComplet(){
     window.selfServe=true; window.__sentData=f; window.__lastGet=dg;
     window.__sentDern=new Date(dg.dernier||dg.date||Date.now());
     // Rebranche les données dont dépendent les modules (concurrence, email…)
-    window.lastNom=f.nom||dg.nom||''; window.lastVille=f.ville||dg.ville||'';
+    window.lastNom=f.nom||dg.nom||''; window.lastVille=f.ville||dg.ville||''; if(typeof iveIdentSauver==='function') iveIdentSauver();
     window.lastActivite=f.activite||''; window.lastArchetype=f.archetype||'';
     window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
@@ -3560,7 +3574,7 @@ function dirigeantSpaceComplet(){
           var band='<div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:10px 12px;flex:1;min-width:158px;font-size:11.5px;color:#3730a3;line-height:1.5;"><b><i class="ti ti-archive"></i> Diagnostic du '+dLong+'</b><div style="margin-top:2px;font-weight:700;">'+esc(dg.nom||acc.name||'')+'</div>'+(dg.adresse?'<div style="margin-top:1px;">'+esc(dg.adresse)+'</div>':'')+'<div style="margin-top:2px;">'+(diff>0?'Prochain à partir du '+nLong+' (1/semaine).':'Nouvelle mesure disponible.')+' · Données publiques vérifiables.</div></div>';
           var _f=dg.fiche||{}; var _adef=(typeof AURADEF!=='undefined'&&AURADEF[coul])?AURADEF[coul]:null;
           // Rebranche les données pour le module Concurrence (openConcurrence lit ces globals)
-          window.lastNom=_f.nom||dg.nom; window.lastVille=_f.ville||dg.ville; window.lastActivite=_f.activite||''; window.lastArchetype=_f.archetype||'';
+          window.lastNom=_f.nom||dg.nom; window.lastVille=_f.ville||dg.ville; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=_f.activite||''; window.lastArchetype=_f.archetype||'';
           window.lastAura=(_f.aura&&_f.indice&&_f.indice.estime!=null)?{note:_f.indice.estime,couleur:_f.aura.couleur,eclat:_f.aura.eclat}:null;
           window.lastAvis=(_f._auraCalc&&_f._auraCalc.note_google!=null)?{note:_f._auraCalc.note_google,nombre:_f._auraCalc.nb_avis||null}:null;
           window.lastSite=_f.site||'';
@@ -4485,7 +4499,7 @@ function iveChargerFiche(cb){
   var poser=function(dg){
     var f=dg.fiche||{};
     window.__lastGet=dg; window.__sentData=f; window.__sentDern=new Date(dg.dernier||dg.date||Date.now());
-    window.lastNom=f.nom||dg.nom||''; window.lastVille=f.ville||dg.ville||'';
+    window.lastNom=f.nom||dg.nom||''; window.lastVille=f.ville||dg.ville||''; if(typeof iveIdentSauver==='function') iveIdentSauver();
     window.lastActivite=f.activite||''; window.lastArchetype=f.archetype||'';
     window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
@@ -4575,7 +4589,7 @@ function authResetState(){
   // La fiche SENTINELLE et tout ce qui en dépend : sinon un nouveau compte voyait l'entreprise du précédent.
   window.__lastGet=null; window.__sentData=null; window.__sentRecap=null; window.__sentDern=null;
   window.__concuData=null; window.__bouRep=null; window.__boussolePlan=null; window.__boussoleActive=false;
-  window.lastNom=''; window.lastVille=''; window.lastActivite=''; window.lastArchetype='';
+  window.lastNom=''; window.lastVille=''; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=''; window.lastArchetype='';
   window.lastAura=null; window.lastAvis=null; window.lastSite='';
 }
 // La fiche en cache appartient-elle BIEN au compte connecté ? Sinon on l'ignore et on relit la base.
