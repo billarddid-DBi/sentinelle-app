@@ -716,6 +716,13 @@ function startGrille(mode){
     window.bResto=0;
   }
   bcalc();
+  // Venu de l'onglet BOUSSOLE : la grille reste dans le DOM (bFinish y lit les notes) mais
+  // on ne l'affiche pas — sinon le questionnaire clignote une seconde avant les résultats.
+  if(window.bSilence){
+    var g=$('bGrille');
+    Array.prototype.slice.call(g.children).forEach(function(c){ c.style.display='none'; });
+    g.insertAdjacentHTML('afterbegin','<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Calcul de votre BOUSSOLE…</div></div>');
+  }
   if(typeof iveBandesFixes==='function') iveBandesFixes();
 }
 /* Toile d'araignée des 8 piliers : le polygone plein = aujourd'hui, le pointillé = le potentiel.
@@ -1312,8 +1319,14 @@ function mesActionsView(){
 }
 // Les résultats : on rejoue la grille enregistrée puis on lance le calcul, sans rien ressaisir.
 function boussoleResultats(mode){
+  window.bSilence=1;                      // la grille est construite mais jamais montrée
   boussoleDemarrer(mode||'express');
-  setTimeout(function(){ if(typeof bFinish==='function' && (window.bItems||[]).length) bFinish(); },900);
+  var essai=function(n){
+    if((window.bItems||[]).length && typeof bFinish==='function'){ window.bSilence=0; bFinish(); return; }
+    if(n<12) setTimeout(function(){ essai(n+1); },200);
+    else { window.bSilence=0; boussoleACompleter(bouGrilleEtat()); }
+  };
+  setTimeout(function(){ essai(0); },250);
 }
 // Questionnaire incomplet : on dit où on en est et on y ramène.
 function boussoleACompleter(et){
@@ -1488,7 +1501,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 36';
+var IVE_VERSION='29/07 · 37';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
