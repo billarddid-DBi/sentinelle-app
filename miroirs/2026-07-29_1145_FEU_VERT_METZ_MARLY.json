@@ -1,0 +1,183 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Metz Marly",
+  "date": "2026-07-29T11:45:11.287Z",
+  "contexte": {
+    "nom": "Feu Vert Metz Marly",
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 69,
+    "indiceExterieur": 66,
+    "potentiel": 84,
+    "ecart": 3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 64,
+      "Processus": 88,
+      "Informations": 64,
+      "Outils": 56,
+      "Décisions": 70,
+      "Clients": 72,
+      "Performance": 72
+    },
+    "faibles": [
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "Le dirigeant délègue réellement (pas tout sur lui) (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (1/5)",
+      "L'information circule bien entre les personnes (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (2/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (2/5)",
+      "L'entreprise teste de nouvelles solutions (2/5)",
+      "On mesure les résultats des décisions prises (2/5)",
+      "La réputation de l'entreprise est bonne (2/5)",
+      "La rentabilité est suivie et maîtrisée (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 1,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 2,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 2,
+        "p": "Performance"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer la délégation et la transparence interne pour libérer le potentiel de croissance et de fiabilité.",
+    "economie_an": 28000,
+    "cadre": {
+      "externe": "Feu Vert Metz Marly est un centre auto solide (69/100), bien aligné avec son image (écart +3). Votre force : des processus robustes (88/100) et une clientèle fidèle (72/100). Le levier de croissance vers 84/100 réside dans trois domaines : clarifier votre cap collectif, outiller votre équipe, et mesurer ce qui compte vraiment.",
+      "interne": "BOUSSOLE 69, SENTINELLE 66 : équilibre sain, pas de sur-promesse. Piliers critiques : Outils (56/100), Organisation (64/100), Informations (64/100). Archétype Bleu (fiabilité) bien positionné. Freins majeurs : délégation concentrée, circulation d'info faible (2/5), maîtrise logicielle insuffisante (2/5), absence de mesure des décisions (2/5). Potentiel commercial : clarifier la différenciation (3/5 seulement) et capitaliser sur la réputation (2/5 → levier de croissance). Plan : redevenir cohérent (palier 1 = humain/organisation), puis amplifier via outils IA (palier 2)."
+    },
+    "verite": {
+      "externe": "Vous êtes fiables, mais vous ne le criez pas assez. Trois vrais freins : (1) le cap n'est pas clair pour l'équipe (« direction de l'entreprise » à 2/5) — chacun fait son job, mais sans vision partagée ; (2) vous concentrez trop sur vous-même (« délègue réellement » à 2/5) — cela ralentit et fatigue ; (3) vos outils ne parlent pas entre eux (2/5) — double travail, erreurs, frustration. Résultat : vous ne savez pas précisément pourquoi vous gagnez un dossier (1/5), donc vous ne pouvez pas le reproduire. C'est dommage, car votre processus est bon (88/100). Le potentiel attend que l'organisation rejoigne la qualité opérationnelle.",
+      "interne": "Fiabilité opérationnelle (Processus 88/100) masque une fragilité organisationnelle. Délégation faible (2/5) suggère concentration du dirigeant ; recrutement en urgence (2/5) indique absence de planification RH ; information cloisonnée (2/5) pointe une gouvernance peu formalisée. Maîtrise logicielle (2/5) + outils non intégrés (2/5) = perte de productivité estimée 15-20 % sur les tâches administratives. Absence de mesure des décisions (2/5) + rentabilité non suivie (2/5) = risque de dérive marge. Différenciation floue (3/5) = vulnérabilité concurrentielle. Réputation faible (2/5) malgré qualité = problème de communication/visibilité. Levier : structurer l'organisation (cap, délégation, info), puis automatiser (IA sur devis, relances, capitalisation client)."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Équipe ne connaît pas la direction (2/5) ; délégation concentrée (2/5) ; information cloisonnée (2/5).",
+        "levier": "Définir et communiquer le cap : vision 3 ans, valeurs Bleu (fiabilité, transparence), plan d'action annuel partagé.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + encadrants (2h) ; affichage cap ; point mensuel équipe ; délégation formalisée par rôle.",
+        "indicateur": "100 % équipe peut citer le cap ; délégation documentée ; point mensuel tenu."
+      },
+      {
+        "palier": 1,
+        "frein": "Outils ne communiquent pas (2/5) ; double saisie ; maîtrise logicielle faible (2/5).",
+        "levier": "Audit logiciels actuels ; intégration CRM-compta-planning ; formation équipe (2 jours).",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit 1 jour (coût prestataire) ; intégration API ou migration 2-3 mois ; formation interne + support.",
+        "indicateur": "Zéro double saisie sur devis ; 80 % équipe certifiée logiciel ; temps admin −20 %."
+      },
+      {
+        "palier": 1,
+        "frein": "Ne sait pas pourquoi on gagne un dossier (1/5) ; réputation faible (2/5) ; différenciation floue (3/5).",
+        "levier": "Capitaliser les wins : analyse 10 derniers dossiers gagnés ; définir 3 critères de différenciation ; communication client.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 2h (dirigeant + ventes) ; template analyse dossier ; affichage différenciation ; newsletter trimestrielle.",
+        "indicateur": "3 critères différenciation documentés ; 80 % dossiers analysés ; réputation score +15 pts."
+      },
+      {
+        "palier": 2,
+        "frein": "Rentabilité non mesurée (2/5) ; décisions non évaluées (2/5) ; recrutement en urgence (2/5).",
+        "levier": "Tableau de bord mensuel (marge, coût/dossier, productivité) ; prévisions RH 6 mois ; IA sur devis/relances.",
+        "type": "IA",
+        "mise_en_oeuvre": "Outil BI simple (Power BI ou Metabase) ; automatisation devis (IA générative) ; chatbot relances clients.",
+        "indicateur": "Tableau de bord consulté mensuellement ; devis générés 50 % plus vite ; relances +30 % sans charge."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps administratif (devis, relances, saisie double)",
+          "inaction_an": 18000,
+          "invest_1x": 8000,
+          "recurrent_an": 3000
+        },
+        {
+          "poste": "Perte marge (décisions non mesurées, rentabilité floue)",
+          "inaction_an": 15000,
+          "invest_1x": 2000,
+          "recurrent_an": 1500
+        },
+        {
+          "poste": "Coût recrutement urgence + formation logiciel",
+          "inaction_an": 12000,
+          "invest_1x": 5000,
+          "recurrent_an": 2000
+        }
+      ],
+      "inaction_an": 45000,
+      "invest_total": 15000,
+      "recurrent_an": 6500,
+      "gain_an": 38500,
+      "roi_net_an": 32000,
+      "payback_mois": 5,
+      "fourchette": "4 à 6 mois de retour sur investissement"
+    },
+    "cadence": "Point mensuel (cap + tableau de bord) ; BOUSSOLE trimestrielle ; prochaine dans 3 mois.",
+    "synthese": {
+      "externe": "Vous avez les fondations (processus solides, clients fidèles). Prochains pas : clarifier votre cap avec l'équipe, intégrer vos outils, mesurer vos wins. En 3 mois, vous serez plus clairs, plus rapides, plus rentables. Cela vaut 38 k€/an.",
+      "interne": "Palier 1 prioritaire : structurer l'organisation (cap, délégation, info) — levier humain/externe, ROI immédiat (confiance, productivité). Palier 2 : automatiser (IA devis/relances, BI). Angle commercial : centre auto Bleu = fiabilité + transparence = différenciation. Potentiel 84/100 accessible en 6-9 mois si discipline mensuelle. Prochaine action : atelier cap + audit logiciels."
+    }
+  }
+}
