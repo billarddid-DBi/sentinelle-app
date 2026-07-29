@@ -677,6 +677,7 @@ function startGrille(mode){
     // La sortie se joue en une seule question, en haut : terminé ou pas encore.
     +'<div class="panel" style="margin-bottom:10px;">'
     +'<div style="font-size:13px;font-weight:700;color:#1C1C1C;">Avez-vous terminé de remplir tous les champs ?</div>'
+    +'<div id="bProg" style="font-size:11.5px;color:#4b5563;margin-top:5px;"></div>'
     +'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;">Vos réponses sont enregistrées automatiquement à chaque geste.</div>'
     +'<div style="display:flex;gap:8px;margin-top:10px;">'
     +'<button class="btn btn-primary" style="flex:1;margin:0;min-width:0;" onclick="bFinish()"><i class="ti ti-circle-check"></i> Oui — voir le diagnostic</button>'
@@ -690,7 +691,7 @@ function startGrille(mode){
     if(mode==='complet' && it.sous!==curS){ curS=it.sous;
       html+='<div style="font-size:10.5px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;border-bottom:1px solid #f0e6dd;padding-bottom:3px;">'+esc(curS)+'</div>';
     }
-    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.crit)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bcalc()"><span class="val" id="'+it.id+'v">3</span></div></div>';
+    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.crit)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bTouche(\''+it.id+'\')"><span class="val" id="'+it.id+'v">–</span></div></div>';
   });
   if(open)html+='</div>';
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
@@ -705,10 +706,11 @@ function startGrille(mode){
   if(sv && sv.mode===mode && sv.notes){
     window.bResto=1;
     items.forEach(function(it){
-      if(!(it.id in sv.notes)) return;
-      var v=sv.notes[it.id], el=$(it.id); if(!el) return;
-      if(v===null){ if(el.dataset.na!=='1') toggleNA(it.id); }
-      else { el.value=v; }
+      var o=sv.notes[it.id]; if(!o) return;
+      var el=$(it.id); if(!el) return;
+      el.dataset.vu=o.vu?'1':'';
+      if(o.v===null){ if(el.dataset.na!=='1') toggleNA(it.id); }
+      else { el.value=o.v; }
     });
     window.bResto=0;
   }
@@ -722,9 +724,14 @@ function bScan(){
   var items=window.bItems||[], sum=0,n=0,pil={},faibles=[],gain=0;
   items.forEach(function(it){
     var el=$(it.id); if(!el) return;
+    var lab=$(it.id+'v'), row=$(it.id+'_row');
+    // Un critère jamais touché ne compte pas : il reste gris, sans note.
+    if(el.dataset.vu!=='1'){ if(lab) lab.textContent='–'; if(row) row.style.opacity='.45'; return; }
+    if(row && el.dataset.na!=='1') row.style.opacity='';
     if(el.dataset.na==='1') return;
-    var v=+el.value; var lab=$(it.id+'v'); if(lab) lab.textContent=v;
+    var v=+el.value; if(lab) lab.textContent=v;
     sum+=v;n++;
+
     var g=(5-v)*BTAUX[v]; gain+=g;
     if(!pil[it.pilier]) pil[it.pilier]={s:0,n:0,g:0};
     pil[it.pilier].s+=v; pil[it.pilier].n++; pil[it.pilier].g+=g;
@@ -746,8 +753,11 @@ function bcalc(){
   // Sauvegarde à chaque geste : quitter la page ne fait jamais perdre une réponse.
   if(typeof bouGrilleStore!=='undefined'){ bouGrilleStore.save(); bouGrilleChip(); }
 }
+// Déplacer un curseur, c'est répondre : le critère entre alors dans les critères renseignés.
+function bTouche(id){ var el=$(id); if(el) el.dataset.vu='1'; bcalc(); }
 function toggleNA(id){
   var el=$(id),btn=$(id+'_na'),lab=$(id+'v'),row=$(id+'_row');
+  if(el) el.dataset.vu='1';   // « non concerné » est aussi une réponse
   var on=el.dataset.na==='1';
   if(on){ el.dataset.na=''; el.disabled=false; if(btn)btn.classList.remove('on'); if(row)row.style.opacity=''; if(lab)lab.textContent=el.value; }
   else { el.dataset.na='1'; el.disabled=true; if(btn)btn.classList.add('on'); if(row)row.style.opacity='.45'; if(lab)lab.textContent='n/c'; }
@@ -1209,9 +1219,44 @@ function iveNav(s){
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
-  else if(s==='boussole'||s==='plan'){ if(iveAbonne()) boussoleView(); else offreView(); }
+  // Le questionnaire : on reprend la formule déjà commencée, sinon on choisit.
+  else if(s==='questionnaire'){
+    if(!iveAbonne()){ offreView(); return; }
+    var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
+    if(sv&&sv.mode) boussoleDemarrer(sv.mode); else boussoleParcours();
+  }
+  // BOUSSOLE : les résultats si tout est renseigné, sinon l'invitation à terminer.
+  else if(s==='boussole'||s==='plan'){
+    if(!iveAbonne()){ offreView(); return; }
+    var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
+    if(et&&et.complet) boussoleResultats(et.mode); else boussoleACompleter(et);
+  }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
+}
+// Les résultats : on rejoue la grille enregistrée puis on lance le calcul, sans rien ressaisir.
+function boussoleResultats(mode){
+  boussoleDemarrer(mode||'express');
+  setTimeout(function(){ if(typeof bFinish==='function' && (window.bItems||[]).length) bFinish(); },900);
+}
+// Questionnaire incomplet : on dit où on en est et on y ramène.
+function boussoleACompleter(et){
+  var fait=et?et.fait:0, total=et?et.total:0, reste=total-fait;
+  var pct=total?Math.round(fait/total*100):0;
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">Votre questionnaire est à compléter.</div>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;margin-top:6px;">BOUSSOLE ne calcule rien tant que tous les critères ne sont pas renseignés : un résultat partiel donnerait une image fausse de votre entreprise.</div>'
+      +(total
+        ? '<div style="margin-top:14px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:#4b5563;"><span><b>'+fait+'</b> / '+total+' critères renseignés</span><span style="color:#b45309;font-weight:700;">il en reste '+reste+'</span></div>'
+          +'<div style="height:9px;border-radius:5px;background:#eef0f3;margin-top:6px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:#E8541A;"></div></div></div>'
+        : '<div style="font-size:12.5px;color:#4b5563;margin-top:12px;">Vous n\'avez pas encore commencé le questionnaire.</div>')
+      +'<button class="btn btn-primary" style="margin-top:16px;" onclick="iveNav(\'questionnaire\')"><i class="ti ti-clipboard-list"></i> '+(total?'Reprendre le questionnaire':'Commencer le questionnaire')+'</button>'
+      +'<button class="btn btn-ghost" onclick="boussoleView()"><i class="ti ti-tools"></i> Voir les outils BOUSSOLE</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
 }
 // Écran d'offre : ce qu'on débloque + les formules. Affiché dès qu'on touche à une partie payante.
 function offreView(){
@@ -1234,7 +1279,8 @@ function offreView(){
   showView('dirigeant'); window.scrollTo(0,0);
 }
 function iveNavBar(active){
-  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0],['params','ti-settings','Réglages',0]];
+  // Le questionnaire a son propre onglet : BOUSSOLE n'affiche plus que les résultats.
+  var items=[['accueil','ti-home','Accueil',0],['sentinelle','ti-radar-2','Sentinelle',0],['questionnaire','ti-clipboard-list','Questionnaire',1],['boussole','ti-compass','Boussole',1],['plan','ti-rocket','Plan',1],['historique','ti-history','Historique',0]];
   return '<div class="ivenav" style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
     +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+(x[3]?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
@@ -1360,7 +1406,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 29';
+var IVE_VERSION='29/07 · 30';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2524,7 +2570,9 @@ function iveBandDroite(avecDeconnexion){
   return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
     +iveAbonnementChip()
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
-    +(avecDeconnexion?'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a></div>':'')
+    // Réglages a quitté la barre du bas (place au Questionnaire) : il vit ici.
+    +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-settings"></i> Réglages</a>'
+    +(avecDeconnexion?' <span style="color:#4b5563;">·</span> <a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a>':'')+'</div>'
   +'</div>';
 }
 function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
@@ -3654,18 +3702,32 @@ var iveStore={
 // Sauvegarde du questionnaire BOUSSOLE (la grille de critères) : on le reprend là où on l'a laissé.
 // Même principe que iveStore : localStorage aujourd'hui, Supabase demain, sans toucher au reste.
 var bouGrilleStore={
-  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_grille_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  // v2 : on mémorise aussi ce que le dirigeant a réellement touché (« vu »), sans quoi un
+  // curseur jamais déplacé serait indiscernable d'une note volontairement mise à 3.
+  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_grille_v2_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
   load:function(){ try{ var s=localStorage.getItem(bouGrilleStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
   save:function(){
     if(window.bResto) return;            // pendant la restauration, on n'écrase rien
     var items=window.bItems||[]; if(!items.length) return;
     try{
-      var n={}; items.forEach(function(it){ var el=$(it.id); if(!el) return; n[it.id]=(el.dataset.na==='1')?null:+el.value; });
+      var n={}; items.forEach(function(it){ var el=$(it.id); if(!el) return;
+        n[it.id]={v:(el.dataset.na==='1')?null:+el.value, vu:(el.dataset.vu==='1')?1:0};
+      });
       localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:n,ts:Date.now()}));
     }catch(e){}
   },
   clear:function(){ try{ localStorage.removeItem(bouGrilleStore.key()); }catch(e){} }
 };
+// Où en est le questionnaire : combien de critères sur combien ont été réellement renseignés.
+function bouGrilleEtat(sv){
+  sv=sv||bouGrilleStore.load();
+  if(!sv||!sv.notes) return null;
+  var total=0,fait=0;
+  for(var k in sv.notes){ if(!Object.prototype.hasOwnProperty.call(sv.notes,k)) continue;
+    total++; var o=sv.notes[k]; if(o && o.vu) fait++;
+  }
+  return {mode:sv.mode||'express', total:total, fait:fait, complet:(total>0 && fait>=total)};
+}
 // « Enregistré le 28/07 à 14h32 » — la preuve visible que rien n'est perdu.
 function bouGrilleQuand(){
   var s=bouGrilleStore.load(); if(!s||!s.ts) return '';
@@ -3673,9 +3735,18 @@ function bouGrilleQuand(){
   return d.toLocaleDateString('fr-FR')+' à '+('0'+d.getHours()).slice(-2)+'h'+('0'+d.getMinutes()).slice(-2);
 }
 function bouGrilleChip(){
-  var e=$('bSauveChip'); if(!e) return;
-  var q=bouGrilleQuand();
-  e.innerHTML=q?('<i class="ti ti-device-floppy"></i> Enregistré automatiquement · '+q):'';
+  var e=$('bSauveChip');
+  if(e){ var q=bouGrilleQuand();
+    e.innerHTML=q?('<i class="ti ti-device-floppy"></i> Enregistré automatiquement · '+q):'';
+  }
+  // L'avancement, visible en permanence : on sait toujours ce qu'il reste à faire.
+  var p=$('bProg'); if(!p) return;
+  var items=window.bItems||[], total=items.length, fait=0;
+  items.forEach(function(it){ var el=$(it.id); if(el && el.dataset.vu==='1') fait++; });
+  var reste=total-fait;
+  p.innerHTML=reste>0
+    ? '<b style="color:#b45309;">'+fait+' / '+total+'</b> critères renseignés — il en reste <b>'+reste+'</b>'
+    : '<b style="color:#15803d;"><i class="ti ti-circle-check"></i> Les '+total+' critères sont renseignés.</b>';
 }
 // Quitter en gardant tout : la grille est déjà sauvegardée à chaque geste, on ne fait que confirmer.
 function bouGrilleQuitter(dest){
