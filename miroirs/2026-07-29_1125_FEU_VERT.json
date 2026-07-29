@@ -1,0 +1,78 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-29T11:25:05.805Z",
+  "contexte": {
+    "nom": "feu vert",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Mesurer d'abord la réalité interne (BOUSSOLE) et l'image perçue (SENTINELLE) pour fonder toute stratégie IA.",
+    "economie_an": 0,
+    "cadre": {
+      "externe": "Feu Vert : avant d'agir, il faut voir clair. Un pré-audit de maturité IA exige des données de base — activité, scores piliers, critères notés — pour être crédible et actionnable.",
+      "interne": "Données insuffisantes pour rédiger un MIROIR DBi360 valide. Absence : archétype métier, BOUSSOLE, piliers, critères notés, nature IVE. Relancer le client sur le formulaire complet avant diagnostic."
+    },
+    "verite": {
+      "externe": "Vous avez raison de vouloir explorer l'IA. Mais un diagnostic sans fondation chiffre (indices, piliers, critères) serait une opinion, pas une ordonnance. Investissons 2h ensemble pour remplir la BOUSSOLE et SENTINELLE.",
+      "interne": "Dossier incomplet. Impossible de tracer une affirmation à une donnée fournie (règle n°1 d'objectivité). Relancer le prospect ou le client avec le questionnaire DBi360 complet : activité, 8 piliers /100, critères notés /5, SENTINELLE si disponible, volet humain optionnel."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de diagnostic de maturité IA structuré et chiffré.",
+        "levier": "Remplir la BOUSSOLE (8 piliers /100) et SENTINELLE (image perçue) avec le client.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien 2h : activité, contexte, critères /5, indices intérieur/extérieur.",
+        "indicateur": "Formulaire DBi360 complété, BOUSSOLE et SENTINELLE documentées."
+      },
+      {
+        "palier": 1,
+        "frein": "Archétype métier et nature IVE non identifiés.",
+        "levier": "Clarifier le secteur, le modèle économique et les enjeux de valeur spécifiques.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien avec dirigeant : secteur, CA, effectif, processus clés, défis.",
+        "indicateur": "Archétype et nature IVE documentés dans le dossier."
+      },
+      {
+        "palier": 1,
+        "frein": "Potentiel visé non défini : pas de cap clair pour l'IA.",
+        "levier": "Co-construire le potentiel visé (score cible /100) et les 3-4 enjeux prioritaires.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 1h30 : où êtes-vous ? Où voulez-vous aller ? Pourquoi l'IA ?",
+        "indicateur": "Potentiel visé /100 et enjeux prioritaires validés par dirigeant."
+      },
+      {
+        "palier": 2,
+        "frein": "Aucun diagnostic n'existe : impossible de prescrire.",
+        "levier": "Rédiger le MIROIR DBi360 complet une fois données collectées.",
+        "type": "externe",
+        "mise_en_oeuvre": "Analyse 4h : synthèse BOUSSOLE, écart de Cohérence, plan 2 paliers, ROI.",
+        "indicateur": "MIROIR DBi360 livré, présenté et validé avec client."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Diagnostic et audit de maturité IA (prestation DBi360)",
+          "inaction_an": 0,
+          "invest_1x": 2500,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 0,
+      "invest_total": 2500,
+      "recurrent_an": 0,
+      "gain_an": 0,
+      "roi_net_an": -2500,
+      "payback_mois": 0,
+      "fourchette": "Investissement initial ; gains mesurables après MIROIR et plan d'action."
+    },
+    "cadence": "Point de relance dans 1 semaine pour valider disponibilité client et planifier entretien diagnostic complet.",
+    "synthese": {
+      "externe": "Feu Vert, commençons par la clarté. Deux heures d'entretien pour mesurer votre réalité IA et définir ensemble où vous voulez aller. Ensuite, une ordonnance précise et réaliste.",
+      "interne": "Prospect/client incomplet. Relancer sur formulaire DBi360 complet avant de rédiger un diagnostic. Une fois données collectées, MIROIR sera traçable, crédible et actionnable. Angle commercial : « Avant d'investir en IA, voyons où vous êtes vraiment »."
+    }
+  }
+}
