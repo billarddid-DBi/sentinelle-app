@@ -660,7 +660,10 @@ function runMiroir(forcer){
   }
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
   // Déjà généré pour cette entreprise ? on relit la sauvegarde, sans rappeler l'IA.
-  if(!forcer && sv && sv.m && (!sv.nom || !b.nom || sv.nom===b.nom)){
+  // Le nom saisi varie d'une fois sur l'autre (« feu vert » / « Feu Vert Metz Marly ») : le comparer
+  // faisait retomber dans un appel IA. La sauvegarde est déjà propre au compte ; c'est l'empreinte
+  // des données (miroirSignature) qui dit si l'analyse est encore valable.
+  if(!forcer && sv && sv.m){
     window.miroirPerime=(sv.sig!==miroirSignature());   // les données ont-elles bougé depuis ?
     window.miroirData=sv.m; window.miroirAud='externe';
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
@@ -1616,7 +1619,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 55';
+var IVE_VERSION='29/07 · 56';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
