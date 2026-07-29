@@ -210,7 +210,7 @@
     <input type="text" inputmode="numeric" id="bExt" placeholder="ex : 55 — laissez vide s'il n'y a pas eu de SENTINELLE" autocomplete="off" style="margin-bottom:12px;">
     <label>Potentiel visé (facultatif, /100)</label>
     <input type="text" inputmode="numeric" id="bPot" placeholder="par défaut : note obtenue + 25" autocomplete="off" style="margin-bottom:6px;">
-    <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>IVE extérieur</b> pour révéler l'<b>Indice de Vérité</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
+    <div style="font-size:11px;color:#9ca3af;margin-bottom:14px;line-height:1.45;">Renseignez l'<b>IVE extérieur</b> pour révéler l'<b>Indice de Cohérence</b> (écart image publique ↔ réalité interne) en fin de diagnostic.</div>
 
     <div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
@@ -706,7 +706,7 @@ function bFinish(){
   // parfaitement, ce qui rend la comparaison immédiate.
   var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur,echelle){
     // « futur » = le potentiel : pas encore atteint, donc en pointillés et plus discret.
-    var _st=futur?'box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 26px 7px '+coul+'66, inset 0 -10px 24px rgba(0,0,0,.28);':'box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);';
+    var _st='box-shadow:0 0 26px '+(futur?'7px '+coul+'66':'6px '+coul+'4d')+', inset 0 -10px 24px rgba(0,0,0,.28);';
     // « echelle » permet de mettre en avant une pastille sans toucher aux autres.
     var f=echelle||1;
     var _c=function(a,b,c){ return 'clamp('+Math.round(a*f)+'px,'+(b*f).toFixed(1)+'vw,'+Math.round(c*f)+'px)'; };
@@ -758,7 +758,7 @@ function bFinish(){
   var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
    /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
    +blocAuras+blocSens+'</div>';
-  // ===== Trajectoire : Indice de Vérité (écart image↔réalité) + Indice de Progression (la montée) =====
+  // ===== Trajectoire : Indice de Cohérence (écart image↔réalité) + Indice de Progression (la montée) =====
   // ext, pot, verite et progression sont calculés plus haut (source unique, partagée avec les pastilles).
   var trajSec='';
   if(ext!=null){
@@ -767,12 +767,12 @@ function bFinish(){
     var vzone=['Glaciation','Refroidissement','Équilibre','Élan','Combustion'][vz];
     var vmsg=['L\'image publique dépasse très largement la réalité vécue : une dette de crédibilité à combler vite.','La réputation promet un peu plus que ce que l\'interne délivre aujourd\'hui — l\'écart se rembourse au quotidien.','Ce que vous montrez et ce que vous êtes coïncident : position saine.','La réalité dépasse l\'image : une valeur encore sous-vendue.','Pépite cachée : vous valez bien plus que ce que le public perçoit.'][vz];
     var sign=dv>0?'+':'';
-    trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Vérité <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
+    trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Cohérence <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
      +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +'<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:9px;">'+vmsg+'</div></div>';
   } else {
-    trajSec+='<div class="sec" style="background:#FBF4EF;"><div style="font-size:11.5px;color:#cf4712;line-height:1.5;"><b><i class="ti ti-target"></i> Indice de Vérité :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
+    trajSec+='<div class="sec" style="background:#FBF4EF;"><div style="font-size:11.5px;color:#cf4712;line-height:1.5;"><b><i class="ti ti-target"></i> Indice de Cohérence :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
   }
   var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
   var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
@@ -1289,7 +1289,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 23';
+var IVE_VERSION='29/07 · 24';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -1650,7 +1650,7 @@ function render(d,skipSave){
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
     </div>
     <div class="sec" style="background:#FBF4EF;">
-      <div style="font-size:11.5px;color:#cf4712;line-height:1.55;"><b><i class="ti ti-target"></i> Indice de Vérité</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
+      <div style="font-size:11.5px;color:#cf4712;line-height:1.55;"><b><i class="ti ti-target"></i> Indice de Cohérence</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
     </div>
     <div class="sec" style="background:#f0fdf4;">
       <div style="font-size:12.5px;font-weight:600;color:#15803d;"><i class="ti ti-heart"></i> Ce que votre IVE raconte déjà</div>
@@ -2225,7 +2225,7 @@ function cockpitBuild(){
   var ecartSec='';
   if(reel!=null){ ecartSec='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:6px;"><i class="ti ti-target"></i> Le miroir de l\'écart</div><div style="display:flex;align-items:center;gap:4px;">'
       +(image!=null?col(image,'','image perçue')+arrow:'')+col(reel,perfColor(reel),'réalité')+arrow+col(pot,'#16a34a','potentiel')+'</div>'
-      +(ecart!=null?'<div style="text-align:center;font-size:11px;margin-top:7px;border-radius:8px;padding:4px;background:'+(ecart<0?'#fef2f2':'#f0fdf4')+';color:'+(ecart<0?'#dc2626':'#16a34a')+';">Indice de Vérité '+(ecart>0?'+':'')+ecart+' · '+(ecart<-8?'l\'image sur-promet':ecart>8?'pépite sous-vendue':'image alignée')+'</div>':'')+'</div>'; }
+      +(ecart!=null?'<div style="text-align:center;font-size:11px;margin-top:7px;border-radius:8px;padding:4px;background:'+(ecart<0?'#fef2f2':'#f0fdf4')+';color:'+(ecart<0?'#dc2626':'#16a34a')+';">Indice de Cohérence '+(ecart>0?'+':'')+ecart+' · '+(ecart<-8?'l\'image sur-promet':ecart>8?'pépite sous-vendue':'image alignée')+'</div>':'')+'</div>'; }
   var roiSec='';
   if(m&&m.roi){ var r=m.roi; roiSec='<div class="sec"><div style="font-size:11px;color:#6b7280;margin-bottom:8px;"><i class="ti ti-coins"></i> Le prix de l\'action (par an)</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;">'
       +'<div><div style="font-size:15px;font-weight:700;color:#dc2626;">'+eur(r.inaction_an)+'</div><div style="font-size:9.5px;color:#9ca3af;">inaction</div></div>'

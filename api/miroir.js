@@ -71,7 +71,7 @@ Peurs / résistances détectées (à traduire et traiter) : ${peurs}
 Activité / archétype : ${b.activite || "?"} / ${b.archetype || "?"}
 Indice INTÉRIEUR (BOUSSOLE, réalité) : ${b.indiceInterieur != null ? b.indiceInterieur : "?"} /100
 Indice EXTÉRIEUR (SENTINELLE, image) : ${b.indiceExterieur != null ? b.indiceExterieur : "non mesuré"} /100
-Écart de Vérité (intérieur − extérieur) : ${b.ecart != null ? b.ecart : "n.c."} (${b.zoneVerite || "n.c."})
+Écart de Cohérence (intérieur − extérieur) : ${b.ecart != null ? b.ecart : "n.c."} (${b.zoneVerite || "n.c."})
 Potentiel visé : ${b.potentiel != null ? b.potentiel : "?"} /100
 8 piliers : ${piliers}
 Critères faibles (≤2/5) : ${faibles}
