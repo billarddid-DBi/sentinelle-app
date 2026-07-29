@@ -1443,6 +1443,22 @@ function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
 /* Petit registre des actions déjà faites (par compte) : sert aux états « Terminé / À faire ». */
 /* Identité de l'entreprise (nom + ville) retenue durablement, par compte : une fois connue,
    elle n'est plus jamais redemandée ni rechargée. */
+/* Simulateur de gain : les valeurs du dirigeant sont conservées — elles serviront au plan. */
+function simKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_simu_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function simGet(){ try{ var s=localStorage.getItem(simKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function simSauver(){
+  var P=$('sP'),H=$('sH'),C=$('sC'); if(!P||!H||!C) return;
+  var v={personnes:+P.value,heures:+H.value,cout:+C.value,ts:Date.now()};
+  try{ localStorage.setItem(simKey(), JSON.stringify(v)); }catch(e){}
+  if(typeof iveFaitSet==='function') iveFaitSet('simulateur');
+  var m=$('simMsg'); if(m) m.innerHTML='<i class="ti ti-circle-check"></i> Valeurs enregistrées — elles seront reprises dans votre plan.';
+  simChip();
+}
+function simChip(){
+  var v=simGet(), m=$('simMsg'); if(!m||!v||!v.ts) return;
+  var d=new Date(v.ts);
+  m.innerHTML='<span style="color:#9ca3af;font-weight:600;"><i class="ti ti-clock"></i> Enregistré le '+d.toLocaleDateString('fr-FR')+'</span>';
+}
 function iveIdentKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_ident_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function iveIdentSauver(){
   try{ if(window.lastNom) localStorage.setItem(iveIdentKey(), JSON.stringify({nom:window.lastNom,ville:window.lastVille||'',activite:window.lastActivite||''})); }catch(e){}
@@ -1600,7 +1616,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 54';
+var IVE_VERSION='29/07 · 55';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4414,8 +4430,7 @@ function boussoleOutil(which){
     return;
   }
   if(which==='simulateur'){
-    if(typeof iveFaitSet==='function') iveFaitSet('simulateur');   // l'action compte comme faite dès l'ouverture
-    var f=window.__sentData||{}; var sim=f.simulateur||{personnes:2,heures:5,cout:40};
+    var f=window.__sentData||{}; var sim=(typeof simGet==='function'&&simGet())||f.simulateur||{personnes:2,heures:5,cout:40};
     window.__bouSimH=((f.chiffre&&f.chiffre.unite)==='h');
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
       +head('ti-calculator','Simulateur de gain','Ce que l\'IA peut vous faire récupérer, selon votre réalité.')
@@ -4425,8 +4440,12 @@ function boussoleOutil(which){
       +'<div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem.</label><input type="range" id="sH" min="1" max="15" step="1" value="'+sim.heures+'"><span class="val" id="sHv"></span></div>'
       +'<div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="'+sim.cout+'"><span class="val" id="sCv"></span></div></div>'
       +'<div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:8px;"><i class="ti ti-info-circle"></i> Exemple illustratif et non contractuel — les pistes réelles s\'établissent avec le Questionnaire Dirigeant.</div>'
-      +back+'</div></div></div>';
+      /* Bouton Retour retiré : la navigation se fait par le haut. */
+      +'<button type="button" onclick="simSauver()" style="width:100%;border:none;border-radius:12px;background:#E8541A;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder mes valeurs</button>'
+      +'<div id="simMsg" style="font-size:11.5px;font-weight:700;color:#15803d;text-align:center;margin-top:8px;"></div>'
+      +'</div></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
+    if(typeof simChip==='function') setTimeout(simChip,0);
     // Câblage DOM uniquement — le calcul vient de iveGain() (source unique, cf. CLAUDE.md §7).
     window.__bouSim=function(){ var P=$('sP'),H=$('sH'),Cc=$('sC'); if(!P)return; var p=+P.value,h=+H.value,c=+Cc.value; $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €'; var G=iveGain({personnes:p,heuresSemaine:h,coutHoraire:c}); if(window.__bouSimH){$('heroV').textContent=iveNb(G.heuresAn);$('heroSub').textContent='≈ '+G.soirees+' soirées — soit ≈ '+iveNb(G.eurosAn)+' €';}else{$('heroV').textContent=iveNb(G.eurosAn);$('heroSub').textContent='≈ '+iveNb(G.heuresAn)+' h ('+G.soirees+' soirées)';} };
     ['sP','sH','sC'].forEach(function(id){var el=$(id); if(el)el.addEventListener('input',window.__bouSim);});
