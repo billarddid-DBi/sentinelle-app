@@ -313,6 +313,28 @@ function perfWord(v){return v<25?'fragile':v<45?'à renforcer':v<60?'correct':v<
 var TRAJ_COUL=['#818cf8','#38bdf8','#10b981','#f59e0b','#ef4444'];
 var TRAJ_ICONES={'Glaciation':'ti-snowflake','Refroidissement':'ti-droplet','Équilibre':'ti-scale','Élan':'ti-ripple','Combustion':'ti-flame',
   'Plafond':'ti-arrow-bar-to-up','Palier':'ti-stairs','Montée':'ti-trending-up','Envol':'ti-rocket','Ascension':'ti-mountain'};
+// Ce que veut dire chaque zone, en une ligne — affiché sous les barres pour que le mot
+// ne reste jamais une étiquette sans contenu.
+var TRAJ_DEFS={
+  'Glaciation':'L\'image publique dépasse très largement la réalité vécue à l\'intérieur.',
+  'Refroidissement':'La réputation promet un peu plus que ce que l\'entreprise délivre aujourd\'hui.',
+  'Équilibre':'Ce que vous montrez et ce que vous vivez coïncident : position saine.',
+  'Élan':'La réalité interne dépasse déjà l\'image perçue au dehors.',
+  'Combustion':'Vous valez nettement plus que ce que le public perçoit : valeur sous-vendue.',
+  'Plafond':'Peu de marge devant vous : vous êtes proche de votre maximum actuel.',
+  'Palier':'Une marge réelle mais modeste, à prendre par petits ajustements.',
+  'Montée':'Une marge nette, atteignable en quelques chantiers ciblés.',
+  'Envol':'Une marge importante : le potentiel dépasse largement l\'acquis.',
+  'Ascension':'Une transformation d\'ensemble est à portée, pilier après pilier.'
+};
+function trajLegende(zones,active){
+  return '<div style="margin-top:9px;display:flex;flex-direction:column;gap:4px;">'+zones.map(function(z,i){
+    var on=i===active, c=TRAJ_COUL[i]||'#9ca3af';
+    return '<div style="display:flex;align-items:flex-start;gap:7px;font-size:10.5px;line-height:1.45;'+(on?'':'opacity:.72;')+'">'
+      +'<span style="flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:'+c+';margin-top:4px;"></span>'
+      +'<div><b style="color:'+(on?'#111':c)+';">'+z+'</b> <span style="color:#6b7280;">— '+(TRAJ_DEFS[z]||'')+'</span></div></div>';
+  }).join('')+'</div>';
+}
 // Le message de lecture, dans une barre claire marquée de la couleur de la zone atteinte.
 function trajMsg(texte,i){
   var c=TRAJ_COUL[i]||'#9ca3af';
@@ -784,7 +806,7 @@ function bFinish(){
   var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
    /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
    +blocAuras+blocSens+'</div>';
-  // ===== Trajectoire : Indice de Cohérence (écart image↔réalité) + Indice de Progression (la montée) =====
+  // ===== Trajectoire : Indice de Cohérence (écart image↔réalité) + Potentiel de Progression (la montée) =====
   // ext, pot, verite et progression sont calculés plus haut (source unique, partagée avec les pastilles).
   var trajSec='';
   if(ext!=null){
@@ -796,15 +818,17 @@ function bFinish(){
     trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Cohérence <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
      +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
+     +trajLegende(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +trajMsg(vmsg,vz)+'</div>';
   } else {
     trajSec+='<div class="sec" style="background:#FBF4EF;"><div style="font-size:11.5px;color:#cf4712;line-height:1.5;"><b><i class="ti ti-target"></i> Indice de Cohérence :</b> renseignez l\'IVE extérieur (note SENTINELLE) sur l\'écran précédent pour révéler l\'écart image publique ↔ réalité interne.</div></div>';
   }
   var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
   var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
-  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-trending-up"></i> Indice de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
+  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-trending-up"></i> Potentiel de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
    +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
    +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
+   +trajLegende(['Plafond','Palier','Montée','Envol','Ascension'],pz)
    +trajMsg('Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.',pz)+'</div>';
   var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:(!el||el.dataset.na==='1')?null:+el.value};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
@@ -1315,7 +1339,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 25';
+var IVE_VERSION='29/07 · 26';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
