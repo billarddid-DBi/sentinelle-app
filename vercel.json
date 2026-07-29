@@ -1,5 +1,4 @@
 {
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':!boussoles'",
   "functions": {
     "api/concurrents.js": { "maxDuration": 60 },
     "api/sentinelle.js": { "maxDuration": 60 }
