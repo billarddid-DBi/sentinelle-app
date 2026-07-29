@@ -704,11 +704,15 @@ function bFinish(){
   var _axh=(_ax&&typeof AURAS!=='undefined'&&AURAS[_ax.couleur]&&AURAS[_ax.couleur].h)||'#3b82f6';
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
-  var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur){
+  var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur,echelle){
     // « futur » = le potentiel : pas encore atteint, donc en pointillés et plus discret.
     var _st=futur?'box-shadow:0 0 0 3px rgba(255,255,255,.9), 0 0 26px 7px '+coul+'66, inset 0 -10px 24px rgba(0,0,0,.28);':'box-shadow:0 0 26px 6px '+coul+'4d, inset 0 -10px 24px rgba(0,0,0,.28);';
-    return '<div style="width:clamp(98px,26vw,143px);flex:0 0 auto;text-align:center;">'
-      +'<div style="width:clamp(84px,22vw,126px);height:clamp(84px,22vw,126px);border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'+_st+'display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+    // « echelle » permet de mettre en avant une pastille sans toucher aux autres.
+    var f=echelle||1;
+    var _c=function(a,b,c){ return 'clamp('+Math.round(a*f)+'px,'+(b*f).toFixed(1)+'vw,'+Math.round(c*f)+'px)'; };
+    var _d=_c(84,22,126);
+    return '<div style="width:'+_c(98,26,143)+';flex:0 0 auto;text-align:center;">'
+      +'<div style="width:'+_d+';height:'+_d+';border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'+_st+'display:flex;flex-direction:column;align-items:center;justify-content:center;">'
       +'<div style="font-size:clamp(20px,5.3vw,24px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
       +'<div style="font-size:11px;color:#fff;height:14px;line-height:14px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
       +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
@@ -739,8 +743,10 @@ function bFinish(){
    +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA'+(_ax?' EXTÉRIEURE &amp;':'')+' INTÉRIEURE &amp; POTENTIEL</div>'+_traitD+'</div>'
    // Toute la chaîne : l'extérieure (ce qu'on voit), l'intérieure (ce qu'on vit), le potentiel (ce qu'on vise).
    +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3.5vw,30px);margin-top:16px;flex-wrap:wrap;">'
-   +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),''):'')
-   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx))
+   /* Dans la pastille, sous le chiffre : d'où vient la valeur. */
+   +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),'<span style="font-size:8.5px;letter-spacing:1.3px;font-weight:700;opacity:.92;">SENTINELLE</span>'):'')
+   /* L'intérieure est le cœur du diagnostic BOUSSOLE : 10 % plus grande que les deux autres. */
+   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx),false,1.1)
    /* L'objectif est en orange, comme sur SENTINELLE, et cerclé de blanc : impossible de le confondre
       avec les deux mesures constatées. L'écart est explicitement rapporté à l'intérieure. */
    +_pastille(pot,'#E8541A','POTENTIEL','+'+progression+' vs intérieure','',true)
@@ -1283,7 +1289,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 22';
+var IVE_VERSION='29/07 · 23';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
