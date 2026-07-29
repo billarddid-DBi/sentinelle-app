@@ -1,0 +1,183 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Metz Marly",
+  "date": "2026-07-29T18:32:15.344Z",
+  "contexte": {
+    "nom": "Feu Vert Metz Marly",
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 69,
+    "indiceExterieur": 66,
+    "potentiel": 84,
+    "ecart": 3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 64,
+      "Processus": 88,
+      "Informations": 64,
+      "Outils": 56,
+      "Décisions": 70,
+      "Clients": 72,
+      "Performance": 72
+    },
+    "faibles": [
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "Le dirigeant délègue réellement (pas tout sur lui) (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (1/5)",
+      "L'information circule bien entre les personnes (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (2/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (2/5)",
+      "L'entreprise teste de nouvelles solutions (2/5)",
+      "On mesure les résultats des décisions prises (2/5)",
+      "La réputation de l'entreprise est bonne (2/5)",
+      "La rentabilité est suivie et maîtrisée (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 1,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 2,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 2,
+        "p": "Performance"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer la connaissance métier dispersée en avantage compétitif mesurable et partagé.",
+    "economie_an": 18000,
+    "cadre": {
+      "externe": "Feu Vert Metz Marly est un centre auto fiable et bien organisé (69/100). Vous avez les fondations solides pour passer à 84/100 : il faut clarifier pourquoi vous gagnez, partager cette intelligence avec l'équipe, et outiller les décisions.",
+      "interne": "Commerce établi, processus robustes (88/100), mais vision/délégation/outils fragmentés. Écart de cohérence faible (3) : l'image colle à la réalité. Levier principal = capitaliser le savoir métier (pourquoi on gagne : 1/5) et le rendre collectif via information/outils simples."
+    },
+    "verite": {
+      "externe": "Vous avez construit une machine fiable, mais elle tourne sur les épaules du dirigeant et sur des intuitions. Vous ne savez pas précisément pourquoi vous gagnez un dossier (1/5) : c'est une pépite cachée. L'équipe maîtrise mal les outils (2/5) et ils ne parlent pas entre eux (2/5), ce qui crée du travail fantôme. Votre réputation est bonne localement, mais pas documentée ni amplifiée (2/5). Le potentiel est là : il attend que vous le nommez et le partagiez.",
+      "interne": "Fiabilité confirmée (Bleu), mais trois freins organisationnels : (1) savoir métier non formalisé (pourquoi on gagne : 1/5) → perte de compétitivité et dépendance du dirigeant ; (2) outils fragmentés (2/5 sur maîtrise, 2/5 sur interopérabilité) → double saisie, erreurs, friction RH ; (3) information cloisonnée (2/5) et décisions non mesurées (2/5) → pas de feedback, pas d'apprentissage collectif. Délégation faible (2/5) et recrutement réactif (2/5) sont des symptômes. Gisement = formaliser le savoir, simplifier les outils, créer des boucles de mesure."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "On ne sait pas pourquoi on gagne un dossier ou une vente (1/5) : savoir métier dispersé, non formalisé, dépendance du dirigeant.",
+        "levier": "Formaliser et capitaliser le savoir métier : entretiens avec les techniciens clés, synthèse des critères de victoire, documentation simple des bonnes pratiques.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier 2h avec dirigeant + 3 techniciens seniors ; synthèse écrite ; partage en réunion d'équipe.",
+        "indicateur": "Document « Nos critères de victoire » finalisé ; 80% de l'équipe peut les citer."
+      },
+      {
+        "palier": 1,
+        "frein": "L'équipe maîtrise mal les logiciels (2/5) et ils ne communiquent pas (2/5) : double saisie, friction, erreurs, perte de temps.",
+        "levier": "Audit rapide des outils actuels ; identifier 1-2 intégrations critiques (ex : logiciel atelier ↔ facturation) ; mettre en place ou configurer les flux.",
+        "type": "IA",
+        "mise_en_oeuvre": "Cartographie des outils (1 jour) ; test d'intégration sur 1 processus clé ; formation équipe sur le flux automatisé.",
+        "indicateur": "Nombre de saisies manuelles réduites de 40% ; temps administratif par dossier baisse de 20 min."
+      },
+      {
+        "palier": 1,
+        "frein": "L'information circule mal (2/5) et les décisions ne sont pas mesurées (2/5) : pas de feedback, pas d'apprentissage collectif.",
+        "levier": "Mettre en place 3 indicateurs clés simples (ex : taux de fermeture devis, délai moyen, satisfaction client) ; tableau de bord mensuel partagé.",
+        "type": "externe",
+        "mise_en_oeuvre": "Définir les 3 KPI avec le dirigeant ; configurer extraction automatique des données ; réunion mensuelle 30 min pour commenter.",
+        "indicateur": "Tableau de bord opérationnel en place ; 100% de l'équipe consulte les résultats mensuels."
+      },
+      {
+        "palier": 2,
+        "frein": "La délégation est faible (2/5) et le recrutement réactif (2/5) : le dirigeant est goulot, l'équipe n'est pas autonome.",
+        "levier": "Sur la base du savoir formalisé (palier 1), créer des fiches de poste et un guide d'onboarding ; structurer la montée en compétence des nouveaux.",
+        "type": "humain",
+        "mise_en_oeuvre": "Rédiger 3-4 fiches de poste clés ; créer checklist d'intégration ; désigner un mentor par domaine ; test sur 1 recrutement.",
+        "indicateur": "Nouveau collaborateur autonome en 4 semaines au lieu de 8 ; dirigeant libère 5h/semaine."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps administratif (double saisie, corrections, recherche d'info)",
+          "inaction_an": 12000,
+          "invest_1x": 2000,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Erreurs et retouches (devis mal remplis, factures erronées, relances)",
+          "inaction_an": 8000,
+          "invest_1x": 500,
+          "recurrent_an": 600
+        },
+        {
+          "poste": "Temps dirigeant sur tâches déléguables (recrutement, formation, arbitrage)",
+          "inaction_an": 15000,
+          "invest_1x": 1500,
+          "recurrent_an": 800
+        }
+      ],
+      "inaction_an": 35000,
+      "invest_total": 4000,
+      "recurrent_an": 2600,
+      "gain_an": 32400,
+      "roi_net_an": 29800,
+      "payback_mois": 2,
+      "fourchette": "2 à 3 mois de retour sur investissement initial."
+    },
+    "cadence": "Point mensuel sur les 3 KPI (30 min) ; BOUSSOLE de suivi dans 3 mois ; palier 2 lancé après stabilisation palier 1 (mois 4).",
+    "synthese": {
+      "externe": "Votre prochaine étape : formaliser pourquoi vous gagnez et le partager avec l'équipe. Cela libère du temps, réduit les erreurs, et crée une vraie culture d'apprentissage. Commencez par l'atelier savoir métier ce mois-ci.",
+      "interne": "Palier 1 = réparer l'organisation (savoir + outils + mesure) avant d'accélérer. Gisement commercial = formaliser le savoir métier (1/5 → 4/5) + intégrations outils (2/5 → 4/5) + KPI partagés (2/5 → 4/5). ROI court (2-3 mois), impact RH fort (autonomie, confiance). Angle : « Vous avez la fiabilité, transformez-la en avantage compétitif documenté et partagé »."
+    }
+  }
+}
