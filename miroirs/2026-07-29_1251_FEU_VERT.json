@@ -1,0 +1,71 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-29T12:51:30.040Z",
+  "contexte": {
+    "nom": "feu vert",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Clarifier l'archétype métier et mesurer la réalité interne avant toute recommandation IA.",
+    "economie_an": 0,
+    "cadre": {
+      "externe": "Feu Vert dispose d'une base solide, mais l'absence de diagnostic structuré empêche d'identifier les vrais leviers de transformation. Un pré-audit complet est le préalable indispensable.",
+      "interne": "Données insuffisantes pour émettre un jugement : ni archétype, ni BOUSSOLE, ni piliers, ni critères faibles documentés. Impossible de prescrire sans mesure de base."
+    },
+    "verite": {
+      "externe": "Vous avez raison de chercher à progresser, mais sans cartographie claire de votre réalité opérationnelle et humaine, tout plan IA risque de manquer la cible. Commençons par voir où vous êtes vraiment.",
+      "interne": "Le dossier est incomplet : absence de scoring BOUSSOLE, de piliers évalués, d'archétype métier identifié, de volet humain mesuré. Impossible de rédiger un MIROIR crédible. Demander un audit complet avant recommandation."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de diagnostic structuré : archétype, BOUSSOLE, piliers, volet humain non mesurés.",
+        "levier": "Lancer un pré-audit DBi360 complet : identifier archétype, scorer BOUSSOLE et 8 piliers, mesurer acceptabilité humaine.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien dirigeant + équipe, questionnaire salariés, scoring des 8 piliers.",
+        "indicateur": "Rapport de diagnostic avec BOUSSOLE, SENTINELLE, IAT, plan d'action fondé."
+      },
+      {
+        "palier": 1,
+        "frein": "Flou sur l'activité réelle et les enjeux métier spécifiques.",
+        "levier": "Documenter l'archétype (secteur, taille, modèle économique, processus clés, équipe).",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier de clarification avec direction et terrain : cartographie des flux, douleurs, ambitions.",
+        "indicateur": "Fiche archétype validée, processus critiques identifiés, vision partagée."
+      },
+      {
+        "palier": 1,
+        "frein": "Absence de mesure de l'acceptabilité humaine et des craintes face à la transformation.",
+        "levier": "Mesurer l'IAT (Indice d'Acceptabilité de la Transformation) via questionnaire anonyme équipe.",
+        "type": "humain",
+        "mise_en_oeuvre": "Questionnaire AURA aux salariés, analyse des zones (Blocage/Vigilance/Appui), restitution collective.",
+        "indicateur": "IAT chiffré, zone identifiée, craintes listées et traitées en communication."
+      },
+      {
+        "palier": 2,
+        "frein": "Absence de priorisation des leviers IA adaptés au contexte réel.",
+        "levier": "Sur la base du diagnostic complet, co-construire un plan IA ciblé (4 leviers max, ROI réaliste).",
+        "type": "IA",
+        "mise_en_oeuvre": "Atelier de priorisation : cartographie des tâches répétitives, évaluation du ROI par poste, sélection pilote.",
+        "indicateur": "Plan IA validé, 1er pilote défini, budget et calendrier approuvés."
+      }
+    ],
+    "roi": {
+      "postes": [],
+      "inaction_an": 0,
+      "invest_total": 0,
+      "recurrent_an": 0,
+      "gain_an": 0,
+      "roi_net_an": 0,
+      "payback_mois": 0,
+      "fourchette": "ROI non calculable sans diagnostic complet."
+    },
+    "cadence": "Audit complet en 4 semaines ; point de restitution et lancement plan dans 5 semaines ; suivi mensuel ensuite.",
+    "synthese": {
+      "externe": "Prochaine étape : audit diagnostic complet (archétype, BOUSSOLE, acceptabilité humaine). Dès que nous aurons la photo réelle, nous bâtirons un plan IA sur mesure, crédible et motivant pour toute l'équipe.",
+      "interne": "Demander données manquantes avant toute recommandation : BOUSSOLE, piliers, archétype, volet humain. Relancer client pour audit complet ; sans cela, aucun MIROIR fiable possible."
+    }
+  }
+}
