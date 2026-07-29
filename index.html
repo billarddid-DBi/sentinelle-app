@@ -616,7 +616,10 @@ function renderMiroir(){
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
   /* Boutons du bas retirés : tout se pilote par la barre du haut (décision Didier). */;
-  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité')+html; window.scrollTo(0,0);
+  var _mq=(typeof miroirQuand==='function')?miroirQuand():'';
+  // La date de l'analyse et la régénération, à la main du dirigeant : chaque relance coûte un appel IA.
+  var _mbar=_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+'</span><span onclick="runMiroir(true)" style="cursor:pointer;color:#E8541A;font-weight:700;"><i class="ti ti-refresh"></i> Régénérer</span></div>'):'';
+  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité')+_mbar+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
 function saveMiroir(m){
@@ -629,15 +632,32 @@ function saveMiroir(m){
       .then(function(r){return r.json();}).then(function(x){var s=$('mSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> MIROIR enregistré sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';});
   }catch(e){}
 }
-function runMiroir(){
+/* Le MIROIR coûte un appel IA à chaque génération : on le garde et on le relit,
+   au lieu de le refaire. Régénération uniquement sur demande explicite. */
+var miroirStore={
+  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_miroir_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  load:function(){ try{ var s=localStorage.getItem(miroirStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
+  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',ts:Date.now()})); }catch(e){} }
+};
+function miroirQuand(){
+  var s=miroirStore.load(); if(!s||!s.ts) return '';
+  return new Date(s.ts).toLocaleDateString('fr-FR');
+}
+function runMiroir(forcer){
   var b=window.lastMiroir;
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
+  // Déjà généré pour cette entreprise ? on relit la sauvegarde, sans rappeler l'IA.
+  var sv=miroirStore.load();
+  if(!forcer && sv && sv.m && (!sv.nom || !b.nom || sv.nom===b.nom)){
+    window.miroirData=sv.m; window.miroirAud='externe';
+    showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
+  }
   showView('miroir');
   $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action adaptatif + ROI</span></div></div>';
   var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
-    .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; renderMiroir(); saveMiroir(m); })
+    .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; renderMiroir(); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
     .catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps. Réessayez dans un instant.</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; });
 }
 function startBoussole(mode){
@@ -1528,7 +1548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 41';
+var IVE_VERSION='29/07 · 42';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
