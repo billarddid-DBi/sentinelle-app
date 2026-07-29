@@ -398,7 +398,7 @@ function iveBandesFixes(){
 }
 const bkey = s => s.replace(/[^A-Za-z]/g,'');
 const BPILIERS = ['Vision','Organisation','Processus','Informations','Outils','Décisions','Clients','Performance'];
-/* ===== AURA HUMAINE (4e temps : maturité humaine / acceptabilité du changement) ===== */
+/* ===== QUESTIONNAIRE AUX SALARIÉS (4e temps : maturité humaine / acceptabilité du changement) ===== */
 const AH_DOMAINS = ['Leadership','Communication','Confiance','Coopération','Climat social','Maturité du changement'];
 const AH_CRITERES = [
   {c:'L1',d:'Leadership',x:1,t:"Le dirigeant explique le POURQUOI de ses décisions (du sens, pas que des consignes)."},
@@ -619,7 +619,7 @@ function renderMiroir(){
   +'<button class="btn btn-ghost" onclick="cockpitBuild()"><i class="ti ti-dashboard"></i> Voir le Cockpit de synthèse</button>'
   +'<button class="btn btn-ghost" onclick="sendHandoff()"><i class="ti ti-send"></i> Envoyer au dirigeant (cloud)</button>'
   +'<button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour au diagnostic</button>';
-  $('miroir').innerHTML=html; window.scrollTo(0,0);
+  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Voilà ce qui se passe réellement')+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
 function saveMiroir(m){
@@ -949,7 +949,7 @@ function bFinish(){
   // Les résultats vivent sous l'onglet BOUSSOLE : la barre de navigation le montre.
   $('bGrille').innerHTML=(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+card
    +'<div id="bSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
-   +'<button class="btn btn-primary" onclick="ahChoice()"><i class="ti ti-users-group"></i> Lancer l\'AURA Humaine →</button>'
+   +'<button class="btn btn-primary" onclick="ahChoice()"><i class="ti ti-users-group"></i> Lancer l\'Questionnaire aux salariés →</button>'
    +'<button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Aller directement au MIROIR</button>'
    +'<button class="btn btn-ghost" onclick="showView(\'bChoice\')"><i class="ti ti-refresh"></i> Nouvelle grille</button>';
   window.scrollTo(0,0);
@@ -1324,7 +1324,7 @@ function mesActionsView(){
       // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
       +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 terminé'+((qFait+ahFait)>1?'s':''))
       +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','Votre vision, vos priorités, votre réalité interne.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(2,'ti-users-group','L\'AURA Humaine','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.',etapeAH,"ahChoice()",!abo)
+      +etape(2,'ti-users-group','Questionnaire aux salariés','Ce que vos équipes vivent : confiance, peurs, acceptabilité du changement.',etapeAH,"ahChoice()",!abo)
       // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
       +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
       +etape('','ti-radar-2','SENTINELLE','Ce que les autres voient de votre entreprise.','Prêt',"sentApercu()",false)
@@ -1387,6 +1387,15 @@ function offreView(){
       +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour à mon espace</button>'
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+}
+/* Les deux bandeaux noirs — présentation + navigation — sur toutes les slides.
+   SOURCE UNIQUE : ne jamais recopier ce bloc ailleurs. */
+function iveEntete(icone,surtitre,titre,actif){
+  return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+    +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
+    +'<div style="font-size:16px;font-weight:600;margin-top:3px;">'+titre+'</div></div>'
+    +(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +(typeof iveNavBar==='function'?iveNavBar(actif||'actions'):'');
 }
 function iveNavBar(active){
   // Les cadenas ne concernent que les non-abonnés : une fois la formule prise, ils disparaissent.
@@ -1522,7 +1531,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 39';
+var IVE_VERSION='29/07 · 40';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2189,13 +2198,13 @@ function restoreMiroir(url){
     renderMiroir();
   }).catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div>'; });
 }
-/* ===== AURA HUMAINE (fonctions) ===== */
+/* ===== QUESTIONNAIRE AUX SALARIÉS (fonctions) ===== */
 function ahChoice(){
   var nom = (window.lastMiroir&&window.lastMiroir.nom) || ($('bNom')&&$('bNom').value.trim()) || 'Entreprise';
   window.ahNom = nom;
   showView('ahView');
-  $('ahView').innerHTML =
-   '<div class="panel"><div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#1C1C1C;"><i class="ti ti-users-group"></i> AURA Humaine</div>'
+  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent") +
+   '<div class="panel"><div style="display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:#1C1C1C;"><i class="ti ti-users-group"></i> Questionnaire aux salariés</div>'
    +'<div style="font-size:12px;color:#6b7280;margin:6px 0 4px;line-height:1.5;">Le 4ᵉ temps : la <b>maturité humaine</b> — la capacité de l\'organisation à <b>accepter le changement</b> (surtout l\'IA). On note le <b>système</b>, jamais les personnes.</div>'
    +'<div style="font-size:12px;color:#1C1C1C;margin:8px 0;"><b>'+esc(nom)+'</b></div>'
    +'<div style="border:2px solid #1C1C1C;border-radius:12px;padding:14px;margin-bottom:10px;"><div style="font-weight:700;color:#1C1C1C;"><i class="ti ti-bolt"></i> Express — 12 critères</div><div style="font-size:12px;color:#4b5563;margin-top:4px;">Indice indicatif, ~5-7 min. Premier contact ou &lt; 5 salariés.</div><button class="btn btn-primary" style="margin-top:10px;" onclick="ahStart(\'express\')">Démarrer l\'Express</button></div>'
@@ -2209,7 +2218,7 @@ function ahStart(mode){
   window.ahItems = take.map(function(x){ return {id:'ah_'+x.c, code:x.c, dom:x.d, t:x.t}; });
   window.ahMode = mode;
   var label = mode==='express'?'Express':'Complet';
-  var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · pouls humain ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> AURA Humaine '+label+' · acceptabilité du changement ('+take.length+' critères)');
+  var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · pouls humain ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> Questionnaire aux salariés '+label+' · acceptabilité du changement ('+take.length+' critères)');
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;">'+titre+'</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
@@ -2224,7 +2233,7 @@ function ahStart(mode){
   if(open)html+='</div>';
   html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
     +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
-  $('ahView').innerHTML=html;
+  $("ahView").innerHTML=iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent")+html;
   ahCalc();
 }
 function ahScan(){
@@ -2267,7 +2276,7 @@ function ahFinish(){
   var ouv=r.idx['Ouverture au changement']; var resist= ouv!=null?(100-ouv):null;
   var peursHTML= r.peurs.length ? r.peurs.map(function(p){return '<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-top:1px solid #fde0d0;font-size:12px;"><span style="color:#7c2d12;">'+esc(p.txt)+'</span><span style="color:#dc2626;font-weight:600;white-space:nowrap;">intensité '+p.intensite+'</span></div>';}).join('') : '<div style="font-size:12px;color:#6b7280;">Aucune peur saillante (tous les signaux sensibles ≥ 40).</div>';
   var card='<div class="card">'
-    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-users-group"></i> AURA HUMAINE · MATURITÉ AU CHANGEMENT</div>'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-users-group"></i> QUESTIONNAIRE AUX SALARIÉS · MATURITÉ AU CHANGEMENT</div>'
       +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(nom)+'</div>'
       +'<div style="font-size:11px;color:#9ca3af;">'+date+' · '+(window.ahMode==='express'?'Express (12)':'Complet (30)')+' · vue dirigeant / auditeur</div></div>'
     +'<div class="sec" style="background:'+reco.bg+';"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'
@@ -2281,7 +2290,7 @@ function ahFinish(){
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-mood-nervous"></i> Cartographie des peurs</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 4px;">Signaux sensibles sous 40/100 — à traiter dans le plan de communication.</div>'+peursHTML+'</div>'
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-arrow-right"></i> Recommandation pour MIROIR</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;"><b>'+reco.zone+'.</b> '+reco.msg+'</div></div>'
     +'<div class="foot">On analyse le SYSTÈME, jamais les personnes. Vue auditeur / dirigeant — l\'écart avec les équipes (questionnaire anonyme) viendra en phase 2. Indices /100 = moyenne des critères /5 × 20.</div></div>';
-  $('ahView').innerHTML = card
+  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Le résultat de vos équipes") + card
    +'<div id="ahSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
    +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
    +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>';
@@ -2369,7 +2378,7 @@ function frRender(){
       +'<div style="display:flex;gap:6px;padding:0 12px 12px;"><input id="frChatIn" type="text" autocomplete="off" placeholder="Une question sur une étape ?" onkeydown="if(event.key===\'Enter\'){event.preventDefault();frChatSend();}" style="flex:1;font-size:13px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="frChatSend()" aria-label="Envoyer" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 14px;font-size:15px;cursor:pointer;"><i class="ti ti-send"></i></button></div></div>'
     +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
     +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>';
-  $('frView').innerHTML=html; frChatRender();
+  $("frView").innerHTML=iveEntete("ti-route","FEUILLE DE ROUTE","Votre plan dans le temps")+html; frChatRender();
 }
 function frChatRender(){
   var log=$('frChatLog'); if(!log) return; var c=window.frChat||[];
@@ -2476,7 +2485,7 @@ function cockpitBuild(){
   if(ah&&ah.peurs&&ah.peurs.length){ peurSec='<div style="padding:9px 14px 0;"><div style="font-size:10px;color:#9ca3af;margin-bottom:4px;">Peurs à traiter</div><div style="display:flex;flex-wrap:wrap;gap:5px;">'+ah.peurs.slice(0,6).map(function(p){return '<span style="font-size:10.5px;color:#991b1b;background:#fef2f2;border-radius:10px;padding:3px 9px;">'+esc(p.txt||p.code)+'</span>';}).join('')+'</div></div>'; }
   var avancSec='';
   if(avanc!=null){ avancSec='<div style="padding:10px 14px 0;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:#6b7280;margin-bottom:4px;"><span><i class="ti ti-route"></i> Feuille de route</span><span>'+done+' / '+total+' étapes</span></div><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;"><div style="width:'+avanc+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
-  var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('AURA Humaine'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
+  var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('Questionnaire aux salariés'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
   var missSec = missing.length? '<div style="padding:10px 14px 0;"><div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;"><i class="ti ti-bulb"></i> Pour un Cockpit complet, il reste à faire : '+missing.join(' · ')+'.</div></div>' : '';
   var nextP=null; try{nextP=localStorage.getItem('cp_next_'+cpSlug());}catch(e){}
   var followSec='';
@@ -2555,7 +2564,7 @@ function cockpitCompare(){
 }
 function lancerControle(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
-  if(b.indiceInterieur==null && !ah && !fr){ alert('Faites d\'abord un diagnostic (au moins une AURA Humaine) pour avoir une situation de départ à comparer.'); return; }
+  if(b.indiceInterieur==null && !ah && !fr){ alert('Faites d\'abord un diagnostic (au moins une Questionnaire aux salariés) pour avoir une situation de départ à comparer.'); return; }
   // Cadence : le pouls se mesure 1 fois par SEMAINE (le quotidien, lui, est illimité)
   try{
     var lc=pmLoad().lastCtrl;
