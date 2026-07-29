@@ -1,0 +1,183 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "Feu Vert Metz Marly",
+  "date": "2026-07-29T13:47:05.093Z",
+  "contexte": {
+    "nom": "Feu Vert Metz Marly",
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "archetype": "Commerce établi & performant",
+    "indiceInterieur": 69,
+    "indiceExterieur": 66,
+    "potentiel": 84,
+    "ecart": 3,
+    "zoneVerite": "Équilibre",
+    "piliers": {
+      "Vision": 68,
+      "Organisation": 64,
+      "Processus": 88,
+      "Informations": 64,
+      "Outils": 56,
+      "Décisions": 70,
+      "Clients": 72,
+      "Performance": 72
+    },
+    "faibles": [
+      "L'équipe connaît la direction de l'entreprise (2/5)",
+      "Le dirigeant délègue réellement (pas tout sur lui) (2/5)",
+      "Le recrutement est anticipé (pas dans l'urgence) (2/5)",
+      "On sait pourquoi on gagne un dossier ou une vente (1/5)",
+      "L'information circule bien entre les personnes (2/5)",
+      "L'équipe maîtrise bien les logiciels utilisés (2/5)",
+      "Les outils communiquent entre eux (pas de double saisie) (2/5)",
+      "L'entreprise teste de nouvelles solutions (2/5)",
+      "On mesure les résultats des décisions prises (2/5)",
+      "La réputation de l'entreprise est bonne (2/5)",
+      "La rentabilité est suivie et maîtrisée (2/5)"
+    ],
+    "criteres": [
+      {
+        "c": "On sait pourquoi on gagne un dossier ou une vente",
+        "n": 1,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe connaît la direction de l'entreprise",
+        "n": 2,
+        "p": "Vision"
+      },
+      {
+        "c": "Le dirigeant délègue réellement (pas tout sur lui)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "Le recrutement est anticipé (pas dans l'urgence)",
+        "n": 2,
+        "p": "Organisation"
+      },
+      {
+        "c": "L'information circule bien entre les personnes",
+        "n": 2,
+        "p": "Informations"
+      },
+      {
+        "c": "L'équipe maîtrise bien les logiciels utilisés",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "Les outils communiquent entre eux (pas de double saisie)",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "L'entreprise teste de nouvelles solutions",
+        "n": 2,
+        "p": "Outils"
+      },
+      {
+        "c": "On mesure les résultats des décisions prises",
+        "n": 2,
+        "p": "Décisions"
+      },
+      {
+        "c": "La réputation de l'entreprise est bonne",
+        "n": 2,
+        "p": "Clients"
+      },
+      {
+        "c": "La rentabilité est suivie et maîtrisée",
+        "n": 2,
+        "p": "Performance"
+      },
+      {
+        "c": "L'entreprise sait précisément ce qui la distingue",
+        "n": 3,
+        "p": "Vision"
+      }
+    ],
+    "aura": "Bleu — la fiabilité",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer la délégation et la circulation d'information en levier de croissance : passer de 69 à 84 nécessite d'abord de libérer le dirigeant et structurer l'équipe.",
+    "economie_an": 34000,
+    "cadre": {
+      "externe": "Feu Vert Metz Marly est un centre auto fiable et bien structuré (69/100). Vous avez les fondations : processus solides, clients satisfaits. Le saut vers 84 passe par trois leviers : clarifier votre différenciation, déléguer vraiment, et faire parler vos données pour piloter.",
+      "interne": "Entreprise établie, image alignée (écart +3). Processus 88/100 = force. Mais Vision 68, Organisation 64, Outils 56 révèlent un goulot : dirigeant sur-sollicité, équipe peu autonome, données non exploitées. Levier commercial : repositionner comme expert (pas généraliste), libérer le dirigeant pour la stratégie, automatiser l'administratif."
+    },
+    "verite": {
+      "externe": "Vous êtes fiable, mais invisible. Votre réputation est à 2/5 : le marché ne sait pas ce qui vous distingue vraiment. Parallèlement, vous ne savez pas précisément pourquoi vous gagnez un dossier (1/5) — c'est un signal : vous vendez par habitude, pas par stratégie. Enfin, le dirigeant porte trop : délégation à 2/5, recrutement anticipé à 2/5. Tant que vous restez en mode pompier RH, vous ne pouvez pas monter en gamme ni en marge.",
+      "interne": "Trois racines managériales : (1) absence de positionnement clair (« on sait pourquoi on gagne » = 1/5) → perte de marge et de fidélité client ; (2) organisation centralisée (délégation 2/5, circulation info 2/5) → goulot dirigeant, équipe passive, turnover latent ; (3) données dormantes (outils ne communiquent pas 2/5, rentabilité non suivie 2/5) → pas de pilotage, décisions au feeling. Outils 56/100 = symptôme, pas cause. Angle commercial : repositionner comme expert local, libérer le dirigeant, vendre via données (« on sait ce qui marche »)."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Dirigeant sur-sollicité, équipe ne connaît pas la direction (Vision 68, délégation 2/5, direction connue 2/5).",
+        "levier": "Définir et communiquer la stratégie : qui êtes-vous vraiment ? Qu'est-ce qui vous distingue ? Impliquer l'équipe dans cette clarification.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + 2-3 managers : positionner Feu Vert (expertise, segment, promesse). Communiquer en réunion d'équipe. Afficher la vision.",
+        "indicateur": "Critère « direction connue » passe à 4/5 ; Vision pilier à 78/100 en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Information cloisonnée (circulation 2/5), équipe ne maîtrise pas les outils (2/5), outils ne parlent pas (2/5).",
+        "levier": "Structurer la circulation info : réunions régulières, tableau de bord partagé, formation logiciels, connecter les outils (CRM ↔ facturation).",
+        "type": "externe",
+        "mise_en_oeuvre": "Audit rapide des flux (qui parle à qui ? quels outils ?). Implémenter un outil de collaboration léger (Slack, Teams). Former équipe sur logiciels existants. Connecter CRM et compta.",
+        "indicateur": "Circulation info 4/5 ; maîtrise outils 3/5 ; Informations pilier 75/100 en 2 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Pas de mesure des résultats (décisions 2/5), rentabilité non suivie (2/5), on ignore pourquoi on gagne (1/5).",
+        "levier": "Mettre en place un tableau de bord simple : par client, par type d'intervention, par technicien. Analyser les dossiers gagnés vs perdus.",
+        "type": "IA",
+        "mise_en_oeuvre": "Extraire données CRM + compta. Créer dashboard mensuel : CA par client, taux de fermeture, coût moyen intervention, marge par service. Identifier patterns gagnants.",
+        "indicateur": "Critère « mesure résultats » 4/5 ; « pourquoi on gagne » 3/5 ; Décisions 80/100 en 6 semaines."
+      },
+      {
+        "palier": 2,
+        "frein": "Dirigeant bloqué sur administratif, recrutement en urgence (2/5), pas de test de solutions (2/5).",
+        "levier": "Automatiser devis, relances, comptes rendus. Libérer dirigeant pour stratégie et recrutement anticipé. Tester nouvelles offres (forfaits, services).",
+        "type": "IA",
+        "mise_en_oeuvre": "IA générative pour devis automatisés (templates + données client). Relances email programmées. Comptes rendus auto-générés. Pilot : 1 type d'intervention. Tester forfait entretien.",
+        "indicateur": "Délégation 4/5 ; recrutement anticipé 3/5 ; Outils 72/100 ; gain 8-10h/semaine dirigeant."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Temps dirigeant libéré (admin → stratégie)",
+          "inaction_an": 28000,
+          "invest_1x": 3000,
+          "recurrent_an": 2400
+        },
+        {
+          "poste": "Marge gagnée par positionnement clair + données",
+          "inaction_an": 18000,
+          "invest_1x": 1500,
+          "recurrent_an": 1200
+        },
+        {
+          "poste": "Réduction turnover + recrutement anticipé",
+          "inaction_an": 12000,
+          "invest_1x": 2000,
+          "recurrent_an": 800
+        }
+      ],
+      "inaction_an": 58000,
+      "invest_total": 6500,
+      "recurrent_an": 4400,
+      "gain_an": 53600,
+      "roi_net_an": 49200,
+      "payback_mois": 1,
+      "fourchette": "Retour immédiat (palier 1 = management, quasi sans coût) ; palier 2 payé en 2-3 mois."
+    },
+    "cadence": "Point mensuel (30 min) pour suivre les 4 critères clés. Prochaine BOUSSOLE dans 3 mois (mesurer Vision, Organisation, Informations, Décisions). Palier 1 = 6-8 semaines ; palier 2 = semaines 9-16.",
+    "synthese": {
+      "externe": "Vous avez la fiabilité. Maintenant, montrez votre expertise : clarifiez qui vous êtes, impliquez votre équipe, exploitez vos données pour vendre mieux et plus. Le dirigeant gagne du temps, l'équipe devient autonome, la marge monte. Prochaine étape : atelier vision + audit info cette semaine.",
+      "interne": "Repositionnement stratégique + libération du dirigeant = levier commercial majeur. Palier 1 (humain + organisation) = quasi gratuit, ROI immédiat. Palier 2 (IA) = automatisation admin, gain de temps, test de nouvelles offres. Cible : 84/100 en 4-5 mois, +15% marge. Angle de vente : « on vous rend votre temps et vos données »."
+    }
+  }
+}
