@@ -1644,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 62';
+var IVE_VERSION='30/07 · 63';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4468,7 +4468,8 @@ function boussoleOutil(which){
         +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
         +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous récupérons votre fiche…</div></div></div>';
       showView('dirigeant');
-      iveChargerFiche(function(){ window.__oiaFiche=0; boussoleOutil('outilsia'); });
+      iveChargerFiche(function(){ boussoleOutil('outilsia'); });   // le drapeau reste posé : une seule tentative
+      setTimeout(function(){ if(window.__oiaFiche===1){ window.__oiaFiche=2; boussoleOutil('outilsia'); } },9000);
       return;
     }
 
@@ -4492,8 +4493,8 @@ function boussoleOutil(which){
           ? '<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, du plus utile au moins urgent. Les outils marqués <b style="color:#E8541A;">PRIORITAIRE</b> sont ceux dont l\'effet se voit le plus vite.</div>'
             +ags.map(carte).join('')
             +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. Elle se précisera avec le Questionnaire Dirigeant.</div>'
-          : '<div style="font-size:13px;color:#4b5563;line-height:1.6;">Aucun outil n\'a encore été sélectionné pour votre activité.<br><br>Lancez d\'abord <b>SENTINELLE</b> : la sélection se construit à partir de votre métier et de votre présence en ligne.</div>'
-            +'<button type="button" onclick="sentApercu()" style="width:100%;border:none;border-radius:12px;background:#2563EB;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Aller sur SENTINELLE</button>')
+          : '<div style="font-size:13px;color:#4b5563;line-height:1.6;">Votre fiche ne contient pas encore de sélection d\'outils.<br><br>Elle se construit pendant l\'analyse SENTINELLE, à partir de votre métier et de votre présence en ligne : relancez une analyse pour l\'obtenir.</div>'
+            +'<button type="button" onclick="sentApercu()" style="width:100%;border:none;border-radius:12px;background:#2563EB;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Relancer une analyse SENTINELLE</button>')
       +'</div></div>';
     showView('dirigeant'); window.scrollTo(0,0); return;
   }
