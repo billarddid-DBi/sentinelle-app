@@ -619,7 +619,7 @@ function renderMiroir(){
   var _mq=(typeof miroirQuand==='function')?miroirQuand():'';
   // La date de l'analyse et la régénération, à la main du dirigeant : chaque relance coûte un appel IA.
   var _mbar=window.miroirPerime?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse' + (_mq?(' du '+_mq):'') + '.</span><span onclick="runMiroir(true)" style="cursor:pointer;color:#E8541A;font-weight:700;white-space:nowrap;"><i class="ti ti-refresh"></i> Mettre &agrave; jour</span></div>'):(_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+'</span><span onclick="runMiroir(true)" style="cursor:pointer;color:#E8541A;font-weight:700;"><i class="ti ti-refresh"></i> Régénérer</span></div>'):'');
-  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité')+_mbar+html; window.scrollTo(0,0);
+  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité','t360')+_mbar+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
 function saveMiroir(m){
@@ -1701,7 +1701,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 69';
+var IVE_VERSION='30/07 · 70';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2390,7 +2390,7 @@ function ahChoice(){
   var nom = (window.lastMiroir&&window.lastMiroir.nom) || ($('bNom')&&$('bNom').value.trim()) || 'Entreprise';
   window.ahNom = nom;
   showView('ahView');
-  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent")
+  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent","actions")
    +'<div class="card"><div class="sec">'
     +'<div style="display:flex;align-items:flex-start;gap:12px;">'
       +'<div style="flex:1;min-width:0;">'
@@ -2441,7 +2441,7 @@ function ahStart(mode){
   if(open)html+='</div>';
   html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
     +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
-  $("ahView").innerHTML=iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent")+html;
+  $("ahView").innerHTML=iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent","actions")+html;
   ahCalc();
 }
 function ahScan(){
@@ -2498,7 +2498,7 @@ function ahFinish(){
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-mood-nervous"></i> Cartographie des craintes</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 4px;">Signaux sensibles sous 40/100 — à traiter dans le plan de communication.</div>'+craintesHTML+'</div>'
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-arrow-right"></i> Recommandation pour MIROIR</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;"><b>'+reco.zone+'.</b> '+reco.msg+'</div></div>'
     +'<div class="foot">On analyse le SYSTÈME, jamais les personnes. Vue auditeur / dirigeant — l\'écart avec les équipes (questionnaire anonyme) viendra en phase 2. Indices /100 = moyenne des critères /5 × 20.</div></div>';
-  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Le résultat de vos équipes") + card
+  $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Le résultat de vos équipes","actions") + card
    +'<div id="ahSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
    +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
    +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>';
@@ -2593,7 +2593,7 @@ function frRender(){
       +'<div style="display:flex;gap:6px;padding:0 12px 12px;"><input id="frChatIn" type="text" autocomplete="off" placeholder="Une question sur une étape ?" onkeydown="if(event.key===\'Enter\'){event.preventDefault();frChatSend();}" style="flex:1;font-size:13px;padding:9px 11px;border:1px solid #e5e7eb;border-radius:8px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="frChatSend()" aria-label="Envoyer" style="border:none;background:#E8541A;color:#fff;border-radius:8px;padding:0 14px;font-size:15px;cursor:pointer;"><i class="ti ti-send"></i></button></div></div>'
     +'<div id="frLocal" style="text-align:center;font-size:11.5px;color:#6b7280;margin-top:10px;"><i class="ti ti-device-mobile-check"></i> Progression enregistrée sur cet appareil</div>'
     +'<button class="btn btn-ghost" onclick="showView(\'miroir\')"><i class="ti ti-arrow-left"></i> Revoir le MIROIR</button>';
-  $("frView").innerHTML=iveEntete("ti-route","FEUILLE DE ROUTE","Votre plan dans le temps")+html; frChatRender();
+  $("frView").innerHTML=iveEntete("ti-route","FEUILLE DE ROUTE","Votre plan dans le temps","resultats")+html; frChatRender();
 }
 function frChatRender(){
   var log=$('frChatLog'); if(!log) return; var c=window.frChat||[];
