@@ -1808,7 +1808,7 @@ function recurBlocHtml(sujets){
         +'</div>'
       +'</div>';
     }).join('')
-    +'<div style="text-align:right;margin-top:10px;"><span onclick="if(jetConsommer(JETONS_COUT.detection)){recurRelancer()}else{offreView()}" style="cursor:pointer;font-size:11.5px;font-weight:700;color:#7c3aed;"><i class="ti ti-refresh"></i> Relancer la détection</span></div>'
+    /* Lien « Relancer la détection » retiré : le bouton standard est en bas du bloc des outils. */
   +'</div>';
 }
 function recurRelancer(){ recurCharger(function(){ boussoleOutil('outilsia'); },true); }
@@ -2006,7 +2006,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 92';
+var IVE_VERSION='30/07 · 93';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
