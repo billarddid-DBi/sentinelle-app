@@ -1701,7 +1701,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 72';
+var IVE_VERSION='30/07 · 73';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2969,9 +2969,23 @@ function dirigeantSpace(){
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'+iveBandDroite(true)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
-    +'<div style="display:flex;gap:10px;margin-top:12px;">'
-      +demi('ti-microphone','Enregistrer une tâche','Dictez-la ou écrivez-la','dicteeEnregistrerView()','linear-gradient(135deg,#E8541A,#c2410c)','#E8541A','',_verrou)
-      +demi('ti-list-check','Consulter les tâches en cours','Priorités, délais, rappels','dicteeView()','linear-gradient(135deg,#c2410c,#9a3412)','#c2410c',(_att?_att:''),_verrou)
+    // Deux gestes, deux formes : le cercle pour dicter, la barre pour consulter.
+    +'<div style="display:flex;justify-content:center;margin-top:26px;">'
+      +'<div onclick="'+(_verrou?'offreView()':'dicteeEnregistrerView()')+'" style="width:clamp(200px,58vw,260px);height:clamp(200px,58vw,260px);border-radius:50%;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#E8541A,#c2410c)')+';box-shadow:0 14px 38px rgba(232,84,26,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:0 18px;box-sizing:border-box;position:relative;">'
+        +(_verrou?'<span style="position:absolute;top:16px;right:18px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:14px;color:#fff;"></i></span>':'')
+        +'<i class="ti ti-microphone" style="font-size:clamp(44px,12vw,58px);color:#fff;"></i>'
+        +'<div style="font-size:clamp(15px,4.2vw,17px);font-weight:800;color:#fff;margin-top:14px;line-height:1.25;">Enregistrer une tâche</div>'
+        +'<div style="font-size:clamp(11.5px,3.2vw,12.5px);color:rgba(255,255,255,.85);margin-top:4px;">'+(_verrou?'Réservé aux abonnés':'Dictez-la ou écrivez-la')+'</div>'
+      +'</div>'
+    +'</div>'
+    +'<div onclick="'+(_verrou?'offreView()':'dicteeView()')+'" style="margin-top:26px;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#c2410c,#9a3412)')+';border-radius:18px;padding:18px 20px;cursor:pointer;box-shadow:0 8px 22px rgba(154,52,18,.22);position:relative;">'
+      +((!_verrou&&_att)?'<span style="position:absolute;top:12px;right:14px;background:#fff;color:#c2410c;font-size:12px;font-weight:800;border-radius:13px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;padding:0 7px;">'+_att+'</span>':'')
+      +(_verrou?'<span style="position:absolute;top:12px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:14px;color:#fff;"></i></span>':'')
+      +'<div style="display:flex;align-items:center;justify-content:center;gap:12px;">'
+        +'<i class="ti ti-list-check" style="font-size:26px;color:#fff;flex:0 0 auto;"></i>'
+        +'<div style="font-size:clamp(15px,4.2vw,17.5px);font-weight:800;color:#fff;line-height:1.25;">Consulter les tâches en cours</div>'
+      +'</div>'
+      +'<div style="font-size:clamp(11.5px,3.2vw,12.5px);color:rgba(255,255,255,.85);text-align:center;margin-top:5px;">'+(_verrou?'Réservé aux abonnés':'Priorités, délais, rappels')+'</div>'
     +'</div>'
     /* Le bouton bleu a rejoint « Mes actions » : l'accueil ne garde que les deux gestes du jour. */
     +(iveIsAdmin()?'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="dirigeantSpaceComplet();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-lock-open"></i> Vue complète (admin)</a></div>':'')
