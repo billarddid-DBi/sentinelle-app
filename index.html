@@ -1724,7 +1724,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 75';
+var IVE_VERSION='30/07 · 76';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2935,8 +2935,14 @@ function iveDateAnalyse(){
 // Partie droite des bandeaux noirs, IDENTIQUE partout : l'abonnement, puis la date du jour.
 // « Déconnexion » n'apparaît que sur l'accueil.
 function iveBandDroite(avecDeconnexion){
+  // L'entreprise et sa ville sont rappelées dans TOUS les bandeaux : on sait toujours de qui on parle.
+  if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
+  var _a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var _n=window.lastNom||(_a&&_a.name)||'', _v=window.lastVille||(_a&&_a.ville)||'';
+  var _id=_n?('<div style="font-size:11px;color:#E7DBD1;font-weight:600;margin-top:5px;white-space:normal;max-width:190px;margin-left:auto;line-height:1.35;"><i class="ti ti-building-store"></i> '+esc(_n)+(_v?' <span style="color:#9ca3af;font-weight:400;">· '+esc(_v)+'</span>':'')+'</div>'):'';
   return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
     +iveAbonnementChip()
+    +_id
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
     // Réglages a quitté la barre du bas (place au Questionnaire) : il vit ici.
     +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-settings"></i> Réglages</a>'
