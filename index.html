@@ -1897,7 +1897,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 84';
+var IVE_VERSION='30/07 · 85';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -3092,7 +3092,7 @@ function ivePlanSet(p){
   // Écrit aussi sur le compte : la formule doit suivre le dirigeant d'un appareil à l'autre.
   try{ if(window.sb&&window.sb.auth&&window.sb.auth.updateUser) window.sb.auth.updateUser({data:{ive_plan:p}}); }catch(e){}
 }
-function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='annuel')?'24,90 €/an':'2,99 €/mois'; }
+function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='annuel')?'129 €/an':'12,90 €/mois'; }
 // Pastille verte « abonnement actif » pour les bandeaux noirs — le dirigeant voit qu'il est bien pris en compte.
 function iveAbonnementChip(){
   if(!boussoleActif()) return '';
@@ -4606,9 +4606,11 @@ function bouChoixIntention(k){ bouSet('intentionChangement',k); bouOffre(k); }
 // --- L'aiguillage : c'est ICI que le payant commence ---
 // Les deux formules, en cartes complètes. Économie annuelle calculée, jamais écrite en dur.
 function iveCartesTarifs(){
-  var mens=2.99, an=24.90;
-  var eco=Math.round(mens*12-an);                    // 35,88 − 24,90 ≈ 11 €
-  var remise=Math.round((1-an/(mens*12))*100);       // ≈ 31 %
+  /* Modèle à jetons (décision Didier, 30/07) : 12,90 €/mois avec 30 jetons remis à zéro,
+     ou 129 €/an avec 390 jetons d'un coup — douze mois pour le prix de dix. */
+  var mens=12.90, an=129;
+  var eco=Math.round(mens*12-an);                    // 154,80 − 129 ≈ 26 €
+  var remise=Math.round((1-an/(mens*12))*100);       // ≈ 17 %
   return '<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;align-items:stretch;">'
     // Mensuel
     +'<div style="flex:1 1 250px;min-width:0;border:1px solid #e5e7eb;border-radius:16px;padding:16px 15px;background:#fff;display:flex;flex-direction:column;">'
@@ -4616,7 +4618,7 @@ function iveCartesTarifs(){
         +'<div style="width:44px;height:44px;border-radius:12px;background:#eef5ff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-calendar-month" style="font-size:22px;color:#2563EB;"></i></div>'
         +'<div style="min-width:0;"><div style="font-size:16px;font-weight:800;color:#2563EB;line-height:1.2;">Découvrir BOUSSOLE</div><div style="font-size:12px;color:#6b7280;margin-top:1px;">Accès mensuel</div></div>'
       +'</div>'
-      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">2,99 €</span><span style="font-size:13px;color:#9ca3af;"> / mois</span></div>'
+      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">12,90 €</span><span style="font-size:13px;color:#9ca3af;"> / mois</span></div>'
       +'<div style="display:flex;align-items:center;gap:7px;background:#f5f8ff;border-radius:9px;padding:9px 11px;margin-top:12px;font-size:11.5px;color:#4b5563;"><i class="ti ti-check" style="color:#2563EB;font-size:14px;flex:0 0 auto;"></i><span><b style="color:#2563EB;">Sans engagement</b> · Résiliable à tout moment</span></div>'+'<div style="height:14px;"></div>'
       +'<button type="button" onclick="boussoleChoisir(\'mensuel\')" style="margin-top:auto;width:100%;border:1.5px solid #2563EB;background:#fff;color:#2563EB;border-radius:12px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Choisir cette option <i class="ti ti-arrow-right"></i></button>'
     +'</div>'
@@ -4627,7 +4629,7 @@ function iveCartesTarifs(){
         +'<div style="width:44px;height:44px;border-radius:12px;background:#fff0e6;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-award" style="font-size:22px;color:#E8541A;"></i></div>'
         +'<div style="min-width:0;"><div style="font-size:16px;font-weight:800;color:#E8541A;line-height:1.2;">Accès complet BOUSSOLE</div><div style="font-size:12px;color:#6b7280;margin-top:1px;">Accès annuel</div></div>'
       +'</div>'
-      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">24,90 €</span><span style="font-size:13px;color:#9ca3af;"> / an</span> <span style="font-size:11px;font-weight:800;color:#c2410c;background:#fff0e6;border-radius:8px;padding:2px 8px;">−'+remise+' %</span></div>'
+      +'<div style="margin-top:12px;"><span style="font-size:30px;font-weight:800;color:#1C1C1C;">129 €</span><span style="font-size:13px;color:#9ca3af;"> / an</span> <span style="font-size:11px;font-weight:800;color:#c2410c;background:#fff0e6;border-radius:8px;padding:2px 8px;">−'+remise+' %</span></div>'
       +'<div style="display:flex;align-items:center;gap:7px;background:#fff0e6;border-radius:9px;padding:9px 11px;margin-top:12px;font-size:11.5px;color:#7c2d12;"><i class="ti ti-check" style="color:#E8541A;font-size:14px;flex:0 0 auto;"></i><span><b>Économisez '+eco+' €</b> · Accès complet pendant 12 mois</span></div>'+'<div style="height:14px;"></div>'
       +'<button type="button" onclick="boussoleChoisir(\'annuel\')" style="margin-top:auto;width:100%;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Choisir cette option <i class="ti ti-arrow-right"></i></button>'
     +'</div>'
@@ -4981,7 +4983,7 @@ function bouPastille(coul,icone,libelle,action){
 function boussoleChoisir(plan){
   window.__boussoleActive=true; // abonnement SIMULÉ (aucun paiement branché) → débloque la BOUSSOLE
   ivePlanSet(plan);             // mémorisé pour l'afficher dans les bandeaux et survivre au rechargement
-  var lbl=(plan==='annuel')?'Annuelle — 24,90 € / an':'Mensuelle — 2,99 € / mois';
+  var lbl=(plan==='annuel')?'Annuelle — 129 € / an':'Mensuelle — 12,90 € / mois';
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre choix est bien noté</div></div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('sentinelle'):'')
