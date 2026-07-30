@@ -1644,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 63';
+var IVE_VERSION='30/07 · 64';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4460,7 +4460,8 @@ function boussoleOutil(which){
   if(which==='outilsia'){
     // La fiche du compte fait foi : si elle n'est pas encore en mémoire, on la charge — on ne
     // demande jamais au dirigeant de relancer SENTINELLE alors qu'il l'a déjà fait.
-    var fo=(typeof iveFicheDuCompte==='function'&&iveFicheDuCompte())||window.__sentData||{};
+    var _w=(typeof iveFicheDuCompte==='function')?iveFicheDuCompte():null;
+    var fo=(_w&&_w.fiche)||(_w&&_w.agents?_w:null)||window.__sentData||{};
     var ags=fo.agents||[];
     if(!ags.length && !window.__oiaFiche && typeof iveChargerFiche==='function'){
       window.__oiaFiche=1;
@@ -4474,7 +4475,7 @@ function boussoleOutil(which){
     }
 
     var carte=function(a,i){
-      var chaud=(a.tag||'').indexOf('flame')>=0;
+      var chaud=/flame|\uD83D\uDD25/.test(a.tag||'');
       var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
       return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
         +'<div style="display:flex;align-items:flex-start;gap:11px;">'
