@@ -1677,7 +1677,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 67';
+var IVE_VERSION='30/07 · 68';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2505,8 +2505,15 @@ var FR_MSG={
 };
 function frPick(arr,id){ var h=0; for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0; return arr[h%arr.length]; }
 function frBuild(){
-  var m=window.miroirData; if(!m||!Array.isArray(m.plan)||!m.plan.length){ alert('Terminez d\'abord un MIROIR — la feuille de route en découle.'); return; }
-  var b=window.lastMiroir||{}, ah=window.lastAH;
+  // Le plan vient du MIROIR déjà produit : on le relit dans sa sauvegarde si la session est neuve.
+  var m=window.miroirData;
+  if((!m||!Array.isArray(m.plan)||!m.plan.length) && typeof miroirStore!=='undefined'){
+    var _sv=miroirStore.load(); if(_sv&&_sv.m){ m=window.miroirData=_sv.m; }
+  }
+  if(!m||!Array.isArray(m.plan)||!m.plan.length){ alert('Terminez d\'abord un MIROIR — la feuille de route en découle.'); return; }
+  if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
+  var b=window.lastMiroir||{nom:window.lastNom||''}, ah=window.lastAH;
+  if(!b.nom && window.lastNom) b.nom=window.lastNom;
   var band=(ah&&ah.band)||'Vigilance';
   var rhythm = band==='Blocage' ? ['Semaine 1','Semaine 2','Semaine 4','Semaine 6','Mois 2','Mois 3','Mois 4','Mois 5']
              : band==='Appui'   ? ['Semaine 1','Semaine 2','Semaine 3','Semaine 4','Semaine 6','Semaine 8','Semaine 10','Semaine 12']
