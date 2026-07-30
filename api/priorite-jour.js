@@ -59,6 +59,12 @@ OBJECTIF : repérer les sujets qui REVIENNENT, c'est-à-dire les mêmes besoins 
 
 RÈGLE STRICTE : ne retiens QUE les sujets comptant AU MOINS 5 tâches. En dessous, ignore.
 
+DÉCISIONS DÉJÀ PRISES (capital) : le dirigeant peut avoir déclaré qu'un sujet est réglé
+(outil mis en place) ou reporté. Pour CES sujets-là, ne compte QUE les tâches datées APRÈS
+la date de décision fournie — les tâches antérieures ne prouvent plus rien, elles ont motivé
+la décision. Si moins de 5 tâches sont postérieures, le sujet ne ressort pas.
+Chaque tâche t'est donnée sous la forme "AAAA-MM-JJ | texte".
+
 Pour chaque sujet retenu, produis :
 - "sujet" : le besoin en 3-6 mots, dans les mots du dirigeant
 - "nb" : le nombre de tâches regroupées
@@ -81,7 +87,7 @@ Si aucun sujet n'atteint 5 tâches : {"sujets":[]}`;
       const areqR = {
         model: MODEL, max_tokens: 1600, temperature: 0,
         system: SYS_RECUR,
-        messages: [{ role: "user", content: [{ type: "text", text: "Tâches dictées sur 30 jours (" + liste.length + ") :\n" + txt }] }]
+        messages: [{ role: "user", content: [{ type: "text", text: "Tâches dictées sur 30 jours (" + liste.length + ") :\n" + txt + (Array.isArray(b.decisions) && b.decisions.length ? "\n\nDÉCISIONS DÉJÀ PRISES (ne compter que les tâches postérieures) :\n" + b.decisions.slice(0, 40).map(function (d) { return "- " + String(d.sujet || "").slice(0, 120) + " → décision le " + String(d.depuis || ""); }).join("\n") : "") }] }]
       };
       const rr = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",

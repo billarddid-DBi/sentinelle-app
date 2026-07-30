@@ -1537,6 +1537,20 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
 /* Sujets récurrents : ce que le dirigeant redemande sans cesse devient un outil.
    Règle validée : 5 tâches semblables sur les 30 derniers jours, archivées comprises.
    L'analyse tourne une fois par semaine au maximum — elle est enregistrée et relue. */
+/* Décisions du dirigeant sur un sujet récurrent : « outil en place » ou « pas maintenant ».
+   Le compteur du sujet repart de cette date — cocher des tâches ne suffit pas à le clore. */
+function recurDecKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recurdec_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function recurDecs(){ try{ var s=localStorage.getItem(recurDecKey()); return s?JSON.parse(s):[]; }catch(e){ return []; } }
+function recurDecider(sujet,etat){
+  var l=recurDecs().filter(function(d){ return d.sujet!==sujet; });
+  var d=new Date(), j=d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+  l.push({sujet:sujet,etat:etat,depuis:j});
+  try{ localStorage.setItem(recurDecKey(), JSON.stringify(l)); }catch(e){}
+  // Le sujet disparaît tout de suite, et l'analyse repartira de cette date.
+  window.__recurSujets=(window.__recurSujets||[]).filter(function(s){ return (s.outil||s.sujet)!==sujet; });
+  var sv=recurGet()||{}; sv.sujets=window.__recurSujets; recurSet(sv);
+  boussoleOutil('outilsia');
+}
 function recurKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recur_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function recurGet(){ try{ var s=localStorage.getItem(recurKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
 function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); }catch(e){} }
@@ -1546,7 +1560,7 @@ function recurTaches30(){
   return (o.tasks||[]).filter(function(x){
     var d=new Date((x.created||x.due||'')+'T00:00:00');
     return !isNaN(d) && d>=lim;           // archivées comprises : une tâche refaite est une tâche cochée
-  }).map(function(x){ return x.t||''; }).filter(Boolean);
+  }).map(function(x){ return ((x.created||x.due||'')+' | '+(x.t||'')).trim(); }).filter(function(s){ return s.length>2; });
 }
 // Rappelle cb(sujets). Relance l'IA seulement si la sauvegarde a plus de 7 jours (ou si on force).
 function recurCharger(cb,forcer){
@@ -1555,7 +1569,7 @@ function recurCharger(cb,forcer){
   if(sv && frais && !forcer){ cb(sv.sujets||[]); return; }
   var lst=recurTaches30();
   if(lst.length<5){ recurSet({sujets:[],ts:Date.now()}); cb([]); return; }
-  fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'recurrence',taches:lst})})
+  fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'recurrence',taches:lst,decisions:recurDecs()})})
     .then(function(r){ return r.json(); })
     .then(function(d){ var s=(d&&Array.isArray(d.sujets))?d.sujets:[]; recurSet({sujets:s,ts:Date.now()}); cb(s); })
     .catch(function(){ cb((sv&&sv.sujets)||[]); });   // en cas d'échec, on garde la dernière analyse
@@ -1584,6 +1598,10 @@ function recurBlocHtml(sujets){
               +'<span style="flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:#7c3aed;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
               +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;">'+esc(sansHypothese(e))+'</div></div>';
           }).join('')+'</div>'):'')
+        +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">'
+          +'<button type="button" onclick="recurDecider(\''+esc((s.outil||s.sujet||'')).replace(/\x27/g,'&#39;')+'\',\'outil\')" style="flex:1 1 150px;border:none;border-radius:10px;background:#7c3aed;color:#fff;font-size:12px;font-weight:800;padding:10px 8px;cursor:pointer;font-family:inherit;"><i class="ti ti-circle-check"></i> J\'ai mis l\'outil en place</button>'
+          +'<button type="button" onclick="recurDecider(\''+esc((s.outil||s.sujet||'')).replace(/\x27/g,'&#39;')+'\',\'ecarte\')" style="flex:1 1 110px;border:1px solid #ddd6fe;border-radius:10px;background:#fff;color:#6b7280;font-size:12px;font-weight:700;padding:10px 8px;cursor:pointer;font-family:inherit;"><i class="ti ti-clock"></i> Pas maintenant</button>'
+        +'</div>'
       +'</div>';
     }).join('')
     +'<div style="text-align:right;margin-top:10px;"><span onclick="recurRelancer()" style="cursor:pointer;font-size:11.5px;font-weight:700;color:#7c3aed;"><i class="ti ti-refresh"></i> Relancer la détection</span></div>'
@@ -1784,7 +1802,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 80';
+var IVE_VERSION='30/07 · 81';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
