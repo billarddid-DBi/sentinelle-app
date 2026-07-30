@@ -1901,7 +1901,7 @@ function recurBlocHtml(sujets){
     /* Lien « Relancer la détection » retiré : le bouton standard est en bas du bloc des outils. */
   +'</div>';
 }
-function recurRelancer(){ recurCharger(function(){ boussoleOutil('outilsia'); },true); }
+function recurRelancer(){ recurCharger(function(s){ window.__recurSujets=s||[]; boussoleOutil('outilsia'); },true); }
 function sansHypothese(txt){
   return (txt||'').replace(/[\s\u00a0]*[\(\[]?\s*hypoth[èe]ses?\s*:[\s\S]*$/i,'').replace(/[\s;,.]+$/,'').trim();
 }
@@ -2096,7 +2096,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 102';
+var IVE_VERSION='30/07 · 103';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
