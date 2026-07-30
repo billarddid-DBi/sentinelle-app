@@ -1,0 +1,78 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-30T13:25:07.315Z",
+  "contexte": {
+    "nom": "feu vert",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Clarifier l'activité, mesurer la réalité IA actuelle et définir le potentiel visé avant toute action.",
+    "economie_an": 0,
+    "cadre": {
+      "externe": "Feu Vert dispose d'une opportunité d'optimisation par l'IA, mais les fondamentaux manquent : pas de diagnostic de maturité complété, pas de vision claire du potentiel.",
+      "interne": "Pré-audit incomplet : activité, archétype, BOUSSOLE, piliers et critères non fournis. Impossible de prescrire sans données de base."
+    },
+    "verite": {
+      "externe": "Avant d'investir dans l'IA, il faut d'abord savoir où vous êtes vraiment et où vous voulez aller. C'est le travail du diagnostic.",
+      "interne": "Données insuffisantes pour un MIROIR DBi360 valide. Relancer le questionnaire complet : activité, BOUSSOLE /100, les 8 piliers, critères notés, potentiel visé, et si possible le VOLET HUMAIN."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de diagnostic de maturité IA structuré et complet.",
+        "levier": "Compléter le questionnaire DBi360 : activité, BOUSSOLE, 8 piliers, critères, potentiel.",
+        "type": "externe",
+        "mise_en_oeuvre": "Relancer l'équipe Feu Vert avec formulaire détaillé et deadline claire.",
+        "indicateur": "Questionnaire 100% complété dans 2 semaines."
+      },
+      {
+        "palier": 1,
+        "frein": "Image externe (SENTINELLE) non mesurée ; impossible d'évaluer l'écart de cohérence.",
+        "levier": "Mesurer la perception client/marché de la maturité IA de Feu Vert.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien rapide avec 3-5 clients clés ou partenaires sur attentes IA.",
+        "indicateur": "SENTINELLE estimée et écart de Vérité calculé."
+      },
+      {
+        "palier": 1,
+        "frein": "Aucune vision du potentiel visé ; risque d'ambition mal calibrée.",
+        "levier": "Définir collectivement le potentiel IA réaliste pour Feu Vert en 18-24 mois.",
+        "type": "humain",
+        "mise_en_oeuvre": "Atelier dirigeant + 2-3 clés avec facilitateur DBi360 (2h).",
+        "indicateur": "Potentiel visé /100 défini et validé par la direction."
+      },
+      {
+        "palier": 2,
+        "frein": "Pas de plan d'action IA tant que le diagnostic n'est pas complet.",
+        "levier": "Dès diagnostic complet, rédiger le MIROIR final et le plan 2 paliers adapté.",
+        "type": "IA",
+        "mise_en_oeuvre": "Reconvocation DBi360 avec données complètes ; MIROIR final en 1 semaine.",
+        "indicateur": "MIROIR final livré et plan d'action lancé."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Diagnostic complet (questionnaire + entretiens + atelier)",
+          "inaction_an": 0,
+          "invest_1x": 2500,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 0,
+      "invest_total": 2500,
+      "recurrent_an": 0,
+      "gain_an": 0,
+      "roi_net_an": -2500,
+      "payback_mois": 0,
+      "fourchette": "Investissement diagnostic ; ROI réel mesuré après MIROIR final."
+    },
+    "cadence": "Complétion du diagnostic dans 2-3 semaines ; MIROIR final et point de lancement dans 4 semaines.",
+    "synthese": {
+      "externe": "Vous êtes au seuil : le diagnostic complet va révéler où l'IA peut vraiment vous aider. Commençons par clarifier votre réalité et votre ambition.",
+      "interne": "Relancer Feu Vert sur questionnaire complet + SENTINELLE. Dès données reçues, MIROIR final et plan 2 paliers. Angle commercial : diagnostic = fondation du projet IA crédible et rentable."
+    }
+  }
+}
