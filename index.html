@@ -1548,7 +1548,8 @@ function recurDecider(sujet,etat){
   try{ localStorage.setItem(recurDecKey(), JSON.stringify(l)); }catch(e){}
   // Le sujet disparaît tout de suite, et l'analyse repartira de cette date.
   window.__recurSujets=(window.__recurSujets||[]).filter(function(s){ return (s.outil||s.sujet)!==sujet; });
-  var sv=recurGet()||{}; sv.sujets=window.__recurSujets; recurSet(sv);
+  // Décider rend l'analyse périmée : la prochaine ouverture repart des tâches réelles.
+  recurSet({sujets:window.__recurSujets, ts:0});
   boussoleOutil('outilsia');
 }
 function recurKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recur_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
@@ -1575,6 +1576,16 @@ function recurCharger(cb,forcer){
     .catch(function(){ cb((sv&&sv.sujets)||[]); });   // en cas d'échec, on garde la dernière analyse
 }
 function recurQuand(){ var s=recurGet(); return (s&&s.ts)?new Date(s.ts).toLocaleDateString('fr-FR'):''; }
+// Toujours accessible, même quand aucun sujet n'est détecté : sinon on ne peut plus relancer.
+function recurPiedHtml(){
+  var q=recurQuand(), n=(window.__recurSujets||[]).length;
+  return '<button type="button" onclick="recurRelancer()" style="width:100%;border:1px solid #ddd6fe;border-radius:12px;background:#f8f6ff;color:#7c3aed;font-size:12.5px;font-weight:800;padding:12px 10px;margin-top:12px;cursor:pointer;font-family:inherit;line-height:1.4;">'
+    +'<i class="ti ti-refresh"></i> Relancer la détection de mes tâches quotidiennes'
+    +'<div style="font-size:11px;font-weight:600;color:#9ca3af;margin-top:3px;">'
+      +(n?(n+' sujet'+(n>1?'s':'')+' détecté'+(n>1?'s':'')):'aucun sujet détecté pour l\'instant')
+      +(q?(' · analyse du '+q):'')
+    +'</div></button>';
+}
 function recurBlocHtml(sujets){
   if(!sujets || !sujets.length) return '';
   var coulP={haute:'#991b1b',moyenne:'#b45309',basse:'#15803d'};
@@ -1802,7 +1813,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 81';
+var IVE_VERSION='30/07 · 82';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4690,6 +4701,7 @@ function boussoleOutil(which){
         +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
         +'<div class="card"><div class="sec">'
           +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, les <b style="color:#E8541A;">prioritaires</b> en tête.</div>'
+          +recurPiedHtml()
           +recurBlocHtml(window.__recurSujets||[])
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;">'
             +'<span style="color:#15803d;background:#f4fbf6;border:1px solid #bbf7d0;border-radius:20px;padding:3px 10px;"><b>IA</b> — traitable par de l\'IA</span>'
