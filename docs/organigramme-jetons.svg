@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 820" width="1240" height="820" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="1240" height="820" fill="#F5F1EC"/>
+
+  <text x="40" y="52" font-size="27" font-weight="700" fill="#1C1C1C">L'IVE — ce qui coûte des jetons, et ce qui n'en coûte pas</text>
+  <text x="40" y="80" font-size="15" fill="#6b7280">Une analyse déjà faite n'est jamais refaite tant que les données en amont n'ont pas changé.</text>
+
+  <!-- Légende -->
+  <rect x="40" y="100" width="16" height="16" rx="4" fill="#E8541A"/>
+  <text x="64" y="113" font-size="14" font-weight="600" fill="#1C1C1C">Coûte des jetons (appel à l'IA)</text>
+  <rect x="300" y="100" width="16" height="16" rx="4" fill="#15803d"/>
+  <text x="324" y="113" font-size="14" font-weight="600" fill="#1C1C1C">Gratuit et instantané (calcul)</text>
+  <rect x="560" y="100" width="16" height="16" rx="4" fill="#b45309"/>
+  <text x="584" y="113" font-size="14" font-weight="600" fill="#1C1C1C">Se signale « à mettre à jour »</text>
+
+  <!-- Bandes -->
+  <text x="40" y="168" font-size="13" font-weight="700" fill="#9ca3af" letter-spacing="2">CE QUE VOUS FOURNISSEZ</text>
+  <line x1="40" y1="178" x2="1200" y2="178" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Sources -->
+  <g>
+    <rect x="40" y="196" width="250" height="94" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
+    <text x="60" y="226" font-size="17" font-weight="700" fill="#1C1C1C">SENTINELLE</text>
+    <text x="60" y="249" font-size="13" fill="#6b7280">Le regard du dehors</text>
+    <rect x="60" y="260" width="76" height="22" rx="11" fill="#E8541A"/>
+    <text x="76" y="276" font-size="12" font-weight="700" fill="#ffffff">4 jetons</text>
+  </g>
+
+  <g>
+    <rect x="325" y="196" width="250" height="94" rx="14" fill="#f4fbf6" stroke="#15803d" stroke-width="2"/>
+    <text x="345" y="226" font-size="17" font-weight="700" fill="#1C1C1C">Questionnaire</text>
+    <text x="345" y="246" font-size="17" font-weight="700" fill="#1C1C1C">Dirigeant</text>
+    <rect x="345" y="258" width="70" height="22" rx="11" fill="#15803d"/>
+    <text x="361" y="274" font-size="12" font-weight="700" fill="#ffffff">gratuit</text>
+  </g>
+
+  <g>
+    <rect x="610" y="196" width="250" height="94" rx="14" fill="#f4fbf6" stroke="#15803d" stroke-width="2"/>
+    <text x="630" y="226" font-size="17" font-weight="700" fill="#1C1C1C">Questionnaire</text>
+    <text x="630" y="246" font-size="17" font-weight="700" fill="#1C1C1C">aux salariés</text>
+    <rect x="630" y="258" width="70" height="22" rx="11" fill="#15803d"/>
+    <text x="646" y="274" font-size="12" font-weight="700" fill="#ffffff">gratuit</text>
+  </g>
+
+  <g>
+    <rect x="895" y="196" width="250" height="94" rx="14" fill="#f4fbf6" stroke="#15803d" stroke-width="2"/>
+    <text x="915" y="226" font-size="17" font-weight="700" fill="#1C1C1C">Tâches dictées</text>
+    <text x="915" y="249" font-size="13" fill="#6b7280">Dictée, priorités, archives</text>
+    <rect x="915" y="260" width="70" height="22" rx="11" fill="#15803d"/>
+    <text x="931" y="276" font-size="12" font-weight="700" fill="#ffffff">gratuit</text>
+  </g>
+
+  <!-- Flèches vers niveau 2 -->
+  <path d="M165 290 L165 340" stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#fl)"/>
+  <path d="M450 290 L450 340" stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#fl)"/>
+  <path d="M1020 290 L1020 606" stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#fl)"/>
+
+  <defs>
+    <marker id="fl" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <text x="40" y="368" font-size="13" font-weight="700" fill="#9ca3af" letter-spacing="2">CE QUE L'APPLICATION PRODUIT</text>
+  <line x1="40" y1="378" x2="1200" y2="378" stroke="#e5e7eb" stroke-width="1"/>
+
+  <!-- Niveau 2 -->
+  <g>
+    <rect x="40" y="396" width="250" height="98" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
+    <text x="60" y="426" font-size="17" font-weight="700" fill="#1C1C1C">Carte de la</text>
+    <text x="60" y="446" font-size="17" font-weight="700" fill="#1C1C1C">concurrence</text>
+    <rect x="60" y="458" width="76" height="22" rx="11" fill="#E8541A"/>
+    <text x="76" y="474" font-size="12" font-weight="700" fill="#ffffff">4 jetons</text>
+  </g>
+
+  <g>
+    <rect x="325" y="396" width="250" height="98" rx="14" fill="#f4fbf6" stroke="#15803d" stroke-width="2"/>
+    <text x="345" y="426" font-size="17" font-weight="700" fill="#1C1C1C">BOUSSOLE</text>
+    <text x="345" y="448" font-size="13" fill="#6b7280">Indices, potentiel, radar</text>
+    <rect x="345" y="458" width="188" height="22" rx="11" fill="#15803d"/>
+    <text x="361" y="474" font-size="12" font-weight="700" fill="#ffffff">gratuit — simple calcul</text>
+  </g>
+
+  <!-- Flèches vers MIROIR -->
+  <path d="M165 494 L165 540 L560 540 L560 606" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#fl2)"/>
+  <path d="M450 494 L450 540 L555 540" stroke="#b45309" stroke-width="2" fill="none"/>
+  <path d="M735 290 L735 540 L570 540" stroke="#b45309" stroke-width="2" fill="none"/>
+  <defs>
+    <marker id="fl2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#b45309"/>
+    </marker>
+  </defs>
+
+  <!-- Niveau 3 -->
+  <g>
+    <rect x="435" y="606" width="250" height="98" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
+    <text x="455" y="636" font-size="17" font-weight="700" fill="#1C1C1C">MIROIR</text>
+    <text x="455" y="658" font-size="13" fill="#6b7280">Image ↔ réalité</text>
+    <rect x="455" y="668" width="76" height="22" rx="11" fill="#E8541A"/>
+    <text x="471" y="684" font-size="12" font-weight="700" fill="#ffffff">3 jetons</text>
+  </g>
+
+  <g>
+    <rect x="895" y="606" width="250" height="98" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
+    <text x="915" y="636" font-size="17" font-weight="700" fill="#1C1C1C">Détection des</text>
+    <text x="915" y="656" font-size="17" font-weight="700" fill="#1C1C1C">tâches répétées</text>
+    <rect x="915" y="668" width="150" height="22" rx="11" fill="#E8541A"/>
+    <text x="931" y="684" font-size="12" font-weight="700" fill="#ffffff">1 jeton / semaine</text>
+  </g>
+
+  <g>
+    <rect x="40" y="606" width="250" height="98" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
+    <text x="60" y="636" font-size="17" font-weight="700" fill="#1C1C1C">Détail d'une action</text>
+    <text x="60" y="658" font-size="13" fill="#6b7280">Pourquoi, source, comment</text>
+    <rect x="60" y="668" width="66" height="22" rx="11" fill="#E8541A"/>
+    <text x="76" y="684" font-size="12" font-weight="700" fill="#ffffff">1 jeton</text>
+  </g>
+
+  <!-- Feuille de route -->
+  <path d="M685 655 L740 655" stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#fl)"/>
+  <g>
+    <rect x="745" y="606" width="130" height="98" rx="14" fill="#f4fbf6" stroke="#15803d" stroke-width="2"/>
+    <text x="762" y="640" font-size="15" font-weight="700" fill="#1C1C1C">Feuille</text>
+    <text x="762" y="660" font-size="15" font-weight="700" fill="#1C1C1C">de route</text>
+    <rect x="762" y="670" width="70" height="22" rx="11" fill="#15803d"/>
+    <text x="778" y="686" font-size="12" font-weight="700" fill="#ffffff">gratuit</text>
+  </g>
+
+  <!-- Note bas -->
+  <rect x="40" y="732" width="1160" height="56" rx="12" fill="#ffffff" stroke="#e5e7eb"/>
+  <text x="62" y="757" font-size="14" font-weight="700" fill="#b45309">Les flèches ambrées ne déclenchent rien automatiquement.</text>
+  <text x="62" y="777" font-size="14" fill="#4b5563">Quand une source change, l'aval s'affiche avec un bandeau « vos données ont changé » — vous seul décidez de dépenser.</text>
+</svg>

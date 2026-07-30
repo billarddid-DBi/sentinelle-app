@@ -1547,6 +1547,54 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    tant que ses données sources n'ont pas changé. Relire ne coûte rien.
    Quand les données changent, on n'efface pas et on ne régénère pas tout seul : on AFFICHE
    le résultat en le signalant périmé, et le dirigeant décide de dépenser ou non. */
+/* ===== LES JETONS =====
+   Mensuel : 30 jetons remis à zéro chaque mois. Annuel : 390 pour l'année.
+   Les jetons achetés en pack ne périment jamais et se consomment APRÈS les inclus.
+   BARÈME : SENTINELLE 4 · concurrence 4 · MIROIR 3 · détail 1 · détection 1. */
+var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:1,detection:1};
+function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function jetPeriode(){
+  var d=new Date();
+  return (ivePlanGet()==='annuel') ? ('A'+d.getFullYear()) : (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2));
+}
+function jetInclus(){ return (ivePlanGet()==='annuel') ? 390 : 30; }
+function jetLire(){
+  var o={periode:jetPeriode(),util:0,packs:0};
+  try{ var s=localStorage.getItem(jetKey()); if(s) o=JSON.parse(s); }catch(e){}
+  if(o.periode!==jetPeriode()){ o={periode:jetPeriode(),util:0,packs:(o.packs||0)}; }  // les packs survivent
+  return o;
+}
+function jetEcrire(o){ try{ localStorage.setItem(jetKey(), JSON.stringify(o)); }catch(e){} }
+function jetEtat(){
+  var o=jetLire(), total=jetInclus();
+  var resteInclus=Math.max(0,total-(o.util||0));
+  return {util:(o.util||0), total:total, resteInclus:resteInclus, packs:(o.packs||0), reste:resteInclus+(o.packs||0)};
+}
+/* Décompte réel. Renvoie false si le solde est insuffisant — l'appel IA ne doit alors PAS partir. */
+function jetConsommer(n){
+  n=+n||0; if(n<=0) return true;
+  var o=jetLire(), total=jetInclus();
+  var resteInclus=Math.max(0,total-(o.util||0));
+  if(resteInclus+(o.packs||0) < n) return false;
+  var pris=Math.min(resteInclus,n); o.util=(o.util||0)+pris;
+  var reste=n-pris; if(reste>0) o.packs=(o.packs||0)-reste;
+  jetEcrire(o); return true;
+}
+/* Pastille du bandeau noir, à côté de l'abonnement. */
+function jetChip(){
+  if(!boussoleActif()) return '';
+  var e=jetEtat();
+  var coul = e.reste<=0 ? '#fca5a5' : (e.reste<=5 ? '#fcd34d' : '#93c5fd');
+  var fond = e.reste<=0 ? 'rgba(239,68,68,.18)' : (e.reste<=5 ? 'rgba(245,158,11,.18)' : 'rgba(59,130,246,.18)');
+  var bord = e.reste<=0 ? 'rgba(252,165,165,.5)' : (e.reste<=5 ? 'rgba(253,211,77,.5)' : 'rgba(147,197,253,.5)');
+  return '<span onclick="offreView()" title="Voir mes jetons" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:'+fond+';border:1px solid '+bord+';color:'+coul+';font-size:10.5px;font-weight:700;border-radius:20px;padding:3px 10px;margin-left:6px;white-space:nowrap;"><i class="ti ti-coins"></i> '+e.resteInclus+' / '+e.total+' jetons'+(e.packs>0?(' +'+e.packs):'')+'</span>';
+}
+/* Bouton d'action payante, posé en haut à droite d'un encadré. */
+function jetBouton(libelle,cle,action){
+  var c=JETONS_COUT[cle]||1, e=jetEtat(), assez=(e.reste>=c);
+  var clic = assez ? ('if(jetConsommer('+c+')){'+action+'}') : 'offreView()';
+  return '<button type="button" onclick="'+clic+'" title="'+(assez?('Coûte '+c+' jetons'):'Solde insuffisant — recharger')+'" style="flex:0 0 auto;border:1px solid '+(assez?'#fed7aa':'#e5e7eb')+';border-radius:20px;background:'+(assez?'#fffaf6':'#f3f4f6')+';color:'+(assez?'#9a3412':'#9ca3af')+';font-size:11px;font-weight:800;padding:6px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-refresh"></i> '+libelle+' · '+c+' jeton'+(c>1?'s':'')+'</button>';
+}
 function iveCoffreKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_coffre_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function iveCoffreTout(){ try{ var s=localStorage.getItem(iveCoffreKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function iveCoffreLire(cle){ var o=iveCoffreTout()[cle]; return o||null; }
@@ -1942,7 +1990,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 88';
+var IVE_VERSION='30/07 · 89';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -3146,6 +3194,14 @@ function iveAbonnementChip(){
   return '<span onclick="offreView()" title="Voir les formules et les jetons" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
 }
 // Date à laquelle l'analyse a été faite (le bandeau, lui, porte la date du jour).
+// Relance volontaire de SENTINELLE — les jetons sont déjà décomptés par jetBouton().
+function sentRelancer(){
+  if(typeof run!=='function'){ alert('Relance indisponible.'); return; }
+  if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
+  var nom=window.lastNom||'', ville=window.lastVille||'';
+  if(!nom){ alert('Nom de l\'entreprise introuvable.'); return; }
+  run({nom:nom, ville:ville});
+}
 function iveDateAnalyse(){
   var d=window.__sentDern||((window.__lastGet)?new Date(window.__lastGet.dernier||window.__lastGet.date):null);
   if(!d||isNaN(new Date(d))) return '';
@@ -3163,7 +3219,7 @@ function iveIdentLigne(){
 }
 function iveBandDroite(avecDeconnexion){
   return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
-    +iveAbonnementChip()
+    +iveAbonnementChip()+jetChip()
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
     // « Mon compte » remplace Réglages : l'écran reste à construire.
     +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-user-circle"></i> Mon compte</a>'
@@ -3268,7 +3324,7 @@ function sentApercu(){
         +past('#E8541A','OBJECTIF',v.pot,'à atteindre')
       +'</div>'
       +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
-      +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;"><span>'+iveDateAnalyse()+'</span>'+jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()')+'</div>'
       +'<div style="margin-top:18px;">'+(typeof iveCarteIdentite==='function'?iveCarteIdentite(f):'')+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:20px 0 8px;"><i class="ti ti-layout-grid" style="color:#2563EB;"></i> VUE D\'ENSEMBLE</div>'
       +(typeof iveTuilesHtml==='function'?iveTuilesHtml(f):'')
