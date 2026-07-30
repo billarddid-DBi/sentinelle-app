@@ -1842,15 +1842,30 @@ function recurCharger(cb,forcer){
     .catch(function(){ cb((sv&&sv.sujets)||[]); });   // en cas d'échec, on garde la dernière analyse
 }
 function recurQuand(){ var s=recurGet(); return (s&&s.ts)?new Date(s.ts).toLocaleDateString('fr-FR'):''; }
-// Toujours accessible, même quand aucun sujet n'est détecté : sinon on ne peut plus relancer.
+// Combien de tâches ont été dictées DEPUIS la dernière détection ? Simple comptage, gratuit.
+function recurNouvelles(){
+  var sv=recurGet(); if(!sv||!sv.ts) return 0;
+  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
+  var lim=new Date(sv.ts);
+  var n=0;
+  (o.tasks||[]).forEach(function(x){
+    var d=new Date((x.created||x.due||'')+'T23:59:59');
+    if(!isNaN(d) && d>=lim) n++;
+  });
+  return n;
+}
 // Toujours accessible, même quand aucun sujet n'est détecté : sinon on ne peut plus relancer.
 function recurPiedHtml(){
-  var q=recurQuand(), n=(window.__recurSujets||[]).length;
+  var q=recurQuand(), n=(window.__recurSujets||[]).length, nv=recurNouvelles();
+  var etat=(nv>=5)?'maj':'payant';
+  var info = (nv>=5)
+    ? '<b style="color:#b45309;">'+nv+' tâches dictées depuis la dernière détection</b> — une relance peut révéler un nouveau sujet.'
+    : ('Sujets récurrents dans vos tâches : '+(n?('<b style="color:#7c3aed;">'+n+' détecté'+(n>1?'s':'')+'</b>'):'aucun pour l\'instant')+(q?(' · analyse du '+q):''));
+  var c=JETONS_COUT.detection, assez=(jetEtat().reste>=c);
+  var clic = assez ? ('if(jetConsommer('+c+')){recurRelancer()}') : 'offreView()';
   return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;">'
-    +'<span style="font-size:11.5px;color:#9ca3af;">Sujets récurrents dans vos tâches : '
-      +(n?('<b style="color:#7c3aed;">'+n+' détecté'+(n>1?'s':'')+'</b>'):'aucun pour l\'instant')
-      +(q?(' · analyse du '+q):'')+'</span>'
-    +jetBouton('Relancer la détection','detection','recurRelancer()')
+    +'<span style="font-size:11.5px;color:#9ca3af;">'+info+'</span>'
+    +jetBoutonBrut((nv>=5)?'Mise à jour conseillée':'Relancer la détection',c,clic,etat)
   +'</div>';
 }
 function recurBlocHtml(sujets){
@@ -2081,7 +2096,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 100';
+var IVE_VERSION='30/07 · 101';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
