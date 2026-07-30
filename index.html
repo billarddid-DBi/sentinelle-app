@@ -1528,6 +1528,29 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
 /* SOURCE UNIQUE d'accès à la fiche SENTINELLE — corrige les trois pièges rencontrés :
    on lit au bon niveau (le dossier contient .fiche), on ne dépend pas d'une mémoire de session,
    et le chargement n'est tenté qu'UNE fois, avec un garde-fou de 9 s (jamais de boucle). */
+/* Un bénéfice arrive souvent en une seule phrase qui empile plusieurs choses à faire.
+   On enlève les « Hypothèse : … » et on découpe en étapes lisibles. */
+function sansHypothese(txt){
+  return (txt||'').replace(/[\s\u00a0]*[\(\[]?\s*hypoth[èe]ses?\s*:[\s\S]*$/i,'').replace(/[\s;,.]+$/,'').trim();
+}
+function actionEtapes(txt){
+  var s=sansHypothese(txt); if(!s) return [];
+  var parts=s.split(/\s*;\s*|(?<=[a-z0-9\)])\.\s+(?=[A-ZÉÀ])/).map(function(x){return x.trim();}).filter(Boolean);
+  if(parts.length<2){
+    var i=s.indexOf(' : ');
+    if(i>0) parts=[s.slice(0,i).trim(), s.slice(i+3).trim()];
+  }
+  return parts.map(function(x){ return x.replace(/^[-–•\s]+/,'').replace(/[\s.]+$/,''); }).filter(Boolean);
+}
+function actionListeHtml(txt,coul){
+  var e=actionEtapes(txt);
+  if(e.length<2) return '<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">'+esc(e[0]||sansHypothese(txt))+'</div>';
+  return '<div style="margin-top:2px;">'+e.map(function(x,i){
+    return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:7px;">'
+      +'<span style="flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:'+coul+';color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;">'+esc(x)+'</div></div>';
+  }).join('')+'</div>';
+}
 function iveFicheMaintenant(){
   var w=(typeof iveFicheDuCompte==='function')?iveFicheDuCompte():null;
   var f=(w&&w.fiche)||(w&&w.agents?w:null)||window.__sentData||null;
@@ -1701,7 +1724,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 74';
+var IVE_VERSION='30/07 · 75';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4570,7 +4593,7 @@ function boussoleOutil(which){
           +'<div style="flex:1;min-width:0;">'
           +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'+(chaud?'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:3px 9px;">PRIORITAIRE</span>':'')+'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span></div>'
-          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;">'+esc(a.benefice||'')+'</div>'
+          +'<div style="margin-top:7px;">'+actionListeHtml(a.benefice||'',coul)+'</div>'
           +'</div></div></div>';
       };
       $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
@@ -4607,7 +4630,7 @@ function boussoleOutil(which){
         return (arr||[]).map(function(x){
           var txt=(x&&x.texte)?x.texte:x;
           var niv=(x&&x.niveau)?(x.niveau+' '):'';
-          return '<div style="display:flex;gap:8px;margin-top:7px;"><span style="flex:0 0 auto;color:'+puce+';">•</span><div>'+niv+esc(txt||'')+'</div></div>';
+          return '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06);">'+(niv?'<div style="font-size:13px;margin-bottom:3px;">'+niv+'</div>':'')+actionListeHtml(txt||'',puce)+'</div>';
         }).join('');
       };
       var html='';

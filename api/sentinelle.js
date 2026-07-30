@@ -47,7 +47,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…" } ] (0 à 5, CLASSÉES meilleure→moins bonne),
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
- "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "…" } ],
+ "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "… (INTERDIT : ne JAMAIS écrire le mot Hypothèse ni de fourchette chiffrée spéculative dans ce champ — décris le bénéfice concret, point)" } ],
  "archetype": "nom de l'archétype retenu",
  "posture": "nom de la posture",
  "chiffre": { "unite": "h" ou "€", "label": "libellé de l'estimation" },
