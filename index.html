@@ -1612,13 +1612,31 @@ function iveCoffreEcrire(cle,valeur,empreinte){
 }
 /* Empreinte des données AMONT : tout ce qui, en changeant, rend une analyse discutable.
    Nom de l'entreprise, note extérieure, avancement du questionnaire, indice des salariés. */
+/* Indice intérieur calculé depuis les réponses ENREGISTRÉES — pas depuis l'écran, qui
+   n'existe pas toujours. C'est lui qui change quand on corrige une note de 3 à 5. */
+function iveIndiceEnregistre(){
+  var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
+  if(!sv||!sv.notes) return '';
+  var s=0,n=0;
+  for(var k in sv.notes){ if(!Object.prototype.hasOwnProperty.call(sv.notes,k)) continue;
+    var o=sv.notes[k]; if(!o||!o.vu||o.v==null) continue;      // ni non touché, ni « non concerné »
+    s+=+o.v; n++;
+  }
+  return n?Math.round(s/(n*5)*100):'';
+}
 function iveEmpreinte(){
   var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
   var et=(typeof bouGrilleEtat==='function')?(bouGrilleEtat()||{}):{};
+  var cs=(typeof concStore!=='undefined')?concStore.load():null;
+  var si=(typeof simGet==='function')?simGet():null;
   return [ (window.lastNom||f.nom||''),
            (f.indice&&f.indice.estime!=null)?f.indice.estime:'',
-           (et.fait!=null?et.fait:''), (et.total!=null?et.total:''),
-           (window.lastAH&&window.lastAH.iat!=null)?window.lastAH.iat:'' ].join('|');
+           iveIndiceEnregistre(),                              // la VALEUR des notes, pas leur nombre
+           (et.total!=null?et.total:''),
+           (window.lastAH&&window.lastAH.iat!=null)?window.lastAH.iat:'',
+           (cs&&cs.kw)?cs.kw:'',                                // mot-clé de la concurrence
+           si?[si.personnes,si.heures,si.cout].join(','):''     // valeurs du simulateur
+         ].join('|');
 }
 /* 'absent' = jamais produit · 'frais' = à jour, relire sans rien dépenser · 'perime' = données changées */
 function iveCoffreEtat(cle){
@@ -2006,7 +2024,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 93';
+var IVE_VERSION='30/07 · 94';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
