@@ -637,7 +637,7 @@ function saveMiroir(m){
 var miroirStore={
   key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_miroir_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
   load:function(){ try{ var s=localStorage.getItem(miroirStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
-  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',sig:miroirSignature(),ts:Date.now()})); }catch(e){} }
+  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',sig:iveEmpreinte(),ts:Date.now()})); }catch(e){} }
 };
 /* Empreinte des données qui ont servi à l'analyse. Si elle change — nouvelle SENTINELLE,
    questionnaire modifié, réponses des salariés — l'analyse est périmée et on le dit. */
@@ -664,7 +664,7 @@ function runMiroir(forcer){
   // faisait retomber dans un appel IA. La sauvegarde est déjà propre au compte ; c'est l'empreinte
   // des données (miroirSignature) qui dit si l'analyse est encore valable.
   if(!forcer && sv && sv.m){
-    window.miroirPerime=(sv.sig!==miroirSignature());   // les données ont-elles bougé depuis ?
+    window.miroirPerime=(sv.sig!==iveEmpreinte());   // les données ont-elles bougé depuis ?
     window.miroirData=sv.m; window.miroirAud='externe';
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
@@ -2024,7 +2024,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 94';
+var IVE_VERSION='30/07 · 95';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
