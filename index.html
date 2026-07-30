@@ -670,6 +670,27 @@ function runMiroir(forcer){
   }
   showView('miroir');
   $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action adaptatif + ROI</span></div></div>';
+  // Les indices ne survivent pas à la session : on les reconstruit depuis les données
+  // enregistrées, sinon l'IA croit que rien n'a été mesuré et rédige un plan pour tout mesurer.
+  var _f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+  var _in=(typeof iveIndiceEnregistre==='function')?iveIndiceEnregistre():'';
+  var _ex=(_f.indice&&_f.indice.estime!=null)?+_f.indice.estime:null;
+  if(b.indiceInterieur==null && _in!=='') b.indiceInterieur=_in;
+  if(b.indiceExterieur==null && _ex!=null) b.indiceExterieur=_ex;
+  if(b.potentiel==null && b.indiceInterieur!=null) b.potentiel=Math.min(100,b.indiceInterieur+15);
+  if(b.ecart==null && b.indiceInterieur!=null && b.indiceExterieur!=null) b.ecart=b.indiceInterieur-b.indiceExterieur;
+  if(!b.activite && _f.activite) b.activite=_f.activite;
+  // Sans indice intérieur, le MIROIR n'a rien à confronter : on refuse plutôt que de dépenser.
+  if(b.indiceInterieur==null || b.indiceExterieur==null){
+    $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité','t360')
+      +'<div class="card"><div class="sec"><div style="font-size:13px;color:#4b5563;line-height:1.6;">Le MIROIR confronte votre <b>image publique</b> à votre <b>réalité interne</b>. Il lui manque l\'une des deux :</div>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.7;margin-top:10px;">'
+      +(b.indiceExterieur==null?'• l\'analyse <b>SENTINELLE</b> (le regard du dehors)<br>':'')
+      +(b.indiceInterieur==null?'• le <b>Questionnaire Dirigeant</b> complété (le regard du dedans)':'')
+      +'</div>'
+      +'<div style="font-size:11.5px;color:#15803d;font-weight:700;margin-top:12px;">Aucun jeton n\'a été consommé.</div></div></div>';
+    showView('miroir'); window.scrollTo(0,0); return;
+  }
   // Position concurrentielle : une image publique ne se juge que par comparaison.
   // Aucun appel supplémentaire — la donnée est déjà au coffre depuis la carte.
   var _cc=null;
@@ -2042,7 +2063,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 96';
+var IVE_VERSION='30/07 · 97';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
