@@ -108,7 +108,11 @@ ${qtBlock}
 
 Rédige le MIROIR (JSON strict, schéma imposé).`;
 
-    const areq = { model: MODEL, max_tokens: 3000, temperature: 0.4, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
+    // 3000 suffisait AVANT le champ "quotidien". Avec un dossier complet (volet humain + quotidien
+    // + 8 outils cites + concurrence), la reponse depassait la limite : elle etait coupee en plein
+    // JSON, illisible, et l'API renvoyait 500 apres deux tentatives. On paie les jetons reellement
+    // produits, pas le plafond : l'augmenter ne coute rien sur les reponses courtes.
+    const areq = { model: MODEL, max_tokens: 8000, temperature: 0.4, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
     async function attempt() {
       const rr = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" }, body: JSON.stringify(areq) });
       if (!rr.ok) { const t = await rr.text(); return { httpErr: t.slice(0, 200) }; }
@@ -116,7 +120,9 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
       let out = "";
       for (const c of (dd.content || [])) if (c.type === "text") out += c.text;
       const m = extractJSON(out);
-      return m ? { m } : { bad: true };
+      // stop_reason === "max_tokens" = la réponse a été COUPÉE. Sans cette trace, la panne se
+      // présente comme un vague « réponse illisible » et se rediagnostique à l'aveugle.
+      return m ? { m } : { bad: true, coupee: (dd.stop_reason === "max_tokens"), taille: out.length };
     }
 
     // Le quotidien a été fourni mais le modèle l'a laissé vide ? C'est une réponse ratée, pas
@@ -131,7 +137,8 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
       res.status(200).json(r.m); return;
     }
     if (r.httpErr) { res.status(502).json({ error: "Modèle indisponible", detail: r.httpErr }); return; }
-    res.status(500).json({ error: "MIROIR : réponse illisible après 2 essais. Réessayez." });
+    if (r.coupee) { res.status(500).json({ error: "MIROIR : la réponse a été coupée avant la fin. Réessayez.", detail: "stop_reason=max_tokens, " + (r.taille || 0) + " caracteres produits" }); return; }
+    res.status(500).json({ error: "MIROIR : réponse illisible après 2 essais. Réessayez.", detail: (r.taille || 0) + " caracteres produits, JSON non analysable" });
   } catch (err) {
     res.status(500).json({ error: "MIROIR indisponible", detail: String(err).slice(0, 200) });
   }
