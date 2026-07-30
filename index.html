@@ -1539,6 +1539,18 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    L'analyse tourne une fois par semaine au maximum — elle est enregistrée et relue. */
 /* Décisions du dirigeant sur un sujet récurrent : « outil en place » ou « pas maintenant ».
    Le compteur du sujet repart de cette date — cocher des tâches ne suffit pas à le clore. */
+/* Qui fait le travail : IA, partenaire externe, ou compétence interne. SOURCE UNIQUE. */
+function iveQuiFait(s){
+  s=(s||'').toLowerCase();
+  if(/site|refonte|développe|developpe|intégr|integr|logiciel|caméra|camera|matériel|materiel|installation|borne|application mobile|prestataire|éditeur|editeur/.test(s))
+    return {c:'#7c3aed',f:'#f5f3ff',b:'#ddd6fe',t:'PARTENAIRE'};
+  if(/automatis|génér|gener|rédig|redig|répon|repon|analys|trie|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi|préremplі|preremplі|modèle de|modele de/.test(s))
+    return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
+  return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
+}
+function iveQuiBadge(q){
+  return '<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span>';
+}
 function recurDecKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recurdec_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function recurDecs(){ try{ var s=localStorage.getItem(recurDecKey()); return s?JSON.parse(s):[]; }catch(e){ return []; } }
 function recurDecider(sujet,etat){
@@ -1602,6 +1614,7 @@ function recurBlocHtml(sujets){
         +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'
           +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+cp+';border-radius:20px;padding:3px 9px;">PRIORITÉ '+esc((s.priorite||'moyenne').toUpperCase())+'</span>'
           +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:20px;padding:2px 9px;">'+(+s.nb||5)+' FOIS EN 30 JOURS</span>'
+          +iveQuiBadge(s.qui?{c:(s.qui==='IA'?'#15803d':s.qui==='PARTENAIRE'?'#7c3aed':'#b45309'),f:(s.qui==='IA'?'#f4fbf6':s.qui==='PARTENAIRE'?'#f5f3ff':'#fffbeb'),b:(s.qui==='IA'?'#bbf7d0':s.qui==='PARTENAIRE'?'#ddd6fe':'#fde68a'),t:s.qui}:iveQuiFait((s.outil||'')+' '+((s.etapes||[]).join(' '))))
         +'</div>'
         +'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:7px;"><b style="color:#1C1C1C;">Ce que ça coûte :</b> '+esc(sansHypothese(s.consequence||''))+'</div>'
         +((s.etapes&&s.etapes.length)?('<div style="margin-top:8px;">'+s.etapes.map(function(e,i){
@@ -1813,7 +1826,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 82';
+var IVE_VERSION='30/07 · 83';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};

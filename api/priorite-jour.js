@@ -72,12 +72,13 @@ Pour chaque sujet retenu, produis :
 - "consequence" : ce que cette répétition COÛTE réellement (temps perdu, client qui attend,
   risque qui grandit, argent). Concret, factuel, jamais alarmiste.
 - "priorite" : "haute" | "moyenne" | "basse", déduite de la conséquence, pas du nombre
+- "qui" : qui met l'outil en place — "IA" (traitable par de l'IA), "PARTENAIRE" (demande un prestataire : site, logiciel, matériel) ou "INTERNE" (compétence ou process à tenir dans l'entreprise)
 - "etapes" : 2 à 4 étapes concrètes pour mettre l'outil en place, une phrase courte chacune
 
 INTERDITS : ne JAMAIS écrire le mot "Hypothèse". Ne juge JAMAIS le dirigeant ni ses équipes.
 N'invente aucune tâche qui ne figure pas dans la liste fournie.
 
-Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"outil":"…","consequence":"…","priorite":"haute","etapes":["…","…"]}]}
+Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"outil":"…","consequence":"…","priorite":"haute","qui":"IA","etapes":["…","…"]}]}
 Si aucun sujet n'atteint 5 tâches : {"sujets":[]}`;
     // ---- Branche : sujets récurrents dans les tâches dictées (30 derniers jours) ----
     if (b.type === "recurrence") {
