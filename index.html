@@ -2006,7 +2006,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 91';
+var IVE_VERSION='30/07 · 92';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4847,7 +4847,11 @@ function boussoleOutil(which){
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
       +head('ti-map-2','La concurrence autour de vous','Les entreprises du même métier près de '+esc(nom)+'. Repère public, à aujourd\'hui.')
       +'<div class="card"><div class="sec">'
-      +'<label>Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+      // Le bouton de relance vit dans l'encadré, en haut à droite — comme partout ailleurs.
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
+        +'<label style="margin:0;">Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+        +(concFaite()?jetBouton('Relancer','concurrence','runConcurrence()'):'')
+      +'</div>'
       +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
       +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de vous.</div>'
       +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Trouver les 8 concurrents · 4 jetons</button>'
@@ -4861,7 +4865,7 @@ function boussoleOutil(which){
       if(_co){
         // renderConcu réécrit cOut : on pose la barre de date APRÈS, en tête.
         try{ renderConcu(_cs.d); }catch(e){}
-        _co.insertAdjacentHTML('afterbegin','<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+concQuand()+'</span>'+jetBouton('Relancer','concurrence','runConcurrence()')+'</div>');
+        _co.insertAdjacentHTML('afterbegin','<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+concQuand()+'</span></div>');
       }
     }
     return;
