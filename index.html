@@ -968,8 +968,12 @@ function bFinish(){
   var bes=r.faibles.length?('• '+sh.join('<br>• ')+(ex>0?'<br>• <i>+ '+ex+' autres critères ≤2/5</i>':'')):'Aucun critère ≤2/5 — solide.';
   var card='<div class="card">'
    /* En-tête épuré : la note, les étoiles et la date sont désormais dans l'encadré de gauche. */
-   +'<div style="background:#0d0d0f;color:#fff;padding:18px 18px 4px;"><div style="font-size:12.5px;color:#9ca3af;"><i class="ti ti-compass" style="color:#E8954F;"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
-   +'<div style="font-size:clamp(21px,5.5vw,26px);font-weight:700;margin-top:6px;letter-spacing:-.3px;">'+esc(nom)+'</div></div>'
+   /* Même bandeau que partout : la ligne BOUSSOLE, le nom, la ville, et le bloc de droite. */
+   +'<div style="background:#0d0d0f;color:#fff;padding:18px 18px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+   +'<div style="min-width:0;"><div style="font-size:12.5px;color:#9ca3af;"><i class="ti ti-compass" style="color:#E8954F;"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
+   +'<div style="font-size:clamp(21px,5.5vw,26px);font-weight:700;margin-top:6px;letter-spacing:-.3px;">'+esc(nom)+'</div>'
+   +(window.lastVille?'<div style="font-size:11.5px;color:#9ca3af;margin-top:3px;"><i class="ti ti-map-pin"></i> '+esc(window.lastVille)+'</div>':'')+'</div>'
+   +(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div>'
    +auraBand
    +trajSec
    /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
@@ -1724,7 +1728,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 78';
+var IVE_VERSION='30/07 · 79';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
