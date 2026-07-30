@@ -670,7 +670,25 @@ function runMiroir(forcer){
   }
   showView('miroir');
   $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action adaptatif + ROI</span></div></div>';
-  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null});
+  // Position concurrentielle : une image publique ne se juge que par comparaison.
+  // Aucun appel supplémentaire — la donnée est déjà au coffre depuis la carte.
+  var _cc=null;
+  try{
+    var _cs=(typeof concStore!=='undefined')?concStore.load():null;
+    var _lst=(_cs&&_cs.d&&Array.isArray(_cs.d.concurrents))?_cs.d.concurrents:null;
+    if(_lst&&_lst.length){
+      var _n=[]; _lst.forEach(function(x){ var v=(x&&x.aura&&x.aura.note!=null)?+x.aura.note:null; if(v!=null&&!isNaN(v)) _n.push(v); });
+      if(_n.length){
+        var _moy=Math.round(_n.reduce(function(a,c){return a+c;},0)/_n.length);
+        var _max=Math.max.apply(null,_n);
+        var _moi=(b&&b.indiceExterieur!=null)?+b.indiceExterieur:null;
+        _cc={ nb:_n.length, moyenne:_moy, meilleur:_max, motCle:(_cs.kw||''),
+              rang:(_moi!=null)?(_n.filter(function(v){return v>_moi;}).length+1):null,
+              ecartAuMeilleur:(_moi!=null)?(_max-_moi):null };
+      }
+    }
+  }catch(e){}
+  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
     .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
@@ -2024,7 +2042,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 95';
+var IVE_VERSION='30/07 · 96';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};

@@ -68,6 +68,7 @@
     <rect x="40" y="396" width="250" height="98" rx="14" fill="#fffaf6" stroke="#E8541A" stroke-width="2"/>
     <text x="60" y="426" font-size="17" font-weight="700" fill="#1C1C1C">Carte de la</text>
     <text x="60" y="446" font-size="17" font-weight="700" fill="#1C1C1C">concurrence</text>
+    <text x="150" y="426" font-size="12" fill="#b45309" font-weight="700">→ nourrit le MIROIR</text>
     <rect x="60" y="458" width="76" height="22" rx="11" fill="#E8541A"/>
     <text x="76" y="474" font-size="12" font-weight="700" fill="#ffffff">4 jetons</text>
   </g>
@@ -82,6 +83,7 @@
 
   <!-- Flèches vers MIROIR -->
   <path d="M165 494 L165 540 L560 540 L560 606" stroke="#b45309" stroke-width="2" fill="none" marker-end="url(#fl2)"/>
+  <text x="176" y="533" font-size="12" font-weight="700" fill="#b45309">position concurrentielle</text>
   <path d="M450 494 L450 540 L555 540" stroke="#b45309" stroke-width="2" fill="none"/>
   <path d="M735 290 L735 540 L570 540" stroke="#b45309" stroke-width="2" fill="none"/>
   <defs>
@@ -128,5 +130,5 @@
   <!-- Note bas -->
   <rect x="40" y="732" width="1160" height="56" rx="12" fill="#ffffff" stroke="#e5e7eb"/>
   <text x="62" y="757" font-size="14" font-weight="700" fill="#b45309">Les flèches ambrées ne déclenchent rien automatiquement.</text>
-  <text x="62" y="777" font-size="14" fill="#4b5563">Quand une source change, l'aval s'affiche avec un bandeau « vos données ont changé » — vous seul décidez de dépenser.</text>
+  <text x="62" y="777" font-size="14" fill="#4b5563">Quand une source change, l'aval s'affiche avec un bandeau « vos données ont changé » — vous seul décidez de dépenser. La BOUSSOLE, elle, ne dépend jamais de la concurrence.</text>
 </svg>

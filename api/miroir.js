@@ -71,7 +71,8 @@ Craintes / résistances détectées (à traduire et traiter) : ${craintes}
 Activité / archétype : ${b.activite || "?"} / ${b.archetype || "?"}
 Indice INTÉRIEUR (BOUSSOLE, réalité) : ${b.indiceInterieur != null ? b.indiceInterieur : "?"} /100
 Indice EXTÉRIEUR (SENTINELLE, image) : ${b.indiceExterieur != null ? b.indiceExterieur : "non mesuré"} /100
-Écart de Cohérence (intérieur − extérieur) : ${b.ecart != null ? b.ecart : "n.c."} (${b.zoneVerite || "n.c."})
+Écart de Cohérence (intérieur − extérieur) : ${b.ecart != null ? b.ecart : "n.c."} (${b.zoneVerite || "n.c."})
+Position concurrentielle : ${b.concurrence ? `${b.concurrence.nb} concurrents analysés sur « ${b.concurrence.motCle} » — moyenne locale ${b.concurrence.moyenne}/100, meilleur ${b.concurrence.meilleur}/100, rang du dirigeant ${b.concurrence.rang}${b.concurrence.ecartAuMeilleur != null ? `, écart au meilleur ${b.concurrence.ecartAuMeilleur} points` : ""}. UTILISE-LA : une note ne vaut rien dans l'absolu, elle vaut par rapport au marché local. Un 66 face à des concurrents à 55 est une force ; le même 66 face à des concurrents à 80 est un retard.` : "non mesurée — ne rien en déduire."}
 Potentiel visé : ${b.potentiel != null ? b.potentiel : "?"} /100
 8 piliers : ${piliers}
 Critères faibles (≤2/5) : ${faibles}
