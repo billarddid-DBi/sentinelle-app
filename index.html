@@ -1502,6 +1502,39 @@ function iveFaitsKey(){ var a=(typeof currentAccount==='function')?currentAccoun
 function iveFaits(){ try{ var s=localStorage.getItem(iveFaitsKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function iveFaitGet(k){ return !!iveFaits()[k]; }
 function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.setItem(iveFaitsKey(), JSON.stringify(o)); }catch(e){} }
+/* SOURCE UNIQUE d'accès à la fiche SENTINELLE — corrige les trois pièges rencontrés :
+   on lit au bon niveau (le dossier contient .fiche), on ne dépend pas d'une mémoire de session,
+   et le chargement n'est tenté qu'UNE fois, avec un garde-fou de 9 s (jamais de boucle). */
+function iveFicheMaintenant(){
+  var w=(typeof iveFicheDuCompte==='function')?iveFicheDuCompte():null;
+  var f=(w&&w.fiche)||(w&&w.agents?w:null)||window.__sentData||null;
+  return (f&&typeof f==='object')?f:null;
+}
+function iveFicheOuCharger(cle,rendre,attente){
+  var f=iveFicheMaintenant(); if(f){ rendre(f); return; }
+  var d='__fiche_'+cle;
+  if(window[d]){ rendre(null); return; }          // déjà tenté : on affiche l'état vide
+  window[d]=1;
+  var fini=false, fin=function(){ if(fini) return; fini=true; rendre(iveFicheMaintenant()); };
+  if(attente) attente();
+  if(typeof iveChargerFiche!=='function'){ fin(); return; }
+  iveChargerFiche(fin);
+  setTimeout(fin,9000);
+}
+// Écran d'attente commun à tous les outils.
+function iveOutilAttente(icone,surtitre,titre){
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete(icone,surtitre,titre,'resultats')
+    +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous récupérons votre fiche…</div></div></div>';
+  showView('dirigeant');
+}
+function iveOutilVide(icone,surtitre,titre,message){
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete(icone,surtitre,titre,'resultats')
+    +'<div class="card"><div class="sec"><div style="font-size:13px;color:#4b5563;line-height:1.6;">'+message+'</div>'
+    +'<button type="button" onclick="sentApercu()" style="width:100%;border:none;border-radius:12px;background:#2563EB;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Relancer une analyse SENTINELLE</button></div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
 function iveEntete(icone,surtitre,titre,actif){
   return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
     +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
@@ -1644,7 +1677,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 64';
+var IVE_VERSION='30/07 · 65';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4416,8 +4449,8 @@ function bouOffre(niveau){
 function bouToolsHtml(verrouille){
   /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
   var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.','outilsia'],
-    ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
-    ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
+    ['ti-trophy','Forces & opportunités majeures','Vos atouts, ce que vos clients reconnaissent, et ce qui peut progresser vite.','forces'],
+    ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.','feuille']];
   return '<div style="margin-top:10px;">'+T.map(function(f){
     var on=(!!f[3] && !verrouille);
     return '<div'+(on?' onclick="boussoleOutil(\''+f[3]+'\')"':'')+' style="display:flex;gap:11px;align-items:flex-start;border:1px solid '+(on?'#f5c6a5':'#eef0f3')+';border-radius:11px;padding:12px 14px;margin-top:8px;'+(on?'cursor:pointer;background:#fffaf6;':'')+'"><div style="width:38px;height:38px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti '+f[0]+'" style="font-size:20px;color:#E8541A;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:700;color:#1C1C1C;"><i class="ti '+(verrouille?'ti-lock" style="color:#9ca3af;':'ti-lock-open" style="color:#16a34a;')+'font-size:13px;"></i> '+f[1]+'</div><div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+f[2]+'</div>'
@@ -4458,46 +4491,81 @@ function boussoleOutil(which){
   }
   // Les outils IA de la fiche SENTINELLE, présentés en clair. Aucun appel IA : c'est de l'affichage.
   if(which==='outilsia'){
-    // La fiche du compte fait foi : si elle n'est pas encore en mémoire, on la charge — on ne
-    // demande jamais au dirigeant de relancer SENTINELLE alors qu'il l'a déjà fait.
-    var _w=(typeof iveFicheDuCompte==='function')?iveFicheDuCompte():null;
-    var fo=(_w&&_w.fiche)||(_w&&_w.agents?_w:null)||window.__sentData||{};
-    var ags=fo.agents||[];
-    if(!ags.length && !window.__oiaFiche && typeof iveChargerFiche==='function'){
-      window.__oiaFiche=1;
+    iveFicheOuCharger('oia',function(fo){
+      if(!fo || !(fo.agents||[]).length){
+        iveOutilVide('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier',
+          'Votre fiche ne contient pas encore de sélection d\'outils.<br><br>Elle se construit pendant l\'analyse SENTINELLE, à partir de votre métier et de votre présence en ligne.');
+        return;
+      }
+      var ags=fo.agents;
+      var carte=function(a,i){
+        var chaud=/flame|\uD83D\uDD25/.test(a.tag||'');
+        var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
+        return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
+          +'<div style="display:flex;align-items:flex-start;gap:11px;">'
+          +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+coul+';">'+(i+1)+'</div>'
+          +'<div style="flex:1;min-width:0;">'
+          +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
+          +(chaud?'<div style="display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:2px 9px;margin-top:5px;">PRIORITAIRE</div>':'')
+          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;">'+esc(a.benefice||'')+'</div>'
+          +'</div></div></div>';
+      };
       $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
         +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
-        +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous récupérons votre fiche…</div></div></div>';
-      showView('dirigeant');
-      iveChargerFiche(function(){ boussoleOutil('outilsia'); });   // le drapeau reste posé : une seule tentative
-      setTimeout(function(){ if(window.__oiaFiche===1){ window.__oiaFiche=2; boussoleOutil('outilsia'); } },9000);
-      return;
-    }
-
-    var carte=function(a,i){
-      var chaud=/flame|\uD83D\uDD25/.test(a.tag||'');
-      var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
-      return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
-        +'<div style="display:flex;align-items:flex-start;gap:11px;">'
-        +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+coul+';">'+(i+1)+'</div>'
-        +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
-        +(chaud?'<div style="display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:2px 9px;margin-top:5px;">PRIORITAIRE</div>':'')
-        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;">'+esc(a.benefice||'')+'</div>'
-        +(a.comment?'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:6px;"><b style="color:#1C1C1C;">Comment :</b> '+esc(a.comment)+'</div>':'')
-        +'</div></div></div>';
-    };
-    $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-      +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
-      +'<div class="card"><div class="sec">'
-        +(ags.length
-          ? '<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, du plus utile au moins urgent. Les outils marqués <b style="color:#E8541A;">PRIORITAIRE</b> sont ceux dont l\'effet se voit le plus vite.</div>'
-            +ags.map(carte).join('')
-            +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. Elle se précisera avec le Questionnaire Dirigeant.</div>'
-          : '<div style="font-size:13px;color:#4b5563;line-height:1.6;">Votre fiche ne contient pas encore de sélection d\'outils.<br><br>Elle se construit pendant l\'analyse SENTINELLE, à partir de votre métier et de votre présence en ligne : relancez une analyse pour l\'obtenir.</div>'
-            +'<button type="button" onclick="sentApercu()" style="width:100%;border:none;border-radius:12px;background:#2563EB;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Relancer une analyse SENTINELLE</button>')
-      +'</div></div>';
-    showView('dirigeant'); window.scrollTo(0,0); return;
+        +'<div class="card"><div class="sec">'
+          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, du plus utile au moins urgent. Ceux marqués <b style="color:#E8541A;">PRIORITAIRE</b> sont ceux dont l\'effet se voit le plus vite.</div>'
+          +ags.map(carte).join('')
+          +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. Elle se précisera avec le Questionnaire Dirigeant.</div>'
+        +'</div></div>';
+      showView('dirigeant'); window.scrollTo(0,0);
+    },function(){ iveOutilAttente('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier'); });
+    return;
+  }
+  // Forces & opportunités : tout vient de la fiche (fierté, valeurs, quick wins, vigilance).
+  if(which==='feuille'){ if(typeof goFeuille==='function') goFeuille(); else if(typeof frBuild==='function') frBuild(); return; }
+  if(which==='forces'){
+    iveFicheOuCharger('fo',function(f){
+      if(!f){
+        iveOutilVide('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers',
+          'Votre fiche n\'est pas encore disponible. Lancez une analyse SENTINELLE pour la construire.');
+        return;
+      }
+      var bloc=function(coul,fond,bord,ic,titre,corps){
+        return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:11px;">'
+          +'<div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:'+coul+';"><i class="ti '+ic+'"></i> '+titre+'</div>'
+          +'<div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:6px;">'+corps+'</div></div>';
+      };
+      var liste=function(arr,puce){
+        return (arr||[]).map(function(x){
+          var txt=(x&&x.texte)?x.texte:x;
+          var niv=(x&&x.niveau)?(x.niveau+' '):'';
+          return '<div style="display:flex;gap:8px;margin-top:7px;"><span style="flex:0 0 auto;color:'+puce+';">•</span><div>'+niv+esc(txt||'')+'</div></div>';
+        }).join('');
+      };
+      var html='';
+      if(f.fierte) html+=bloc('#15803d','#f4fbf6','#bbf7d0','ti-trophy','CE QUI FAIT VOTRE FORCE',esc(f.fierte));
+      if(f.valeurs) html+=bloc('#2563EB','#f5f8ff','#dbe7fb','ti-diamond','CE QUE VOS CLIENTS RECONNAISSENT',esc(f.valeurs));
+      if((f.quickwins||[]).length) html+=bloc('#E8541A','#fffaf6','#fed7aa','ti-bolt','À GAGNER RAPIDEMENT',liste(f.quickwins,'#E8541A'));
+      if((f.vigilance||[]).length) html+=bloc('#991b1b','#fef2f2','#fecaca','ti-alert-triangle','POINTS DE VIGILANCE',liste(f.vigilance,'#991b1b'));
+      var r=f.radar||{};
+      if((r.labels||[]).length && (r.actuel||[]).length){
+        var lignes=r.labels.map(function(lb,i){
+          var a=+r.actuel[i]||0, po=(r.potentiel&&+r.potentiel[i])||a;
+          return '<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4b5563;"><span>'+esc(lb)+'</span><span><b style="color:#2563EB;">'+a+'</b> → <b style="color:#E8541A;">'+po+'</b></span></div>'
+            +'<div style="height:8px;border-radius:4px;background:#eef0f3;margin-top:4px;position:relative;overflow:hidden;"><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,po))+'%;background:#fed7aa;"></div><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,a))+'%;background:#2563EB;"></div></div></div>';
+        }).join('');
+        html+=bloc('#1C1C1C','#fff','#eef0f3','ti-chart-radar','VOS DIMENSIONS — AUJOURD\'HUI ET POSSIBLE',lignes);
+      }
+      if(!html) html='<div style="font-size:13px;color:#4b5563;">Votre fiche ne contient pas encore ces éléments.</div>';
+      $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+        +iveEntete('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers','resultats')
+        +'<div class="card"><div class="sec">'
+          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Ce sur quoi vous pouvez vous appuyer, et ce qui peut progresser vite.</div>'
+          +html
+        +'</div></div>';
+      showView('dirigeant'); window.scrollTo(0,0);
+    },function(){ iveOutilAttente('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers'); });
+    return;
   }
   if(which==='simulateur'){
     var f=window.__sentData||{}; var sim=(typeof simGet==='function'&&simGet())||f.simulateur||{personnes:2,heures:5,cout:40};
