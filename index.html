@@ -1644,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 61';
+var IVE_VERSION='29/07 · 62';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4458,8 +4458,20 @@ function boussoleOutil(which){
   }
   // Les outils IA de la fiche SENTINELLE, présentés en clair. Aucun appel IA : c'est de l'affichage.
   if(which==='outilsia'){
-    var fo=window.__sentData||{};
+    // La fiche du compte fait foi : si elle n'est pas encore en mémoire, on la charge — on ne
+    // demande jamais au dirigeant de relancer SENTINELLE alors qu'il l'a déjà fait.
+    var fo=(typeof iveFicheDuCompte==='function'&&iveFicheDuCompte())||window.__sentData||{};
     var ags=fo.agents||[];
+    if(!ags.length && !window.__oiaFiche && typeof iveChargerFiche==='function'){
+      window.__oiaFiche=1;
+      $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+        +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
+        +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous récupérons votre fiche…</div></div></div>';
+      showView('dirigeant');
+      iveChargerFiche(function(){ window.__oiaFiche=0; boussoleOutil('outilsia'); });
+      return;
+    }
+
     var carte=function(a,i){
       var chaud=(a.tag||'').indexOf('flame')>=0;
       var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
