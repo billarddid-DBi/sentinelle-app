@@ -60,8 +60,9 @@ OBJECTIF : repérer les sujets qui REVIENNENT, c'est-à-dire les mêmes besoins 
 RÈGLE STRICTE : ne retiens QUE les sujets comptant AU MOINS 5 tâches. En dessous, ignore.
 
 DÉCISIONS DÉJÀ PRISES (capital) : le dirigeant peut avoir déclaré qu'un sujet est réglé
-(outil mis en place) ou reporté. Pour CES sujets-là, ne compte QUE les tâches datées APRÈS
-la date de décision fournie — les tâches antérieures ne prouvent plus rien, elles ont motivé
+(outil mis en place) ou reporté. Pour CES sujets-là, ne compte QUE les tâches datées À PARTIR DE
+la date de décision fournie (cette date INCLUSE : une décision prise le matin et cinq tâches dictées le
+même jour signifient bien que le sujet est revenu) — les tâches antérieures ne prouvent plus rien, elles ont motivé
 la décision. Si moins de 5 tâches sont postérieures, le sujet ne ressort pas.
 Chaque tâche t'est donnée sous la forme "AAAA-MM-JJ | texte".
 
