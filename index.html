@@ -1677,7 +1677,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 66';
+var IVE_VERSION='30/07 · 67';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2859,7 +2859,12 @@ function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email
 // Formule choisie : mémorisée par compte, pour qu'elle survive au rechargement (paiement simulé).
 function ivePlanCle(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_plan_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function ivePlanGet(){ if(window.__boussolePlan) return window.__boussolePlan; try{ return localStorage.getItem(ivePlanCle())||''; }catch(e){ return ''; } }
-function ivePlanSet(p){ window.__boussolePlan=p; try{ localStorage.setItem(ivePlanCle(),p); }catch(e){} }
+function ivePlanSet(p){
+  window.__boussolePlan=p;
+  try{ localStorage.setItem(ivePlanCle(),p); }catch(e){}
+  // Écrit aussi sur le compte : la formule doit suivre le dirigeant d'un appareil à l'autre.
+  try{ if(window.sb&&window.sb.auth&&window.sb.auth.updateUser) window.sb.auth.updateUser({data:{ive_plan:p}}); }catch(e){}
+}
 function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='annuel')?'24,90 €/an':'2,99 €/mois'; }
 // Pastille verte « abonnement actif » pour les bandeaux noirs — le dirigeant voit qu'il est bien pris en compte.
 function iveAbonnementChip(){
@@ -3825,6 +3830,8 @@ async function loadUser(){
     if(!u){ window.currentUser=null; return null; }
     var m=u.user_metadata||{};
     window.currentUser={ id:u.id, email:u.email, name:(m.entreprise||m.name||''), ville:(m.ville||''), plan:(m.plan||'decouverte'), price:(m.price!=null?m.price:0), since:(m.since||u.created_at), renewal:(m.renewal||null), sentNom:(m.sent_nom||''), sentVille:(m.sent_ville||''), sentAdr:(m.sent_adresse||'') };
+    // La formule d'abonnement suit le compte, pas l'appareil.
+    if(m.ive_plan){ window.__boussolePlan=m.ive_plan; try{ localStorage.setItem(ivePlanCle(),m.ive_plan); }catch(e){} }
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
