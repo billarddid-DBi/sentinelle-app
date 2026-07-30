@@ -1542,10 +1542,45 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
 /* Qui fait le travail : IA, partenaire externe, ou compétence interne. SOURCE UNIQUE. */
 /* Détail justifié d'une action : pourquoi, d'où vient l'info, et comment s'y prendre.
    Un appel IA la première fois seulement — le résultat est enregistré par action. */
+/* ===== LE COFFRE — mémoire de toutes les productions IA =====
+   RÈGLE ABSOLUE (décision Didier, 30/07) : une production déjà faite n'est JAMAIS refaite
+   tant que ses données sources n'ont pas changé. Relire ne coûte rien.
+   Quand les données changent, on n'efface pas et on ne régénère pas tout seul : on AFFICHE
+   le résultat en le signalant périmé, et le dirigeant décide de dépenser ou non. */
+function iveCoffreKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_coffre_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveCoffreTout(){ try{ var s=localStorage.getItem(iveCoffreKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function iveCoffreLire(cle){ var o=iveCoffreTout()[cle]; return o||null; }
+function iveCoffreEcrire(cle,valeur,empreinte){
+  try{ var o=iveCoffreTout(); o[cle]={v:valeur,sig:empreinte||'',ts:Date.now()}; localStorage.setItem(iveCoffreKey(), JSON.stringify(o)); }catch(e){}
+}
+/* Empreinte des données AMONT : tout ce qui, en changeant, rend une analyse discutable.
+   Nom de l'entreprise, note extérieure, avancement du questionnaire, indice des salariés. */
+function iveEmpreinte(){
+  var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+  var et=(typeof bouGrilleEtat==='function')?(bouGrilleEtat()||{}):{};
+  return [ (window.lastNom||f.nom||''),
+           (f.indice&&f.indice.estime!=null)?f.indice.estime:'',
+           (et.fait!=null?et.fait:''), (et.total!=null?et.total:''),
+           (window.lastAH&&window.lastAH.iat!=null)?window.lastAH.iat:'' ].join('|');
+}
+/* 'absent' = jamais produit · 'frais' = à jour, relire sans rien dépenser · 'perime' = données changées */
+function iveCoffreEtat(cle){
+  var o=iveCoffreLire(cle); if(!o) return 'absent';
+  return (o.sig===iveEmpreinte())?'frais':'perime';
+}
+function iveCoffreQuand(cle){ var o=iveCoffreLire(cle); return (o&&o.ts)?new Date(o.ts).toLocaleDateString('fr-FR'):''; }
+/* Bandeau ambre affiché au-dessus d'un résultat périmé — la relance reste un geste volontaire. */
+function iveCoffrePerimeHtml(cle,actionRelance){
+  if(iveCoffreEtat(cle)!=='perime') return '';
+  var q=iveCoffreQuand(cle);
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;">'
+    +'<span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos données ont changé depuis cette analyse'+(q?(' du '+q):'')+'.</span>'
+    +'<span onclick="'+actionRelance+'" style="cursor:pointer;color:#E8541A;font-weight:700;white-space:nowrap;"><i class="ti ti-refresh"></i> Mettre à jour</span></div>';
+}
 function detKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_detail_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function detTous(){ try{ var s=localStorage.getItem(detKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function detGet(cle){ return detTous()[cle]||null; }
-function detSet(cle,o){ try{ var d=detTous(); d[cle]=o; localStorage.setItem(detKey(), JSON.stringify(d)); }catch(e){} }
+function detSet(cle,o){ try{ var d=detTous(); d[cle]=o; localStorage.setItem(detKey(), JSON.stringify(d)); }catch(e){} iveCoffreEcrire('detail:'+cle,1,iveEmpreinte()); }
 function detCle(nom){ return (nom||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60); }
 /* Le bouton, en haut à droite de chaque encadré. */
 function detBouton(nom,benefice,qui,origine){
@@ -1556,6 +1591,7 @@ function detBouton(nom,benefice,qui,origine){
 }
 function detOuvrir(nomE,benE,quiE,origE){
   var nom=decodeURIComponent(nomE||''), ben=decodeURIComponent(benE||''), qui=decodeURIComponent(quiE||'IA'), orig=decodeURIComponent(origE||'');
+  window.__detCourant={nom:nom,ben:ben,qui:qui,orig:orig};
   var cle=detCle(nom), sv=detGet(cle);
   if(sv){ detRendre(nom,qui,sv); return; }
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
@@ -1581,6 +1617,12 @@ function detErreur(nom,qui,msg){
     +'<button type="button" onclick="boussoleOutil(\'outilsia\')" style="width:100%;border:1px solid #d7dbe3;border-radius:12px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:700;padding:12px 10px;margin-top:14px;cursor:pointer;font-family:inherit;">Revenir aux outils</button></div></div>';
   showView('dirigeant');
 }
+function detRegenerer(){
+  var c=window.__detCourant; if(!c) return;
+  var cle=detCle(c.nom);
+  try{ var d=detTous(); delete d[cle]; localStorage.setItem(detKey(), JSON.stringify(d)); }catch(e){}
+  detOuvrir(encodeURIComponent(c.nom).replace(/'/g,'%27'), encodeURIComponent(c.ben||'').replace(/'/g,'%27'), encodeURIComponent(c.qui||''), encodeURIComponent(c.orig||''));
+}
 function detRendre(nom,qui,d){
   var q=iveQuiFait(qui==='IA'?'automatiser':(qui==='PARTENAIRE'?'prestataire':'process interne'));
   if(qui) q.t=qui;
@@ -1604,6 +1646,7 @@ function detRendre(nom,qui,d){
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
     +iveEntete('ti-info-circle','DÉTAIL DE L\'ACTION',nom,'resultats')
     +'<div class="card"><div class="sec">'
+      +iveCoffrePerimeHtml('detail:'+detCle(nom),'detRegenerer()')
       +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+iveQuiBadge(q)+'</div>'
       +bloc('#2563EB','#f5f8ff','#dbe7fb','ti-help-circle','POURQUOI CETTE ACTION','',esc(sansHypothese(d.pourquoi||'')))
       +bloc('#1C1C1C','#fff','#eef0f3','ti-search','D\'OÙ VIENT L\'INFORMATION','',esc(sansHypothese(d.source||'')))
@@ -1899,7 +1942,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 87';
+var IVE_VERSION='30/07 · 88';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
