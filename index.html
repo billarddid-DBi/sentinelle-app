@@ -1677,7 +1677,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 65';
+var IVE_VERSION='30/07 · 66';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4497,25 +4497,41 @@ function boussoleOutil(which){
           'Votre fiche ne contient pas encore de sélection d\'outils.<br><br>Elle se construit pendant l\'analyse SENTINELLE, à partir de votre métier et de votre présence en ligne.');
         return;
       }
-      var ags=fo.agents;
+      var pri=function(a){ return /flame|\uD83D\uDD25/.test(a.tag||''); };
+      // Prioritaires en tête, ordre d'origine conservé à l'intérieur de chaque groupe.
+      var ags=fo.agents.slice().sort(function(x,y){ return (pri(y)?1:0)-(pri(x)?1:0); });
+      // Qui fait le travail ? Déduit des mots employés dans le nom et le bénéfice.
+      var quiFait=function(a){
+        var s=((a.nom||'')+' '+(a.benefice||'')).toLowerCase();
+        if(/site|refonte|développe|developpe|intégr|integr|logiciel|caméra|camera|matériel|materiel|installation|borne|application mobile/.test(s))
+          return {c:'#7c3aed',f:'#f5f3ff',b:'#ddd6fe',t:'PARTENAIRE'};
+        if(/automatis|génér|gener|rédig|redig|répon|repon|analys|trie|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi/.test(s))
+          return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
+        return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
+      };
       var carte=function(a,i){
-        var chaud=/flame|\uD83D\uDD25/.test(a.tag||'');
+        var chaud=pri(a); var q=quiFait(a);
         var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
         return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
           +'<div style="display:flex;align-items:flex-start;gap:11px;">'
           +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+coul+';">'+(i+1)+'</div>'
           +'<div style="flex:1;min-width:0;">'
           +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
-          +(chaud?'<div style="display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:2px 9px;margin-top:5px;">PRIORITAIRE</div>':'')
+          +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'+(chaud?'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:3px 9px;">PRIORITAIRE</span>':'')+'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span></div>'
           +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;">'+esc(a.benefice||'')+'</div>'
           +'</div></div></div>';
       };
       $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
         +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
         +'<div class="card"><div class="sec">'
-          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, du plus utile au moins urgent. Ceux marqués <b style="color:#E8541A;">PRIORITAIRE</b> sont ceux dont l\'effet se voit le plus vite.</div>'
+          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, les <b style="color:#E8541A;">prioritaires</b> en tête.</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;">'
+            +'<span style="color:#15803d;background:#f4fbf6;border:1px solid #bbf7d0;border-radius:20px;padding:3px 10px;"><b>IA</b> — traitable par de l\'IA</span>'
+            +'<span style="color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:20px;padding:3px 10px;"><b>PARTENAIRE</b> — demande un prestataire</span>'
+            +'<span style="color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:20px;padding:3px 10px;"><b>INTERNE</b> — compétence à tenir chez vous</span>'
+          +'</div>'
           +ags.map(carte).join('')
-          +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. Elle se précisera avec le Questionnaire Dirigeant.</div>'
+          +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. La répartition IA / partenaire / interne est une première lecture : elle se précisera avec le Questionnaire Dirigeant.</div>'
         +'</div></div>';
       showView('dirigeant'); window.scrollTo(0,0);
     },function(){ iveOutilAttente('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier'); });
