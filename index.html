@@ -1584,7 +1584,7 @@ function iveOutilVide(icone,surtitre,titre,message){
 function iveEntete(icone,surtitre,titre,actif){
   return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
     +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
-    +'<div style="font-size:16px;font-weight:600;margin-top:3px;">'+titre+'</div></div>'
+    +'<div style="font-size:16px;font-weight:600;margin-top:3px;">'+titre+'</div>'+iveIdentLigne()+'</div>'
     +(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar(actif||'actions'):'');
 }
@@ -1724,7 +1724,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 77';
+var IVE_VERSION='30/07 · 78';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
