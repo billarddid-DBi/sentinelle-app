@@ -1644,7 +1644,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='29/07 · 60';
+var IVE_VERSION='29/07 · 61';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4415,7 +4415,7 @@ function bouOffre(niveau){
 // verrouille = true : la liste est montrée à un non-abonné (aucun outil n'est ouvrable).
 function bouToolsHtml(verrouille){
   /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
-  var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.',null],
+  var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.','outilsia'],
     ['ti-trophy','Forces & opportunités majeures','Vos atouts (radar des 8 piliers) et vos leviers de progression, en détail.',null],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.',null]];
   return '<div style="margin-top:10px;">'+T.map(function(f){
@@ -4455,6 +4455,35 @@ function boussoleOutil(which){
       }
     }
     return;
+  }
+  // Les outils IA de la fiche SENTINELLE, présentés en clair. Aucun appel IA : c'est de l'affichage.
+  if(which==='outilsia'){
+    var fo=window.__sentData||{};
+    var ags=fo.agents||[];
+    var carte=function(a,i){
+      var chaud=(a.tag||'').indexOf('flame')>=0;
+      var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
+      return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
+        +'<div style="display:flex;align-items:flex-start;gap:11px;">'
+        +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+coul+';">'+(i+1)+'</div>'
+        +'<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
+        +(chaud?'<div style="display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:2px 9px;margin-top:5px;">PRIORITAIRE</div>':'')
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:6px;">'+esc(a.benefice||'')+'</div>'
+        +(a.comment?'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:6px;"><b style="color:#1C1C1C;">Comment :</b> '+esc(a.comment)+'</div>':'')
+        +'</div></div></div>';
+    };
+    $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+      +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
+      +'<div class="card"><div class="sec">'
+        +(ags.length
+          ? '<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, du plus utile au moins urgent. Les outils marqués <b style="color:#E8541A;">PRIORITAIRE</b> sont ceux dont l\'effet se voit le plus vite.</div>'
+            +ags.map(carte).join('')
+            +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. Elle se précisera avec le Questionnaire Dirigeant.</div>'
+          : '<div style="font-size:13px;color:#4b5563;line-height:1.6;">Aucun outil n\'a encore été sélectionné pour votre activité.<br><br>Lancez d\'abord <b>SENTINELLE</b> : la sélection se construit à partir de votre métier et de votre présence en ligne.</div>'
+            +'<button type="button" onclick="sentApercu()" style="width:100%;border:none;border-radius:12px;background:#2563EB;color:#fff;font-size:13.5px;font-weight:800;padding:13px 10px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-radar-2"></i> Aller sur SENTINELLE</button>')
+      +'</div></div>';
+    showView('dirigeant'); window.scrollTo(0,0); return;
   }
   if(which==='simulateur'){
     var f=window.__sentData||{}; var sim=(typeof simGet==='function'&&simGet())||f.simulateur||{personnes:2,heures:5,cout:40};
