@@ -1307,6 +1307,7 @@ function iveNav(s){
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
   else if(s==='actions'){ mesActionsView(); }
   else if(s==='resultats'){ mesResultatsView(); }
+  else if(s==='t360'){ mon360View(); }
   // Le questionnaire : on reprend la formule déjà commencée, sinon on choisit.
   else if(s==='questionnaire'){
     if(!iveAbonne()){ offreView(); return; }
@@ -1323,6 +1324,35 @@ function iveNav(s){
 }
 // « Mes actions » : tout le parcours au même endroit, dans l'ordre où on le vit.
 // « Résultats » : tout ce que l'application restitue, séparé de ce qu'il reste à faire.
+// « Mon 360° » : les trois regards sur l'entreprise — le dehors, le dedans, et leur confrontation.
+function mon360View(){
+  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(!acc){ renderAuth('login'); return; }
+  var abo=iveAbonne();
+  var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
+  var etape=function(ic,titre,sous,statut,action,verrou){
+    var cliq=verrou?'offreView()':action;
+    return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
+      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';"><i class="ti '+ic+'"></i></div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'')+titre+'</div>'
+      +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
+      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':(/^(Prêt|Terminé)/.test(statut)?'#15803d':'#b45309'))+';margin-top:4px;">'+statut+'</div>':'')
+      +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
+  };
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-360','MON 360°','Les trois regards sur votre entreprise','t360')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Le regard du <b>dehors</b>, celui du <b>dedans</b>, et ce que leur confrontation révèle.</div>'
+      +etape('ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
+      +etape('ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
+          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
+          "iveNav('boussole')",!abo)
+      +etape('ti-sparkles','MIROIR','Ce que révèle la confrontation entre votre image publique et votre réalité interne : la racine des écarts, et l\'ordonnance pour les combler.',
+          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
 function mesResultatsView(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(!acc){ renderAuth('login'); return; }
@@ -1388,14 +1418,7 @@ function mesActionsView(){
       +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
       +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.',(concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
       +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.',(simOk?'Terminé':'À faire'),"boussoleOutil('simulateur')",!abo)
-      // Partie 2 : ce que l'application restitue, avec sa condition d'accès quand il y en a une.
-      +titreSec('ti-chart-dots','VOS RÉSULTATS','Ce que l\'application vous rend','')
-      +etape('','ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
-      +etape('','ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
-          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
-          "iveNav('boussole')",!abo)
-      +etape('','ti-sparkles','MIROIR','Ce que révèle la confrontation entre votre image publique et votre réalité interne : la racine des écarts, et l\'ordonnance pour les combler.',
-          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
+      /* SENTINELLE, BOUSSOLE et MIROIR ont leur propre onglet : voir mon360View(). */
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
@@ -1546,12 +1569,13 @@ function iveNavBar(active){
   // Les cadenas ne concernent que les non-abonnés : une fois la formule prise, ils disparaissent.
   var verrouOff=(typeof iveAbonne==='function')?iveAbonne():false;
   // Toutes les pages du parcours allument le même onglet.
-  if(['sentinelle','boussole','plan','miroir','resultats'].indexOf(active)>=0) active='resultats';
+  if(['sentinelle','boussole','plan','miroir','t360'].indexOf(active)>=0) active='t360';
+  else if(active==='resultats') active='resultats';
   else if(['questionnaire','actions'].indexOf(active)>=0) active='actions';
   // Le questionnaire a son propre onglet : BOUSSOLE n'affiche plus que les résultats.
   // Trois onglets seulement : sur un téléphone, six libellés se chevauchaient.
   // Tout le parcours (Sentinelle, Questionnaire, Boussole, outils) vit sous « Mes actions ».
-  var items=[['accueil','ti-home','Accueil',0],['actions','ti-layout-grid','Mes actions',0],['resultats','ti-chart-dots','Résultats',0],['historique','ti-history','Historique',0]];
+  var items=[['accueil','ti-home','Accueil',0],['actions','ti-layout-grid','Mes actions',0],['t360','ti-360','Mon 360°',0],['resultats','ti-chart-dots','Résultats',0],['historique','ti-history','Historique',0]];
   return '<div class="ivenav" style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
     +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+((x[3]&&!verrouOff)?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
     +'</div>';
@@ -1677,7 +1701,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 68';
+var IVE_VERSION='30/07 · 69';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
