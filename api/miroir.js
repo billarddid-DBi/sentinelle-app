@@ -1,5 +1,10 @@
 // MIROIR — l'ordonnance finale DBi360 : synthèse LIVE + BOUSSOLE -> plan d'action + ROI (2 narrations : externe / interne).
 const MODEL = "claude-haiku-4-5-20251001";
+/* MARQUEUR DE DÉPLOIEMENT — à incrémenter à CHAQUE modification de ce fichier.
+   Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
+   réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
+   pouvait le savoir qu'en payant un appel complet de 60 secondes. */
+const MIROIR_VERSION = "2026-07-30-06";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -50,6 +55,8 @@ function extractJSON(out) {
 }
 
 export default async function handler(req, res) {
+  // Sonde de déploiement : gratuite, aucun appel IA. GET /api/miroir -> la version du fichier.
+  if (req.method === "GET") { res.status(200).json({ fonction: "miroir", version: MIROIR_VERSION, max_tokens: 8000 }); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "ANTHROPIC_API_KEY non configurée" }); return; }
