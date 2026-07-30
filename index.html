@@ -680,6 +680,15 @@ function runMiroir(forcer){
   if(b.potentiel==null && b.indiceInterieur!=null) b.potentiel=Math.min(100,b.indiceInterieur+15);
   if(b.ecart==null && b.indiceInterieur!=null && b.indiceExterieur!=null) b.ecart=b.indiceInterieur-b.indiceExterieur;
   if(!b.activite && _f.activite) b.activite=_f.activite;
+  // La fiche n'est pas toujours en mémoire : on va la chercher avant de conclure qu'elle manque.
+  if(b.indiceExterieur==null && !window.__mirFiche && typeof iveChargerFiche==='function'){
+    window.__mirFiche=1;
+    $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous récupérons votre fiche…</div></div>';
+    showView('miroir');
+    iveChargerFiche(function(){ runMiroir(forcer); });
+    setTimeout(function(){ if(window.__mirFiche===1){ window.__mirFiche=2; runMiroir(forcer); } },9000);
+    return;
+  }
   // Sans indice intérieur, le MIROIR n'a rien à confronter : on refuse plutôt que de dépenser.
   if(b.indiceInterieur==null || b.indiceExterieur==null){
     $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité','t360')
@@ -2072,7 +2081,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 99';
+var IVE_VERSION='30/07 · 100';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
