@@ -1,0 +1,84 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-30T13:36:57.325Z",
+  "contexte": {
+    "nom": "feu vert",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Mesurer d'abord votre réalité interne (BOUSSOLE) pour piloter stratégiquement face aux 8 concurrents locaux.",
+    "economie_an": 0,
+    "cadre": {
+      "externe": "Feu Vert opère dans un marché local structuré (69/100 en moyenne concurrentielle). Sans diagnostic interne chiffré, impossible de positionner votre force réelle ou vos leviers de différenciation face aux 74/100 du meilleur.",
+      "interne": "Absence totale de données : ni BOUSSOLE (réalité interne), ni piliers, ni critères notés, ni potentiel visé, ni couleur IVE. Diagnostic incomplet = recommandation impossible. Étape 1 : compléter l'audit avant toute préconisation IA."
+    },
+    "verite": {
+      "externe": "Vous opérez dans un secteur où la moyenne locale est 69/100 et le meilleur 74/100. Sans connaître votre score interne, on ignore si vous êtes en retard structurel ou en pépite sous-vendue. Le marché local est compétitif ; l'IA peut être un levier, mais seulement après avoir compris où vous êtes vraiment.",
+      "interne": "Données insuffisantes pour un diagnostic. BOUSSOLE manquante = pas de réalité mesurée. Piliers non renseignés = impossible d'identifier les freins. Critères faibles = liste vide. Potentiel visé = absent. Couleur IVE = inconnue. Avant toute action IA, compléter l'audit de maturité selon le protocole DBi360 complet."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Absence de diagnostic interne chiffré (BOUSSOLE, piliers, critères).",
+        "levier": "Lancer audit BOUSSOLE complet : mesurer les 8 piliers, identifier critères faibles, fixer potentiel visé.",
+        "type": "externe",
+        "mise_en_oeuvre": "Entretien dirigeant + équipe ; notation des 8 piliers ; benchmark local.",
+        "indicateur": "BOUSSOLE complétée /100 ; écart de cohérence calculé ; potentiel visé défini."
+      },
+      {
+        "palier": 1,
+        "frein": "Image externe (SENTINELLE) non mesurée ; impossible de détecter décalage perception/réalité.",
+        "levier": "Mesurer SENTINELLE : enquête clients/fournisseurs sur image perçue vs réalité opérationnelle.",
+        "type": "externe",
+        "mise_en_oeuvre": "Questionnaire court auprès de 15-20 clients ; synthèse écart intérieur/extérieur.",
+        "indicateur": "SENTINELLE /100 ; écart de Vérité quantifié ; zones de sur/sous-promesse identifiées."
+      },
+      {
+        "palier": 1,
+        "frein": "Couleur IVE inconnue ; impossible de cibler leviers IA pertinents pour le secteur auto.",
+        "levier": "Qualifier la nature IVE : où l'IA crée valeur en centre auto (devis, relances, SAV, fidélisation, gestion stocks) ?",
+        "type": "externe",
+        "mise_en_oeuvre": "Atelier dirigeant + manager ; mapping des tâches répétitives/données ; priorités métier.",
+        "indicateur": "Couleur IVE définie ; 3 cas d'usage IA priorisés ; ROI estimé par cas."
+      },
+      {
+        "palier": 2,
+        "frein": "Retard potentiel vs concurrents (meilleur 74/100) non quantifié ; stratégie de rattrapage absente.",
+        "levier": "Benchmarker vos 8 piliers vs 8 concurrents locaux ; identifier écarts critiques ; feuille de route de différenciation.",
+        "type": "externe",
+        "mise_en_oeuvre": "Analyse comparative des 8 concurrents sur piliers clés ; atelier stratégie ; plan 12-18 mois.",
+        "indicateur": "Position relative vs concurrents ; écarts fermés /an ; progression BOUSSOLE trimestrielle."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Audit BOUSSOLE + SENTINELLE complet",
+          "inaction_an": 0,
+          "invest_1x": 2500,
+          "recurrent_an": 0
+        },
+        {
+          "poste": "Benchmark concurrentiel + feuille de route IA",
+          "inaction_an": 0,
+          "invest_1x": 1500,
+          "recurrent_an": 0
+        }
+      ],
+      "inaction_an": 0,
+      "invest_total": 4000,
+      "recurrent_an": 0,
+      "gain_an": 0,
+      "roi_net_an": 0,
+      "payback_mois": 0,
+      "fourchette": "Diagnostic = prérequis, pas un investissement à ROI. Gain mesuré après audit complet."
+    },
+    "cadence": "Audit BOUSSOLE + SENTINELLE dans 4 semaines ; point de synthèse ; feuille de route IA définie dans 6 semaines.",
+    "synthese": {
+      "externe": "Vous êtes dans un marché local compétitif. Avant d'agir, mesurez votre réalité interne et l'image que vous projetez. C'est le fondement pour piloter stratégiquement et identifier où l'IA crée vraiment de la valeur pour Feu Vert.",
+      "interne": "Dossier incomplet = diagnostic impossible. Étape 1 : compléter BOUSSOLE, SENTINELLE, piliers, potentiel visé, couleur IVE. Puis repositionner vs 8 concurrents locaux. Opportunité commerciale : audit complet + benchmark = entrée naturelle vers plan IA ciblé et crédible."
+    }
+  }
+}
