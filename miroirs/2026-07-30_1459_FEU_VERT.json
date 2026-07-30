@@ -1,0 +1,95 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-30T14:59:11.157Z",
+  "contexte": {
+    "nom": "feu vert",
+    "indiceInterieur": 82,
+    "potentiel": 97,
+    "indiceExterieur": 66,
+    "ecart": 16,
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer l'écart de cohérence (16 pts) en avantage compétitif : aligner l'image client sur la réalité opérationnelle pour dépasser le meilleur concurrent local.",
+    "economie_an": 18500,
+    "cadre": {
+      "externe": "Vous êtes au 5e rang local avec 82/100 de réalité opérationnelle — une base solide. Mais vos clients ne le voient qu'à 66/100 : 16 points de potentiel inexploité. Le meilleur concurrent n'est qu'à 8 points : c'est votre fenêtre pour passer devant.",
+      "interne": "Feu Vert dispose d'une maturité réelle (82/100) supérieure à sa perception marché (66/100). Cet écart révèle un déficit de VISIBILITÉ et de CAPITALISATION client, non une faiblesse opérationnelle. Le levier n'est pas « faire mieux » mais « montrer ce qu'on fait bien » et « transformer chaque intervention en relation durable »."
+    },
+    "verite": {
+      "externe": "Votre réalité opérationnelle est solide, mais elle reste invisible aux yeux du client. Les avis négatifs, les appels perdus, les clients qui ne reviennent pas une fois — ce ne sont pas des défauts cachés, c'est une COMMUNICATION manquante. Chaque intervention devrait laisser une trace, une preuve, une raison de revenir. Aujourd'hui, beaucoup de clients partent sans le savoir.",
+      "interne": "L'écart de 16 points (82 interne vs 66 externe) pointe un DÉFICIT SYSTÉMIQUE de traçabilité client et de capitalisation de la qualité. Les interventions ne sont pas documentées de manière visible au client ; les avis négatifs ne sont pas traités ; les appels entrants ne sont pas qualifiés ; la fidélité n'est pas activée. Ce ne sont pas des problèmes de compétence technique, mais d'ORGANISATION DE LA RELATION CLIENT. Le potentiel visé (97/100) suppose de fermer cet écart par des outils de visibilité et de fidélisation, pas par une refonte opérationnelle."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Avis négatifs non traités et perte de confiance client sur la transparence tarifaire.",
+        "levier": "Mettre en place gestionnaire de réponses aux avis (48h) + affichage transparent des frais avant devis.",
+        "type": "IA",
+        "mise_en_oeuvre": "[3] + [1] : répondre systématiquement aux 1/5 avec solution ; afficher tous frais (recyclage, diagnostic, protection) dès le devis.",
+        "indicateur": "Taux de réponse aux avis 100% en 48h ; réclamations tarifaires −30% en 3 mois."
+      },
+      {
+        "palier": 1,
+        "frein": "Appels entrants non qualifiés et clients perdus avant conversion.",
+        "levier": "Capturer et qualifier chaque appel (devis, RDV, urgence) pour réduire les pertes.",
+        "type": "IA",
+        "mise_en_oeuvre": "[4] Planificateur RDV + qualification appels : enregistrer motif, urgence, conversion. Tableau de bord quotidien des appels perdus.",
+        "indicateur": "Taux de conversion appels +12% ; appels perdus identifiés et rattrapage en 48h."
+      },
+      {
+        "palier": 2,
+        "frein": "Interventions non documentées et garanties mal tracées = perte de confiance et litiges.",
+        "levier": "Documenter chaque intervention (photos, checklist, étapes critiques) pour preuves client.",
+        "type": "IA",
+        "mise_en_oeuvre": "[2] Traçabilité post-intervention : checklist disques/plaquettes/géométrie + photos. Envoyer rapport au client dans les 24h.",
+        "indicateur": "100% des interventions documentées ; incidents graves −50% ; litiges −25% en 6 mois."
+      },
+      {
+        "palier": 2,
+        "frein": "Clients réguliers non identifiés et panier moyen stagnant = manque de fidélité.",
+        "levier": "Identifier clients réguliers et proposer offres de fidélité (révisions groupées, pneus+équilibrage).",
+        "type": "IA",
+        "mise_en_oeuvre": "[5] Analyseur panier moyen : segmenter clients réguliers ; proposer offres ciblées (révision+pneus, entretien groupé). Campagne mensuelle.",
+        "indicateur": "Panier moyen +10% ; taux de rétention clients réguliers +15% en 6 mois."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Réduction réclamations tarifaires + traitement avis (outils [1]+[3])",
+          "inaction_an": 6000,
+          "invest_1x": 2500,
+          "recurrent_an": 800
+        },
+        {
+          "poste": "Récupération appels perdus + conversion (outil [4])",
+          "inaction_an": 8500,
+          "invest_1x": 1800,
+          "recurrent_an": 600
+        },
+        {
+          "poste": "Fidélisation + panier moyen (outils [2]+[5])",
+          "inaction_an": 7000,
+          "invest_1x": 2200,
+          "recurrent_an": 700
+        }
+      ],
+      "inaction_an": 21500,
+      "invest_total": 6500,
+      "recurrent_an": 2100,
+      "gain_an": 18500,
+      "roi_net_an": 16400,
+      "payback_mois": 4,
+      "fourchette": "3 à 5 mois de retour sur investissement initial."
+    },
+    "cadence": "Point mensuel sur indicateurs clés (avis, appels, conversion, panier). Prochaine BOUSSOLE dans 3 mois pour valider fermeture de l'écart de cohérence.",
+    "synthese": {
+      "externe": "Vous avez la qualité ; montrez-la. Les 4 prochaines semaines : lancer la transparence tarifaire et répondre aux avis. En 3 mois, vous serez au-dessus du meilleur concurrent local. C'est une question de visibilité, pas de compétence.",
+      "interne": "Plan de fermeture d'écart en 2 paliers : palier 1 (mois 1-2) = visibilité client + récupération appels (outils [1]+[3]+[4]) ; palier 2 (mois 3-6) = traçabilité + fidélisation (outils [2]+[5]). ROI net 16400€/an, payback 4 mois. Angle commercial : l'écart de 16 pts est une OPPORTUNITÉ de différenciation — fermer cet écart = passer de 5e à 1er rang local sur la perception client."
+    }
+  }
+}
