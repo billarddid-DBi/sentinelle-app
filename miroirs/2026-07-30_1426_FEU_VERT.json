@@ -1,0 +1,95 @@
+{
+  "type": "miroir",
+  "mode": "miroir",
+  "nom": "feu vert",
+  "date": "2026-07-30T14:26:25.507Z",
+  "contexte": {
+    "nom": "feu vert",
+    "indiceInterieur": 82,
+    "potentiel": 97,
+    "indiceExterieur": 66,
+    "ecart": 16,
+    "activite": "Centre auto - entretien, réparation, pneus",
+    "ah": null
+  },
+  "miroir": {
+    "priorite": "Transformer l'écart de cohérence (16 pts) en avantage compétitif : aligner l'image client sur la réalité opérationnelle pour dépasser les concurrents locaux.",
+    "economie_an": 28000,
+    "cadre": {
+      "externe": "Vous êtes au-dessus de la moyenne locale (66 vs 69), mais 8 points vous séparent du meilleur. Cet écart n'est pas une fatalité : c'est une pépite sous-vendue. Votre réalité interne (82/100) est bien plus forte que votre image perçue (66/100). Le plan corrige cette asymétrie.",
+      "interne": "BOUSSOLE 82 vs SENTINELLE 66 : écart positif de 16 pts = organisation solide mal communiquée. Rang 5/8 sur marché local, 8 pts du leader. Levier principal : visibilité client (traçabilité, transparence tarifaire, gestion réputationnelle). Pas de frein opérationnel détecté ; l'IA amplifie ce qui existe déjà bien."
+    },
+    "verite": {
+      "externe": "Votre centre fonctionne mieux que ce que les clients en perçoivent. Les avis négatifs (hypothèse : frais cachés, doutes sur la qualité, absence de suivi) masquent une réalité : vous maîtrisez vos process. Le problème n'est pas la compétence ; c'est que le client ne le voit pas. Trois actions redressent cette image en 6 mois.",
+      "interne": "Écart de cohérence positif mais exploité à 0 %. Organisation interne robuste (82/100) ; déficit pur de visibilité client et de gestion réputationnelle. Pas de critère faible détecté → pas de frein structurel. L'IA doit servir à MONTRER ce qui existe (traçabilité, qualité) et CAPTURER les clients perdus (appels, avis). Risque : rester invisible face à concurrents qui communiquent mieux."
+    },
+    "plan": [
+      {
+        "palier": 1,
+        "frein": "Frais cachés perçus par le client, doutes sur la qualité réelle de l'intervention.",
+        "levier": "Afficher tous les frais (recyclage, diagnostic, protection) AVANT devis et documenter chaque étape avec photos/checklist.",
+        "type": "IA",
+        "mise_en_oeuvre": "[1] Gestionnaire de tarification transparente + [2] Traçabilité post-intervention avec photos.",
+        "indicateur": "Réduction avis négatifs liés frais ; taux de satisfaction devis acceptés."
+      },
+      {
+        "palier": 1,
+        "frein": "Avis négatifs non traités, clients insatisfaits non récupérés, image dégradée.",
+        "levier": "Répondre systématiquement aux avis 1/5 en 48h avec proposition de correction.",
+        "type": "IA",
+        "mise_en_oeuvre": "[3] Gestionnaire de réponses aux avis : réponse automatisée + escalade managériale.",
+        "indicateur": "Taux de réponse 100% en 48h ; % avis négatifs convertis en fidélité."
+      },
+      {
+        "palier": 1,
+        "frein": "Appels entrants non qualifiés, clients perdus avant devis, taux de conversion bas.",
+        "levier": "Capturer et qualifier chaque appel (devis, RDV, urgence) pour conversion optimale.",
+        "type": "IA",
+        "mise_en_oeuvre": "[4] Planificateur RDV + gestion appels : enregistrement + qualification automatique.",
+        "indicateur": "% appels convertis en RDV ; réduction clients perdus ; taux de remplissage agenda."
+      },
+      {
+        "palier": 2,
+        "frein": "Panier moyen stagnant, clients réguliers non identifiés, fidélité non activée.",
+        "levier": "Identifier clients réguliers et proposer offres groupées (révisions, pneus + équilibrage).",
+        "type": "IA",
+        "mise_en_oeuvre": "[5] Analyseur panier moyen + fidélité : segmentation clients + offres ciblées.",
+        "indicateur": "Panier moyen +8-12% ; taux de rétention clients ; CA fidélité/an."
+      }
+    ],
+    "roi": {
+      "postes": [
+        {
+          "poste": "Réduction avis négatifs + récupération clients insatisfaits",
+          "inaction_an": 12000,
+          "invest_1x": 3000,
+          "recurrent_an": 2000
+        },
+        {
+          "poste": "Optimisation appels entrants + conversion RDV",
+          "inaction_an": 10000,
+          "invest_1x": 2500,
+          "recurrent_an": 1500
+        },
+        {
+          "poste": "Augmentation panier moyen fidélité",
+          "inaction_an": 8000,
+          "invest_1x": 1500,
+          "recurrent_an": 1000
+        }
+      ],
+      "inaction_an": 30000,
+      "invest_total": 7000,
+      "recurrent_an": 4500,
+      "gain_an": 25500,
+      "roi_net_an": 21000,
+      "payback_mois": 3,
+      "fourchette": "2 à 4 mois retour sur investissement initial"
+    },
+    "cadence": "Point mensuel de suivi image/avis/appels. Prochaine BOUSSOLE dans 3 mois pour valider redressement SENTINELLE vers 75-78/100.",
+    "synthese": {
+      "externe": "Vous avez la qualité ; montrez-la. En 3 mois, transparence tarifaire + traçabilité + gestion avis redressent votre image et vous rapprochent du leader. Prochaine étape : lancer [1] + [2] + [3] immédiatement, [4] en parallèle.",
+      "interne": "Écart positif exploitable : organisation forte, image faible. ROI court (3 mois payback), gain net 21k€/an. Stratégie : visibilité client (traçabilité, transparence) + capture (appels, avis) avant fidélité. Palier 2 (panier moyen) arrive quand image stabilisée. Angle commercial : « redresser 16 pts d'écart = rattraper 8 pts au leader en 6 mois »."
+    }
+  }
+}
