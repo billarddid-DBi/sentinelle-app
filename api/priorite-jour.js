@@ -81,6 +81,48 @@ N'invente aucune tâche qui ne figure pas dans la liste fournie.
 Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"outil":"…","consequence":"…","priorite":"haute","qui":"IA","etapes":["…","…"]}]}
 Si aucun sujet n'atteint 5 tâches : {"sujets":[]}`;
     // ---- Branche : sujets récurrents dans les tâches dictées (30 derniers jours) ----
+    /* ---- Branche : detail justifie d'une action (pourquoi, d'ou vient l'info, comment faire) ---- */
+    if (b.type === "detail") {
+      const qui = ["IA", "PARTENAIRE", "INTERNE"].indexOf(String(b.qui || "").toUpperCase()) >= 0 ? String(b.qui).toUpperCase() : "IA";
+      const sysD = `Tu expliques à un dirigeant de TPE/PME POURQUOI une action lui est proposée, et COMMENT la mettre en œuvre.
+
+TU DISPOSES : le nom de l'action, son bénéfice, son origine (analyse publique ou tâches dictées par le dirigeant), et le contexte de l'entreprise.
+
+PRODUIS EXACTEMENT :
+- "pourquoi" : 2-3 phrases. Le raisonnement qui mène à cette action. Factuel, jamais culpabilisant.
+- "source" : d'où vient l'information qui la justifie (avis clients, fiche Google, site, concurrence, ou tâches que le dirigeant a dictées lui-même). Nomme le constat précis, pas une généralité.
+- "solution" : 3 à 5 points concrets. ADAPTE AU CANAL :
+  * si IA -> décris LE TYPE D'OUTIL possible et COMMENT l'IA règle le problème (ce qu'elle lit, ce qu'elle produit, ce qu'elle automatise). C'est le cœur de la réponse : sois précis et concret. N'invente AUCUN nom de logiciel ni de marque.
+  * si PARTENAIRE -> décris ce qu'il faut DEMANDER à un prestataire et comment juger sa proposition. Ne cite AUCUN prestataire : le choix appartient au dirigeant.
+  * si INTERNE -> décris la compétence à tenir et comment la construire (qui, quoi, en combien de temps). Ne prescris AUCUN organisme : le choix appartient au dirigeant.
+- "vigilance" : 1 phrase sur la principale erreur à éviter.
+
+INTERDITS : jamais le mot "Hypothèse". Jamais de jugement sur les personnes. Jamais de nom de marque, de logiciel ou de prestataire. Pas de chiffre inventé.
+
+Réponds UNIQUEMENT en JSON : {"pourquoi":"…","source":"…","solution":["…","…","…"],"vigilance":"…"}`;
+      const ctxD = "Action : " + String(b.nom || "").slice(0, 200)
+        + "\nBénéfice attendu : " + String(b.benefice || "").slice(0, 600)
+        + "\nCanal : " + qui
+        + "\nOrigine : " + (b.origine === "quotidien" ? "tâches dictées par le dirigeant lui-même" : "analyse publique SENTINELLE (avis, fiche Google, site, concurrence)")
+        + "\nEntreprise : " + String(b.entreprise || "").slice(0, 120) + " - " + String(b.activite || "").slice(0, 120) + " - " + String(b.ville || "").slice(0, 80);
+      const areqD = {
+        model: MODEL, max_tokens: 900, temperature: 0,
+        system: sysD,
+        messages: [{ role: "user", content: [{ type: "text", text: ctxD }] }]
+      };
+      const rd = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify(areqD)
+      });
+      if (!rd.ok) { res.status(502).json({ error: "Détail indisponible" }); return; }
+      const dd = await rd.json();
+      let outD = ""; for (const c of (dd.content || [])) if (c.type === "text") outD += c.text;
+      const pd = extractJSONObj(outD);
+      res.status(200).json(pd || { error: "Détail illisible" });
+      return;
+    }
+
     if (b.type === "recurrence") {
       const liste = Array.isArray(b.taches) ? b.taches.slice(0, 400) : [];
       if (liste.length < 5) { res.status(200).json({ sujets: [] }); return; }

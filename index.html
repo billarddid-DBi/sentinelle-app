@@ -1540,6 +1540,77 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
 /* Décisions du dirigeant sur un sujet récurrent : « outil en place » ou « pas maintenant ».
    Le compteur du sujet repart de cette date — cocher des tâches ne suffit pas à le clore. */
 /* Qui fait le travail : IA, partenaire externe, ou compétence interne. SOURCE UNIQUE. */
+/* Détail justifié d'une action : pourquoi, d'où vient l'info, et comment s'y prendre.
+   Un appel IA la première fois seulement — le résultat est enregistré par action. */
+function detKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_detail_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function detTous(){ try{ var s=localStorage.getItem(detKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
+function detGet(cle){ return detTous()[cle]||null; }
+function detSet(cle,o){ try{ var d=detTous(); d[cle]=o; localStorage.setItem(detKey(), JSON.stringify(d)); }catch(e){} }
+function detCle(nom){ return (nom||'').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,60); }
+/* Le bouton, en haut à droite de chaque encadré. */
+function detBouton(nom,benefice,qui,origine){
+  var a=encodeURIComponent(nom||''), b=encodeURIComponent(benefice||''), c=encodeURIComponent(qui||''), d=encodeURIComponent(origine||'');
+  return '<button type="button" onclick="event.stopPropagation();detOuvrir(\''+a+'\',\''+b+'\',\''+c+'\',\''+d+'\')" style="flex:0 0 auto;border:1px solid #d7dbe3;border-radius:20px;background:#fff;color:#4b5563;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:4px 11px;cursor:pointer;font-family:inherit;"><i class="ti ti-info-circle"></i> DÉTAIL</button>';
+}
+function detOuvrir(nomE,benE,quiE,origE){
+  var nom=decodeURIComponent(nomE||''), ben=decodeURIComponent(benE||''), qui=decodeURIComponent(quiE||'IA'), orig=decodeURIComponent(origE||'');
+  var cle=detCle(nom), sv=detGet(cle);
+  if(sv){ detRendre(nom,qui,sv); return; }
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-info-circle','DÉTAIL DE L\'ACTION',nom,'resultats')
+    +'<div class="card"><div class="sec" style="text-align:center;padding:28px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;margin-top:8px;">Nous préparons le détail…</div></div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+  var f=(typeof iveFicheMaintenant==='function'&&iveFicheMaintenant())||{};
+  fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+    type:'detail', nom:nom, benefice:ben, qui:qui, origine:orig,
+    entreprise:(window.lastNom||''), ville:(window.lastVille||''), activite:(f.activite||window.lastActivite||'')
+  })})
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if(!d || d.error){ detErreur(nom,qui,(d&&d.error)||'Détail indisponible'); return; }
+    detSet(cle,d); detRendre(nom,qui,d);
+  })
+  .catch(function(){ detErreur(nom,qui,'La préparation a pris trop de temps.'); });
+}
+function detErreur(nom,qui,msg){
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-info-circle','DÉTAIL DE L\'ACTION',nom,'resultats')
+    +'<div class="card"><div class="sec"><div style="font-size:13px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> '+esc(msg)+'</div>'
+    +'<button type="button" onclick="boussoleOutil(\'outilsia\')" style="width:100%;border:1px solid #d7dbe3;border-radius:12px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:700;padding:12px 10px;margin-top:14px;cursor:pointer;font-family:inherit;">Revenir aux outils</button></div></div>';
+  showView('dirigeant');
+}
+function detRendre(nom,qui,d){
+  var q=iveQuiFait(qui==='IA'?'automatiser':(qui==='PARTENAIRE'?'prestataire':'process interne'));
+  if(qui) q.t=qui;
+  var titreSol = (qui==='IA') ? 'CE QUE L\'IA PEUT FAIRE'
+               : (qui==='PARTENAIRE') ? 'CE QU\'IL FAUT DEMANDER À UN PRESTATAIRE'
+               : 'LA COMPÉTENCE À TENIR EN INTERNE';
+  var sousSol = (qui==='IA') ? 'Le type d\'outil possible, et comment il règle le problème.'
+              : (qui==='PARTENAIRE') ? 'Le choix du prestataire vous appartient — voici comment juger sa proposition.'
+              : 'À vous de décider qui la porte, en recrutant ou en formant.';
+  var bloc=function(coul,fond,bord,ic,titre,sous,corps){
+    return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:11px;">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:'+coul+';"><i class="ti '+ic+'"></i> '+titre+'</div>'
+      +(sous?'<div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+sous+'</div>':'')
+      +'<div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:7px;">'+corps+'</div></div>';
+  };
+  var pts=(d.solution||[]).map(function(x,i){
+    return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:8px;">'
+      +'<span style="flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:'+q.c+';color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;">'+esc(sansHypothese(x))+'</div></div>';
+  }).join('');
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-info-circle','DÉTAIL DE L\'ACTION',nom,'resultats')
+    +'<div class="card"><div class="sec">'
+      +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+iveQuiBadge(q)+'</div>'
+      +bloc('#2563EB','#f5f8ff','#dbe7fb','ti-help-circle','POURQUOI CETTE ACTION','',esc(sansHypothese(d.pourquoi||'')))
+      +bloc('#1C1C1C','#fff','#eef0f3','ti-search','D\'OÙ VIENT L\'INFORMATION','',esc(sansHypothese(d.source||'')))
+      +bloc(q.c,q.f,q.b,'ti-tool',titreSol,sousSol,pts||'—')
+      +(d.vigilance?bloc('#b45309','#fffbeb','#fde68a','ti-alert-triangle','À ÉVITER','',esc(sansHypothese(d.vigilance))):'')
+      +'<button type="button" onclick="boussoleOutil(\'outilsia\')" style="width:100%;border:1px solid #d7dbe3;border-radius:12px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:700;padding:12px 10px;margin-top:16px;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i> Revenir aux outils</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
 function iveQuiFait(s){
   s=(s||'').toLowerCase();
   if(/site|refonte|développe|developpe|intégr|integr|logiciel|caméra|camera|matériel|materiel|installation|borne|application mobile|prestataire|éditeur|editeur/.test(s))
@@ -1610,7 +1681,7 @@ function recurBlocHtml(sujets){
     +sujets.map(function(s){
       var cp=coulP[(s.priorite||'moyenne')]||'#b45309';
       return '<div style="border:1px solid #ddd6fe;background:#fff;border-radius:13px;padding:13px 14px;margin-top:11px;">'
-        +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(s.outil||s.sujet||'')+'</div>'
+        +'<div style="display:flex;align-items:flex-start;gap:8px;"><div style="flex:1;min-width:0;font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(s.outil||s.sujet||'')+'</div>'+detBouton(s.outil||s.sujet||'',(s.consequence||'')+' '+((s.etapes||[]).join('. ')),(s.qui||'IA'),'quotidien')+'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'
           +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+cp+';border-radius:20px;padding:3px 9px;">PRIORITÉ '+esc((s.priorite||'moyenne').toUpperCase())+'</span>'
           +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:20px;padding:2px 9px;">'+(+s.nb||5)+' FOIS EN 30 JOURS</span>'
@@ -1826,7 +1897,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 83';
+var IVE_VERSION='30/07 · 84';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4705,7 +4776,7 @@ function boussoleOutil(which){
           +'<div style="display:flex;align-items:flex-start;gap:11px;">'
           +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:'+coul+';">'+(i+1)+'</div>'
           +'<div style="flex:1;min-width:0;">'
-          +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'
+          +'<div style="display:flex;align-items:flex-start;gap:8px;"><div style="flex:1;min-width:0;font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(a.nom||'Outil')+'</div>'+detBouton(a.nom||'',a.benefice||'',q.t,'sentinelle')+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'+(chaud?'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+coul+';border-radius:20px;padding:3px 9px;">PRIORITAIRE</span>':'')+'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span></div>'
           +'<div style="margin-top:7px;">'+actionListeHtml(a.benefice||'',coul)+'</div>'
           +'</div></div></div>';
