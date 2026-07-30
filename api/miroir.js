@@ -19,7 +19,7 @@ PRINCIPES IMPÉRATIFS :
 - ROI « PRIX DE L'ACTION » (JAMAIS le coût de l'inaction seul) : en euros, poste par poste, RÉALISTE pour une TPE (approche IA-first peu coûteuse ; la RH est le poste le moins compressible). Chaque poste : coût de l'inaction/an, investissement ponctuel (1×), coût récurrent/an. Puis gain annuel net, ROI net/an, payback en mois, fourchette. Sois PRUDENT et crédible — pas de chiffres énormes ; un pré-audit de TPE, pas un projet grand groupe.
 - DEUX NARRATIONS, mêmes faits : "externe" = pour le DIRIGEANT (motivante, orientée action, valorisante) ; "interne" = pour le PRESCRIPTEUR DBi360 (franche, nomme la racine managériale/financière, garde l'angle commercial). Les champs {externe, interne} diffèrent par le TON, pas par les faits.
 
-SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. LONGUEUR STRICTE (sinon la réponse est COUPÉE et perdue) : CHAQUE valeur texte = 15 MOTS MAXIMUM ; "mise_en_oeuvre", "traitement" et "indicateur" = 12 mots max. Le PLAN = EXACTEMENT 4 leviers ; "postes" du ROI = 3 MAX ; "humain.craintes" = 2 MAX ; "quotidien.liens" = 3 MAX. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. N'inclus le champ "quotidien" QUE si LE QUOTIDIEN est fourni ; sinon OMETS-le entièrement et n'ajoute "origine" à aucun levier. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
+SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. LONGUEUR STRICTE (sinon la réponse est COUPÉE et perdue) : CHAQUE valeur texte = 15 MOTS MAXIMUM ; "mise_en_oeuvre", "traitement" et "indicateur" = 12 mots max. Le PLAN = EXACTEMENT 4 leviers ; "postes" du ROI = 3 MAX ; "humain.craintes" = 2 MAX ; "quotidien.liens" = 3 MAX. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. RÈGLE SÉPARÉE, NE LA CONFONDS PAS AVEC CELLE DU CHAMP "humain" : si un bloc LE QUOTIDIEN t'est fourni avec des sujets, alors le champ "quotidien" est **OBLIGATOIRE** — tu le remplis entièrement, il ne vaut JAMAIS null et n'est JAMAIS omis, MÊME SI le volet humain est absent ; et AU MOINS UN levier du plan porte "origine":"quotidien". Ce n'est QUE lorsque le bloc indique « NON MESURÉ » que tu omets "quotidien" et n'ajoutes "origine" nulle part. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
 {
  "priorite": "la priorité n°1, une phrase actionnable",
  "economie_an": <entier : gain/économie annuel estimé en euros>,
@@ -84,7 +84,9 @@ Craintes / résistances détectées (à traduire et traiter) : ${craintes}
 Volume : ${qt.nbTaches != null ? qt.nbTaches + " tâches dictées sur 30 jours" : "n.c."}${qt.nbEnCours != null ? `, dont ${qt.nbEnCours} encore ouvertes` : ""}${qt.plusVieille ? `, la plus ancienne en attente depuis ${qt.plusVieille} jours` : ""}.
 Sujets qui REVIENNENT${qt.date ? ` (détection du ${qt.date})` : ""} :
 ${sj}
-=> CONFRONTE ces faits à l'image (SENTINELLE) et au déclaratif (BOUSSOLE) : confirment-ils, contredisent-ils, ou complètent-ils le diagnostic ? Renseigne le champ "quotidien", cite les sujets mot pour mot, et marque "origine":"quotidien" sur les leviers qui en viennent.`;
+=> CONFRONTE ces faits à l'image (SENTINELLE) et au déclaratif (BOUSSOLE) : confirment-ils, contredisent-ils, ou complètent-ils le diagnostic ?
+
+OBLIGATION ABSOLUE, VÉRIFIE-LA AVANT DE RÉPONDRE : puisque LE QUOTIDIEN t'est fourni ci-dessus, le champ "quotidien" de ta réponse DOIT être rempli — "accord", "journees", "lecture.externe", "lecture.interne" et "liens". Il ne vaut JAMAIS null et n'est JAMAIS absent. Cette obligation est INDÉPENDANTE du champ "humain" : que le volet humain soit mesuré ou non ne change RIEN ici. Cite les sujets mot pour mot, et marque "origine":"quotidien" sur AU MOINS UN levier du plan.`;
     }
     const user = `Entreprise : ${b.nom || "?"}
 Activité / archétype : ${b.activite || "?"} / ${b.archetype || "?"}
@@ -114,9 +116,17 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
       return m ? { m } : { bad: true };
     }
 
+    // Le quotidien a été fourni mais le modèle l'a laissé vide ? C'est une réponse ratée, pas
+    // une réponse valide : le bloc « Ce que dit votre quotidien » disparaîtrait de l'écran sans
+    // que personne ne comprenne pourquoi. On refait UNE tentative, comme pour un JSON illisible.
+    const quotidienRate = (m) => !!qt && (!m || m.quotidien == null);
     let r = await attempt();
-    if (r.bad) r = await attempt(); // 2e tentative si JSON illisible/tronqué
-    if (r.m) { if (!ah && r.m.humain) delete r.m.humain; res.status(200).json(r.m); return; }
+    if (r.bad || quotidienRate(r.m)) r = await attempt(); // 2e tentative si JSON illisible, tronqué ou quotidien vide
+    if (r.m) {
+      if (!ah && r.m.humain) delete r.m.humain;
+      if (r.m.quotidien == null) delete r.m.quotidien;    // null n'est pas une donnée : on ne l'envoie pas au client
+      res.status(200).json(r.m); return;
+    }
     if (r.httpErr) { res.status(502).json({ error: "Modèle indisponible", detail: r.httpErr }); return; }
     res.status(500).json({ error: "MIROIR : réponse illisible après 2 essais. Réessayez." });
   } catch (err) {
