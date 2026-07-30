@@ -700,7 +700,7 @@ function startGrille(mode){
   var label = (mode==='express') ? 'Express' : 'Complet';
   // Les deux bandeaux noirs, comme sur toutes les pages : on peut repartir vers SENTINELLE
   // ou l'accueil à tout moment — les réponses sont enregistrées à chaque geste.
-  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div id="bSauveChip" style="font-size:11.5px;color:#16a34a;font-weight:600;margin:2px 2px 6px;"></div>'
     +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
@@ -1409,7 +1409,7 @@ function mesActionsView(){
       +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
   };
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
     +'<div class="card"><div class="sec">'
       // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
@@ -1438,7 +1438,7 @@ function boussoleACompleter(et){
   var fait=et?et.fait:0, total=et?et.total:0, reste=total-fait;
   var pct=total?Math.round(fait/total*100):0;
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div></div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">Votre questionnaire est à compléter.</div>'
@@ -1724,7 +1724,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 76';
+var IVE_VERSION='30/07 · 77';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -2934,15 +2934,17 @@ function iveDateAnalyse(){
 }
 // Partie droite des bandeaux noirs, IDENTIQUE partout : l'abonnement, puis la date du jour.
 // « Déconnexion » n'apparaît que sur l'accueil.
-function iveBandDroite(avecDeconnexion){
-  // L'entreprise et sa ville sont rappelées dans TOUS les bandeaux : on sait toujours de qui on parle.
+/* L'entreprise et sa ville, rappelées à gauche dans tous les bandeaux — sans allonger l'encadré. */
+function iveIdentLigne(){
   if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
-  var _a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  var _n=window.lastNom||(_a&&_a.name)||'', _v=window.lastVille||(_a&&_a.ville)||'';
-  var _id=_n?('<div style="font-size:11px;color:#E7DBD1;font-weight:600;margin-top:5px;white-space:normal;max-width:190px;margin-left:auto;line-height:1.35;"><i class="ti ti-building-store"></i> '+esc(_n)+(_v?' <span style="color:#9ca3af;font-weight:400;">· '+esc(_v)+'</span>':'')+'</div>'):'';
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var n=window.lastNom||(a&&a.name)||'', v=window.lastVille||(a&&a.ville)||'';
+  if(!n) return '';
+  return '<div style="font-size:11.5px;color:#9ca3af;margin-top:4px;white-space:normal;line-height:1.35;"><i class="ti ti-building-store"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>';
+}
+function iveBandDroite(avecDeconnexion){
   return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
     +iveAbonnementChip()
-    +_id
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
     // Réglages a quitté la barre du bas (place au Questionnaire) : il vit ici.
     +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-settings"></i> Réglages</a>'
@@ -2996,7 +2998,7 @@ function dirigeantSpace(){
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
   var _verrou=!iveAbonne();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div>'+iveBandDroite(true)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(true)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     // Deux gestes, deux formes : le cercle pour dicter, la barre pour consulter.
     +'<div style="display:flex;justify-content:center;margin-top:26px;">'
@@ -3027,7 +3029,7 @@ function sentApercu(){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
   var cadre=function(inner){
     return adminBar()
-      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div></div>'+iveBandDroite(false)+'</div></div>'
+      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
       +(typeof iveNavBar==='function'?iveNavBar('sentinelle'):'')
       +'<div class="card"><div class="sec">'+inner+'</div></div>';
   };
@@ -4179,7 +4181,7 @@ function bouCadre(inner, etape, titre){
   var prog='';
   if(etape){ prog='<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.5px;">'+etape+'/5</span><span style="font-size:11px;color:#9ca3af;">environ 90 secondes</span></div><div style="height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(etape/5*100)+'%;height:100%;background:#E8541A;border-radius:4px;"></div></div></div>'; }
   return '<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div></div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'+prog+inner+'</div></div></div>';
 }
@@ -4545,7 +4547,7 @@ function boussoleOutil(which){
   var nom=window.lastNom||(acc&&acc.name)||'';
   if(which==='questionnaire'){ return boussoleParcours(); }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
-  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div></div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
+  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
   if(which==='concurrence'){
     var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
@@ -4705,7 +4707,7 @@ function boussoleParcours(){
   var nom=window.lastNom||(acc&&acc.name)||'';
   var ligne=parcoursLigne, carte=parcoursCarte;
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div></div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div class="card"><div class="sec">'
       // Accroche + boussole
@@ -4826,7 +4828,7 @@ function boussoleView(){
   if(bouEtape()<6) return bouIntro();
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div></div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;color:#374151;line-height:1.55;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
