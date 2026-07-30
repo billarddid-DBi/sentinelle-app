@@ -1899,7 +1899,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 86';
+var IVE_VERSION='30/07 · 87';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -3099,7 +3099,8 @@ function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='
 function iveAbonnementChip(){
   if(!boussoleActif()) return '';
   var t=iveAbonnementTxt();
-  return '<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
+  // Cliquable : mène à l'offre — changer de formule ou racheter des jetons.
+  return '<span onclick="offreView()" title="Voir les formules et les jetons" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
 }
 // Date à laquelle l'analyse a été faite (le bandeau, lui, porte la date du jour).
 function iveDateAnalyse(){
@@ -3121,8 +3122,8 @@ function iveBandDroite(avecDeconnexion){
   return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
     +iveAbonnementChip()
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
-    // Réglages a quitté la barre du bas (place au Questionnaire) : il vit ici.
-    +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-settings"></i> Réglages</a>'
+    // « Mon compte » remplace Réglages : l'écran reste à construire.
+    +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-user-circle"></i> Mon compte</a>'
     +(avecDeconnexion?' <span style="color:#4b5563;">·</span> <a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a>':'')+'</div>'
   +'</div>';
 }
