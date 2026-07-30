@@ -709,7 +709,16 @@ function runMiroir(forcer){
       }
     }
   }catch(e){}
-  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc});
+  // Les outils déjà proposés par SENTINELLE : le MIROIR doit s'y rattacher au lieu d'en inventer d'autres.
+  var _ou=null;
+  try{
+    if(Array.isArray(_f.agents) && _f.agents.length){
+      _ou=_f.agents.slice(0,8).map(function(a,i){
+        return { n:(i+1), nom:String(a.nom||'').slice(0,120), benefice:String(a.benefice||'').slice(0,300) };
+      });
+    }
+  }catch(e){}
+  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc, outils:_ou});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
     .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
@@ -2063,7 +2072,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 98';
+var IVE_VERSION='30/07 · 99';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
