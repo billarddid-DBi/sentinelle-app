@@ -1534,6 +1534,62 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    et le chargement n'est tenté qu'UNE fois, avec un garde-fou de 9 s (jamais de boucle). */
 /* Un bénéfice arrive souvent en une seule phrase qui empile plusieurs choses à faire.
    On enlève les « Hypothèse : … » et on découpe en étapes lisibles. */
+/* Sujets récurrents : ce que le dirigeant redemande sans cesse devient un outil.
+   Règle validée : 5 tâches semblables sur les 30 derniers jours, archivées comprises.
+   L'analyse tourne une fois par semaine au maximum — elle est enregistrée et relue. */
+function recurKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recur_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function recurGet(){ try{ var s=localStorage.getItem(recurKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
+function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); }catch(e){} }
+function recurTaches30(){
+  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
+  var lim=new Date(); lim.setDate(lim.getDate()-30);
+  return (o.tasks||[]).filter(function(x){
+    var d=new Date((x.created||x.due||'')+'T00:00:00');
+    return !isNaN(d) && d>=lim;           // archivées comprises : une tâche refaite est une tâche cochée
+  }).map(function(x){ return x.t||''; }).filter(Boolean);
+}
+// Rappelle cb(sujets). Relance l'IA seulement si la sauvegarde a plus de 7 jours (ou si on force).
+function recurCharger(cb,forcer){
+  var sv=recurGet();
+  var frais=sv && sv.ts && (Date.now()-sv.ts) < 7*24*3600*1000;
+  if(sv && frais && !forcer){ cb(sv.sujets||[]); return; }
+  var lst=recurTaches30();
+  if(lst.length<5){ recurSet({sujets:[],ts:Date.now()}); cb([]); return; }
+  fetch('/api/priorite-jour',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'recurrence',taches:lst})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ var s=(d&&Array.isArray(d.sujets))?d.sujets:[]; recurSet({sujets:s,ts:Date.now()}); cb(s); })
+    .catch(function(){ cb((sv&&sv.sujets)||[]); });   // en cas d'échec, on garde la dernière analyse
+}
+function recurQuand(){ var s=recurGet(); return (s&&s.ts)?new Date(s.ts).toLocaleDateString('fr-FR'):''; }
+function recurBlocHtml(sujets){
+  if(!sujets || !sujets.length) return '';
+  var coulP={haute:'#991b1b',moyenne:'#b45309',basse:'#15803d'};
+  return '<div style="border:2px solid #7c3aed;background:#f8f6ff;border-radius:16px;padding:15px 16px;margin-top:12px;">'
+    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+      +'<span style="font-size:10.5px;font-weight:800;letter-spacing:.6px;color:#fff;background:#7c3aed;border-radius:20px;padding:3px 10px;">DÉTECTÉ DANS VOTRE QUOTIDIEN</span>'
+      +'<span style="font-size:11px;color:#9ca3af;">'+(recurQuand()?('analyse du '+recurQuand()):'')+'</span>'
+    +'</div>'
+    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;margin-top:8px;">Ceci ne vient pas de l\'analyse en ligne mais de <b>ce que vous dictez vous-même</b>. Une tâche qui revient cinq fois n\'est plus une tâche : c\'est un sujet à régler.</div>'
+    +sujets.map(function(s){
+      var cp=coulP[(s.priorite||'moyenne')]||'#b45309';
+      return '<div style="border:1px solid #ddd6fe;background:#fff;border-radius:13px;padding:13px 14px;margin-top:11px;">'
+        +'<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;">'+esc(s.outil||s.sujet||'')+'</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">'
+          +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#fff;background:'+cp+';border-radius:20px;padding:3px 9px;">PRIORITÉ '+esc((s.priorite||'moyenne').toUpperCase())+'</span>'
+          +'<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:20px;padding:2px 9px;">'+(+s.nb||5)+' FOIS EN 30 JOURS</span>'
+        +'</div>'
+        +'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin-top:7px;"><b style="color:#1C1C1C;">Ce que ça coûte :</b> '+esc(sansHypothese(s.consequence||''))+'</div>'
+        +((s.etapes&&s.etapes.length)?('<div style="margin-top:8px;">'+s.etapes.map(function(e,i){
+            return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:7px;">'
+              +'<span style="flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:#7c3aed;color:#fff;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px;">'+(i+1)+'</span>'
+              +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;">'+esc(sansHypothese(e))+'</div></div>';
+          }).join('')+'</div>'):'')
+      +'</div>';
+    }).join('')
+    +'<div style="text-align:right;margin-top:10px;"><span onclick="recurRelancer()" style="cursor:pointer;font-size:11.5px;font-weight:700;color:#7c3aed;"><i class="ti ti-refresh"></i> Relancer la détection</span></div>'
+  +'</div>';
+}
+function recurRelancer(){ recurCharger(function(){ boussoleOutil('outilsia'); },true); }
 function sansHypothese(txt){
   return (txt||'').replace(/[\s\u00a0]*[\(\[]?\s*hypoth[èe]ses?\s*:[\s\S]*$/i,'').replace(/[\s;,.]+$/,'').trim();
 }
@@ -1728,7 +1784,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 79';
+var IVE_VERSION='30/07 · 80';
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
 function iveCarteIdentite(d){
   d=d||{};
@@ -4578,6 +4634,10 @@ function boussoleOutil(which){
   }
   // Les outils IA de la fiche SENTINELLE, présentés en clair. Aucun appel IA : c'est de l'affichage.
   if(which==='outilsia'){
+    if(window.__recurSujets===undefined && typeof recurCharger==='function'){
+      window.__recurSujets=[];
+      recurCharger(function(s){ window.__recurSujets=s; boussoleOutil('outilsia'); });
+    }
     iveFicheOuCharger('oia',function(fo){
       if(!fo || !(fo.agents||[]).length){
         iveOutilVide('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier',
@@ -4612,6 +4672,7 @@ function boussoleOutil(which){
         +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
         +'<div class="card"><div class="sec">'
           +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, les <b style="color:#E8541A;">prioritaires</b> en tête.</div>'
+          +recurBlocHtml(window.__recurSujets||[])
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;">'
             +'<span style="color:#15803d;background:#f4fbf6;border:1px solid #bbf7d0;border-radius:20px;padding:3px 10px;"><b>IA</b> — traitable par de l\'IA</span>'
             +'<span style="color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;border-radius:20px;padding:3px 10px;"><b>PARTENAIRE</b> — demande un prestataire</span>'

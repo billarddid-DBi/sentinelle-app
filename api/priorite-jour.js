@@ -52,6 +52,50 @@ export default async function handler(req, res) {
   try {
     const b = req.body || {};
 
+const SYS_RECUR = `Tu analyses les tâches qu'un dirigeant de TPE/PME a dictées lui-même sur les 30 derniers jours.
+
+OBJECTIF : repérer les sujets qui REVIENNENT, c'est-à-dire les mêmes besoins reformulés différemment
+("rappeler le fournisseur de pneus", "relancer le pneumaticien", "voir la commande pneus" = UN SEUL sujet).
+
+RÈGLE STRICTE : ne retiens QUE les sujets comptant AU MOINS 5 tâches. En dessous, ignore.
+
+Pour chaque sujet retenu, produis :
+- "sujet" : le besoin en 3-6 mots, dans les mots du dirigeant
+- "nb" : le nombre de tâches regroupées
+- "outil" : le nom de l'outil ou du dispositif qui réglerait ce sujet une bonne fois (5-9 mots)
+- "consequence" : ce que cette répétition COÛTE réellement (temps perdu, client qui attend,
+  risque qui grandit, argent). Concret, factuel, jamais alarmiste.
+- "priorite" : "haute" | "moyenne" | "basse", déduite de la conséquence, pas du nombre
+- "etapes" : 2 à 4 étapes concrètes pour mettre l'outil en place, une phrase courte chacune
+
+INTERDITS : ne JAMAIS écrire le mot "Hypothèse". Ne juge JAMAIS le dirigeant ni ses équipes.
+N'invente aucune tâche qui ne figure pas dans la liste fournie.
+
+Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"outil":"…","consequence":"…","priorite":"haute","etapes":["…","…"]}]}
+Si aucun sujet n'atteint 5 tâches : {"sujets":[]}`;
+    // ---- Branche : sujets récurrents dans les tâches dictées (30 derniers jours) ----
+    if (b.type === "recurrence") {
+      const liste = Array.isArray(b.taches) ? b.taches.slice(0, 400) : [];
+      if (liste.length < 5) { res.status(200).json({ sujets: [] }); return; }
+      const txt = liste.map(function (x, i) { return (i + 1) + ". " + String(x || "").slice(0, 160); }).join("\n").slice(0, 12000);
+      const areqR = {
+        model: MODEL, max_tokens: 1600, temperature: 0,
+        system: SYS_RECUR,
+        messages: [{ role: "user", content: [{ type: "text", text: "Tâches dictées sur 30 jours (" + liste.length + ") :\n" + txt }] }]
+      };
+      const rr = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify(areqR)
+      });
+      if (!rr.ok) { res.status(502).json({ error: "Analyse des répétitions indisponible" }); return; }
+      const dr = await rr.json();
+      let outR = ""; for (const c of (dr.content || [])) if (c.type === "text") outR += c.text;
+      const pr = extractJSONObj(outR);
+      res.status(200).json({ sujets: (pr && Array.isArray(pr.sujets)) ? pr.sujets.filter(function (s) { return (+s.nb || 0) >= 5; }) : [] });
+      return;
+    }
+
     // ---- Branche : découpe d'une dictée en tâches ----
     if (b.type === "taches") {
       const brut = String(b.texte || "").trim().slice(0, 2000);
