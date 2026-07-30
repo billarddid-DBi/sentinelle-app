@@ -1,7 +1,8 @@
 {
   "functions": {
     "api/concurrents.js": { "maxDuration": 60 },
-    "api/sentinelle.js": { "maxDuration": 60 }
+    "api/sentinelle.js": { "maxDuration": 60 },
+    "api/miroir.js": { "maxDuration": 60 }
   },
   "headers": [
     {

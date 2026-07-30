@@ -2,3 +2,6 @@ node_modules/
 .vercel/
 .DS_Store
 sync-fiches.ps1
+servir-en-local.ps1
+_*.html
+_*.json
