@@ -103,6 +103,8 @@ Couleur/nature IVE : ${b.aura || "?"}
 
 ${ahBlock}
 
+${qtBlock}
+
 Rédige le MIROIR (JSON strict, schéma imposé).`;
 
     const areq = { model: MODEL, max_tokens: 3000, temperature: 0.4, system: SYS, messages: [{ role: "user", content: [{ type: "text", text: user }] }] };
