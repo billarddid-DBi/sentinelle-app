@@ -544,7 +544,32 @@ function eur(n){ return (n==null||isNaN(n))?'n.c.':(Math.round(n).toLocaleString
 // Un levier attend-il un OUTIL ? Source unique : la pastille et le bilan de couverture
 // doivent répondre la même chose, sinon l'écran se contredit lui-même.
 function mEstIA(t){ t=(t||'').toLowerCase(); return t.indexOf('ia')!==-1 && t.indexOf('extern')===-1 && t.indexOf('humain')===-1; }
-function mTypeBadge(t){ var u=(t||'').toLowerCase(); var c=mEstIA(u)?['#fdeee7','#cf4712','IA']:(u.indexOf('extern')!==-1?['#e6f1fb','#1d4ed8','Externe']:['#f1f5f9','#475569','Humain']); return '<span style="font-size:10px;font-weight:600;background:'+c[0]+';color:'+c[1]+';padding:2px 7px;border-radius:8px;white-space:nowrap;">'+c[2]+'</span>'; }
+/* UN SEUL VOCABULAIRE — arbitrage de Didier, 31/07/2026.
+   « Qui fait le travail ? » n'a que trois réponses : l'IA, votre équipe, un prestataire.
+   L'écran des pistes disait déjà IA / INTERNE / PARTENAIRE ; le plan du MIROIR disait
+   IA / Humain / Externe pour exactement la même question. Deux mots pour une seule idée,
+   et c'est ainsi qu'un « Répondre aux avis négatifs » se retrouve classé « Externe » sans
+   que rien ne sonne — alors que personne d'extérieur n'a à venir.
+   « humain » et « externe » restent ACCEPTÉS EN ENTRÉE : les MIROIR déjà enregistrés les
+   utilisent, et on ne réécrit pas le passé.
+   Un type vide ou inconnu ne devient PLUS « Humain » par défaut : il s'affiche « À classer ».
+   Un classement inventé se relit comme un classement voulu — c'est pire que pas de réponse. */
+function mQuiFait(t){
+  var u=(t||'').toLowerCase().trim();
+  if(!u) return 'inconnu';
+  if(mEstIA(u)) return 'IA';
+  if(u.indexOf('extern')>-1||u.indexOf('prestataire')>-1||u.indexOf('partenaire')>-1) return 'prestataire';
+  if(u.indexOf('humain')>-1||u.indexOf('interne')>-1||u.indexOf('équipe')>-1||u.indexOf('equipe')>-1) return 'interne';
+  return 'inconnu';
+}
+function mTypeBadge(t){
+  // Mêmes couleurs que les pastilles des pistes : un même mot ne doit pas changer d'aspect.
+  var c={ 'IA':['#f4fbf6','#15803d','IA'],
+          'prestataire':['#f5f3ff','#7c3aed','Prestataire'],
+          'interne':['#fffbeb','#b45309','En interne'],
+          'inconnu':['#f1f5f9','#64748b','À classer'] }[mQuiFait(t)];
+  return '<span style="font-size:10px;font-weight:600;background:'+c[0]+';color:'+c[1]+';padding:2px 7px;border-radius:8px;white-space:nowrap;">'+c[2]+'</span>';
+}
 function mPlan(m,pal){
   var items=(m.plan||[]).filter(function(x){return (+x.palier)===pal;});
   if(!items.length) return '<div style="font-size:11.5px;color:#9ca3af;margin-top:6px;">—</div>';
@@ -604,8 +629,22 @@ function mOutilsPlan(m){
   var lst=(m&&Array.isArray(m.outils))?m.outils:[];
   if(!lst.length) return '';
   var plan=(m&&Array.isArray(m.plan))?m.plan:[];
-  var horsLogiciel=plan.filter(function(x){ return !mEstIA(x.type); })
-                       .map(function(x){ return String(x.frein||x.levier||'').split('—')[0].replace(/[.,;]\s*$/,'').trim(); });
+  /* « Sans outil » se déduit du RATTACHEMENT RÉEL, plus du type du levier.
+     Constaté le 31/07 sur le MIROIR de Didier : un levier typé « externe » avait quand même
+     un outil en face. L'écran affichait donc le même frein aux deux endroits — « levé par
+     le Gestionnaire de réponses » ET « ne demande aucun outil ». Un frein n'a pas d'outil
+     quand aucun outil ne le réclame ; le type dit QUI FAIT, pas s'il existe un outil. */
+  var courtFrein=function(x){ return String((x&&x.frein)||(x&&x.levier)||'').split('—')[0].replace(/[.,;]\s*$/,'').trim(); };
+  var sertCeFrein=function(x){
+    var f=mNorm(courtFrein(x)), l=mNorm((x&&x.levier)||'');
+    if(!f && !l) return false;
+    return lst.some(function(o){
+      var of=mNorm(String(o.frein||'').split('—')[0]);
+      if(of.length<6) return false;
+      return (f && (f.indexOf(of)>-1||of.indexOf(f)>-1)) || (l && (l.indexOf(of)>-1||of.indexOf(l)>-1));
+    });
+  };
+  var horsLogiciel=plan.filter(function(x){ return !sertCeFrein(x); }).map(courtFrein);
   // Les pistes de SENTINELLE que le plan ne reprend pas : rapprochement sur le NOM, jamais
   // sur le numéro (cf. outilsOrdonnes — le numéro a déjà changé une fois).
   var pistes=mOutilsFiche(), repris={};
@@ -964,8 +1003,8 @@ function outilsOrdonnes(agents){
    D'où : des termes de CONSTRUCTION en toutes lettres (on ne bâtit pas un « site » mais
    un « site internet »), et une borne à GAUCHE de chaque terme — jamais à droite, pour
    que « automatis » attrape encore « automatiser » et « automatisation ». */
-var OUTILS_CONSTRUIRE='site internet|site web|site vitrine|refonte|refondre|développement|developpement|application mobile|logiciel métier|logiciel metier|progiciel|caméra|camera|matériel|materiel|installation|installer|borne|capteur|équipement|equipement';
-var OUTILS_AUTOMATISER='automatis|génér|gener|rédig|redig|répon|repon|analys|trier|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi|planifi|orchestr|optimis|centralis|synchronis|recommand|personnalis|extrai|surveil';
+var OUTILS_CONSTRUIRE='site internet|site web|site vitrine|refonte|refondre|développement|developpement|application mobile|logiciel métier|logiciel metier|progiciel|caméra|camera|matériel|materiel|installation|installer|borne|capteur|équipement|equipement|prestataire|éditeur|editeur';
+var OUTILS_AUTOMATISER='automatis|génér|gener|rédig|redig|répon|repon|analys|trier|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi|planifi|orchestr|optimis|centralis|synchronis|recommand|personnalis|extrai|surveil|prérempl|prerempl|modèle de|modele de';
 function outilsMotsDe(mots){ return new RegExp('(^|[^a-zà-ÿ])(' + mots + ')'); }
 function outilsQuiFait(a){
   var s=(((a&&a.nom)||'')+' '+((a&&a.benefice)||'')).toLowerCase();
@@ -2405,14 +2444,11 @@ function detRendre(nom,qui,d){
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
-function iveQuiFait(s){
-  s=(s||'').toLowerCase();
-  if(/site|refonte|développe|developpe|intégr|integr|logiciel|caméra|camera|matériel|materiel|installation|borne|application mobile|prestataire|éditeur|editeur/.test(s))
-    return {c:'#7c3aed',f:'#f5f3ff',b:'#ddd6fe',t:'PARTENAIRE'};
-  if(/automatis|génér|gener|rédig|redig|répon|repon|analys|trie|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi|préremplі|preremplі|modèle de|modele de/.test(s))
-    return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
-  return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
-}
+/* Ce classement existait en DEUX exemplaires. La correction du 31/07 (bornes de mots :
+   « visite » contient « site », « industrie » contient « trie ») n'avait été portée que sur
+   l'un des deux — celui-ci gardait la version fautive et servait encore aux sujets récurrents.
+   Un seul classificateur désormais : outilsQuiFait. Deux copies, c'est une copie de trop. */
+function iveQuiFait(s){ return outilsQuiFait({nom:'',benefice:s||''}); }
 function iveQuiBadge(q){
   return '<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span>';
 }
@@ -2727,7 +2763,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 137';
+var IVE_VERSION='31/07 · 138';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4132,7 +4168,8 @@ async function frBuild(){
     var id=frCle(p);
     while(vus[id]) id=id+'b';        // deux leviers au libelle identique : on les distingue
     vus[id]=1;
-    return { id:id, palier:p.palier||1, type:p.type||'humain', titre:p.levier||p.frein||('Étape '+(i+1)),
+    // Pas de repli sur « humain » : un levier non classé doit se voir (badge « À classer »).
+    return { id:id, palier:p.palier||1, type:p.type||'', titre:p.levier||p.frein||('Étape '+(i+1)),
              detail:p.mise_en_oeuvre||'', indicateur:p.indicateur||'', echeance:rhythm[i]||('Étape '+(i+1)),
              status:'todo', note:'', help:null };
   });
@@ -4150,7 +4187,14 @@ async function frBuild(){
 }
 function frSet(id,status){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.status=(s.status===status?'todo':status); }); frSauver(); frTachesSync(); frRender(); if(typeof evt==='function') evt('maj_feuille',{etape:id,statut:status}); }
 function frNote(id,val){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.note=val; }); frSauver(); }
-function frTypeBadge(t){ var map={IA:['#eef2ff','#4338ca','ti-robot'],humain:['#f0fdf4','#166534','ti-users'],externe:['#fff7ed','#9a3412','ti-user-plus']}; var c=map[t]||map.humain; return '<span style="display:inline-flex;align-items:center;gap:3px;background:'+c[0]+';color:'+c[1]+';border-radius:10px;padding:1px 8px;font-size:10.5px;font-weight:600;"><i class="ti '+c[2]+'"></i> '+esc(t)+'</span>'; }
+// La feuille de route parle la MÊME langue que le plan et que les pistes (cf. mQuiFait).
+function frTypeBadge(t){
+  var c={ 'IA':['#f4fbf6','#15803d','ti-robot','IA'],
+          'prestataire':['#f5f3ff','#7c3aed','ti-user-plus','Prestataire'],
+          'interne':['#fffbeb','#b45309','ti-users','En interne'],
+          'inconnu':['#f1f5f9','#64748b','ti-help-circle','À classer'] }[mQuiFait(t)];
+  return '<span style="display:inline-flex;align-items:center;gap:3px;background:'+c[0]+';color:'+c[1]+';border-radius:10px;padding:1px 8px;font-size:10.5px;font-weight:600;"><i class="ti '+c[2]+'"></i> '+c[3]+'</span>';
+}
 function frRender(){
   var d=window.frData; if(!d) return;
   var done=d.steps.filter(function(s){return s.status==='done';}).length, total=d.steps.length, pct=Math.round(done/total*100);
