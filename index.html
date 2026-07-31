@@ -1519,13 +1519,22 @@ function majDepuis(ts){
   return out;
 }
 /* Les empreintes, une par source. Volontairement courtes : elles ne servent qu'à comparer. */
+/* ⚠️ RENVOIE '' QUAND ON NE PEUT PAS MESURER — jamais une empreinte inventée.
+   Après « Sauvegarder », l'écran du diagnostic remplace la grille AU MÊME ENDROIT : les
+   curseurs ne sont plus dans la page. La première version renvoyait alors une suite de tirets,
+   forcément différente de l'empreinte enregistrée — l'application concluait à une modification
+   qui n'existait pas et réclamait de sauvegarder à la sortie de la BOUSSOLE (constaté par
+   Didier le 31/07). Aucun curseur trouvé = aucune mesure possible = on se tait. */
 function majEmpreinteDirigeant(){
   var it=window.bItems||[]; if(!it.length) return '';
+  var vus=0;
   var v=it.map(function(x){ var e=document.getElementById(x.id);
     if(!e) return '-';
+    vus++;
     if(e.dataset && e.dataset.na==='1') return 'n';        // « non concerné »
     if(!(e.dataset && e.dataset.vu==='1')) return '?';     // pas encore répondu
     return e.value; }).join('');
+  if(!vus) return '';                                      // la grille n'est plus affichée
   return it.length+':'+v;
 }
 function majEmpreinteConcurrence(d,kw){
@@ -2897,7 +2906,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 153';
+var IVE_VERSION='31/07 · 154';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
