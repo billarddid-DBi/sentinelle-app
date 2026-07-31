@@ -2804,7 +2804,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 149';
+var IVE_VERSION='31/07 · 150';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3679,19 +3679,29 @@ async function enqueteSuivi(){
    jamais savoir que l'avis de ses équipes existait et dormait à côté.
    Une seule lecture par session (témoin __ahAuto), puis window.lastAH est posé pour tout le
    monde : écran BOUSSOLE, empreinte du MIROIR, instantanés de trajectoire. */
+/* ⚠️ NE JAMAIS POSER LE TÉMOIN AVANT LA LECTURE. Première version (31/07, deux heures plus
+   tôt) : `if(window.__ahAuto) return; window.__ahAuto=1;` puis la lecture. Une seule tentative
+   ratée — au démarrage l'entreprise n'est pas toujours résolue — et le témoin restait posé :
+   plus aucune relecture de toute la session, l'écran figé sur « SANS vos salariés ».
+   Un témoin de « déjà fait » ne vaut que pour ce qui a RÉUSSI. Ici c'est le résultat lui-même
+   (window.lastAH) qui sert de mémoire, et une promesse en vol évite deux lectures simultanées. */
 async function ahAuto(){
-  if(window.__ahAuto) return window.lastAH||null;
-  window.__ahAuto=1;
-  try{
-    var a=(typeof ahAgreger==='function')?await ahAgreger():null;
-    if(!a) return null;
-    window.lastAH=a;
-    try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
-    // L'écran BOUSSOLE est peut-être déjà affiché : on corrige la mention sur place plutôt
-    // que d'attendre qu'il aille voir la page des salariés et revienne.
-    try{ if(typeof bAvecSalPeindre==='function') bAvecSalPeindre(); }catch(e){}
-    return a;
-  }catch(e){ return null; }
+  if(window.lastAH && window.lastAH.iat!=null) return window.lastAH;   // déjà en main
+  if(window.__ahEnVol) return window.__ahEnVol;                        // une lecture suffit
+  window.__ahEnVol=(async function(){
+    try{
+      var a=(typeof ahAgreger==='function')?await ahAgreger():null;
+      if(!a) return null;
+      window.lastAH=a;
+      try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
+      // L'écran BOUSSOLE est peut-être déjà affiché : on corrige la mention sur place plutôt
+      // que d'attendre qu'il aille voir la page des salariés et revienne.
+      try{ if(typeof bAvecSalPeindre==='function') bAvecSalPeindre(); }catch(e){}
+      return a;
+    }catch(e){ return null; }
+    finally{ window.__ahEnVol=null; }
+  })();
+  return window.__ahEnVol;
 }
 /* Le LIEN VISIBLE, pas un bouton de partage. Sur PC, le partage natif ne propose souvent rien
    d'utile — Didier n'avait que WhatsApp. Un lien qu'on voit, qu'on sélectionne et qu'on colle
