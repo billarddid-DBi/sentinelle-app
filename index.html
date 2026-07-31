@@ -846,7 +846,7 @@ function renderMiroir(){
   /* Boutons du bas retirés : tout se pilote par la barre du haut (décision Didier). */;
   var _mq=(typeof miroirQuand==='function')?miroirQuand():'';
   // La date de l'analyse et la régénération, à la main du dirigeant : chaque relance coûte un appel IA.
-  var _mbar=window.miroirPerime?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse' + (_mq?(' du '+_mq):'') + '.</span>'+jetBouton('Mise &agrave; jour conseill&eacute;e','miroir','runMiroir(true)')+'</div>'):(_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+' — <b>à jour</b>, rien à régénérer.</span>'+_mRelance()+'</div>'):'');
+  var _mbar=window.miroirPerime?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse' + (_mq?(' du '+_mq):'') + '.</span>'+jetBouton('Mise &agrave; jour conseill&eacute;e','miroir','runMiroir(true)')+'</div>'):(_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+' — <b>à jour</b>, rien à régénérer.</span>'+_mRelance()+'</div>'):('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse enregistr&eacute;e &mdash; date inconnue sur cet appareil.</span>'+_mRelance()+'</div>'));
   $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR',(quotSec?'Votre image, votre réalité, vos journées':'Le miroir de votre image et de votre réalité'),'t360')+_mbar+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
@@ -2286,6 +2286,17 @@ function jetOccupe(btn){
     },90000);
   }catch(e){}
 }
+/* Le filet de 90 s est un FILET, pas une horloge. Une action qui se termine doit rendre son
+   bouton tout de suite : sinon l'écran affiche « en cours… » alors qu'il n'y a plus rien en
+   cours, et le dirigeant attend pour rien (constaté le 31/07 sur « Utiliser ces réponses »,
+   où le travail était fini avant même que le message de confirmation ne s'affiche). */
+function jetLibre(btn){
+  try{
+    if(!btn || btn.dataset.occupe!=='1') return;
+    btn.dataset.occupe=''; btn.style.pointerEvents=''; btn.style.opacity='';
+    if(btn.dataset.libelle) btn.innerHTML=btn.dataset.libelle;
+  }catch(e){}
+}
 function jetBoutonBrut(libelle,cout,clic,etat){
   var c = (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
@@ -2763,7 +2774,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 142';
+var IVE_VERSION='31/07 · 144';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3615,10 +3626,14 @@ function ahAgregeHtml(a){
 async function ahAppliquer(btn){
   if(btn && typeof jetOccupe==='function') jetOccupe(btn);
   var a=await ahAgreger(); var m=$('ahAppMsg');
-  if(!a){ if(m) m.innerHTML='<span style="color:#991b1b;">Aucune réponse à utiliser.</span>'; return; }
+  // Le bouton est rendu dans TOUS les cas, succès comme échec : il ne doit jamais rester
+  // bloqué sur « en cours… » pendant 90 s alors que le travail est terminé.
+  if(!a){ if(typeof jetLibre==='function') jetLibre(btn);
+          if(m) m.innerHTML='<span style="color:#991b1b;">Aucune réponse à utiliser.</span>'; return; }
   window.lastAH=a;
   try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
   try{ if(typeof evt==='function') evt('aura',{iat:a.iat,source:'salaries',n:a.n}); }catch(e){}
+  if(typeof jetLibre==='function') jetLibre(btn);
   if(m) m.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Pris en compte. Régénérez votre MIROIR pour que le plan en tienne compte.</span>';
 }
 /* Le suivi : combien de réponses, de qui. Sans ça, le dirigeant partage et attend dans le vide. */
@@ -5831,7 +5846,26 @@ async function syncPull(){
       if(b.diag){ localStorage.setItem('diag_'+slug,JSON.stringify(b.diag)); var nm=(window.currentUser&&window.currentUser.name)||'';
         if(b.diag.lastMiroir) window.lastMiroir=Object.assign({},b.diag.lastMiroir,{nom:nm||b.diag.lastMiroir.nom});
         if(b.diag.lastAH){ window.lastAH=b.diag.lastAH; if(nm)window.lastAH.nom=nm; }
-        if(b.diag.miroirData) window.miroirData=b.diag.miroirData; }
+        /* Le MIROIR revient du cloud — il faut aussi REMPLIR LE CACHE LOCAL, sinon
+           miroirStore reste vide et deux choses cassent : la barre de régénération disparaît
+           (elle s'affiche à partir de la date locale), et surtout runMiroir() ne trouve plus
+           d'analyse enregistrée, donc il en RACHÈTE une à 3 jetons alors qu'elle existe.
+           Constaté le 31/07/2026 après un vidage du cache navigateur.
+           On écrit une signature VIDE volontairement : on ignore l'état des données au moment
+           où cette analyse a été produite, donc on la présente comme « à mettre à jour »
+           plutôt que d'affirmer à tort qu'elle est à jour. */
+        if(b.diag.miroirData){
+          window.miroirData=b.diag.miroirData;
+          try{
+            if(typeof miroirStore!=='undefined' && !miroirStore.load()){
+              localStorage.setItem(miroirStore.key(), JSON.stringify({
+                m:b.diag.miroirData,
+                nom:(b.diag.lastMiroir&&b.diag.lastMiroir.nom)||'',
+                sig:'', ts:Date.now()
+              }));
+            }
+          }catch(e){}
+        } }
     } else {
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
