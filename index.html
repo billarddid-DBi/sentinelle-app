@@ -2863,7 +2863,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 151';
+var IVE_VERSION='31/07 · 152';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6191,6 +6191,11 @@ function bouGrilleChip(){
 // Quitter en gardant tout : la grille est déjà sauvegardée à chaque geste, on ne fait que confirmer.
 function bouGrilleQuitter(dest){
   bouGrilleStore.save();
+  /* « Non — sauvegarder et reprendre plus tard » est un enregistrement au même titre que
+     « Oui — voir le diagnostic » : les deux boutons posent le repère. Je n'avais branché que
+     le second (oubli du 31/07). Comme partout, la date ne bouge QUE si les réponses ont
+     changé — quitter sans avoir rien touché ne périme aucun MIROIR. */
+  try{ if(typeof majPoser==='function') majPoser('dirigeant', majEmpreinteDirigeant()); }catch(e){}
   if(typeof iveNav==='function') iveNav(dest||'accueil'); else showView('dirigeant');
 }
 function bouGrilleEffacer(){
