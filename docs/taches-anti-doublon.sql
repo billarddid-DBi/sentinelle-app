@@ -76,11 +76,31 @@ create trigger trg_taches_anti_doublon
   for each row execute function public.taches_anti_doublon();
 
 -- ---------------------------------------------------------------------------
---  VERIFICATION — a lancer apres coup. Doit ne renvoyer AUCUNE ligne.
+--  NETTOYAGE DES DOUBLONS DEJA EN BASE — a lancer AVANT de poser le
+--  declencheur. On ARCHIVE (reversible), on ne supprime jamais.
+--
+--  Le `and x.archivee = false` du sous-select est indispensable : sans lui, si
+--  le plus ancien exemplaire etait deja archive, l'exemplaire VIVANT passait a
+--  son tour en archive et la tache disparaissait de la liste du dirigeant.
+--  Erreur commise le 31/07/2026 dans une premiere version de cette requete.
 -- ---------------------------------------------------------------------------
--- select norm, count(*) as nb
+-- update public.taches t set archivee = true
+--  where t.archivee = false and t.norm is not null and btrim(t.norm) <> ''
+--    and t.id > (select min(x.id) from public.taches x
+--                 where x.entreprise_id = t.entreprise_id
+--                   and x.norm = t.norm
+--                   and x.due_le is not distinct from t.due_le
+--                   and x.archivee = false);
+
+-- ---------------------------------------------------------------------------
+--  VERIFICATION — a lancer apres coup. Doit ne renvoyer AUCUNE ligne.
+--  `archivee = false` est indispensable : une paire « 1 active + 1 archivee »
+--  est le resultat ATTENDU du nettoyage, pas un doublon. Sans ce filtre la
+--  verification crie au loup sur son propre succes.
+-- ---------------------------------------------------------------------------
+-- select norm, due_le, count(*) as nb
 --   from public.taches
---  where norm is not null and btrim(norm) <> ''
+--  where archivee = false and norm is not null and btrim(norm) <> ''
 --  group by norm, due_le
 -- having count(*) > 1
---  order by 2 desc;
+--  order by 3 desc;
