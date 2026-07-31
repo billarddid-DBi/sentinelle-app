@@ -2920,7 +2920,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 161';
+var IVE_VERSION='31/07 · 162';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3938,9 +3938,16 @@ async function enqueteCopier(quoi){
    garantit qu'une saisie n'écrase jamais une autre — le défaut que Didier a repéré avant que
    je ne le livre. Une seconde voie d'écriture aurait fini par diverger de la première. */
 async function ahEnvoyerSalarie(btn){
-  var e=document.getElementById('ahQuiErr') || document.getElementById('ahErr');
-  var dire=function(t,rouge){ if(e){ e.style.color=rouge?'#991b1b':'#15803d'; e.textContent=t; } };
+  /* Le message va là où le dirigeant REGARDE : sous le bouton qu'il vient de cliquer. Il visait
+     « ahQuiErr », qui n'existe que sur l'écran précédent — un échec d'enregistrement serait
+     resté totalement invisible. */
+  var dire=function(t,rouge){
+    var zz=document.querySelectorAll('.ahEnvMsg');
+    for(var k=0;k<zz.length;k++){ zz[k].style.color=rouge?'#991b1b':'#15803d'; zz[k].textContent=t; }
+    var q=document.getElementById('ahQuiErr'); if(q) q.textContent=rouge?t:'';
+  };
   if(!ahQuiPret()){
+    dire('Nom, fonction et accord du salarié sont nécessaires avant d\'enregistrer.',1);
     var z=document.getElementById('ahQui'); if(z) z.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
@@ -3977,11 +3984,18 @@ async function ahEnvoyerSalarie(btn){
   }catch(x){ dire('Enregistrement impossible. Vérifiez votre connexion et réessayez.',1); }
 }
 function ahPour(){ return window.__ahPour||(window.__ahPour={nom:'',poste:'',ok:false}); }
+/* ⚠️ NE LIRE QUE CE QUI EXISTE. Sur l'écran de SAISIE, les champs d'identité ne sont plus dans
+   la page : les lire quand même renvoyait '' et ÉCRASAIT le nom déjà tapé. ahQuiPret() refusait
+   alors, et « Sauvegarder » ne faisait plus rien — sans le moindre message. Troisième fois
+   aujourd'hui que cette faute se paie (empreinte du questionnaire, enregistrement de la grille,
+   ici) : une fonction qui ne trouve pas sa source ne doit RIEN conclure, et surtout rien écrire. */
 function ahQuiChamps(){
   var p=ahPour();
-  p.nom=((document.getElementById('ahQuiNom')||{}).value||'').trim();
-  p.poste=((document.getElementById('ahQuiPoste')||{}).value||'').trim();
-  var c=document.getElementById('ahQuiOk'); p.ok=!!(c&&c.checked);
+  var n=document.getElementById('ahQuiNom'), q=document.getElementById('ahQuiPoste'), c=document.getElementById('ahQuiOk');
+  if(!n && !q && !c) return;                 // le formulaire n'est pas affiché : on ne touche à rien
+  if(n) p.nom=(n.value||'').trim();
+  if(q) p.poste=(q.value||'').trim();
+  if(c) p.ok=!!c.checked;
   window.__ahPour=p;
 }
 function ahQuiPret(){
@@ -4235,7 +4249,8 @@ function ahActions(){
      suggérer. Le garde-fou de sortie reste actif sur la barre de navigation. */
   return '<button class="btn btn-primary" onclick="ahEnvoyerSalarie(this)"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
     +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">'
-    +'Ses réponses sont enregistrées sous son nom, puis vous revenez au menu.</div>';
+    +'Ses réponses sont enregistrées sous son nom, puis vous revenez au menu.</div>'
+    +'<div class="ahEnvMsg" style="font-size:11.5px;margin-top:6px;text-align:center;line-height:1.4;"></div>';
 }
 function ahStart(mode){
   showView('ahView');
