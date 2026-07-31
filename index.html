@@ -2920,7 +2920,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 160';
+var IVE_VERSION='31/07 · 161';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3966,7 +3966,13 @@ async function ahEnvoyerSalarie(btn){
     window.lastAH=null; window.__ahEnVol=null;
     if(typeof ahAuto==='function') await ahAuto();
     window.__ahPour={nom:'',poste:'',ok:false};       // la saisie suivante repart d'une page blanche
-    window.__ahDepart=null;
+    /* ⚠️ ALIGNER LE REPÈRE DE SORTIE AVANT DE NAVIGUER. iveNav consulte ahSortieOk() : si le
+       repère ne correspond pas à ce qui est à l'écran, le garde-fou s'interpose et demande
+       « ce questionnaire n'est pas enregistré, quitter quand même ? » — juste après un
+       enregistrement réussi. C'est ce que Didier a vu : « je fais Sauvegarder, il ne se passe
+       rien à part le message ». Mettre __ahDepart à null GARANTISSAIT la fausse alerte.
+       Un garde-fou doit être désarmé par l'action qui le rend inutile. (31/07/2026) */
+    window.__ahDepart=(typeof ahEmpreinte==='function')?ahEmpreinte():null;
     if(typeof iveNav==='function') iveNav('actions');
   }catch(x){ dire('Enregistrement impossible. Vérifiez votre connexion et réessayez.',1); }
 }
@@ -4223,10 +4229,13 @@ function ahSortieOk(){
   );
 }
 function ahActions(){
+  /* Un seul bouton. « ← Retour » retiré (décision Didier, 31/07/2026) : la navigation se fait
+     par la barre du haut, et un second bouton juste sous « Sauvegarder » invitait à repartir
+     sans enregistrer — sur un questionnaire volatil, c'est exactement le geste à ne pas
+     suggérer. Le garde-fou de sortie reste actif sur la barre de navigation. */
   return '<button class="btn btn-primary" onclick="ahEnvoyerSalarie(this)"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
     +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">'
-    +(window.ahControleMode?'Votre contrôle est enregistré et l\'évolution s\'affiche.':'Vos réponses sont enregistrées et la maturité humaine s\'affiche.')+'</div>'
-    +'<button class="btn btn-ghost" onclick="if(ahSortieOk()){window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'();}">← Retour</button>';
+    +'Ses réponses sont enregistrées sous son nom, puis vous revenez au menu.</div>';
 }
 function ahStart(mode){
   showView('ahView');
