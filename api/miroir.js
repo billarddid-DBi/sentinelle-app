@@ -4,7 +4,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-07-31-08";
+const MIROIR_VERSION = "2026-07-31-09";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -75,7 +75,12 @@ export default async function handler(req, res) {
 IAT (Acceptabilité de la Transformation) : ${ah.iat}/100 → zone ${ah.band}
 IMH (maturité humaine) : ${ah.imh}/100 · Résistance estimée : ${ah.resistance}/100
 8 indices humains : ${idx}
-Craintes / résistances détectées (à traduire et traiter) : ${craintes}
+Craintes / résistances détectées (à traduire et traiter) : ${craintes}${ah.n ? `
+QUI A RÉPONDU : ${ah.n} salarié(s), questionnaire **NOMINATIF** — chacun a donné son nom et son poste, et sait que le dirigeant lit ses réponses.
+=> CONSÉQUENCE À INTÉGRER : un avis signé est ADOUCI. Personne n'écrit « je n'ai pas confiance » sous son nom. Ces chiffres sont donc un PLANCHER, pas la réalité : le vrai niveau est probablement en dessous. Ne les prends pas au pied de la lettre, et ne conclus jamais « tout va bien » sur un IAT élevé obtenu ainsi.${(ah.ecart != null && ah.n > 1) ? `
+DISPERSION : du plus bas ${ah.mini}/100 au plus haut ${ah.maxi}/100, soit ${ah.ecart} points d'écart.${ah.ecart >= 25 ? ` C'est une FRACTURE : les équipes ne vivent pas la même entreprise. La moyenne ${ah.iat} ne décrit personne. Traite l'écart AVANT le niveau — un plan bâti sur la moyenne échouera sur ceux d'en bas.` : ` Écart modéré : l'équipe est relativement homogène.`}` : ''}${(Array.isArray(ah.parPoste) && ah.parPoste.length > 1) ? `
+PAR POSTE : ${ah.parPoste.map(p => `${p.poste} ${p.iat}/100${p.n > 1 ? ` (${p.n} pers.)` : ''}`).join(' · ')} — utilise-le : un plan ne se dose pas pareil pour l'atelier et pour le bureau.` : ''}${ah.n < 3 ? `
+PRUDENCE : ${ah.n} réponse(s) seulement. Ce n'est pas la maturité de l'entreprise, c'est l'avis de ${ah.n === 1 ? 'une personne' : 'deux personnes'}. Formule tes conclusions humaines au conditionnel et recommande d'élargir la consultation.` : ''}` : ''}
 => ADAPTE le plan à cette zone IAT (dosage) et RÉPONDS à ces craintes au palier 1. Renseigne le champ "humain".`;
     }
     // LE QUOTIDIEN — 3e source. Ni l'image, ni le déclaratif : ce que les journées du dirigeant montrent.
