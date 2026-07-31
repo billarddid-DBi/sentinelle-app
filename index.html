@@ -541,7 +541,10 @@ function noSentinelleMsg(nom){
 }
 function goBoussole(){ if($('bNom')&&window.lastNom) $('bNom').value=window.lastNom; if($('bExt'))$('bExt').value=''; bMsgHide(); showView('bChoice'); window.scrollTo(0,0); }
 function eur(n){ return (n==null||isNaN(n))?'n.c.':(Math.round(n).toLocaleString('fr-FR').replace(/ | /g,' ')+' €'); }
-function mTypeBadge(t){ t=(t||'').toLowerCase(); var c=(t.indexOf('ia')!==-1&&t.indexOf('extern')===-1&&t.indexOf('humain')===-1)?['#fdeee7','#cf4712','IA']:(t.indexOf('extern')!==-1?['#e6f1fb','#1d4ed8','Externe']:['#f1f5f9','#475569','Humain']); return '<span style="font-size:10px;font-weight:600;background:'+c[0]+';color:'+c[1]+';padding:2px 7px;border-radius:8px;white-space:nowrap;">'+c[2]+'</span>'; }
+// Un levier attend-il un OUTIL ? Source unique : la pastille et le bilan de couverture
+// doivent répondre la même chose, sinon l'écran se contredit lui-même.
+function mEstIA(t){ t=(t||'').toLowerCase(); return t.indexOf('ia')!==-1 && t.indexOf('extern')===-1 && t.indexOf('humain')===-1; }
+function mTypeBadge(t){ var u=(t||'').toLowerCase(); var c=mEstIA(u)?['#fdeee7','#cf4712','IA']:(u.indexOf('extern')!==-1?['#e6f1fb','#1d4ed8','Externe']:['#f1f5f9','#475569','Humain']); return '<span style="font-size:10px;font-weight:600;background:'+c[0]+';color:'+c[1]+';padding:2px 7px;border-radius:8px;white-space:nowrap;">'+c[2]+'</span>'; }
 function mPlan(m,pal){
   var items=(m.plan||[]).filter(function(x){return (+x.palier)===pal;});
   if(!items.length) return '<div style="font-size:11.5px;color:#9ca3af;margin-top:6px;">—</div>';
@@ -556,6 +559,80 @@ function mPlan(m,pal){
       +'<div style="font-size:11px;color:#1d4ed8;margin-top:4px;"><i class="ti ti-target"></i> '+esc(x.indicateur||'')+'</div>'
     +'</div>';
   }).join('');
+}
+/* CE QUE LE PLAN COUVRE — personne ne le mesurait.
+   Le MIROIR reçoit la liste des outils SENTINELLE et doit les nommer quand une de ses actions
+   leur correspond. Mais le résultat n'était vérifié nulle part : un frein pouvait rester sans
+   rien en face, et un outil être affiché au dirigeant sans jamais servir à quoi que ce soit.
+   Le dirigeant lisait un plan qui avait l'air complet parce que rien ne disait le contraire.
+
+   LE RATTACHEMENT SE FAIT SUR LE NOM, JAMAIS SUR LE NUMÉRO. Le numéro a déjà changé une fois
+   (cf. outilsOrdonnes) et les MIROIR enregistrés gardent l'ancien : s'y fier ferait pointer
+   le mauvais outil. Le nom, lui, ne bouge pas — et le MIROIR a consigne de l'écrire en toutes
+   lettres.
+
+   RÈGLE DE LECTURE, à ne pas confondre : un levier « humain » ou « externe » sans outil n'est
+   PAS un trou, c'est la consigne même du MIROIR (l'IA ne règle pas l'humain). Un levier « IA »
+   sans outil, si. */
+function mNorm(s){
+  return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9]+/g,' ').trim();
+}
+function mOutilsFiche(){
+  var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+  return (typeof outilsOrdonnes==='function')?outilsOrdonnes(f.agents):[];
+}
+function mOutilsCites(x,outils){
+  var txt=mNorm((x.levier||'')+' '+(x.mise_en_oeuvre||'')+' '+(x.indicateur||''));
+  var vus=[];
+  outils.forEach(function(o,i){
+    var n=mNorm(o.nom);
+    if(n.length>=6 && txt.indexOf(n)>-1) vus.push(i);   // 6 caractères : un nom trop court matcherait par hasard
+  });
+  return vus;
+}
+function mCouverture(m){
+  var plan=(m&&Array.isArray(m.plan))?m.plan:[];
+  if(!plan.length) return '';
+  var outils=mOutilsFiche(), servis={}, lignes=[], outilles=0, hors=0, trous=0;
+  var ligne=function(ic,coul,titre,txt){
+    return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:8px;">'
+      +'<i class="ti '+ic+'" style="color:'+coul+';font-size:15px;flex:0 0 auto;margin-top:1px;"></i>'
+      +'<div style="flex:1;min-width:0;font-size:11.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">'+titre+'</b> '+txt+'</div></div>';
+  };
+  plan.forEach(function(x){
+    var cites=mOutilsCites(x,outils);
+    cites.forEach(function(i){ servis[i]=1; });
+    var court=String(x.frein||x.levier||'').split('—')[0].replace(/[.,;]\s*$/,'').trim();
+    if(cites.length){
+      outilles++;
+      lignes.push(ligne('ti-circle-check','#15803d',esc(court)+' :',
+        'traité par '+cites.map(function(i){ return '<b>'+esc(outils[i].nom)+'</b>'; }).join(' et ')+'.'));
+    } else if(!mEstIA(x.type)){
+      hors++;
+      lignes.push(ligne('ti-user-heart','#475569',esc(court)+' :',
+        'aucun outil, et c\'est normal — cela se règle avec votre équipe, pas avec un logiciel.'));
+    } else {
+      trous++;
+      lignes.push(ligne('ti-alert-triangle','#b45309',esc(court)+' :',
+        'annoncé comme un sujet d\'IA, mais <b>aucun outil de votre fiche n\'y répond</b>. À faire chiffrer à part.'));
+    }
+  });
+  var libres=[]; outils.forEach(function(o,i){ if(!servis[i]) libres.push(o.nom); });
+  var resume=plan.length+' frein'+(plan.length>1?'s':'')+' — <b>'+outilles+'</b> avec un outil en face'
+    +(hors?', <b>'+hors+'</b> qui ne relève'+(hors>1?'nt':'')+' pas d\'un logiciel':'')
+    +(trous?', <b style="color:#b45309;">'+trous+'</b> sans réponse outillée':'')+'.';
+  return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-checkup-list"></i> Ce que ce plan couvre — et ce qu\'il ne couvre pas</div>'
+    +'<div style="font-size:12px;color:#4b5563;margin-top:6px;">'+resume+'</div>'
+    +lignes.join('')
+    +(libres.length
+      ? '<div style="margin-top:11px;border-top:1px dashed #e6e1d8;padding-top:9px;font-size:11.5px;color:#4b5563;line-height:1.5;">'
+        +'<b style="color:#1C1C1C;">'+libres.length+' outil'+(libres.length>1?'s':'')+' de votre fiche '+(libres.length>1?'ne sont rattachés':'n\'est rattaché')+' à aucun frein :</b> '
+        +libres.map(function(n){ return esc(n); }).join(' · ')
+        +'. '+(libres.length>1?'Ils restent utiles':'Il reste utile')+', mais le plan ne '+(libres.length>1?'les':'l\'')+' réclame pas aujourd\'hui.</div>'
+      : '')
+    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:10px;line-height:1.5;">Rapprochement fait sur le nom des outils cités dans le plan. Un frein sans outil n\'est pas un oubli : c\'est souvent qu\'il se règle autrement.</div>'
+  +'</div>';
 }
 function mRoi(m){
   var roi=m.roi||{}, postes=roi.postes||[];
@@ -669,6 +746,7 @@ function renderMiroir(){
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-eye"></i> Ma Vision</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
+    +mCouverture(m)
     +mRoi(m)
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-calendar"></i> Cadence</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;">'+esc(m.cadence||'')+'</div></div>'
     +'<div class="sec" style="background:'+au.b+';"><div class="ktitle" style="color:'+au.t+';"><i class="ti ti-arrow-right"></i> Le prochain pas</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div></div>'
@@ -2583,7 +2661,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 131';
+var IVE_VERSION='31/07 · 132';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
