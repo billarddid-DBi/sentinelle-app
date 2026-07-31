@@ -377,6 +377,32 @@ const $ = id => document.getElementById(id);
 const esc = s => (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 /* ===== BOUSSOLE ===== */
+/* QUITTER LE QUESTIONNAIRE SANS AVOIR SAUVEGARDÉ — demande de Didier, 31/07/2026.
+   ⚠️ On ne lui dit PAS « vos données ne seront pas sauvegardées » : ce serait faux. Les
+   réponses s'enregistrent à chaque geste, l'écran l'affiche deux fois. Ce que le bouton
+   « Sauvegarder » fait, c'est MARQUER la modification pour que le MIROIR sache qu'il doit
+   être mis à jour. Le message dit donc la vérité, et rien d'autre.
+   Et on ne demande rien si rien n'a bougé : une question inutile est une question de trop. */
+function bGrilleModifie(){
+  try{
+    if(!window.bItems || !window.bItems.length) return false;
+    if(typeof majEmpreinteDirigeant!=='function' || typeof majLire!=='function') return false;
+    var e=majEmpreinteDirigeant(); if(!e) return false;
+    var p=majLire().dirigeant;
+    return !p || p.e!==e;
+  }catch(x){ return false; }
+}
+function bGrilleSortieOk(){
+  var g=document.getElementById('bGrille');
+  if(!g || g.style.display==='none') return true;          // on n'est pas sur le questionnaire
+  if(!bGrilleModifie()) return true;                        // rien n'a bougé : on ne demande rien
+  return confirm(
+    'Vos réponses sont bien enregistrées.\n\n'
+    +'Mais tant que vous n\'avez pas cliqué « Sauvegarder », votre MIROIR ne tiendra pas '
+    +'compte de ces modifications.\n\n'
+    +'Quitter quand même ?'
+  );
+}
 function showView(v){
   ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   var hero=$('hero'); if(hero) hero.style.display=(v==='form'||v==='auth')?'block':'none';
@@ -1158,10 +1184,15 @@ function bGrilleActions(place){
     +'<div id="bProg'+(bas?'_bas':'')+'" style="font-size:11.5px;color:#4b5563;margin-top:5px;"></div>'
     +'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;">Vos réponses sont enregistrées automatiquement à chaque geste.</div>'
     +(bas?'':'<div style="font-size:11.5px;color:#7c2d12;background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.45;"><i class="ti ti-hand-click" style="color:#E8541A;"></i> Les lignes <b>grisées</b> attendent votre réponse. Si la note affichée vous convient, <b>cliquez simplement dessus</b> pour la valider.</div>')
-    +'<div style="display:flex;gap:8px;margin-top:10px;">'
-    // Boutons écrits à la main : la classe .btn empile l'icône au-dessus du libellé.
-    +'<button type="button" onclick="bFinish()" style="flex:1;min-width:0;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:13px;font-weight:700;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-circle-check"></i> Oui — voir le diagnostic</button>'
-    +'<button type="button" onclick="bouGrilleQuitter(\'accueil\')" style="flex:1;min-width:0;border:1px solid #d7dbe3;border-radius:11px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:600;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-bookmark"></i> Non — sauvegarder et reprendre plus tard</button>'
+    /* UN SEUL BOUTON (décision Didier, 31/07/2026). « Oui — voir le diagnostic » et « Non —
+       sauvegarder et reprendre plus tard » posaient une question dont la réponse n'avait pas
+       d'importance : dans les deux cas les réponses étaient déjà enregistrées. Le seul geste
+       qui compte, c'est de MARQUER la modification pour le MIROIR — d'où « Sauvegarder ».
+       Et si on quitte sans l'avoir cliqué après avoir modifié, la navigation prévient
+       (cf. bGrilleSortieOk). */
+    +'<div style="margin-top:10px;">'
+    +'<button type="button" onclick="bFinish()" style="width:100%;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:14px;font-weight:800;padding:13px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">Votre diagnostic s\'affiche ensuite, et votre MIROIR saura qu\'il doit être mis à jour.</div>'
     +'</div></div>';
 }
 function startGrille(mode){
@@ -2023,6 +2054,9 @@ function iveAbonne(){ return (typeof boussoleActif==='function') ? boussoleActif
 function iveNav(s){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
   if(!acc){ renderAuth('login'); return; }                 // compte obligatoire, sans exception
+  // Le garde-fou est ICI, sur le point de passage unique de la navigation : quel que soit
+  // l'onglet cliqué, on ne quitte pas un questionnaire modifié sans l'avoir dit.
+  if(typeof bGrilleSortieOk==='function' && !bGrilleSortieOk()) return;
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
@@ -2863,7 +2897,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 152';
+var IVE_VERSION='31/07 · 153';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6187,16 +6221,6 @@ function bouGrilleChip(){
     : '<b style="color:#15803d;"><i class="ti ti-circle-check"></i> Les '+total+' critères sont renseignés.</b>';
   if(p) p.innerHTML=txt;
   if(p2) p2.innerHTML=txt;
-}
-// Quitter en gardant tout : la grille est déjà sauvegardée à chaque geste, on ne fait que confirmer.
-function bouGrilleQuitter(dest){
-  bouGrilleStore.save();
-  /* « Non — sauvegarder et reprendre plus tard » est un enregistrement au même titre que
-     « Oui — voir le diagnostic » : les deux boutons posent le repère. Je n'avais branché que
-     le second (oubli du 31/07). Comme partout, la date ne bouge QUE si les réponses ont
-     changé — quitter sans avoir rien touché ne périme aucun MIROIR. */
-  try{ if(typeof majPoser==='function') majPoser('dirigeant', majEmpreinteDirigeant()); }catch(e){}
-  if(typeof iveNav==='function') iveNav(dest||'accueil'); else showView('dirigeant');
 }
 function bouGrilleEffacer(){
   if(!confirm('Effacer toutes vos réponses de ce questionnaire ?')) return;
