@@ -2763,7 +2763,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 139';
+var IVE_VERSION='31/07 · 140';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4381,18 +4381,31 @@ function cpNomCompte(saisi){
    « FEU_VERT » et « FEU_VERT_METZ_MARLY » — et on n'EFFACE RIEN : les anciens seaux restent en
    place. Un seau au nouveau format contient une adresse e-mail : on l'ignore, ce qui empêche de
    ramasser au passage les données d'un autre compte utilisé sur le même appareil. */
+/* CLOISONNEMENT — UN SEUL SEAU, CELUI DE CE COMPTE. NE PAS ÉLARGIR.
+   Cette fonction ramassait AUPARAVANT toutes les clés « pm_… » sans arobase, donc tous les
+   seaux nommés d'après une entreprise — quel que soit le compte qui les avait créés. Sur un
+   PC où plusieurs comptes se sont succédé, la première connexion d'un nouveau compte y
+   versait le contenu de tous les autres, puis le poussait dans SA base.
+   Constaté le 31/07/2026 : les tâches du compte « Le test de Bibi » se sont retrouvées dans
+   l'entreprise « feu vert ». Sur la machine d'un consultant, ce sont les tâches du prospect A
+   qui remonteraient chez le prospect B.
+   On ne reprend donc QUE le seau portant le nom de l'entreprise du compte connecté. Le seau
+   générique « ENTREPRISE » est écarté lui aussi : il n'appartient à personne en particulier,
+   donc il peut appartenir à n'importe qui.
+   Conséquence assumée : un compte dont le nom d'entreprise a changé ne retrouvera pas son
+   ancien seau. Perdre ses propres tâches est moins grave qu'hériter de celles d'un autre. */
 function cpAnciensSeaux(prefixe){
-  var r=[];
   try{
-    for(var i=0;i<localStorage.length;i++){
-      var k=localStorage.key(i);
-      if(k && k.indexOf(prefixe)===0 && k.indexOf('@')===-1 && k.length>prefixe.length) r.push(k);
-    }
-  }catch(e){}
-  // Le seau le plus vraisemblable d'abord : celui du nom du compte, puis le seau par défaut.
-  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  var pref=[prefixe+frSlug((a&&a.name)||''), prefixe+'ENTREPRISE'];
-  return r.sort(function(x,y){ return (pref.indexOf(y)>-1?1:0)-(pref.indexOf(x)>-1?1:0); });
+    var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+    var nom=(((a&&a.name)||'')+'').trim();
+    if(!nom) return [];                       // sans nom d'entreprise, on ne devine pas
+    var slug=(typeof frSlug==='function')?frSlug(nom):'';
+    // frSlug('') vaut « ENTREPRISE » : c'est le seau sans propriétaire, donc celui de
+    // n'importe qui. Un compte sans nom ne doit surtout pas hériter de son contenu.
+    if(!slug || slug==='ENTREPRISE') return [];
+    var k=prefixe+slug;
+    return (localStorage.getItem(k)!=null)?[k]:[];
+  }catch(e){ return []; }
 }
 /* SOURCE UNIQUE de fusion du quotidien (CLAUDE.md §7) — appelée par cpFusionner() ET par
    syncPull(). `base` fait foi ; `ajout` n'apporte que ce qui manque. Dédoublonnage par
