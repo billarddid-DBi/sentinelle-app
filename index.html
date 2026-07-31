@@ -821,6 +821,29 @@ function outilsOrdonnes(agents){
   // sort() est stable : à l'intérieur d'un groupe, l'ordre d'origine est conservé.
   return agents.slice().sort(function(x,y){ return (outilsPrioritaire(y)?1:0)-(outilsPrioritaire(x)?1:0); });
 }
+/* QUI FAIT LE TRAVAIL ? — déduit des mots employés dans le nom et le bénéfice.
+   Une étiquette qui se trompe fait mentir l'écran : un outil marqué PARTENAIRE dit au
+   dirigeant « il te faudra un prestataire », alors qu'il n'y a personne à appeler.
+
+   Deux pièges corrigés, tous deux constatés sur de vraies fiches :
+   1. le mot « site » seul. « Orchestrer les promotions sur Facebook, site, email » parle
+      d'un CANAL, pas d'un site à construire — l'outil basculait en PARTENAIRE. Idem pour
+      « intégrer au logiciel existant », qui est le quotidien d'un outil d'IA ;
+   2. l'absence de borne de mot : « visite », « nécessite » contiennent « site »,
+      « industrie » contient « trie ». Le classement se jouait sur des bouts de mots.
+
+   D'où : des termes de CONSTRUCTION en toutes lettres (on ne bâtit pas un « site » mais
+   un « site internet »), et une borne à GAUCHE de chaque terme — jamais à droite, pour
+   que « automatis » attrape encore « automatiser » et « automatisation ». */
+var OUTILS_CONSTRUIRE='site internet|site web|site vitrine|refonte|refondre|développement|developpement|application mobile|logiciel métier|logiciel metier|progiciel|caméra|camera|matériel|materiel|installation|installer|borne|capteur|équipement|equipement';
+var OUTILS_AUTOMATISER='automatis|génér|gener|rédig|redig|répon|repon|analys|trier|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi|planifi|orchestr|optimis|centralis|synchronis|recommand|personnalis|extrai|surveil';
+function outilsMotsDe(mots){ return new RegExp('(^|[^a-zà-ÿ])(' + mots + ')'); }
+function outilsQuiFait(a){
+  var s=(((a&&a.nom)||'')+' '+((a&&a.benefice)||'')).toLowerCase();
+  if(outilsMotsDe(OUTILS_CONSTRUIRE).test(s)) return {c:'#7c3aed',f:'#f5f3ff',b:'#ddd6fe',t:'PARTENAIRE'};
+  if(outilsMotsDe(OUTILS_AUTOMATISER).test(s)) return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
+  return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
+}
 function runMiroir(forcer){
   var b=window.lastMiroir;
   var sv=miroirStore.load();
@@ -2560,7 +2583,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 130';
+var IVE_VERSION='31/07 · 131';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6282,17 +6305,8 @@ function boussoleOutil(which){
       }
       // Prioritaires en tête — EXACTEMENT le tri envoyé au MIROIR (cf. outilsOrdonnes).
       var ags=outilsOrdonnes(fo.agents);
-      // Qui fait le travail ? Déduit des mots employés dans le nom et le bénéfice.
-      var quiFait=function(a){
-        var s=((a.nom||'')+' '+(a.benefice||'')).toLowerCase();
-        if(/site|refonte|développe|developpe|intégr|integr|logiciel|caméra|camera|matériel|materiel|installation|borne|application mobile/.test(s))
-          return {c:'#7c3aed',f:'#f5f3ff',b:'#ddd6fe',t:'PARTENAIRE'};
-        if(/automatis|génér|gener|rédig|redig|répon|repon|analys|trie|prédi|predi|chatbot|assistant|résum|resum|relance|détect|detect|calcul|qualifi/.test(s))
-          return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
-        return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
-      };
       var carte=function(a,i){
-        var chaud=outilsPrioritaire(a); var q=quiFait(a);
+        var chaud=outilsPrioritaire(a); var q=outilsQuiFait(a);
         var coul=chaud?'#E8541A':'#2563EB', fond=chaud?'#fffaf6':'#f5f8ff', bord=chaud?'#fed7aa':'#dbe7fb';
         return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:10px;">'
           +'<div style="display:flex;align-items:flex-start;gap:11px;">'
