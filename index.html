@@ -761,22 +761,36 @@ function renderMiroir(){
      regardait pas — il l'a cherchée pendant quatre échanges.
      Elle n'est JAMAIS automatique : une régénération appelle l'IA et coûte 3 jetons. On
      détecte que les données ont bougé, on le dit, et c'est lui qui décide. */
+  /* DEUX LIGNES, ET ON NOMME CE QUI A BOUGÉ (demande de Didier, 31/07/2026 : « ce n'est pas
+     assez clair, on n'a pas à deviner ce que tu as voulu dire »). L'ancienne version mettait
+     côte à côte « à jour, rien à régénérer » et « régénérer quand même » — deux messages
+     contradictoires sur la même ligne. Désormais l'état d'abord, l'action en dessous. */
   var _mq=(typeof miroirQuand==='function')?miroirQuand():'';
-  var _mCtrl = window.miroirPerime ? jetBouton('Mise &agrave; jour conseill&eacute;e','miroir','runMiroir(true)')
-             : _mRelance();
-  var _mNote = window.miroirPerime
-      ? '<span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse'+(_mq?(' du '+_mq):'')+'.</span>'
-      : (_mq ? '<span style="color:#9ca3af;"><i class="ti ti-clock"></i> Analyse du '+_mq+' — <b>à jour</b>, rien à régénérer.</span>'
-             : '<span style="color:#9ca3af;"><i class="ti ti-clock"></i> Analyse enregistr&eacute;e, date inconnue sur cet appareil.</span>');
+  var _mNouv=(window.miroirNouveau&&window.miroirNouveau.length)?window.miroirNouveau
+             :((typeof majDepuis==='function' && miroirStore.load())?majDepuis((miroirStore.load()||{}).ts):[]);
+  var _liste=function(t){ return t.length>1 ? (t.slice(0,-1).join(', ')+' et '+t[t.length-1]) : (t[0]||''); };
+  var _mCtrl, _mNote;
+  if(window.miroirPerime){
+    _mNote='<span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> <b>Du nouveau depuis cette analyse'+(_mq?(' du '+_mq):'')+'</b>'
+          +(_mNouv.length?(' : '+esc(_liste(_mNouv))+'.'):'.')+'</span>';
+    _mCtrl=jetBouton('Mettre &agrave; jour le MIROIR','miroir','runMiroir(true)');
+  }else{
+    _mNote='<span style="color:#6b7280;"><i class="ti ti-circle-check" style="color:#15803d;"></i> '
+          +(_mq?('Analyse du '+_mq+'. '):'Analyse enregistr&eacute;e. ')
+          +'<b>Rien de nouveau depuis</b> — ni questionnaire, ni avis salari&eacute;, ni carte de la concurrence.</span>';
+    _mCtrl=_mRelance();
+  }
   var vSec='';
   if(b.ecart!=null){ var dv=b.ecart, vz=dv<=-20?0:dv<=-8?1:dv<8?2:dv<20?3:4;
+    /* L'ÉTAT D'ABORD, L'ACTION EN DESSOUS — « tu la places au-dessus du bouton » (Didier).
+       On lit ce qui s'est passé, puis on décide. Le tout reste au-dessus du cadran. */
     vSec='<div class="sec">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">'
-        +'<div class="ktitle" style="color:#cf4712;margin:0;"><i class="ti ti-target"></i> Le miroir de l\'écart</div>'
-        +'<div>'+_mCtrl+'</div>'
-      +'</div>'
+      +'<div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Le miroir de l\'écart</div>'
       +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Image perçue <b>'+(b.indiceExterieur!=null?b.indiceExterieur:'?')+'</b> → réalité <b>'+(b.indiceInterieur!=null?b.indiceInterieur:'?')+'</b> → potentiel <b>'+(b.potentiel!=null?b.potentiel:'?')+'</b></div>'
-      +'<div style="font-size:11.5px;margin-top:5px;">'+_mNote+'</div>'
+      +'<div style="'+(window.miroirPerime?'background:#fff7ed;border:1px solid #fed7aa;':'background:#f8faf9;border:1px solid #eef0f3;')+'border-radius:10px;padding:9px 11px;margin-top:9px;">'
+        +'<div style="font-size:11.5px;line-height:1.5;">'+_mNote+'</div>'
+        +'<div style="margin-top:8px;">'+_mCtrl+'</div>'
+      +'</div>'
       +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)+'</div>';
   }
   var pilRecap='';
@@ -869,7 +883,7 @@ function renderMiroir(){
   /* REPLI : sans indice extérieur, « Le miroir de l'écart » n'est pas rendu — la régénération
      n'aurait alors nulle part où vivre et le dirigeant n'aurait plus aucun moyen de relancer.
      Dans ce seul cas, elle reprend sa place en bandeau, en haut. */
-  var _mbar = vSec ? '' : ('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;">'+_mNote+_mCtrl+'</div>');
+  var _mbar = vSec ? '' : ('<div style="'+(window.miroirPerime?'background:#fff7ed;border:1px solid #fed7aa;':'background:#f8faf9;border:1px solid #eef0f3;')+'border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><div style="font-size:11.5px;line-height:1.5;">'+_mNote+'</div><div style="margin-top:8px;">'+_mCtrl+'</div></div>');
   $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR',(quotSec?'Votre image, votre réalité, vos journées':'Le miroir de votre image et de votre réalité'),'t360')+_mbar+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
@@ -954,7 +968,9 @@ function saveMiroir(m){
 var miroirStore={
   key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_miroir_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
   load:function(){ try{ var s=localStorage.getItem(miroirStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
-  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',sig:miroirSignature(),ts:Date.now()})); }catch(e){} }
+  // Plus d'empreinte globale ici : c'est la DATE de l'analyse qui compte, comparée aux repères
+  // des trois sources (cf. majDepuis). Une analyse est périmée si une source a bougé APRÈS elle.
+  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',ts:Date.now()})); }catch(e){} }
 };
 /* LE QUOTIDIEN — la 3e source du MIROIR. SENTINELLE dit l'image, la BOUSSOLE dit ce que le
    dirigeant déclare, LE QUOTIDIEN montre ce que ses journées font. On ne rappelle JAMAIS l'IA
@@ -985,16 +1001,6 @@ function miroirQuotidien(){
     nbTaches:n30, nbEnCours:enCours, plusVieille:vieille,
     date:(typeof recurQuand==='function')?recurQuand():''
   };
-}
-/* Empreinte des données qui ont servi à l'analyse. Si elle change — nouvelle SENTINELLE,
-   questionnaire modifié, réponses des salariés, nouveau sujet récurrent — l'analyse est périmée
-   et on le dit. On y met les SUJETS détectés, jamais le nombre de tâches : sinon chaque tâche
-   dictée périmerait le MIROIR et pousserait à redépenser un jeton pour rien. */
-function miroirSignature(){
-  var base=(typeof iveEmpreinte==='function')?iveEmpreinte():'';
-  var q=(typeof miroirQuotidien==='function')?miroirQuotidien():null;
-  var sq=q?q.sujets.map(function(s){ return s.sujet+':'+s.nb; }).join(','):'';
-  return base+'||'+sq;
 }
 function miroirQuand(){
   var s=miroirStore.load(); if(!s||!s.ts) return '';
@@ -1046,10 +1052,11 @@ function runMiroir(forcer){
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
   // Déjà généré pour cette entreprise ? on relit la sauvegarde, sans rappeler l'IA.
   // Le nom saisi varie d'une fois sur l'autre (« feu vert » / « Feu Vert Metz Marly ») : le comparer
-  // faisait retomber dans un appel IA. La sauvegarde est déjà propre au compte ; c'est l'empreinte
-  // des données (miroirSignature) qui dit si l'analyse est encore valable.
+  // faisait retomber dans un appel IA. La sauvegarde est déjà propre au compte ; ce sont les
+  // REPÈRES des trois sources qui disent si l'analyse est encore valable (cf. majDepuis).
   if(!forcer && sv && sv.m){
-    window.miroirPerime=(sv.sig!==miroirSignature());   // les données ont-elles bougé depuis ? (quotidien compris)
+    window.miroirNouveau=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
+    window.miroirPerime=(window.miroirNouveau.length>0);   // une source a bougé APRÈS cette analyse
     window.miroirData=sv.m; window.miroirAud='externe';
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
@@ -1446,6 +1453,54 @@ function toggleNA(id){
   else { el.dataset.na='1'; el.disabled=true; if(btn)btn.classList.add('on'); if(row)row.style.opacity='.45'; if(lab)lab.textContent='n/c'; }
   bcalc();
 }
+/* ===== LES REPÈRES DE FRAÎCHEUR — décision de Didier, 31/07/2026 =====
+   Avant : une empreinte GLOBALE (miroirSignature) comparait tout d'un bloc. Elle savait dire
+   « vos données ont changé », jamais QUOI. Le dirigeant devait deviner, et une valeur de
+   simulateur bougée suffisait à périmer son MIROIR sans qu'il comprenne pourquoi.
+
+   Maintenant : trois sources, chacune avec sa date et sa propre empreinte.
+     • diagnostic dirigeant — au clic sur « Voir le diagnostic »
+     • avis des salariés    — à l'arrivée d'une réponse (aucun clic possible)
+     • carte de la concurrence — à sa génération (concStore garde déjà un ts)
+   L'écran peut alors NOMMER ce qui a bougé.
+
+   ⚠️ RÈGLE POSÉE PAR DIDIER : un CLIC n'est pas une MODIFICATION. On compare le contenu ;
+   enregistrer dix fois sans rien changer ne périme rien. C'est à ça que sert l'empreinte par
+   source — elle ne dit qu'une chose, « cette source a-t-elle changé ? », et le message affiché
+   nomme toujours la source. Rien à voir avec l'ancien code global illisible. */
+var MAJ_SOURCES={ dirigeant:'questionnaire dirigeant', salaries:'avis de vos salariés', concurrence:'carte de la concurrence' };
+function majCle(){ return 'ive_maj_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
+function majLire(){ try{ return JSON.parse(localStorage.getItem(majCle())||'{}')||{}; }catch(e){ return {}; } }
+function majPoser(cle, empreinte){
+  if(!cle || !empreinte) return false;
+  var o=majLire(), p=o[cle];
+  if(p && p.e===empreinte) return false;              // même contenu : la date ne bouge pas
+  o[cle]={ e:String(empreinte), ts:Date.now() };
+  try{ localStorage.setItem(majCle(), JSON.stringify(o)); }catch(e){}
+  try{ if(typeof syncPush==='function') syncPush(); }catch(e){}
+  return true;
+}
+/* Ce qui a changé DEPUIS une date donnée — la liste des libellés, prête à afficher. */
+function majDepuis(ts){
+  if(!ts) return [];
+  var o=majLire(), out=[];
+  for(var k in MAJ_SOURCES){ if(o[k] && o[k].ts > ts) out.push(MAJ_SOURCES[k]); }
+  return out;
+}
+/* Les empreintes, une par source. Volontairement courtes : elles ne servent qu'à comparer. */
+function majEmpreinteDirigeant(){
+  var it=window.bItems||[]; if(!it.length) return '';
+  var v=it.map(function(x){ var e=document.getElementById(x.id);
+    if(!e) return '-';
+    if(e.dataset && e.dataset.na==='1') return 'n';        // « non concerné »
+    if(!(e.dataset && e.dataset.vu==='1')) return '?';     // pas encore répondu
+    return e.value; }).join('');
+  return it.length+':'+v;
+}
+function majEmpreinteConcurrence(d,kw){
+  var l=(d&&Array.isArray(d.concurrents))?d.concurrents:[];
+  return (kw||'')+'|'+l.length+'|'+l.map(function(x){ return (x&&x.aura&&x.aura.note!=null)?x.aura.note:'-'; }).join(',');
+}
 /* AVEC OU SANS LES SALARIÉS — un diagnostic bâti sur le seul regard du dirigeant n'a pas la
    même portée que celui qui a entendu les équipes. On le dit franchement, et on le dit JUSTE :
    cette zone se redessine dès que les réponses reviennent de la base, sans recharger l'écran. */
@@ -1465,6 +1520,10 @@ function bAvecSalPeindre(){
   try{ var e=document.getElementById('bAvecSal'); if(e) e.innerHTML=bAvecSalHtml(); }catch(x){}
 }
 function bFinish(){
+  /* Le repère se pose ICI, avant que l'écran ne remplace la grille par le résultat : c'est le
+     dernier instant où les réponses sont encore lisibles dans la page. Et il ne bouge QUE si
+     elles ont changé — cliquer « Voir le diagnostic » sans avoir rien touché ne périme rien. */
+  try{ if(typeof majPoser==='function') majPoser('dirigeant', majEmpreinteDirigeant()); }catch(e){}
   var r=bScan();
   var nom=($('bNom')&&$('bNom').value.trim())||'Entreprise';
   var mode=(r.n>=200)?'Complet':(r.n<=40?'Express':'Partiel');
@@ -2804,7 +2863,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 150';
+var IVE_VERSION='31/07 · 151';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3365,7 +3424,12 @@ function auraCell(au,est){ if(!au||au.note==null) return '<span style="color:#9c
 var concStore={
   key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_conc_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
   load:function(){ try{ var s=localStorage.getItem(concStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
-  save:function(d,kw){ try{ localStorage.setItem(concStore.key(), JSON.stringify({d:d,kw:kw||'',ts:Date.now()})); }catch(e){} }
+  // La carte enregistre déjà sa date : sa génération EST le repère, aucun bouton à ajouter.
+  // Mais refaire la même carte ne périme rien — c'est le contenu qui compte, pas le geste.
+  save:function(d,kw){
+    try{ localStorage.setItem(concStore.key(), JSON.stringify({d:d,kw:kw||'',ts:Date.now()})); }catch(e){}
+    try{ if(typeof majPoser==='function') majPoser('concurrence', majEmpreinteConcurrence(d,kw)); }catch(e){}
+  }
 };
 function concQuand(){ var s=concStore.load(); if(!s||!s.ts) return ''; return new Date(s.ts).toLocaleDateString('fr-FR'); }
 function concFaite(){ var s=concStore.load(); return !!(s&&s.d); }
@@ -3693,6 +3757,8 @@ async function ahAuto(){
       var a=(typeof ahAgreger==='function')?await ahAgreger():null;
       if(!a) return null;
       window.lastAH=a;
+      // Une réponse de plus est, par nature, une modification : aucun clic n'est possible ici.
+      try{ if(typeof majPoser==='function') majPoser('salaries','n'+a.n); }catch(e){}
       try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
       // L'écran BOUSSOLE est peut-être déjà affiché : on corrige la mention sur place plutôt
       // que d'attendre qu'il aille voir la page des salariés et revienne.
