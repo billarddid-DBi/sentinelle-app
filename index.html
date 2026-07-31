@@ -2066,6 +2066,7 @@ function iveNav(s){
   // Le garde-fou est ICI, sur le point de passage unique de la navigation : quel que soit
   // l'onglet cliqué, on ne quitte pas un questionnaire modifié sans l'avoir dit.
   if(typeof bGrilleSortieOk==='function' && !bGrilleSortieOk()) return;
+  if(typeof ahSortieOk==='function' && !ahSortieOk()) return;
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
@@ -2906,7 +2907,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 154';
+var IVE_VERSION='31/07 · 155';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4055,15 +4056,44 @@ async function repEnvoyer(btn){
       +'<div style="font-size:12.5px;color:#6b7280;line-height:1.6;margin-top:8px;">Votre avis va servir à améliorer le fonctionnement de l\'entreprise. Vous pouvez fermer cette page.</div></div>'));
   }catch(x){ if(e) e.textContent='Envoi impossible. Vérifiez votre connexion et réessayez.'; }
 }
+/* MÊME PRINCIPE QUE LE QUESTIONNAIRE DIRIGEANT (demande de Didier, 31/07/2026) : un seul
+   bouton, « Sauvegarder », en haut et en bas.
+   ⚠️ MAIS UNE DIFFÉRENCE QUI CHANGE LE MESSAGE. Le questionnaire dirigeant enregistre à chaque
+   geste ; celui-ci n'enregistre RIEN tant qu'on n'a pas cliqué. Quitter en cours de route fait
+   donc réellement perdre les réponses — ici l'avertissement « vos réponses seront perdues » est
+   vrai, alors qu'il aurait été mensonger sur l'autre écran. Le texte suit la réalité de
+   chaque écran, jamais un modèle recopié. */
+function ahEmpreinte(){
+  var it=window.ahItems||[]; if(!it.length) return '';
+  var vus=0;
+  var v=it.map(function(x){ var e=document.getElementById(x.id); if(!e) return '-'; vus++; return e.value; }).join(',');
+  return vus?(it.length+':'+v):'';        // plus aucun curseur affiché = aucune mesure possible
+}
+function ahSortieOk(){
+  var z=document.getElementById('ahView');
+  if(!z || z.style.display==='none') return true;
+  var e=ahEmpreinte();
+  if(!e || e===window.__ahDepart) return true;          // rien saisi, ou rien de changé
+  return confirm(
+    'Ce questionnaire n\'est pas encore enregistré.\n\n'
+    +'Contrairement au questionnaire dirigeant, vos réponses ne sont gardées qu\'au clic sur '
+    +'« Sauvegarder ». Si vous quittez maintenant, elles seront perdues.\n\n'
+    +'Quitter quand même ?'
+  );
+}
 function ahActions(){
-  return '<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
-    +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
+  return '<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">'
+    +(window.ahControleMode?'Votre contrôle est enregistré et l\'évolution s\'affiche.':'Vos réponses sont enregistrées et la maturité humaine s\'affiche.')+'</div>'
+    +'<button class="btn btn-ghost" onclick="if(ahSortieOk()){window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'();}">← Retour</button>';
 }
 function ahStart(mode){
   showView('ahView');
   var take = AH_CRITERES.filter(function(x){ return mode==='express' ? x.x===1 : true; });
   window.ahItems = take.map(function(x){ return {id:'ah_'+x.c, code:x.c, dom:x.d, t:x.t}; });
   window.ahMode = mode;
+  // Empreinte de depart : sans elle, on ne peut pas savoir si le dirigeant a saisi quelque chose.
+  setTimeout(function(){ try{ window.__ahDepart=ahEmpreinte(); }catch(e){} },0);
   var label = mode==='express'?'Express':'Complet';
   var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · pouls humain ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> Questionnaire aux salariés '+label+' · acceptabilité du changement ('+take.length+' critères)');
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
