@@ -1191,8 +1191,8 @@ function bGrilleActions(place){
        Et si on quitte sans l'avoir cliqué après avoir modifié, la navigation prévient
        (cf. bGrilleSortieOk). */
     +'<div style="margin-top:10px;">'
-    +'<button type="button" onclick="bFinish()" style="width:100%;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:14px;font-weight:800;padding:13px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
-    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">Votre diagnostic s\'affiche ensuite, et votre MIROIR saura qu\'il doit être mis à jour.</div>'
+    +'<button type="button" onclick="bFinish(true)" style="width:100%;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:14px;font-weight:800;padding:13px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">Vos réponses sont enregistrées, votre MIROIR saura qu\'il doit être mis à jour, et vous revenez au menu.</div>'
     +'</div></div>';
 }
 function startGrille(mode){
@@ -1559,7 +1559,7 @@ function bAvecSalHtml(){
 function bAvecSalPeindre(){
   try{ var e=document.getElementById('bAvecSal'); if(e) e.innerHTML=bAvecSalHtml(); }catch(x){}
 }
-function bFinish(){
+function bFinish(retourMenu){
   /* Le repère se pose ICI, avant que l'écran ne remplace la grille par le résultat : c'est le
      dernier instant où les réponses sont encore lisibles dans la page. Et il ne bouge QUE si
      elles ont changé — cliquer « Voir le diagnostic » sans avoir rien touché ne périme rien. */
@@ -1747,6 +1747,11 @@ function bFinish(){
   // Plus de « dites synchronise sur le PC » : la fiche part directement dans la base.
   if(typeof evt==='function') evt('boussole',{indice:r.idx});
   ficheEnregistrer('boussole', nom, payload.json||payload, fiche).then(function(res){ ficheMsg($('bSave'), res, 'BOUSSOLE enregistrée'); });
+  /* RETOUR AU MENU après « Sauvegarder » (demande de Didier, 31/07/2026). Tout le calcul et
+     l'enregistrement ci-dessus ont bien eu lieu — on ne choisit que l'endroit où le dirigeant
+     atterrit. Seul le BOUTON passe retourMenu : boussoleResultats() appelle bFinish() pour
+     AFFICHER le résultat, il doit rester sur place. */
+  if(retourMenu && typeof iveNav==='function') setTimeout(function(){ iveNav('actions'); },0);
 }
 /* ===== fin BOUSSOLE ===== */
 
@@ -2909,7 +2914,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 158';
+var IVE_VERSION='31/07 · 159';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
