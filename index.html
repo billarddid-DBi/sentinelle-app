@@ -1396,19 +1396,14 @@ function bFinish(){
   var _axh=(_ax&&typeof AURAS!=='undefined'&&AURAS[_ax.couleur]&&AURAS[_ax.couleur].h)||'#3b82f6';
   // Les deux auras côte à côte, même diamètre et mêmes lignes de légende : elles s'alignent
   // parfaitement, ce qui rend la comparaison immédiate.
-  var _pastille=function(note,coul,etiquette,sousTitre,etoiles,futur,echelle){
-    // « futur » = le potentiel : pas encore atteint, donc en pointillés et plus discret.
-    var _st='box-shadow:0 0 26px '+(futur?'7px '+coul+'66':'6px '+coul+'4d')+', inset 0 -10px 24px rgba(0,0,0,.28);';
-    // « echelle » permet de mettre en avant une pastille sans toucher aux autres.
-    var f=echelle||1;
-    var _c=function(a,b,c){ return 'clamp('+Math.round(a*f)+'px,'+(b*f).toFixed(1)+'vw,'+Math.round(c*f)+'px)'; };
-    var _d=_c(84,22,126);
-    return '<div style="width:'+_c(98,26,143)+';flex:0 0 auto;text-align:center;">'
-      +'<div style="width:'+_d+';height:'+_d+';border-radius:50%;margin:0 auto;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'+_st+'display:flex;flex-direction:column;align-items:center;justify-content:center;">'
-      +'<div style="font-size:clamp(20px,5.3vw,24px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
-      +'<div style="font-size:11px;color:#fff;height:14px;line-height:14px;margin-top:2px;">'+(etoiles||'')+'</div></div>'
-      +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;margin-top:12px;">'+etiquette+'</div>'
-      +'<div style="font-size:12px;color:#9ca3af;margin-top:3px;">'+sousTitre+'</div></div>';
+  /* La pastille seule — sans son étiquette : depuis le 31/07 elle vit à GAUCHE et le texte
+     l'accompagne à DROITE (décision Didier : le bloc noir prenait trop de hauteur). */
+  var _cercle=function(note,coul,etoiles){
+    var _d='clamp(86px,23vw,112px)';
+    return '<div style="width:'+_d+';height:'+_d+';flex:0 0 auto;border-radius:50%;background:radial-gradient(circle at 42% 32%,'+coul+'ff 0%,'+coul+'e6 55%,'+coul+'99 100%);'
+      +'box-shadow:0 0 22px 5px '+coul+'4d, inset 0 -9px 20px rgba(0,0,0,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;">'
+      +'<div style="font-size:clamp(21px,5.5vw,26px);font-weight:800;color:#fff;line-height:1;letter-spacing:-.4px;">'+note+'<span style="font-size:10px;font-weight:600;opacity:.85;">/100</span></div>'
+      +'<div style="font-size:11px;color:#fff;height:14px;line-height:14px;margin-top:2px;">'+(etoiles||'')+'</div></div>';
   };
   var _trait='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.45));"></div>';
   var _traitD='<div style="flex:1;max-width:150px;height:1px;background:linear-gradient(90deg,rgba(232,149,79,.45),rgba(232,149,79,0));"></div>';
@@ -1439,30 +1434,37 @@ function bFinish(){
       ATTENTION : `_ax` (extérieure), `pot` et `progression` restent CALCULÉS plus haut — ils
       alimentent window.lastMiroir, les instantanés de trajectoire et le MIROIR. On retire
       l'AFFICHAGE, jamais le calcul. */
-   +'<div style="display:flex;align-items:flex-start;justify-content:center;margin-top:16px;">'
-   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx),false,1.15)
-   +'</div>'
-   /* Avec ou sans les salariés : un diagnostic bâti sur le seul regard du dirigeant n'a pas la
-      même portée que celui qui a entendu les équipes. Le dire franchement. */
+   /* DISPOSITION (décision Didier, 31/07) : pastille à GAUCHE, texte à DROITE. Empilé et
+      centré, ce bloc occupait presque tout l'écran — il fallait faire défiler avant
+      d'atteindre la moindre information utile. Côte à côte, la même chose tient en une
+      bande. Le pavé « IVE <couleur> » reste dessous, inchangé : c'est la signature. */
+   +'<div style="display:flex;align-items:center;gap:clamp(13px,4vw,20px);margin-top:13px;">'
+   +_cercle(r.idx,au.h,starsHTML(r.idx))
    +(function(){
+      // Avec ou sans les salariés : un diagnostic bâti sur le seul regard du dirigeant n'a pas
+      // la même portée que celui qui a entendu les équipes. Le dire franchement.
       var avec=!!(window.lastAH && window.lastAH.iat!=null);
-      return '<div style="text-align:center;margin-top:14px;">'
-        +'<span style="display:inline-block;font-size:11.5px;font-weight:700;border-radius:20px;padding:5px 14px;'
+      return '<div style="flex:1;min-width:0;">'
+        +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;">INTÉRIEURE</div>'
+        +'<div style="font-size:12px;color:#9ca3af;margin-top:2px;">éclat '+ec+'</div>'
+        +'<span style="display:inline-block;margin-top:9px;font-size:11px;font-weight:700;border-radius:20px;padding:4px 11px;'
         +(avec?'color:#86efac;background:rgba(34,197,94,.12);border:1px solid rgba(134,239,172,.35);'
               :'color:#fcd34d;background:rgba(245,158,11,.10);border:1px solid rgba(252,211,77,.30);')+'">'
         +'<i class="ti '+(avec?'ti-users-group':'ti-user')+'"></i> '
         +(avec?'Réalisé AVEC vos salariés':'Réalisé SANS vos salariés')+'</span>'
-        +'<div style="font-size:11px;color:#8fa6d8;margin-top:6px;line-height:1.45;">'
+        +'<div style="font-size:10.5px;color:#8fa6d8;margin-top:5px;line-height:1.4;">'
         +(avec?'Votre regard et celui de vos équipes ont été croisés.'
               :'Ce diagnostic ne porte que votre regard. Le questionnaire aux salariés en donnera l\'autre moitié.')
         +'</div></div>';
     })()
+   +'</div>'
    +'</div>';
-  var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
-   +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
-   +'<div style="width:min(240px,60%);height:1px;margin:12px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
-   +'<div style="font-size:13.5px;color:#cbd5e1;line-height:1.55;">'+ad.d+'</div></div>';
-  var auraBand='<div style="background:#0d0d0f;color:#fff;padding:6px 18px 20px;">'
+  // Marges resserrées avec la mise côte à côte : même contenu, une bande au lieu d'un écran.
+  var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:13px 14px;margin-top:14px;text-align:center;">'
+   +'<div style="font-size:clamp(15px,4.2vw,18px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
+   +'<div style="width:min(240px,60%);height:1px;margin:9px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
+   +'<div style="font-size:12.5px;color:#cbd5e1;line-height:1.5;">'+ad.d+'</div></div>';
+  var auraBand='<div style="background:#0d0d0f;color:#fff;padding:4px 16px 14px;">'
    /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
    +blocAuras+blocSens+'</div>';
   // ===== Trajectoire : Indice de Cohérence (écart image↔réalité) + Potentiel de Progression (la montée) =====
@@ -2722,7 +2724,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 135';
+var IVE_VERSION='31/07 · 136';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
