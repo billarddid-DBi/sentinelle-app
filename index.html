@@ -1446,6 +1446,24 @@ function toggleNA(id){
   else { el.dataset.na='1'; el.disabled=true; if(btn)btn.classList.add('on'); if(row)row.style.opacity='.45'; if(lab)lab.textContent='n/c'; }
   bcalc();
 }
+/* AVEC OU SANS LES SALARIÉS — un diagnostic bâti sur le seul regard du dirigeant n'a pas la
+   même portée que celui qui a entendu les équipes. On le dit franchement, et on le dit JUSTE :
+   cette zone se redessine dès que les réponses reviennent de la base, sans recharger l'écran. */
+function bAvecSalHtml(){
+  var avec=!!(window.lastAH && window.lastAH.iat!=null);
+  return '<span style="display:inline-block;margin-top:9px;font-size:11px;font-weight:700;border-radius:20px;padding:4px 11px;'
+    +(avec?'color:#86efac;background:rgba(34,197,94,.12);border:1px solid rgba(134,239,172,.35);'
+          :'color:#fcd34d;background:rgba(245,158,11,.10);border:1px solid rgba(252,211,77,.30);')+'">'
+    +'<i class="ti '+(avec?'ti-users-group':'ti-user')+'"></i> '
+    +(avec?'Réalisé AVEC vos salariés':'Réalisé SANS vos salariés')+'</span>'
+    +'<div style="font-size:10.5px;color:#8fa6d8;margin-top:5px;line-height:1.4;">'
+    +(avec?('Votre regard et celui de vos équipes ont été croisés'+((window.lastAH&&window.lastAH.n)?(' — '+window.lastAH.n+' réponse'+(window.lastAH.n>1?'s':'')):'')+'.')
+          :'Ce diagnostic ne porte que votre regard. Le questionnaire aux salariés en donnera l\'autre moitié.')
+    +'</div>';
+}
+function bAvecSalPeindre(){
+  try{ var e=document.getElementById('bAvecSal'); if(e) e.innerHTML=bAvecSalHtml(); }catch(x){}
+}
 function bFinish(){
   var r=bScan();
   var nom=($('bNom')&&$('bNom').value.trim())||'Entreprise';
@@ -1502,23 +1520,17 @@ function bFinish(){
       bande. Le pavé « IVE <couleur> » reste dessous, inchangé : c'est la signature. */
    +'<div style="display:flex;align-items:center;gap:clamp(13px,4vw,20px);margin-top:13px;">'
    +_cercle(r.idx,au.h,starsHTML(r.idx))
-   +(function(){
-      // Avec ou sans les salariés : un diagnostic bâti sur le seul regard du dirigeant n'a pas
-      // la même portée que celui qui a entendu les équipes. Le dire franchement.
-      var avec=!!(window.lastAH && window.lastAH.iat!=null);
-      return '<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;">INTÉRIEURE</div>'
-        +'<div style="font-size:12px;color:#9ca3af;margin-top:2px;">éclat '+ec+'</div>'
-        +'<span style="display:inline-block;margin-top:9px;font-size:11px;font-weight:700;border-radius:20px;padding:4px 11px;'
-        +(avec?'color:#86efac;background:rgba(34,197,94,.12);border:1px solid rgba(134,239,172,.35);'
-              :'color:#fcd34d;background:rgba(245,158,11,.10);border:1px solid rgba(252,211,77,.30);')+'">'
-        +'<i class="ti '+(avec?'ti-users-group':'ti-user')+'"></i> '
-        +(avec?'Réalisé AVEC vos salariés':'Réalisé SANS vos salariés')+'</span>'
-        +'<div style="font-size:10.5px;color:#8fa6d8;margin-top:5px;line-height:1.4;">'
-        +(avec?'Votre regard et celui de vos équipes ont été croisés.'
-              :'Ce diagnostic ne porte que votre regard. Le questionnaire aux salariés en donnera l\'autre moitié.')
-        +'</div></div>';
-    })()
+   +'<div style="flex:1;min-width:0;">'
+     +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;">INTÉRIEURE</div>'
+     +'<div style="font-size:12px;color:#9ca3af;margin-top:2px;">éclat '+ec+'</div>'
+     /* Le bloc « avec / sans vos salariés » porte un ID et se REDESSINE : au premier
+        affichage, la lecture des réponses n'est pas toujours revenue de la base, et l'écran
+        annonçait « SANS vos salariés » alors que c'était faux (constaté par Didier le 31/07,
+        après une simple déconnexion/reconnexion). Il fallait aller voir la page des salariés
+        puis revenir pour que ce soit juste. Désormais ahAuto() rafraîchit cette zone dès que
+        les réponses arrivent — voir bAvecSalPeindre(). */
+     +'<div id="bAvecSal">'+bAvecSalHtml()+'</div>'
+   +'</div>'
    +'</div>'
    +'</div>';
   // Marges resserrées avec la mise côte à côte : même contenu, une bande au lieu d'un écran.
@@ -1616,6 +1628,12 @@ function bFinish(){
   // Les résultats vivent sous l'onglet BOUSSOLE : la barre de navigation le montre.
   $('bGrille').innerHTML=(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+card+'';
    /* Ligne d'enregistrement et boutons du bas retirés (décision Didier). */
+  /* On demande les réponses des salariés ICI aussi, pas seulement à la connexion : le
+     dirigeant peut arriver droit sur cet écran, et la lecture de la base n'est pas toujours
+     revenue quand il l'ouvre. ahAuto() ne lit qu'une fois par session, donc c'est gratuit et
+     sans effet si c'est déjà fait ; sinon la mention « avec / sans vos salariés » se corrige
+     toute seule quelques instants plus tard. */
+  try{ if(typeof ahAuto==='function') ahAuto().then(function(){ bAvecSalPeindre(); }); }catch(e){}
 
 
 
@@ -2786,7 +2804,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 148';
+var IVE_VERSION='31/07 · 149';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3669,6 +3687,9 @@ async function ahAuto(){
     if(!a) return null;
     window.lastAH=a;
     try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
+    // L'écran BOUSSOLE est peut-être déjà affiché : on corrige la mention sur place plutôt
+    // que d'attendre qu'il aille voir la page des salariés et revienne.
+    try{ if(typeof bAvecSalPeindre==='function') bAvecSalPeindre(); }catch(e){}
     return a;
   }catch(e){ return null; }
 }
