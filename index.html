@@ -1482,7 +1482,13 @@ function toggleNA(id){
   var on=el.dataset.na==='1';
   if(on){ el.dataset.na=''; el.disabled=false; if(btn)btn.classList.remove('on'); if(row)row.style.opacity=''; if(lab)lab.textContent=el.value; }
   else { el.dataset.na='1'; el.disabled=true; if(btn)btn.classList.add('on'); if(row)row.style.opacity='.45'; if(lab)lab.textContent='n/c'; }
-  bcalc();
+  /* CHAQUE QUESTIONNAIRE SON CALCUL. toggleNA sert aux DEUX grilles, mais appelait bcalc()
+     dans tous les cas : depuis l'écran salariés, il déclenchait donc l'enregistrement de la
+     BOUSSOLE avec des curseurs absents de la page — ce qui aurait effacé les réponses du
+     questionnaire dirigeant. Le garde-fou de bouGrilleStore.save() l'arrêtait déjà, mais la
+     bonne correction est de ne pas appeler le mauvais calcul. (31/07/2026) */
+  if(String(id||'').indexOf('ah_')===0){ if(typeof ahCalc==='function') ahCalc(); }
+  else { bcalc(); }
 }
 /* ===== LES REPÈRES DE FRAÎCHEUR — décision de Didier, 31/07/2026 =====
    Avant : une empreinte GLOBALE (miroirSignature) comparait tout d'un bloc. Elle savait dire
@@ -2914,7 +2920,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 159';
+var IVE_VERSION='31/07 · 160';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3920,6 +3926,86 @@ async function enqueteCopier(quoi){
   }
 }
 /* ===== QUESTIONNAIRE AUX SALARIÉS (fonctions) ===== */
+/* POUR QUI SAISIT-ON ? — deux réponses, jamais implicite.
+   « Moi, le dirigeant » : la saisie reste locale, c'est SON regard sur le volet humain.
+   « Je saisis pour un salarié » : nom + poste obligatoires, et la réponse part dans la table
+   des réponses salariés — la même que le lien partagé. Elle ne peut donc écraser personne.
+   Le nom n'est pas une formalité : sans lui, une saisie fausse la dispersion sans qu'on sache
+   d'où elle vient. C'est la règle « nominatif et assumé » posée par Didier, appliquée aussi
+   aux réponses qu'il note lui-même. */
+/* L'ENVOI D'UNE RÉPONSE SAISIE PAR LE DIRIGEANT emprunte EXACTEMENT le chemin du lien
+   partagé : même RPC, même table, même plafond de dix vérifié côté serveur. C'est ce qui
+   garantit qu'une saisie n'écrase jamais une autre — le défaut que Didier a repéré avant que
+   je ne le livre. Une seconde voie d'écriture aurait fini par diverger de la première. */
+async function ahEnvoyerSalarie(btn){
+  var e=document.getElementById('ahQuiErr') || document.getElementById('ahErr');
+  var dire=function(t,rouge){ if(e){ e.style.color=rouge?'#991b1b':'#15803d'; e.textContent=t; } };
+  if(!ahQuiPret()){
+    var z=document.getElementById('ahQui'); if(z) z.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  var r=(typeof ahScan==='function')?ahScan():null;
+  if(!r || r.iat==null){ dire('Répondez à quelques questions avant d\'enregistrer.',1); return; }
+  if(btn && typeof jetOccupe==='function') jetOccupe(btn);
+  try{
+    await window.sbReady;
+    if(!window.sb){ dire('Service indisponible, réessayez.',1); return; }
+    window.__enqMode=(window.ahMode==='complet')?'complet':'express';
+    var lien=(typeof enqueteLien==='function')?await enqueteLien():null;
+    var jeton=(lien||'').split('?rep=')[1]||'';
+    if(!jeton){ dire('Impossible de préparer l\'enregistrement. Réessayez.',1); return; }
+    var p=ahPour();
+    var env=await window.sb.rpc('reponse_salarie_envoyer',{
+      p_jeton:jeton, p_nom:p.nom, p_poste:p.poste,
+      p_reponses:(r.byCode||{}), p_iat:r.iat, p_imh:r.imh,
+      p_domaines:(r.dom||{}), p_indices:(r.idx||{}), p_craintes:(r.craintes||[])
+    });
+    var d=(env && !env.error)?env.data:null;
+    if(!d || !d.ok){ dire('Enregistrement refusé : '+((d&&d.raison)||'réessayez dans un instant.'),1); return; }
+    // L'agrégat doit être relu : cette réponse en fait désormais partie.
+    window.lastAH=null; window.__ahEnVol=null;
+    if(typeof ahAuto==='function') await ahAuto();
+    window.__ahPour={nom:'',poste:'',ok:false};       // la saisie suivante repart d'une page blanche
+    window.__ahDepart=null;
+    if(typeof iveNav==='function') iveNav('actions');
+  }catch(x){ dire('Enregistrement impossible. Vérifiez votre connexion et réessayez.',1); }
+}
+function ahPour(){ return window.__ahPour||(window.__ahPour={nom:'',poste:'',ok:false}); }
+function ahQuiChamps(){
+  var p=ahPour();
+  p.nom=((document.getElementById('ahQuiNom')||{}).value||'').trim();
+  p.poste=((document.getElementById('ahQuiPoste')||{}).value||'').trim();
+  var c=document.getElementById('ahQuiOk'); p.ok=!!(c&&c.checked);
+  window.__ahPour=p;
+}
+function ahQuiPret(){
+  ahQuiChamps();
+  var p=ahPour(), e=document.getElementById('ahQuiErr');
+  if(!p.nom || !p.poste){ if(e) e.textContent='Indiquez le nom, le prénom et la fonction du salarié.'; return false; }
+  if(!p.ok){ if(e) e.textContent='Le salarié doit accepter que son nom et ses réponses soient transmis.'; return false; }
+  if(e) e.textContent='';
+  return true;
+}
+function ahQuiHtml(){
+  var p=ahPour();
+  return '<div id="ahQui" style="border:1px solid #bbf7d0;background:#f4fbf6;border-radius:14px;padding:13px 15px;margin-top:16px;">'
+    +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;"><i class="ti ti-user-check" style="color:#15803d;"></i> Qui répond ?</div>'
+    /* Le questionnaire est TOUJOURS celui d'un salarié (décision Didier, 31/07/2026) : plus de
+       choix « dirigeant ou salarié ». Sa réponse part dans la même table que le lien partagé —
+       elle porte un nom, compte dans le plafond de dix, et n'écrase personne. */
+    +'<div style="font-size:11.5px;color:#166534;line-height:1.5;margin-top:5px;">Ces réponses sont celles d\'un <b>salarié</b>. Elles rejoignent celles reçues par le lien, sous son nom.</div>'
+    +'<input type="text" id="ahQuiNom" value="'+esc(p.nom||'')+'" oninput="ahQuiChamps()" placeholder="Nom et prénom" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:9px;margin-top:9px;">'
+    +'<input type="text" id="ahQuiPoste" value="'+esc(p.poste||'')+'" oninput="ahQuiChamps()" placeholder="Fonction (atelier, accueil, ventes…)" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:9px;margin-top:7px;">'
+    /* CONSENTEMENT — même exigence que par le lien. Le salarié doit savoir MOT POUR MOT ce qui
+       sera lu, et par qui, avant de répondre. Qu'il réponde sur son téléphone ou que le
+       dirigeant note à sa place ne change rien à son droit d'être informé. */
+    +'<label style="display:flex;align-items:flex-start;gap:9px;margin-top:11px;cursor:pointer;">'
+      +'<input type="checkbox" id="ahQuiOk"'+(p.ok?' checked':'')+' onchange="ahQuiChamps()" style="width:19px;height:19px;flex:0 0 auto;margin-top:1px;">'
+      +'<span style="font-size:11.5px;color:#1C1C1C;line-height:1.5;">Ce salarié a été informé et accepte que son <b>nom</b>, sa <b>fonction</b> et <b>chacune de ses réponses</b> soient lus par la direction. Il reste libre de refuser.</span>'
+    +'</label>'
+    +'<div id="ahQuiErr" style="font-size:11.5px;color:#991b1b;margin-top:6px;"></div>'
+  +'</div>';
+}
 function ahChoice(){
   var nom = (window.lastMiroir&&window.lastMiroir.nom) || ($('bNom')&&$('bNom').value.trim()) || 'Entreprise';
   window.ahNom = nom;
@@ -3937,9 +4023,18 @@ function ahChoice(){
       +'<div style="width:44px;height:44px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:21px;color:#15803d;"></i></div>'
       +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;">'+esc(nom)+'</div></div>'
     +'</div>'
+    /* QUI RÉPOND ? — question posée par Didier le 31/07/2026 : « si je veux remplir un
+       questionnaire avec un ou plusieurs salariés depuis mon téléphone ou mon PC, comment je
+       fais ? parce qu'ils vont s'écraser les uns les autres. » Il avait raison : cet écran
+       n'était qu'UNE grille sans identité, la seconde saisie remplaçait la première.
+       Désormais on demande d'abord pour QUI on saisit. Une saisie « salarié » part dans la
+       MÊME table que le lien partagé : elle porte un nom, compte dans le plafond de dix, et
+       rejoint l'agrégat au lieu d'écraser quoi que ce soit. Cohérent avec la règle posée le
+       matin même — nominatif et assumé. */
+    +ahQuiHtml()
     +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
-      +'<button type="button" onclick="ahStart(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#15803d;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer l\'Express <i class="ti ti-arrow-right"></i></button>'
-      +'<button type="button" onclick="ahStart(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#166534;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le Complet <i class="ti ti-arrow-right"></i></button>'
+      +'<button type="button" onclick="if(ahQuiPret())ahStart(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#15803d;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer l\'Express <i class="ti ti-arrow-right"></i></button>'
+      +'<button type="button" onclick="if(ahQuiPret())ahStart(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#166534;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le Complet <i class="ti ti-arrow-right"></i></button>'
     +'</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
       +parcoursCarte('#15803d','#f4fbf6','#bbf7d0','ti-bolt','SALARIÉS<br>EXPRESS','Prendre la température humaine',
@@ -4128,7 +4223,7 @@ function ahSortieOk(){
   );
 }
 function ahActions(){
-  return '<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
+  return '<button class="btn btn-primary" onclick="ahEnvoyerSalarie(this)"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
     +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;text-align:center;line-height:1.4;">'
     +(window.ahControleMode?'Votre contrôle est enregistré et l\'évolution s\'affiche.':'Vos réponses sont enregistrées et la maturité humaine s\'affiche.')+'</div>'
     +'<button class="btn btn-ghost" onclick="if(ahSortieOk()){window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'();}">← Retour</button>';
@@ -4155,6 +4250,9 @@ function ahStart(mode){
     html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v" style="width:88px;font-size:11px;">3 · installé</span></div></div>';
   });
   if(open)html+='</div>';
+  // Rappel permanent de la personne pour qui on saisit : sans lui, on note pour le mauvais.
+  var _p=ahPour();
+  html='<div class="panel" style="background:#f4fbf6;border:1px solid #bbf7d0;margin-bottom:10px;"><div style="font-size:12px;color:#166534;"><i class="ti ti-user-check"></i> Vous saisissez pour <b>'+esc(_p.nom||'?')+'</b> — '+esc(_p.poste||'?')+'</div></div>'+html;
   html+=ahActions();
   $("ahView").innerHTML=iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent","actions")+html;
   ahCalc();
@@ -4215,8 +4313,7 @@ function ahFinish(){
     +'<div class="foot">On analyse le SYSTÈME, jamais les personnes. Vue auditeur / dirigeant — l\'écart avec les équipes (questionnaire anonyme) viendra en phase 2. Indices /100 = moyenne des critères /5 × 20.</div></div>';
   $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Le résultat de vos équipes","actions") + card
    +'<div id="ahSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>'
-   +'<button class="btn btn-primary" onclick="runMiroir()"><i class="ti ti-sparkles"></i> Lancer le MIROIR →</button>'
-   +'<button class="btn btn-ghost" onclick="ahChoice()"><i class="ti ti-refresh"></i> Nouvelle AURA</button>';
+   /* Boutons du bas retires (decision Didier, 31/07) : la navigation se fait par le haut. */;
   window.scrollTo(0,0);
   try{ new Chart(document.getElementById('ahRadar'),{type:'radar',data:{labels:idxKeys.map(function(k){return k.length>15?k.slice(0,14)+'…':k;}),datasets:[{label:'Maturité humaine',data:idxKeys.map(function(k){return r.idx[k]!=null?r.idx[k]:0;}),borderColor:'#E8541A',backgroundColor:'rgba(232,84,26,.18)',borderWidth:2,pointRadius:2}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:20,font:{size:9}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}}); }catch(e){}
   window.lastAH={nom:nom,mode:window.ahMode,iat:r.iat,imh:r.imh,band:reco.key,zone:reco.zone,reco:reco.msg,indices:r.idx,domaines:r.dom,craintes:r.craintes,resistance:resist};
