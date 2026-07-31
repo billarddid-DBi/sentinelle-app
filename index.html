@@ -2763,7 +2763,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 141';
+var IVE_VERSION='31/07 · 142';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4103,9 +4103,10 @@ function frTitreTache(txt){
 }
 function frTachesSync(){
   var d=window.frData; if(!d||!d.steps||!d.steps.length) return;
-  var o=pmLoad(), chg=false, td=pmTodayStr(), parFr={};
+  var o=pmLoad(), chg=false, td=pmTodayStr(), parFr={}, actuelles={};
   (o.tasks||[]).forEach(function(t){ if(t.frId) parFr[t.frId]=t; });
   d.steps.forEach(function(s){
+    actuelles[s.id]=1;
     var t=parFr[s.id], fait=(s.status==='done');
     if(!t){
       o.tasks.push({ id:pmUid('p'), t:frTitreTache(s.titre), frId:s.id, origine:'plan', cat:'autre',
@@ -4117,6 +4118,18 @@ function frTachesSync(){
       if(!!t.done!==fait){ t.done=fait; t.doneAt=(fait?td:null); chg=true; }
       if(t.archive){ t.archive=false; chg=true; }        // une etape du plan reste visible
     }
+  });
+  /* LES ÉTAPES D'UN PLAN REMPLACÉ S'ARCHIVENT — constaté le 31/07/2026 chez Didier : 8 tâches
+     « plan » pour un MIROIR qui n'en compte que 4. L'identifiant d'une étape est calculé sur
+     le TEXTE du levier (cf. frCle) : à chaque régénération, le MIROIR reformule, donc les
+     étapes changent d'identifiant et les anciennes restaient dans la liste du matin, pour
+     toujours. Quatre de plus à chaque MIROIR.
+     On ARCHIVE, on ne supprime pas — et jamais une étape déjà FAITE : elle est la trace d'un
+     travail réel, elle appartient à l'historique. */
+  (o.tasks||[]).forEach(function(t){
+    if(!t || t.origine!=='plan' || !t.frId) return;
+    if(actuelles[t.frId] || t.done || t.archive) return;
+    t.archive=true; chg=true;
   });
   if(chg) pmSave(o);
 }
