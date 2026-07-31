@@ -2763,7 +2763,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 138';
+var IVE_VERSION='31/07 · 139';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4397,13 +4397,30 @@ function cpAnciensSeaux(prefixe){
 /* SOURCE UNIQUE de fusion du quotidien (CLAUDE.md §7) — appelée par cpFusionner() ET par
    syncPull(). `base` fait foi ; `ajout` n'apporte que ce qui manque. Dédoublonnage par
    identifiant : une tâche présente des deux côtés n'est jamais comptée deux fois. */
+/* DÉDOUBLONNER SUR LE CONTENU, PAS SEULEMENT SUR L'IDENTIFIANT.
+   Erreur commise le 31/07/2026, sur les données réelles de Didier : la fusion des anciens
+   seaux ne comparait que les `id`. Or une tâche présente dans deux seaux y porte deux `id`
+   DIFFÉRENTS — c'est précisément pour cela qu'elle avait été perdue. Les deux exemplaires
+   ont donc survécu, puis sont partis dans la base sous deux clés distinctes, invisibles pour
+   la contrainte d'unicité. 7 tâches saisies, 14 affichées.
+   La fusion ne joue qu'UNE fois, entre seaux d'un MÊME compte : deux libellés identiques y
+   sont la même tâche, pas deux tâches. On garde l'exemplaire déjà en place. */
+function pmSignature(t){
+  var n=(t&&t.norm)||((typeof dicteeNorm==='function')?dicteeNorm((t&&t.t)||''):'');
+  return n?('n:'+n+'|'+((t&&t.due)||'')):'';
+}
 function pmFusion(base, ajout){
   base=base||{}; base.days=base.days||{}; base.tasks=base.tasks||[]; base.decisions=base.decisions||[];
   if(!ajout) return base;
-  var vuT={}, vuD={};
-  base.tasks.forEach(function(t){ if(t&&t.id) vuT[t.id]=1; });
+  var vuT={}, vuD={}, vuSig={};
+  base.tasks.forEach(function(t){ if(t&&t.id) vuT[t.id]=1; var s=pmSignature(t); if(s) vuSig[s]=1; });
   base.decisions.forEach(function(d){ if(d&&d.id) vuD[d.id]=1; });
-  (ajout.tasks||[]).forEach(function(t){ if(t&&t.id&&!vuT[t.id]){ vuT[t.id]=1; base.tasks.push(t); } });
+  (ajout.tasks||[]).forEach(function(t){
+    if(!t||!t.id||vuT[t.id]) return;
+    var s=pmSignature(t);
+    if(s && vuSig[s]) return;                 // même libellé, même échéance : c'est la même tâche
+    vuT[t.id]=1; if(s) vuSig[s]=1; base.tasks.push(t);
+  });
   (ajout.decisions||[]).forEach(function(d){ if(d&&d.id&&!vuD[d.id]){ vuD[d.id]=1; base.decisions.push(d); } });
   for(var j in (ajout.days||{})) if(!base.days[j]) base.days[j]=ajout.days[j];   // un jour déjà rempli n'est pas écrasé
   return base;
