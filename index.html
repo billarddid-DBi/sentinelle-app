@@ -2763,7 +2763,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 140';
+var IVE_VERSION='31/07 · 141';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4376,48 +4376,16 @@ function cpNomCompte(saisi){
   var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   return ((a&&a.name)||saisi||'');
 }
-/* Reprise UNIQUE, par compte, des seaux nommés à l'ancienne. On FUSIONNE tout ce qui traîne sur
-   l'appareil — les tâches d'un même dirigeant s'étaient éparpillées entre « ENTREPRISE »,
-   « FEU_VERT » et « FEU_VERT_METZ_MARLY » — et on n'EFFACE RIEN : les anciens seaux restent en
-   place. Un seau au nouveau format contient une adresse e-mail : on l'ignore, ce qui empêche de
-   ramasser au passage les données d'un autre compte utilisé sur le même appareil. */
-/* CLOISONNEMENT — UN SEUL SEAU, CELUI DE CE COMPTE. NE PAS ÉLARGIR.
-   Cette fonction ramassait AUPARAVANT toutes les clés « pm_… » sans arobase, donc tous les
-   seaux nommés d'après une entreprise — quel que soit le compte qui les avait créés. Sur un
-   PC où plusieurs comptes se sont succédé, la première connexion d'un nouveau compte y
-   versait le contenu de tous les autres, puis le poussait dans SA base.
-   Constaté le 31/07/2026 : les tâches du compte « Le test de Bibi » se sont retrouvées dans
-   l'entreprise « feu vert ». Sur la machine d'un consultant, ce sont les tâches du prospect A
-   qui remonteraient chez le prospect B.
-   On ne reprend donc QUE le seau portant le nom de l'entreprise du compte connecté. Le seau
-   générique « ENTREPRISE » est écarté lui aussi : il n'appartient à personne en particulier,
-   donc il peut appartenir à n'importe qui.
-   Conséquence assumée : un compte dont le nom d'entreprise a changé ne retrouvera pas son
-   ancien seau. Perdre ses propres tâches est moins grave qu'hériter de celles d'un autre. */
-function cpAnciensSeaux(prefixe){
-  try{
-    var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-    var nom=(((a&&a.name)||'')+'').trim();
-    if(!nom) return [];                       // sans nom d'entreprise, on ne devine pas
-    var slug=(typeof frSlug==='function')?frSlug(nom):'';
-    // frSlug('') vaut « ENTREPRISE » : c'est le seau sans propriétaire, donc celui de
-    // n'importe qui. Un compte sans nom ne doit surtout pas hériter de son contenu.
-    if(!slug || slug==='ENTREPRISE') return [];
-    var k=prefixe+slug;
-    return (localStorage.getItem(k)!=null)?[k]:[];
-  }catch(e){ return []; }
-}
-/* SOURCE UNIQUE de fusion du quotidien (CLAUDE.md §7) — appelée par cpFusionner() ET par
-   syncPull(). `base` fait foi ; `ajout` n'apporte que ce qui manque. Dédoublonnage par
-   identifiant : une tâche présente des deux côtés n'est jamais comptée deux fois. */
-/* DÉDOUBLONNER SUR LE CONTENU, PAS SEULEMENT SUR L'IDENTIFIANT.
-   Erreur commise le 31/07/2026, sur les données réelles de Didier : la fusion des anciens
-   seaux ne comparait que les `id`. Or une tâche présente dans deux seaux y porte deux `id`
-   DIFFÉRENTS — c'est précisément pour cela qu'elle avait été perdue. Les deux exemplaires
-   ont donc survécu, puis sont partis dans la base sous deux clés distinctes, invisibles pour
-   la contrainte d'unicité. 7 tâches saisies, 14 affichées.
-   La fusion ne joue qu'UNE fois, entre seaux d'un MÊME compte : deux libellés identiques y
-   sont la même tâche, pas deux tâches. On garde l'exemplaire déjà en place. */
+/* SOURCE UNIQUE de fusion du quotidien — n'est plus appelée que par syncPull().
+   `base` fait foi ; `ajout` n'apporte que ce qui manque.
+
+   LE DÉDOUBLONNAGE PORTE SUR LE CONTENU, PAS SEULEMENT SUR L'IDENTIFIANT. Erreur commise le
+   31/07/2026 sur les données réelles de Didier : la fusion ne comparait que les `id`. Or une
+   même tâche présente dans deux sources y porte deux `id` DIFFÉRENTS. Les deux exemplaires
+   survivaient, puis partaient dans la base sous deux clés distinctes, invisibles pour la
+   contrainte d'unicité. 7 tâches saisies, 14 affichées.
+   Deux libellés identiques à la MÊME échéance sont la même tâche ; on garde l'exemplaire
+   déjà en place. Échéance différente = deux vraies tâches, les deux passent. */
 function pmSignature(t){
   var n=(t&&t.norm)||((typeof dicteeNorm==='function')?dicteeNorm((t&&t.t)||''):'');
   return n?('n:'+n+'|'+((t&&t.due)||'')):'';
@@ -4437,43 +4405,6 @@ function pmFusion(base, ajout){
   (ajout.decisions||[]).forEach(function(d){ if(d&&d.id&&!vuD[d.id]){ vuD[d.id]=1; base.decisions.push(d); } });
   for(var j in (ajout.days||{})) if(!base.days[j]) base.days[j]=ajout.days[j];   // un jour déjà rempli n'est pas écrasé
   return base;
-}
-/* Idem pour les instantanés : on additionne, on dédoublonne par date, on retrie. */
-function cpFusionSnaps(base, ajout){
-  var a=(Array.isArray(base)?base:[]).concat(Array.isArray(ajout)?ajout:[]), vu={};
-  return a.filter(function(s){ var id=((s&&(s.d||s.t))||'')+''; if(!id||vu[id]) return false; vu[id]=1; return true; })
-          .sort(function(x,y){ return (x.t||0)-(y.t||0); });
-}
-function cpFusionner(){
-  try{
-    var c=cpCle(); if(c==='anon') return;                       // pas de compte : rien à reprendre
-    var temoin='cp_fusion_v1_'+c; if(localStorage.getItem(temoin)) return;
-    var lu=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
-    // --- Tâches, décisions, journal du jour : on ADDITIONNE (pmFusion, source unique).
-    var cible=lu('pm_'+c)||{days:{},tasks:[],decisions:[]};
-    cpAnciensSeaux('pm_').forEach(function(k){ cible=pmFusion(cible, lu(k)); });
-    localStorage.setItem('pm_'+c, JSON.stringify(cible));
-    // --- Instantanés : même règle (cpFusionSnaps).
-    var snaps=lu('cp_snaps_'+c)||[];
-    cpAnciensSeaux('cp_snaps_').forEach(function(k){ snaps=cpFusionSnaps(snaps, lu(k)); });
-    if(snaps.length) localStorage.setItem('cp_snaps_'+c, JSON.stringify(snaps));
-    // --- Feuille de route, diagnostic, échéance : un seul jeu de valeurs — on prend le seau le
-    //     plus vraisemblable (cpAnciensSeaux le classe en tête) et on n'écrase jamais l'existant.
-    ['fr_','diag_','cp_next_'].forEach(function(p){
-      if(localStorage.getItem(p+c)!=null) return;
-      var seaux=cpAnciensSeaux(p);
-      for(var i=0;i<seaux.length;i++){
-        var v=localStorage.getItem(seaux[i]);
-        if(v!=null){ localStorage.setItem(p+c,v); break; }
-      }
-    });
-    localStorage.setItem(temoin,'1');
-    // Le cloud n'a JAMAIS connu ces tâches-là : elles dormaient dans un seau que syncPush ne
-    // lisait pas. On demande donc à la PROCHAINE syncPull de fusionner au lieu d'écraser —
-    // une seule fois. Ensuite le cloud reprend la main, sinon une tâche supprimée sur un
-    // appareil ressusciterait à chaque synchro depuis l'autre.
-    localStorage.setItem('cp_fusion_att_'+c,'1');
-  }catch(e){}
 }
 function cpSnapshot(force){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
@@ -5834,7 +5765,23 @@ async function loadUser(){
     // La formule d'abonnement suit le compte, pas l'appareil.
     if(m.ive_plan){ window.__boussolePlan=m.ive_plan; try{ localStorage.setItem(ivePlanCle(),m.ive_plan); }catch(e){} }
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
-    cpFusionner();   // AVANT syncPull : on rassemble le local, le cloud tranchera ensuite
+    /* cpFusionner() SUPPRIMÉE le 31/07/2026 — décision de Didier.
+       C'était un sauvetage ponctuel, écrit le matin même, pour récupérer les tâches
+       éparpillées entre d'anciens seaux de stockage nommés d'après l'entreprise. Il a fait
+       son travail. Mais tant qu'il existe du code dont le métier est de DÉPLACER des données
+       d'un seau à l'autre, il existe un chemin par lequel les tâches d'un compte atterrissent
+       chez un autre : c'est exactement ce qui s'est produit, du compte « Le test de Bibi »
+       vers l'entreprise « feu vert ». La RLS n'y peut rien — elle empêche un client de LIRE
+       les données d'un autre, pas l'application d'ÉCRIRE en règle sous le mauvais compte.
+       Depuis la refonte, la base fait foi et syncPull suffit. On ne remet pas ça.
+       On efface au passage les témoins laissés par l'ancienne reprise : tant que
+       « cp_fusion_att_ » traîne, syncPull fusionne au lieu d'écraser et ressuscite ce qui
+       vient d'être archivé. */
+    try{
+      var _vieux=[];
+      for(var _i=0;_i<localStorage.length;_i++){ var _k=localStorage.key(_i); if(_k && _k.indexOf('cp_fusion_')===0) _vieux.push(_k); }
+      _vieux.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+    }catch(e){}
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
     try{
@@ -5858,15 +5805,14 @@ async function syncPull(){
   try{
     var r=await window.sb.from('pm_data').select('data').eq('entreprise_id',window.dbEnt).maybeSingle();
     var slug=cpCle();   // le cloud est indexé par entreprise_id : seul le nom LOCAL du seau change
-    // Réconciliation UNIQUE après la reprise des anciens seaux : sans elle, le cloud effacerait
-    // des tâches qu'il n'a jamais connues, celles-là mêmes que cpFusionner vient de récupérer.
-    var recup=false; try{ recup=!!localStorage.getItem('cp_fusion_att_'+slug); }catch(e){}
-    var lire=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+    /* LE CLOUD FAIT FOI, SANS EXCEPTION. Le chemin « recup » qui fusionnait le local au lieu
+       de l.écraser a disparu avec cpFusionner (31/07/2026) : c.est lui qui ressuscitait, à
+       chaque synchro, ce qu.on venait d.archiver. */
     if(r && r.data && r.data.data && Object.keys(r.data.data).length){
       var b=r.data.data;
       // Le cloud fait foi ; le local n'apporte que ce qu'il est seul à avoir (pmFusion, source unique).
-      if(b.pm) localStorage.setItem('pm_'+slug,JSON.stringify(recup?pmFusion(b.pm,lire('pm_'+slug)):b.pm));
-      if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(recup?cpFusionSnaps(b.snaps,lire('cp_snaps_'+slug)):b.snaps));
+      if(b.pm) localStorage.setItem('pm_'+slug,JSON.stringify(b.pm));
+      if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(b.snaps));
       if(b.fr) localStorage.setItem('fr_'+slug,JSON.stringify(b.fr));
       if(b.next) localStorage.setItem('cp_next_'+slug,b.next);
       if(b.diag){ localStorage.setItem('diag_'+slug,JSON.stringify(b.diag)); var nm=(window.currentUser&&window.currentUser.name)||'';
@@ -5876,9 +5822,6 @@ async function syncPull(){
     } else {
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
-    // Réconciliation faite : on retire le témoin (le cloud redevient prioritaire) et on renvoie
-    // au cloud les tâches récupérées, sinon elles resteraient prisonnières de cet appareil.
-    if(recup){ try{ localStorage.removeItem('cp_fusion_att_'+slug); }catch(e){} syncPush(true); }
     if(typeof pmCharger==='function') await pmCharger();        // le quotidien : la base fait foi, on fusionne
     if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
     if(typeof evt==='function') evt('login');
