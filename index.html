@@ -872,14 +872,12 @@ function renderMiroir(){
         if(ex!=null && notes.length){
           var mieux=notes.filter(function(v){ return v>ex; }).length, rang=mieux+1;
           o.exterieur = (rang===1)
-            ? 'Personne ne fait mieux que vous dans le voisinage : cette avance se défend, elle ne se garde pas toute seule.'
-            : (mieux<=notes.length/3
-               ? 'Vous êtes '+rang+'e sur '+(notes.length+1)+' : bien placé, mais pas au point qu\'on vous choisisse d\'évidence.'
-               : 'Vous êtes '+rang+'e sur '+(notes.length+1)+' : le voisinage se voit mieux que vous, à qualité comparable.');
+            ? 'Vous êtes le mieux perçu du voisinage. Cette avance est un vrai capital : elle se cultive avec peu d\'efforts.'
+            : 'Votre réputation est solide, elle vous porte déjà. Vos voisins sont proches : quelques signes de plus et l\'écart se creuse en votre faveur.';
         }else if(ex!=null){
-          o.exterieur = (ex>=70) ? 'Le public vous voit solide. Cette confiance est un capital : elle se perd plus vite qu\'elle ne se construit.'
-                      : (ex>=50) ? 'Vous inspirez confiance sans vous distinguer : on vous choisit plus par défaut que par envie.'
-                                 : 'Votre présence publique dit moins que ce que vous valez : ceux qui vous cherchent vous trouvent mal.';
+          o.exterieur = (ex>=70) ? 'Le public vous voit solide, et c\'est mérité. Entretenir cette confiance demande peu au regard de ce qu\'elle rapporte.'
+                      : (ex>=50) ? 'Votre réputation est saine et bien installée. C\'est une base sur laquelle quelques gestes simples se voient vite.'
+                                 : 'Votre présence en ligne dit encore peu de ce que vous valez : c\'est là que les premiers gains sont les plus rapides.';
         }
         // — Ce que vous décrivez : le déséquilibre, pas la liste.
         if(b.piliers){
@@ -889,31 +887,30 @@ function renderMiroir(){
             var bas=ks.reduce(function(a,c){ return b.piliers[c]<b.piliers[a]?c:a; });
             var ecartPil=b.piliers[haut]-b.piliers[bas];
             o.interieur = (ecartPil>=30)
-              ? 'Vous tenez sur « '+haut+' » et vous portez « '+bas+' » : c\'est là que ça cède quand le volume monte.'
+              ? '« '+haut+' » vous tient solidement. « '+bas+' » est l\'endroit où votre prochaine progression se gagnera le plus vite.'
               : (ecartPil>=15
-                 ? '« '+bas+' » avance moins vite que le reste : rien d\'alarmant, mais c\'est ce point qui vous freinera.'
-                 : 'Votre entreprise avance d\'un bloc, sans point faible net — ni levier évident pour accélérer.');
+                 ? 'L\'ensemble se tient. « '+bas+' » est le pilier où votre prochaine progression se gagnera le plus vite.'
+                 : 'Votre entreprise avance d\'un bloc, sans point faible marqué : la marge viendra d\'un choix, pas d\'un rattrapage.');
           }
         }
         // — Ce que vos journées montrent : ce que la répétition prend.
         if(qd.sujets && qd.sujets.length){
           var s0=qd.sujets[0], nbf=(+s0.nb||0);
           o.quotidien = nbf
-            ? '« '+String(s0.sujet||'').slice(0,42)+' » revient '+nbf+' fois : ce temps-là ne va pas à ce que vous seul pouvez faire.'
-            : 'Un même sujet occupe vos journées : ce n\'est plus un imprévu, c\'est devenu votre organisation.';
-          if(qd.nbEnCours>=10) o.quotidien+=' '+qd.nbEnCours+' tâches restent ouvertes.';
+            ? '« '+String(s0.sujet||'').slice(0,42)+' » revient '+nbf+' fois ce mois-ci. C\'est justement le genre de tâche qui s\'allège le plus simplement.'
+            : 'Un même sujet rythme vos journées. Ce sont souvent les premiers à pouvoir être allégés.';
         }
         // — Ce que vivent vos équipes : l'écart avant la moyenne, et jamais un jugement.
         if(ah){
           o.humain = (ah.n<2)
-            ? 'Une seule voix, pas encore une mesure : elle indique une direction, elle ne dit pas l\'entreprise.'
+            ? 'Un premier avis est arrivé. Quelques réponses de plus donneront une lecture bien plus sûre.'
             : (ah.ecart!=null && ah.ecart>=25)
-              ? ah.ecart+' points séparent vos équipes : elles ne vivent pas la même entreprise. C\'est cet écart qu\'il faut traiter, pas la moyenne.'
+              ? 'Les réponses diffèrent d\'un poste à l\'autre. Écouter chaque équipe séparément vous donnera les leviers les plus utiles.'
               : (ah.iat!=null && ah.iat<=40)
-                ? 'Vos équipes ne se sentent pas prêtes. Rien ne tiendra tant que ce point n\'aura pas été entendu.'
+                ? 'Vos équipes expriment des réserves. Les entendre maintenant est le meilleur investissement avant tout changement.'
                 : (ah.iat!=null && ah.iat>=71)
-                  ? 'Vos équipes suivent et se parlent : c\'est le moment d\'oser, cette disponibilité ne dure pas.'
-                  : 'Vos équipes ne sont ni fermées ni acquises : ce qui se décidera maintenant fera pencher la suite.';
+                  ? 'Vos équipes sont disponibles et se parlent. C\'est le moment le plus favorable pour avancer avec elles.'
+                  : 'Vos équipes sont ouvertes, avec des attentes. Les associer tôt rendra la suite nettement plus simple.';
         }
       }catch(e){}
       return o;
@@ -1155,12 +1152,42 @@ function outilsQuiFait(a){
   if(outilsMotsDe(OUTILS_AUTOMATISER).test(s)) return {c:'#15803d',f:'#f4fbf6',b:'#bbf7d0',t:'IA'};
   return {c:'#b45309',f:'#fffbeb',b:'#fde68a',t:'INTERNE'};
 }
+/* LES INDICES NE SURVIVENT PAS À LA SESSION — on les reconstruit depuis les données
+   enregistrées. Cette reconstruction se trouvait APRÈS les retours anticipés qui affichent un
+   MIROIR déjà enregistré : en arrivant directement sur le MIROIR après connexion, les deux
+   colonnes affichaient « – », alors qu'un détour par la BOUSSOLE les remplissait (constaté par
+   Didier le 31/07/2026). Elle est maintenant appelée sur TOUS les chemins, avant tout affichage.
+   Elle ne fait que COMPLÉTER : jamais elle n'écrase une valeur déjà présente. */
+function miroirCompleter(b){
+  if(!b) return b;
+  try{
+    var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+    var din=(typeof iveIndiceEnregistre==='function')?iveIndiceEnregistre():'';
+    var dex=(f.indice&&f.indice.estime!=null)?+f.indice.estime:null;
+    if(b.indiceInterieur==null && din!=='') b.indiceInterieur=din;
+    if(b.indiceExterieur==null && dex!=null) b.indiceExterieur=dex;
+    if(b.potentiel==null && b.indiceInterieur!=null) b.potentiel=Math.min(100,b.indiceInterieur+15);
+    if(b.ecart==null && b.indiceInterieur!=null && b.indiceExterieur!=null) b.ecart=b.indiceInterieur-b.indiceExterieur;
+    if(!b.activite && f.activite) b.activite=f.activite;
+    if(!b.nom) b.nom=(f.nom||(window.currentUser&&window.currentUser.name)||'');
+  }catch(e){}
+  return b;
+}
 function runMiroir(forcer){
   var b=window.lastMiroir;
+  // Complété AVANT les retours anticipés : un MIROIR relu doit afficher ses deux indices.
+  if(b) miroirCompleter(b);
   var sv=miroirStore.load();
   // Après un rechargement, la BOUSSOLE n'est plus en mémoire : la sauvegarde reste lisible.
   if(!b && sv && sv.m){
-    window.miroirPerime=false; window.miroirData=sv.m; window.miroirAud='externe';
+    /* C'EST LE CAS DE DIDIER : connexion fraîche, aucune BOUSSOLE en mémoire, on ouvre le
+       MIROIR enregistré. Sans lastMiroir, les deux colonnes affichaient « – » — et un simple
+       détour par la BOUSSOLE les remplissait, ce qui rendait la panne incompréhensible.
+       On reconstruit ici la même fiche minimale que partout ailleurs. */
+    b=window.lastMiroir=miroirCompleter({nom:(sv.nom||'')});
+    window.miroirPerime=(typeof majDepuis==='function')?(majDepuis(sv.ts).length>0):false;
+    window.miroirNouveau=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
+    window.miroirData=sv.m; window.miroirAud='externe';
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
@@ -1176,16 +1203,8 @@ function runMiroir(forcer){
   }
   showView('miroir');
   $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:30px 16px;"><div class="spin"></div><div style="font-size:13px;color:#4b5563;">Rédaction du MIROIR…<br><span style="font-size:11px;color:#9ca3af;">plan d\'action adaptatif + ROI</span></div></div>';
-  // Les indices ne survivent pas à la session : on les reconstruit depuis les données
-  // enregistrées, sinon l'IA croit que rien n'a été mesuré et rédige un plan pour tout mesurer.
   var _f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
-  var _in=(typeof iveIndiceEnregistre==='function')?iveIndiceEnregistre():'';
-  var _ex=(_f.indice&&_f.indice.estime!=null)?+_f.indice.estime:null;
-  if(b.indiceInterieur==null && _in!=='') b.indiceInterieur=_in;
-  if(b.indiceExterieur==null && _ex!=null) b.indiceExterieur=_ex;
-  if(b.potentiel==null && b.indiceInterieur!=null) b.potentiel=Math.min(100,b.indiceInterieur+15);
-  if(b.ecart==null && b.indiceInterieur!=null && b.indiceExterieur!=null) b.ecart=b.indiceInterieur-b.indiceExterieur;
-  if(!b.activite && _f.activite) b.activite=_f.activite;
+  miroirCompleter(b);
   // La fiche n'est pas toujours en mémoire : on va la chercher avant de conclure qu'elle manque.
   if(b.indiceExterieur==null && !window.__mirFiche && typeof iveChargerFiche==='function'){
     window.__mirFiche=1;
@@ -3008,7 +3027,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 165';
+var IVE_VERSION='31/07 · 166';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
