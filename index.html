@@ -591,6 +591,56 @@ function mOutilsCites(x,outils){
   });
   return vus;
 }
+/* LES OUTILS QUE LE PLAN RÉCLAME — la liste s'arrête ici, pas à SENTINELLE.
+   Décision de Didier (31/07/2026) : « SENTINELLE ne peut pas déjà concevoir les outils IA,
+   c'est impossible. » Elle ne voit que la vitrine — avis, site, réseaux — soit une part
+   minime du problème. Ce qu'elle propose sont des PISTES ; la liste arrêtée se construit
+   au MIROIR, seul endroit où le questionnaire, le volet humain et le quotidien existent.
+
+   Le MIROIR renvoie donc "outils" en même temps que son plan (aucune fonction Vercel de
+   plus — on est à 12/12). Un MIROIR enregistré avant ce changement n'a pas ce champ :
+   dans ce cas on retombe sur mCouverture(), qui mesure la couverture à l'ancienne. */
+function mOutilsPlan(m){
+  var lst=(m&&Array.isArray(m.outils))?m.outils:[];
+  if(!lst.length) return '';
+  var plan=(m&&Array.isArray(m.plan))?m.plan:[];
+  var horsLogiciel=plan.filter(function(x){ return !mEstIA(x.type); })
+                       .map(function(x){ return String(x.frein||x.levier||'').split('—')[0].replace(/[.,;]\s*$/,'').trim(); });
+  // Les pistes de SENTINELLE que le plan ne reprend pas : rapprochement sur le NOM, jamais
+  // sur le numéro (cf. outilsOrdonnes — le numéro a déjà changé une fois).
+  var pistes=mOutilsFiche(), repris={};
+  lst.forEach(function(o){
+    var n=mNorm(o.nom);
+    pistes.forEach(function(p,i){ var q=mNorm(p.nom); if(q.length>=6 && (n.indexOf(q)>-1||q.indexOf(n)>-1)) repris[i]=1; });
+  });
+  var laissees=[]; pistes.forEach(function(p,i){ if(!repris[i]) laissees.push(p.nom); });
+  var cartes=lst.map(function(o){
+    var neuf=(String(o.source||'').toLowerCase().indexOf('piste')===-1);
+    return '<div style="border:1px solid #efe9e0;border-radius:10px;padding:10px;margin-top:8px;">'
+      +'<div style="display:flex;align-items:flex-start;gap:8px;"><div style="flex:1;min-width:0;font-size:13px;font-weight:700;color:#1C1C1C;">'+esc(o.nom||'Outil')+'</div>'
+      +'<span style="flex:0 0 auto;font-size:9.5px;font-weight:800;letter-spacing:.3px;border-radius:8px;padding:2px 7px;white-space:nowrap;'
+        +(neuf?'color:#15803d;background:#f4fbf6;border:1px solid #bbf7d0;">RÉVÉLÉ PAR LE QUESTIONNAIRE':'color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;">DÉJÀ VU DU DEHORS')+'</span></div>'
+      +(o.role?'<div style="font-size:11.5px;color:#4b5563;line-height:1.45;margin-top:4px;">'+esc(o.role)+'</div>':'')
+      +(o.frein?'<div style="font-size:11px;color:#991b1b;margin-top:4px;"><b>Lève :</b> '+esc(String(o.frein).split('—')[0].trim())+'</div>':'')
+    +'</div>';
+  }).join('');
+  return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-tools"></i> Les outils que ce plan réclame</div>'
+    +'<div style="font-size:12px;color:#4b5563;line-height:1.55;margin-top:6px;">Cette liste s\'arrête ici, pas plus tôt : SENTINELLE ne voyait que votre vitrine — avis, site, réseaux. C\'est votre questionnaire qui dit ce qu\'il vous faut réellement.</div>'
+    +cartes
+    +(horsLogiciel.length
+      ? '<div style="margin-top:11px;border-top:1px dashed #e6e1d8;padding-top:9px;font-size:11.5px;color:#4b5563;line-height:1.5;">'
+        +'<b style="color:#1C1C1C;">'+horsLogiciel.length+' frein'+(horsLogiciel.length>1?'s':'')+' ne demande'+(horsLogiciel.length>1?'nt':'')+' aucun outil :</b> '
+        +horsLogiciel.map(function(t){ return esc(t); }).join(' · ')+'. Cela se règle avec votre équipe, pas avec un logiciel.</div>'
+      : '')
+    +(laissees.length
+      ? '<div style="margin-top:9px;font-size:11.5px;color:#4b5563;line-height:1.5;">'
+        +'<b style="color:#1C1C1C;">'+laissees.length+' piste'+(laissees.length>1?'s':'')+' de SENTINELLE non retenue'+(laissees.length>1?'s':'')+' :</b> '
+        +laissees.map(function(n){ return esc(n); }).join(' · ')
+        +'. Supposée'+(laissees.length>1?'s':'')+' d\'après votre vitrine, '+(laissees.length>1?'elles ne ressortent pas':'elle ne ressort pas')+' de vos réponses.</div>'
+      : '')
+    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:10px;line-height:1.5;">Types d\'outils, jamais de marques : le choix du fournisseur vous appartient.</div>'
+  +'</div>';
+}
 function mCouverture(m){
   var plan=(m&&Array.isArray(m.plan))?m.plan:[];
   if(!plan.length) return '';
@@ -746,7 +796,8 @@ function renderMiroir(){
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-eye"></i> Ma Vision</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
-    +mCouverture(m)
+    // La liste arrêtée quand le MIROIR l'a produite ; sinon le bilan de couverture d'avant.
+    +(mOutilsPlan(m)||mCouverture(m))
     +mRoi(m)
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-calendar"></i> Cadence</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;">'+esc(m.cadence||'')+'</div></div>'
     +'<div class="sec" style="background:'+au.b+';"><div class="ktitle" style="color:'+au.t+';"><i class="ti ti-arrow-right"></i> Le prochain pas</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div></div>'
@@ -2661,7 +2712,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 132';
+var IVE_VERSION='31/07 · 133';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3092,7 +3143,7 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'VOS OUTILS IA — sélectionnés pour vous':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
+    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
       <div style="margin-top:8px;">${agents}</div>
     </div>
 
@@ -6323,7 +6374,7 @@ function bouOffre(niveau){
 // verrouille = true : la liste est montrée à un non-abonné (aucun outil n'est ouvrable).
 function bouToolsHtml(verrouille){
   /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
-  var T=[['ti-robot','Vos outils IA détaillés','Les outils IA recommandés pour votre métier, en clair : le quoi, le comment, les gains attendus.','outilsia'],
+  var T=[['ti-robot','Pistes d\'outils IA','Ce que votre vitrine laisse deviner, en clair : le quoi, le comment, les gains attendus. La liste arrêtée vient du MIROIR.','outilsia'],
     ['ti-trophy','Forces & opportunités majeures','Vos atouts, ce que vos clients reconnaissent, et ce qui peut progresser vite.','forces'],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.','feuille']];
   return '<div style="margin-top:10px;">'+T.map(function(f){
@@ -6377,8 +6428,8 @@ function boussoleOutil(which){
     }
     iveFicheOuCharger('oia',function(fo){
       if(!fo || !(fo.agents||[]).length){
-        iveOutilVide('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier',
-          'Votre fiche ne contient pas encore de sélection d\'outils.<br><br>Elle se construit pendant l\'analyse SENTINELLE, à partir de votre métier et de votre présence en ligne.');
+        iveOutilVide('ti-robot','PISTES D\'OUTILS IA','Ce que votre vitrine laisse deviner',
+          'Votre fiche ne contient pas encore de pistes.<br><br>Elles se dégagent pendant l\'analyse SENTINELLE, à partir de votre métier et de ce qui se voit de vous en ligne.');
         return;
       }
       // Prioritaires en tête — EXACTEMENT le tri envoyé au MIROIR (cf. outilsOrdonnes).
@@ -6396,9 +6447,13 @@ function boussoleOutil(which){
           +'</div></div></div>';
       };
       $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-        +iveEntete('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier','resultats')
+        +iveEntete('ti-robot','PISTES D\'OUTILS IA','Ce que votre vitrine laisse deviner','resultats')
         +'<div class="card"><div class="sec">'
-          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Voici les <b>'+ags.length+' outil'+(ags.length>1?'s':'')+'</b> retenus pour votre activité, les <b style="color:#E8541A;">prioritaires</b> en tête.</div>'
+          /* Ce ne sont PAS « vos outils ». SENTINELLE n'a lu que ce qui est public — avis, site,
+             réseaux — et en tire des suppositions de métier. Le dire est la moindre des choses :
+             la liste arrêtée se construit au MIROIR, avec le questionnaire (décision Didier). */
+          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;"><b>'+ags.length+' piste'+(ags.length>1?'s':'')+'</b> — les <b style="color:#E8541A;">prioritaires</b> en tête. SENTINELLE n\'a vu que ce qui est public de vous : vos avis, votre site, vos réseaux. Elle en déduit ce qui se fait <i>souvent</i> dans votre métier.</div>'
+          +'<div style="font-size:11.5px;color:#7c2d12;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin-top:9px;line-height:1.5;"><i class="ti ti-info-circle"></i> <b>Ce n\'est pas encore votre liste d\'outils.</b> Ce qui se passe chez vous — devis, planning, double saisie, transmission du savoir — ne se voit pas du dehors. Le <b>MIROIR</b> arrête la vraie liste, après le Questionnaire Dirigeant.</div>'
           +recurPiedHtml()
           +recurBlocHtml(window.__recurSujets||[])
           +'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:11px;">'
@@ -6407,10 +6462,10 @@ function boussoleOutil(which){
             +'<span style="color:#b45309;background:#fffbeb;border:1px solid #fde68a;border-radius:20px;padding:3px 10px;"><b>INTERNE</b> — compétence à tenir chez vous</span>'
           +'</div>'
           +ags.map(carte).join('')
-          +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Sélection établie à partir de votre activité et de votre présence en ligne. La répartition IA / partenaire / interne est une première lecture : elle se précisera avec le Questionnaire Dirigeant.</div>'
+          +'<div style="font-size:11.5px;color:#9ca3af;line-height:1.5;margin-top:14px;">Pistes dégagées de votre activité et de votre présence en ligne, à confirmer. La répartition IA / partenaire / interne est une première lecture : elle se précisera avec le Questionnaire Dirigeant.</div>'
         +'</div></div>';
       showView('dirigeant'); window.scrollTo(0,0);
-    },function(){ iveOutilAttente('ti-robot','VOS OUTILS IA','Ce qui est utile pour votre métier'); });
+    },function(){ iveOutilAttente('ti-robot','PISTES D\'OUTILS IA','Ce que votre vitrine laisse deviner'); });
     return;
   }
   // Forces & opportunités : tout vient de la fiche (fierté, valeurs, quick wins, vigilance).

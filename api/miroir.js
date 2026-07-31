@@ -4,7 +4,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-07-31-09";
+const MIROIR_VERSION = "2026-07-31-10";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -22,11 +22,12 @@ PRINCIPES IMPÉRATIFS :
   • IAT en zone Vigilance (41-70) : prérequis fragiles → sécuriser EN PARALLÈLE : sur-communiquer le POURQUOI, impliquer des relais internes, démarrer par un pilote à faible risque + une victoire rapide.
   • IAT en zone Appui (≥71) : organisation prête → ACCÉLÉRER et capitaliser, on peut être ambitieux dès le palier 2.
 - CHAQUE crainte détectée se TRADUIT (le vrai message derrière la crainte) puis se TRAITE par un levier concret de conduite du changement / communication — JAMAIS par un outil IA. Ex : « crainte pour l'emploi face à l'IA » → traduire « l'IA vous enlève des tâches pénibles, pas votre poste » + acte : cadrage explicite du dirigeant, engagement clair, co-construction avec l'équipe. Les leviers du palier 1 doivent RÉPONDRE aux craintes listées.
+- LA LISTE D'OUTILS EST ARRÊTÉE ICI, PAS AVANT. SENTINELLE n'a vu que le DEHORS (avis, site, réseaux, presse) : ce qu'elle a proposé au dirigeant n'est qu'un jeu de PISTES tirées de la vitrine, jamais la liste des outils dont l'entreprise a besoin. TOI SEUL disposes du questionnaire, du volet humain et du quotidien — donc toi seul peux trancher. Règle : pour CHAQUE levier de type "IA" du plan, il DOIT exister un outil dans "outils" qui le sert, et son champ "frein" reprend le frein de ce levier mot pour mot. Quand une piste SENTINELLE convient, REPRENDS-LA sous son nom EXACT avec "source":"piste" ; sinon crée l'outil qu'il faut avec "source":"nouveau" — n'hésite pas, une piste de la vitrine ne couvre presque jamais un frein interne (devis, double saisie, planning, capitalisation du savoir). N'inscris AUCUN outil pour un levier "humain" ou "externe" : ces freins-là ne se règlent pas avec un logiciel, et en mettre un serait vendre le mauvais levier. La NEUTRALITÉ COMMERCIALE s'applique mot pour mot ici aussi : un TYPE d'outil et ce qu'il doit faire, jamais une marque ni un éditeur.
 - PLAN en 2 PALIERS : palier 1 = redevenir cohérent avec son image (corriger les freins, souvent humains/organisationnels ; s'il y a un volet humain, il PRIME ici selon la zone IAT) ; palier 2 = dépasser grâce aux outils IA. Pour chaque levier : frein → levier (préconisation) → type ("IA"|"externe"|"humain") → mise en œuvre concrète → indicateur de suivi. EXACTEMENT 4 leviers priorisés (jamais plus).
 - ROI « PRIX DE L'ACTION » (JAMAIS le coût de l'inaction seul) : en euros, poste par poste, RÉALISTE pour une TPE (approche IA-first peu coûteuse ; la RH est le poste le moins compressible). Chaque poste : coût de l'inaction/an, investissement ponctuel (1×), coût récurrent/an. Puis gain annuel net, ROI net/an, payback en mois, fourchette. Sois PRUDENT et crédible — pas de chiffres énormes ; un pré-audit de TPE, pas un projet grand groupe.
 - DEUX NARRATIONS, mêmes faits : "externe" = pour le DIRIGEANT (motivante, orientée action, valorisante) ; "interne" = pour le PRESCRIPTEUR DBi360 (franche, nomme la racine managériale/financière, garde l'angle commercial). Les champs {externe, interne} diffèrent par le TON, pas par les faits.
 
-SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. LONGUEUR STRICTE (sinon la réponse est COUPÉE et perdue) : CHAQUE valeur texte = 15 MOTS MAXIMUM ; "mise_en_oeuvre", "traitement" et "indicateur" = 12 mots max. Le PLAN = EXACTEMENT 4 leviers ; "postes" du ROI = 3 MAX ; "humain.craintes" = 2 MAX ; "quotidien.liens" = 3 MAX. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. RÈGLE SÉPARÉE, NE LA CONFONDS PAS AVEC CELLE DU CHAMP "humain" : si un bloc LE QUOTIDIEN t'est fourni avec des sujets, alors le champ "quotidien" est **OBLIGATOIRE** — tu le remplis entièrement, il ne vaut JAMAIS null et n'est JAMAIS omis, MÊME SI le volet humain est absent ; et AU MOINS UN levier du plan porte "origine":"quotidien". Ce n'est QUE lorsque le bloc indique « NON MESURÉ » que tu omets "quotidien" et n'ajoutes "origine" nulle part. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
+SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balise de code. LONGUEUR STRICTE (sinon la réponse est COUPÉE et perdue) : CHAQUE valeur texte = 15 MOTS MAXIMUM ; "mise_en_oeuvre", "traitement" et "indicateur" = 12 mots max. Le PLAN = EXACTEMENT 4 leviers ; "outils" = 4 MAX (et JAMAIS vide s'il existe au moins un levier de type "IA") ; "postes" du ROI = 3 MAX ; "humain.craintes" = 2 MAX ; "quotidien.liens" = 3 MAX. N'inclus le champ "humain" QUE si le VOLET HUMAIN est fourni ; s'il est NON MESURÉ, OMETS entièrement "humain" et rédige le plan standard. RÈGLE SÉPARÉE, NE LA CONFONDS PAS AVEC CELLE DU CHAMP "humain" : si un bloc LE QUOTIDIEN t'est fourni avec des sujets, alors le champ "quotidien" est **OBLIGATOIRE** — tu le remplis entièrement, il ne vaut JAMAIS null et n'est JAMAIS omis, MÊME SI le volet humain est absent ; et AU MOINS UN levier du plan porte "origine":"quotidien". Ce n'est QUE lorsque le bloc indique « NON MESURÉ » que tu omets "quotidien" et n'ajoutes "origine" nulle part. TOUS les montants = ENTIERS en euros SANS séparateur de milliers (écris 12000, JAMAIS 12 000 ni 12,000). Suis EXACTEMENT ce schéma :
 {
  "priorite": "la priorité n°1, une phrase actionnable",
  "economie_an": <entier : gain/économie annuel estimé en euros>,
@@ -35,6 +36,7 @@ SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balis
  "humain": {"posologie": "rythme/dose adaptés à la zone IAT (réparer d'abord / en parallèle / accélérer), 15 mots max", "craintes": [ {"crainte": "la crainte (libellé court)", "traitement": "acte concret de conduite du changement, 12 mots max"} ]},
  "quotidien": {"accord": "confirme|contredit|complete (ce que les journées font au diagnostic tiré de l'image et du questionnaire)", "journees": "ce que ses journées montrent, en une phrase, 15 mots max", "lecture": {"externe": "1-2 phrases pour le dirigeant", "interne": "1-2 phrases pour le prescripteur"}, "liens": [ {"sujet": "le sujet récurrent, repris mot pour mot", "eclaire": "le pilier ou le critère qu'il explique, avec sa note, 15 mots max"} ]},
  "plan": [ {"palier": 1, "frein": "...", "levier": "...", "type": "IA", "origine": "quotidien", "mise_en_oeuvre": "...", "indicateur": "..."} ],
+ "outils": [ {"nom": "le type d'outil, 6 mots max, sans marque", "role": "ce qu'il fait concrètement, 12 mots max", "frein": "le frein qu'il lève, repris du plan", "source": "piste|nouveau"} ],
  "roi": {
    "postes": [ {"poste": "...", "inaction_an": <entier €>, "invest_1x": <entier €>, "recurrent_an": <entier €>} ],
    "inaction_an": <entier € total>, "invest_total": <entier € total>, "recurrent_an": <entier € total>,
@@ -108,7 +110,7 @@ Indice INTÉRIEUR (BOUSSOLE, réalité) : ${b.indiceInterieur != null ? b.indice
 Indice EXTÉRIEUR (SENTINELLE, image) : ${b.indiceExterieur != null ? b.indiceExterieur : "non mesuré"} /100
 Écart de Cohérence (intérieur − extérieur) : ${b.ecart != null ? b.ecart : "n.c."} (${b.zoneVerite || "n.c."})
 Position concurrentielle : ${b.concurrence ? `${b.concurrence.nb} concurrents analysés sur « ${b.concurrence.motCle} » — moyenne locale ${b.concurrence.moyenne}/100, meilleur ${b.concurrence.meilleur}/100, rang du dirigeant ${b.concurrence.rang}${b.concurrence.ecartAuMeilleur != null ? `, écart au meilleur ${b.concurrence.ecartAuMeilleur} points` : ""}. UTILISE-LA : une note ne vaut rien dans l'absolu, elle vaut par rapport au marché local. Un 66 face à des concurrents à 55 est une force ; le même 66 face à des concurrents à 80 est un retard.` : "non mesurée — ne rien en déduire."}
-Outils déjà proposés au dirigeant (analyse SENTINELLE) : ${Array.isArray(b.outils) && b.outils.length ? b.outils.map(function (o) { return `[${o.n}] ${o.nom} — ${o.benefice}`; }).join(" | ") + ` — RÈGLE : quand une de tes actions correspond à l'un de ces outils, NOMME-LE exactement et cite son numéro entre crochets, par exemple « … → [2] Gestionnaire de réponses aux avis ». N'invente pas un outil concurrent d'un outil existant sous un autre nom. Si aucun n'y répond, propose ton action normalement, sans crochets.` : "aucun outil n'a encore été sélectionné — propose librement."}
+PISTES déjà montrées au dirigeant (analyse SENTINELLE — tirées de sa VITRINE seule : avis, site, réseaux ; ce ne sont PAS ses outils, seulement des suppositions) : ${Array.isArray(b.outils) && b.outils.length ? b.outils.map(function (o) { return `[${o.n}] ${o.nom} — ${o.benefice}`; }).join(" | ") + ` — RÈGLE : quand une de tes actions correspond à l'une de ces pistes, NOMME-LA exactement (le nom, pas seulement le numéro) et cite son numéro entre crochets, par exemple « … → [2] Gestionnaire de réponses aux avis », et reprends-la dans "outils" avec "source":"piste". N'invente pas un doublon d'une piste existante sous un autre nom. Si aucune n'y répond — c'est le cas le plus fréquent pour un frein interne — propose ton action normalement, sans crochets, et crée l'outil dans "outils" avec "source":"nouveau".` : "aucune piste n'a encore été montrée — tu établis librement la liste des outils."}
 Potentiel visé : ${b.potentiel != null ? b.potentiel : "?"} /100
 8 piliers : ${piliers}
 Critères faibles (≤2/5) : ${faibles}
@@ -142,11 +144,21 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
     // une réponse valide : le bloc « Ce que dit votre quotidien » disparaîtrait de l'écran sans
     // que personne ne comprenne pourquoi. On refait UNE tentative, comme pour un JSON illisible.
     const quotidienRate = (m) => !!qt && (!m || m.quotidien == null);
+    // Un levier « IA » sans outil en face, c'est le trou que le MIROIR est justement là pour
+    // combler : SENTINELLE n'a vu que la vitrine, la liste s'arrête ici. On refait une tentative
+    // plutôt que d'afficher un plan qui promet de l'IA sans dire avec quoi.
+    const estIA = (t) => { t = String(t || "").toLowerCase(); return t.indexOf("ia") !== -1 && t.indexOf("extern") === -1 && t.indexOf("humain") === -1; };
+    const outilsRates = (m) => {
+      if (!m || !Array.isArray(m.plan)) return false;
+      if (!m.plan.some(x => estIA(x && x.type))) return false;      // aucun levier IA : rien à outiller
+      return !Array.isArray(m.outils) || !m.outils.length;
+    };
     let r = await attempt();
-    if (r.bad || quotidienRate(r.m)) r = await attempt(); // 2e tentative si JSON illisible, tronqué ou quotidien vide
+    if (r.bad || quotidienRate(r.m) || outilsRates(r.m)) r = await attempt(); // 2e tentative si JSON illisible, tronqué, quotidien vide ou outils manquants
     if (r.m) {
       if (!ah && r.m.humain) delete r.m.humain;
       if (r.m.quotidien == null) delete r.m.quotidien;    // null n'est pas une donnée : on ne l'envoie pas au client
+      if (!Array.isArray(r.m.outils) || !r.m.outils.length) delete r.m.outils;  // idem : mieux vaut rien qu'un tableau vide à afficher
       res.status(200).json(r.m); return;
     }
     if (r.httpErr) { res.status(502).json({ error: "Modèle indisponible", detail: r.httpErr }); return; }
