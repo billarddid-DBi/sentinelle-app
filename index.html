@@ -1477,7 +1477,10 @@ function bFinish(){
     var vmsg=['L\'image publique dépasse très largement la réalité vécue : une dette de crédibilité à combler vite.','La réputation promet un peu plus que ce que l\'interne délivre aujourd\'hui — l\'écart se rembourse au quotidien.','Ce que vous montrez et ce que vous êtes coïncident : position saine.','La réalité dépasse l\'image : une valeur encore sous-vendue.','Pépite cachée : vous valez bien plus que ce que le public perçoit.'][vz];
     var sign=dv>0?'+':'';
     trajSec+='<div class="sec" style="background:#FBF4EF;"><div class="ktitle" style="color:#cf4712;"><i class="ti ti-target"></i> Indice de Cohérence <span style="font-weight:400;color:#9ca3af;font-size:10px;">— avant-goût du MIROIR</span></div>'
-     +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Extérieure (SENTINELLE) <b>'+ext+'</b> → Intérieure <b>'+r.idx+'</b> · écart <b style="color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b>'+vzone+'</b></div>'
+     /* C'est la ligne qui PORTE l'indice — trois chiffres et un verdict. En 12 px gris elle
+        se lisait comme une note de bas de page (remarque de Didier, 31/07). Les chiffres
+        passent en gros et en noir, le verdict prend la couleur de l'écran. */
+     +'<div style="font-size:clamp(13px,3.6vw,15px);color:#4b5563;margin-top:7px;line-height:1.65;">Extérieure (SENTINELLE) <b style="color:#1C1C1C;font-size:1.2em;">'+ext+'</b> → Intérieure <b style="color:#1C1C1C;font-size:1.2em;">'+r.idx+'</b> · écart <b style="font-size:1.2em;color:'+energyColor(Math.max(0,Math.min(100,50+dv*1.25)))+';">'+sign+dv+'</b> — <b style="color:#cf4712;">'+vzone+'</b></div>'
      +trajDial(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +trajLegende(['Glaciation','Refroidissement','Équilibre','Élan','Combustion'],vz)
      +trajMsg(vmsg,vz)+'</div>';
@@ -2724,7 +2727,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 136';
+var IVE_VERSION='31/07 · 137';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
