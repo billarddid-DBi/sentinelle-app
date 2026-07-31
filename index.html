@@ -835,21 +835,62 @@ function renderMiroir(){
     var ac=(acc.indexOf('contred')>-1)?['#991b1b','#fef2f2','#fecaca','Vos journées disent autre chose']
           :(acc.indexOf('confirm')>-1)?['#15803d','#f0fdf4','#bbf7d0','Vos journées le confirment']
           :['#7c3aed','#f8f6ff','#ddd6fe','Vos journées ajoutent autre chose'];
-    var vue=function(lbl,val,sub,c){
-      return '<div style="flex:1 1 88px;min-width:0;text-align:center;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:10px 6px;">'
+    /* QUATRE REGARDS EN COLONNES — demande de Didier, 31/07/2026 : « sous chaque note, un
+       encadré blanc vertical dans lequel on fait un résumé », et le volet humain en quatrième.
+       Trois chiffres seuls ne disent rien ; quatre colonnes racontent : le dehors, le déclaré,
+       le vécu, le ressenti.
+       Le résumé vient du MIROIR (champ "regards"). Un MIROIR généré avant ce changement ne
+       l'a pas : on compose alors la même phrase à partir des données déjà affichées — piliers,
+       rang, agrégat salariés. Aucun jeton, et aucune colonne vide en attendant. */
+    var vue=function(lbl,val,sub,c,resume){
+      return '<div style="flex:1 1 118px;min-width:0;text-align:center;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:10px 7px;display:flex;flex-direction:column;">'
         +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.3px;color:#9ca3af;line-height:1.25;">'+lbl+'</div>'
         +'<div style="font-size:22px;font-weight:800;color:'+c+';line-height:1.1;margin-top:5px;">'+val+'</div>'
-        +'<div style="font-size:9.5px;color:#9ca3af;margin-top:2px;line-height:1.25;">'+sub+'</div></div>';
+        +'<div style="font-size:9.5px;color:#9ca3af;margin-top:2px;line-height:1.25;">'+sub+'</div>'
+        +(resume?('<div style="border-top:1px solid #eef0f3;margin-top:8px;padding-top:7px;font-size:10.5px;color:#4b5563;line-height:1.45;text-align:left;">'+esc(resume)+'</div>'):'')
+      +'</div>';
     };
     var nbs=qd.sujets.length;
+    var rg=(m.regards&&typeof m.regards==='object')?m.regards:{};
+    var ah=(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null;
+    /* Repli SANS IA : on ne dit que ce qui est déjà mesuré, jamais une interprétation inventée. */
+    var replis=(function(){
+      var o={};
+      try{
+        var cs=(typeof concStore!=='undefined')?concStore.load():null;
+        var nb=(cs&&cs.d&&cs.d.concurrents)?cs.d.concurrents.length:0;
+        o.exterieur=nb?('Mesuré sur vos avis, votre fiche et vos réseaux, face à '+nb+' concurrents.')
+                      :'Mesuré sur vos avis, votre fiche, votre site et vos réseaux.';
+        if(b.piliers){
+          var ks=Object.keys(b.piliers).filter(function(k){ return b.piliers[k]!=null; });
+          if(ks.length){
+            var haut=ks.reduce(function(a,c){ return b.piliers[c]>b.piliers[a]?c:a; });
+            var bas=ks.reduce(function(a,c){ return b.piliers[c]<b.piliers[a]?c:a; });
+            o.interieur='Votre appui : '+haut+' ('+b.piliers[haut]+'). Votre fragilité : '+bas+' ('+b.piliers[bas]+').';
+          }
+        }
+        o.quotidien='Relevé sur '+(qd.nbTaches||0)+' tâches que vous avez dictées, pas sur un déclaratif.';
+        if(ah) o.humain=ah.n+' réponse'+(ah.n>1?'s':'')+(ah.ecart!=null&&ah.n>1?(', '+ah.ecart+' points d\'écart entre elles.'):'.');
+      }catch(e){}
+      return o;
+    })();
+    var res=function(k){ return (rg[k]&&String(rg[k]).trim())||replis[k]||''; };
     quotSec='<div class="sec" style="background:#f8f6ff;border-left:3px solid #7c3aed;">'
       +'<div class="ktitle" style="color:#7c3aed;"><i class="ti ti-calendar-repeat"></i> Ce que dit votre quotidien</div>'
-      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:3px;">Ce que les autres voient, vous le subissez. Ce que vous décrivez, vous le racontez. Vos journées, elles, se constatent — voilà les trois côte à côte.</div>'
-      +'<div style="display:flex;gap:7px;margin-top:10px;">'
-        +vue('CE QUE LES AUTRES VOIENT',(b.indiceExterieur!=null?b.indiceExterieur:'–'),'sur 100','#1C1C1C')
-        +vue('CE QUE VOUS DÉCRIVEZ',(b.indiceInterieur!=null?b.indiceInterieur:'–'),'sur 100','#1C1C1C')
-        +vue('CE QUE VOS JOURNÉES MONTRENT',nbs,'sujet'+(nbs>1?'s qui reviennent':' qui revient'),'#7c3aed')
+      // La phrase compte les colonnes réellement affichées : « les trois » devenait faux dès
+      // que le volet humain arrivait en quatrième.
+      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:3px;">Ce que les autres voient, vous le subissez. Ce que vous décrivez, vous le racontez. Vos journées, elles, se constatent'+(ah?', et vos équipes le vivent':'')+' — voilà les '+(ah?'quatre':'trois')+' côte à côte.</div>'
+      // flex-wrap : sous ~380 px les colonnes passent en DEUX PAR DEUX au lieu de s'écraser.
+      +'<div style="display:flex;gap:7px;margin-top:10px;flex-wrap:wrap;">'
+        +vue('CE QUE LES AUTRES VOIENT',(b.indiceExterieur!=null?b.indiceExterieur:'–'),'sur 100','#1C1C1C',res('exterieur'))
+        +vue('CE QUE VOUS DÉCRIVEZ',(b.indiceInterieur!=null?b.indiceInterieur:'–'),'sur 100','#1C1C1C',res('interieur'))
+        +vue('CE QUE VOS JOURNÉES MONTRENT',nbs,'sujet'+(nbs>1?'s qui reviennent':' qui revient'),'#7c3aed',res('quotidien'))
+        /* La colonne humaine n'apparaît que s'il y a des réponses : une case vide ne dit rien,
+           une invitation à partager le lien, si. */
+        +(ah ? vue('CE QUE VIVENT VOS ÉQUIPES',ah.iat,(ah.band?String(ah.band):'IAT')+' · '+ah.n+' rép.','#15803d',res('humain'))
+             : '')
       +'</div>'
+      +(ah?'':'<div style="font-size:10.5px;color:#7c3aed;margin-top:7px;line-height:1.45;"><i class="ti ti-users-group"></i> Le regard de vos équipes manque encore. Partagez-leur le lien du questionnaire : il complétera ce tableau.</div>')
       +'<div style="margin-top:10px;background:'+ac[1]+';border:1px solid '+ac[2]+';border-radius:10px;padding:10px 12px;">'
         +'<div style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+ac[0]+';">'+ac[3].toUpperCase()+'</div>'
         +'<div style="font-size:12.5px;color:#334155;line-height:1.55;margin-top:4px;">'+esc(sansHypothese(q.journees||''))+'</div>'
@@ -875,7 +916,10 @@ function renderMiroir(){
     ahSec='<div class="sec" style="background:'+bandBg+';"><div class="ktitle" style="color:'+bandCol+';"><i class="ti ti-users-group"></i> Volet humain — AURA (le pouls de l\'organisation)</div>'
       +'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;">'
         +'<div style="text-align:center;min-width:78px;"><div style="font-size:28px;font-weight:700;color:'+bandCol+';line-height:1;">'+ah.iat+'</div><div style="font-size:9.5px;color:#6b7280;">IAT · acceptabilité</div><div style="font-size:11px;font-weight:700;color:'+bandCol+';margin-top:3px;">'+esc(ah.band)+'</div></div>'
-        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Maturité humaine (IMH) <b>'+ah.imh+'/100</b> · Résistance estimée <b>'+ah.resistance+'/100</b>'
+        /* Un indice non calculable s'écrit « – », jamais « undefined ». La résistance se déduit
+           de l'ouverture au changement : si personne n'a répondu à ces critères, elle n'existe
+           pas — et l'écran doit le dire, pas afficher un mot d'informaticien. */
+        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Maturité humaine (IMH) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b> · Résistance estimée <b>'+(ah.resistance!=null?ah.resistance:'–')+'/100</b>'
           +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
       +'</div>'
       +(hum&&hum.posologie?'<div style="margin-top:8px;font-size:12px;color:'+bandCol+';background:#fff;border-radius:8px;padding:8px 10px;line-height:1.5;"><b><i class="ti ti-adjustments-alt"></i> Dosage adapté :</b> '+esc(hum.posologie)+'</div>':'')
@@ -2920,7 +2964,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 162';
+var IVE_VERSION='31/07 · 164';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).

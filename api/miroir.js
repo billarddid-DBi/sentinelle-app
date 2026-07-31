@@ -4,7 +4,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-07-31-11";
+const MIROIR_VERSION = "2026-07-31-12";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -27,6 +27,12 @@ PRINCIPES IMPÉRATIFS :
   • IAT en zone Appui (≥71) : organisation prête → ACCÉLÉRER et capitaliser, on peut être ambitieux dès le palier 2.
 - CHAQUE crainte détectée se TRADUIT (le vrai message derrière la crainte) puis se TRAITE par un levier concret de conduite du changement / communication — JAMAIS par un outil IA. Ex : « crainte pour l'emploi face à l'IA » → traduire « l'IA vous enlève des tâches pénibles, pas votre poste » + acte : cadrage explicite du dirigeant, engagement clair, co-construction avec l'équipe. Les leviers du palier 1 doivent RÉPONDRE aux craintes listées.
 - LA LISTE D'OUTILS EST ARRÊTÉE ICI, PAS AVANT. SENTINELLE n'a vu que le DEHORS (avis, site, réseaux, presse) : ce qu'elle a proposé au dirigeant n'est qu'un jeu de PISTES tirées de la vitrine, jamais la liste des outils dont l'entreprise a besoin. TOI SEUL disposes du questionnaire, du volet humain et du quotidien — donc toi seul peux trancher. Règle : pour CHAQUE levier de type "IA" du plan, il DOIT exister un outil dans "outils" qui le sert, et son champ "frein" reprend le frein de ce levier mot pour mot. Quand une piste SENTINELLE convient, REPRENDS-LA sous son nom EXACT avec "source":"piste" ; sinon crée l'outil qu'il faut avec "source":"nouveau" — n'hésite pas, une piste de la vitrine ne couvre presque jamais un frein interne (devis, double saisie, planning, capitalisation du savoir). N'inscris AUCUN outil pour un levier "equipe" ou "prestataire" : ces freins-là ne se règlent pas avec un logiciel, et en mettre un serait vendre le mauvais levier. Si tu t'apprêtes à créer un outil pour un levier que tu as classé "equipe", c'est le CLASSEMENT qu'il faut revoir, pas l'outil qu'il faut ajouter. La NEUTRALITÉ COMMERCIALE s'applique mot pour mot ici aussi : un TYPE d'outil et ce qu'il doit faire, jamais une marque ni un éditeur.
+- LE CHAMP "regards" — QUATRE COLONNES, QUATRE PHRASES COURTES. Elles s'affichent SOUS un chiffre déjà visible : ne répète donc JAMAIS ce chiffre, dis ce qu'il faut en comprendre. 12 mots maximum chacune, une seule idée, aucun jargon.
+  • "exterieur" — sous la note SENTINELLE : ce que cette note mesure vraiment (avis, fiche, site, réseaux) ou la position face aux concurrents si elle est fournie.
+  • "interieur" — sous la note BOUSSOLE : ce que le questionnaire révèle, en citant le pilier qui tire vers le haut ou vers le bas.
+  • "quotidien" — sous le nombre de sujets récurrents : ce que la répétition coûte, en fait constaté.
+  • "humain" — sous l'IAT : ce que l'écart entre les réponses dit de l'équipe. À N'ÉCRIRE QUE si le VOLET HUMAIN est fourni ; sinon OMETS cette clé (n'écris pas "non mesuré", la colonne n'existera pas).
+  Ces quatre phrases doivent pouvoir se lire seules, sans avoir lu le reste du MIROIR.
 - PLAN en 2 PALIERS : palier 1 = redevenir cohérent avec son image (corriger les freins, souvent humains/organisationnels ; s'il y a un volet humain, il PRIME ici selon la zone IAT) ; palier 2 = dépasser grâce aux outils IA. Pour chaque levier : frein → levier (préconisation) → type ("IA"|"equipe"|"prestataire", cf. la règle QUI FAIT LE TRAVAIL — ces trois valeurs n'ont AUCUN rapport avec les clés "externe"/"interne" des narrations, qui désignent le LECTEUR et non l'exécutant) → mise en œuvre concrète → indicateur de suivi. EXACTEMENT 4 leviers priorisés (jamais plus).
 - ROI « PRIX DE L'ACTION » (JAMAIS le coût de l'inaction seul) : en euros, poste par poste, RÉALISTE pour une TPE (approche IA-first peu coûteuse ; la RH est le poste le moins compressible). Chaque poste : coût de l'inaction/an, investissement ponctuel (1×), coût récurrent/an. Puis gain annuel net, ROI net/an, payback en mois, fourchette. Sois PRUDENT et crédible — pas de chiffres énormes ; un pré-audit de TPE, pas un projet grand groupe.
 - DEUX NARRATIONS, mêmes faits : "externe" = pour le DIRIGEANT (motivante, orientée action, valorisante) ; "interne" = pour le PRESCRIPTEUR DBi360 (franche, nomme la racine managériale/financière, garde l'angle commercial). Les champs {externe, interne} diffèrent par le TON, pas par les faits.
@@ -39,6 +45,7 @@ SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balis
  "verite": {"externe": "la vérité honnête, ton dirigeant (la racine du problème, souvent hors IA) — sur l'humain/l'équipe : au conditionnel, jamais un jugement", "interne": "la même vérité, ton prescripteur, plus direct — mais sur les FAITS et l'ORGANISATION, jamais un procès des personnes ; hypothèses managériales au conditionnel"},
  "humain": {"posologie": "rythme/dose adaptés à la zone IAT (réparer d'abord / en parallèle / accélérer), 15 mots max", "craintes": [ {"crainte": "la crainte (libellé court)", "traitement": "acte concret de conduite du changement, 12 mots max"} ]},
  "quotidien": {"accord": "confirme|contredit|complete (ce que les journées font au diagnostic tiré de l'image et du questionnaire)", "journees": "ce que ses journées montrent, en une phrase, 15 mots max", "lecture": {"externe": "1-2 phrases pour le dirigeant", "interne": "1-2 phrases pour le prescripteur"}, "liens": [ {"sujet": "le sujet récurrent, repris mot pour mot", "eclaire": "le pilier ou le critère qu'il explique, avec sa note, 15 mots max"} ]},
+ "regards": {"exterieur": "sous la note SENTINELLE, 12 mots max", "interieur": "sous la note BOUSSOLE, 12 mots max", "quotidien": "sous le nombre de sujets récurrents, 12 mots max", "humain": "sous l'IAT, 12 mots max — UNIQUEMENT si le volet humain est fourni"},
  "plan": [ {"palier": 1, "frein": "...", "levier": "...", "type": "IA", "origine": "quotidien", "mise_en_oeuvre": "...", "indicateur": "..."} ],
  "outils": [ {"nom": "le type d'outil, 6 mots max, sans marque", "role": "ce qu'il fait concrètement, 12 mots max", "frein": "le frein qu'il lève, repris du plan", "source": "piste|nouveau"} ],
  "roi": {
@@ -162,7 +169,9 @@ Rédige le MIROIR (JSON strict, schéma imposé).`;
     if (r.m) {
       if (!ah && r.m.humain) delete r.m.humain;
       if (r.m.quotidien == null) delete r.m.quotidien;    // null n'est pas une donnée : on ne l'envoie pas au client
-      if (!Array.isArray(r.m.outils) || !r.m.outils.length) delete r.m.outils;  // idem : mieux vaut rien qu'un tableau vide à afficher
+      if (!Array.isArray(r.m.outils) || !r.m.outils.length) delete r.m.outils;
+      // Sans volet humain, la colonne « équipes » n'existe pas : on ne renvoie pas une phrase vide.
+      if (r.m.regards && !ah) delete r.m.regards.humain;  // idem : mieux vaut rien qu'un tableau vide à afficher
       res.status(200).json(r.m); return;
     }
     if (r.httpErr) { res.status(502).json({ error: "Modèle indisponible", detail: r.httpErr }); return; }
