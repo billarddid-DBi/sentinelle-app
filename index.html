@@ -2907,7 +2907,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 155';
+var IVE_VERSION='31/07 · 156';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3441,7 +3441,7 @@ function saveFiche(d){
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
 function openConcurrence(){
   var nom=window.lastNom||'';
-  var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
+  var kwDef=esc(concKwGarde()||window.lastActivite||'').replace(/"/g,'&quot;');
   var host=document.getElementById('concuPanel');
   if(!host){ host=document.createElement('div'); host.id='concuPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
   host.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;"><i class="ti ti-map-2"></i> La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+', par mot-clé. Repère public, à aujourd\'hui.</div></div>'
@@ -3453,7 +3453,7 @@ function openConcurrence(){
    +'</div>'
    +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
    +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de votre prospect.</div>'
-   +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+   +concActionsHtml()
    +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div></div><div id="cOut"></div>';
   host.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -3475,6 +3475,43 @@ var concStore={
     try{ if(typeof majPoser==='function') majPoser('concurrence', majEmpreinteConcurrence(d,kw)); }catch(e){}
   }
 };
+/* LE MOT-CLÉ SEUL, GARDÉ SANS RELANCER — demande de Didier, 31/07/2026 : un bouton
+   « Sauvegarder » à côté de la recherche.
+   Il fallait d'abord savoir ce qu'il y avait à sauvegarder. La carte, elle, est déjà
+   enregistrée à sa génération (concStore) — c'est elle qui pose le repère du MIROIR. Le seul
+   élément qui se perdait, c'est le mot-clé TAPÉ : modifié puis quitté sans lancer la recherche
+   (4 jetons), il était oublié.
+   ⚠️ Il est rangé À PART, jamais dans concStore : y écrire un mot-clé sans sa carte donnerait
+   au MIROIR un mot-clé qui ne correspond plus aux concurrents affichés. On garde une saisie,
+   on ne réécrit pas une analyse. */
+/* Source UNIQUE des actions de l'écran concurrence : cet écran existe en DEUX exemplaires
+   (vue consultant et vue dirigeant). Deux copies de boutons finiraient par diverger — c'est
+   exactement ce qui est arrivé au classificateur d'étiquettes ce matin. */
+function concActionsHtml(){
+  var q=concQuand();
+  return '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+    +'<button class="btn btn-primary" style="flex:2;min-width:180px;" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+    +'<button type="button" onclick="concKwSauver(this)" style="flex:1;min-width:130px;border:1px solid #d7dbe3;border-radius:11px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:700;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
+    +'</div>'
+    +'<div id="cKwMsg" style="font-size:11.5px;margin-top:7px;"></div>'
+    /* La mention manquait : rien ne disait au dirigeant qu'une sauvegarde existait sur cet
+       écran (remarque de Didier). Le questionnaire affiche « Enregistré automatiquement » ;
+       ici on dit ce qui est enregistré, et ce qui ne l'est pas. */
+    +'<div style="font-size:11px;color:#6b7280;margin-top:6px;line-height:1.45;">'
+    +'<i class="ti ti-device-floppy" style="color:#15803d;"></i> <b>Sauvegarder</b> garde votre mot-clé pour la prochaine fois — gratuit, et sans relancer la recherche.'
+    +(q?(' La carte, elle, est enregistrée depuis le <b>'+q+'</b> et ne change qu\'en relançant.')
+       :' La carte, elle, s\'enregistre toute seule dès que vous lancez la recherche.')
+    +'</div>';
+}
+function concKwCle(){ return 'ive_conc_kw_'+((typeof cpCle==='function')?cpCle():'anon'); }
+function concKwGarde(){ try{ return localStorage.getItem(concKwCle())||''; }catch(e){ return ''; } }
+function concKwSauver(btn){
+  var e=document.getElementById('cKw'), m=document.getElementById('cKwMsg');
+  var v=(e&&e.value||'').trim();
+  if(!v){ if(m) m.innerHTML='<span style="color:#991b1b;">Écrivez d\'abord un mot-clé.</span>'; return; }
+  try{ localStorage.setItem(concKwCle(), v); }catch(x){}
+  if(m) m.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Mot-clé gardé. La carte, elle, ne change pas tant que vous ne relancez pas la recherche.</span>';
+}
 function concQuand(){ var s=concStore.load(); if(!s||!s.ts) return ''; return new Date(s.ts).toLocaleDateString('fr-FR'); }
 function concFaite(){ var s=concStore.load(); return !!(s&&s.d); }
 function runConcurrence(){
@@ -6669,7 +6706,8 @@ function boussoleOutil(which){
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
   var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
   if(which==='concurrence'){
-    var kwDef=esc(window.lastActivite||'').replace(/"/g,'&quot;');
+    // Le mot-cle garde reprend la main sur l'activite par defaut : c'est une saisie voulue.
+    var kwDef=esc(concKwGarde()||window.lastActivite||'').replace(/"/g,'&quot;');
     $('dirigeant').innerHTML='<div style="display:flex;flex-direction:column;gap:8px;">'
       +head('ti-map-2','La concurrence autour de vous','Les entreprises du même métier près de '+esc(nom)+'. Repère public, à aujourd\'hui.')
       +'<div class="card"><div class="sec">'
@@ -6681,7 +6719,7 @@ function boussoleOutil(which){
       +'</div>'
       +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
       +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de vous.</div>'
-      +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+      +concActionsHtml()
       /* Note d'attente et bouton de retour retirés : la navigation se fait par le haut. */
       +'</div></div><div id="cOut"></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
