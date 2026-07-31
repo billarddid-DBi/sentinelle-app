@@ -2262,7 +2262,9 @@ function boussoleACompleter(et){
           +'<div style="height:9px;border-radius:5px;background:#eef0f3;margin-top:6px;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:#E8541A;"></div></div></div>'
         : '<div style="font-size:12.5px;color:#4b5563;margin-top:12px;">Vous n\'avez pas encore commencé le questionnaire.</div>')
       +'<button class="btn btn-primary" style="margin-top:16px;" onclick="iveNav(\'questionnaire\')"><i class="ti ti-clipboard-list"></i> '+(total?'Reprendre le questionnaire':'Commencer le questionnaire')+'</button>'
-      +'<button class="btn btn-ghost" onclick="boussoleView()"><i class="ti ti-tools"></i> Voir les outils BOUSSOLE</button>'
+      /* « Voir les outils BOUSSOLE » retiré (décision Didier, 31/07/2026) : il ouvrait un écran
+         déjà accessible depuis « Mes actions », et sur une page dont le message unique est
+         « votre questionnaire est à compléter », un second bouton disperse l'attention. */
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
@@ -2907,7 +2909,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 156';
+var IVE_VERSION='31/07 · 158';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3489,10 +3491,12 @@ var concStore={
    exactement ce qui est arrivé au classificateur d'étiquettes ce matin. */
 function concActionsHtml(){
   var q=concQuand();
-  return '<div style="display:flex;gap:8px;flex-wrap:wrap;">'
-    +'<button class="btn btn-primary" style="flex:2;min-width:180px;" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
-    +'<button type="button" onclick="concKwSauver(this)" style="flex:1;min-width:130px;border:1px solid #d7dbe3;border-radius:11px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:700;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
-    +'</div>'
+  /* Les DEUX boutons portent la classe .btn de l'application — icône ronde au-dessus, libellé
+     dessous, l'un sous l'autre. Ma première version les mettait côte à côte avec des styles
+     écrits à la main : .btn empile en colonne, le résultat était une grande boîte vide.
+     On n'invente pas un style local quand la maison en a un. */
+  return '<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+    +'<button class="btn btn-ghost" onclick="concKwSauver(this)"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
     +'<div id="cKwMsg" style="font-size:11.5px;margin-top:7px;"></div>'
     /* La mention manquait : rien ne disait au dirigeant qu'une sauvegarde existait sur cet
        écran (remarque de Didier). Le questionnaire affiche « Enregistré automatiquement » ;
@@ -5126,7 +5130,16 @@ function sentApercu(){
     var past=function(bg,lab,val,sub){ return '<div style="text-align:center;flex:0 1 auto;min-width:0;"><div style="width:'+dia+';height:'+dia+';border-radius:50%;margin:0 auto;background:'+bg+';box-shadow:0 8px 26px '+bg+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;"><span style="font-size:clamp(8.5px,2.5vw,10px);font-weight:700;letter-spacing:.8px;opacity:.9;white-space:nowrap;">'+lab+'</span><span style="font-size:clamp(30px,9vw,42px);font-weight:800;line-height:1;">'+val+'</span><span style="font-size:clamp(9.5px,2.7vw,11px);opacity:.85;">/100</span></div><div style="font-size:clamp(10px,3vw,11.5px);color:#6b7280;margin-top:8px;font-weight:600;line-height:1.25;">'+sub+'</div></div>'; };
     $('dirigeant').innerHTML=cadre(
       // Relancer se joue EN HAUT À DROITE de l'encadré, au-dessus des deux pastilles.
+      /* Sous le bouton, À QUELLE CONDITION relancer (demande de Didier, 31/07/2026).
+         SENTINELLE ne mesure que ce qui est PUBLIC, et le public bouge lentement : relancer
+         une semaine plus tard rend presque toujours la même note, pour 4 jetons. Le dire est
+         la moindre des choses quand on facture le geste. */
       '<div style="display:flex;justify-content:flex-end;margin:-2px 0 4px;">'+jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()')+'</div>'
+      +'<div style="font-size:11px;color:#6b7280;line-height:1.5;background:#f8faf9;border:1px solid #eef0f3;border-radius:9px;padding:8px 10px;margin:0 0 10px;">'
+        +'<b style="color:#1C1C1C;">Quand cela vaut la peine.</b> SENTINELLE ne lit que ce qui est <b>public</b> : vos avis, votre fiche, votre site, vos réseaux. Relancez si l\'un d\'eux a changé — de nouveaux avis, une fiche corrigée, un site refait, une présence ouverte.'
+        +'<br><b style="color:#1C1C1C;">Quand c\'est inutile.</b> Rien n\'a bougé dehors : vous obtiendrez la même note et 4 jetons en moins. Ce que vous faites à l\'intérieur ne se voit pas ici — c\'est la BOUSSOLE qui le mesure.'
+        +'<br><span style="color:#9ca3af;">En pratique, une fois par mois suffit.</span>'
+      +'</div>'
       +'<div style="display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);flex-wrap:nowrap;margin-top:6px;">'
         +past(v.hex,'MON AURA',v.est,'Aura '+esc(v.coul))
         +'<div style="text-align:center;flex:0 0 auto;color:#9ca3af;"><i class="ti ti-arrow-right" style="font-size:clamp(20px,5.5vw,26px);color:#E8541A;"></i><div style="font-size:clamp(8.5px,2.4vw,9.5px);color:#c2410c;font-weight:700;">objectif</div></div>'
@@ -6257,9 +6270,18 @@ var bouGrilleStore={
     if(window.bResto) return;            // pendant la restauration, on n'écrase rien
     var items=window.bItems||[]; if(!items.length) return;
     try{
-      var n={}; items.forEach(function(it){ var el=$(it.id); if(!el) return;
+      var n={}, vus=0;
+      items.forEach(function(it){ var el=$(it.id); if(!el) return;
+        vus++;
         n[it.id]={v:(el.dataset.na==='1')?null:+el.value, vu:(el.dataset.vu==='1')?1:0};
       });
+      /* ⚠️ NE JAMAIS ÉCRIRE UN ENSEMBLE VIDE. Quand la grille n'est plus affichée — après
+         « Sauvegarder », l'écran du diagnostic la remplace — aucun curseur n'est trouvé et
+         `n` reste vide. L'ancienne version enregistrait quand même : elle EFFAÇAIT toutes les
+         réponses du dirigeant, en silence. Constaté le 31/07/2026 (40 critères revenus à 1).
+         Même règle que majEmpreinteDirigeant : une fonction qui ne peut pas mesurer se tait.
+         Ici c'est plus grave encore — l'autre inventait une valeur, celle-ci détruisait. */
+      if(!vus) return;
       localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:n,ts:Date.now()}));
     }catch(e){}
   },
