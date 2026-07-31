@@ -269,7 +269,17 @@ window.sbReady = (async function(){
   }catch(e){ console.warn('Supabase indisponible :', e && e.message); }
   return false;
 })();
-window.sbReady.then(function(ok){ if(ok && typeof loadUser==='function') loadUser(); });
+window.sbReady.then(function(ok){
+  // LE SALARIÉ D'ABORD. Il arrive par un lien `?rep=…` et n'a PAS de compte : lui demander de
+  // se connecter le ferait fuir. On court-circuite donc tout le parcours dirigeant.
+  try{
+    if(typeof repJeton==='function' && repJeton()){
+      if(typeof repDemarrer==='function') repDemarrer();
+      return;
+    }
+  }catch(e){}
+  if(ok && typeof loadUser==='function') loadUser();
+});
 const SECTEURS = {
   btp:'#3f5a6b', artisan:'#3f5a6b', commerce:'#8a5a2b', boulangerie:'#8a5a2b',
   restaurant:'#8a4231', industrie:'#37474f', sante:'#0f766e', juridique:'#1f3a5f',
@@ -538,7 +548,10 @@ function mPlan(m,pal){
   return items.map(function(x){
     return '<div style="border:1px solid #efe9e0;border-radius:10px;padding:10px;margin-top:8px;">'
       +'<div style="font-size:11px;color:#991b1b;"><b>Frein :</b> '+esc(x.frein||'')+'</div>'
-      +'<div style="font-size:13px;font-weight:600;color:#1C1C1C;margin-top:4px;">'+esc(x.levier||'')+' '+mTypeBadge(x.type)+'</div>'
+      // Un levier prouvé par les journées du dirigeant se distingue d'un levier déduit d'une note.
+      +'<div style="font-size:13px;font-weight:600;color:#1C1C1C;margin-top:4px;">'+esc(x.levier||'')+' '+mTypeBadge(x.type)
+        +((String(x.origine||'').toLowerCase().indexOf('quotidien')>-1)?' <span style="font-size:9.5px;font-weight:800;letter-spacing:.3px;color:#7c3aed;background:#f5f3ff;border:1px solid #ddd6fe;padding:2px 7px;border-radius:8px;white-space:nowrap;">VU DANS VOTRE QUOTIDIEN</span>':'')
+      +'</div>'
       +'<div style="font-size:11.5px;color:#4b5563;line-height:1.45;margin-top:3px;">→ '+esc(x.mise_en_oeuvre||'')+'</div>'
       +'<div style="font-size:11px;color:#1d4ed8;margin-top:4px;"><i class="ti ti-target"></i> '+esc(x.indicateur||'')+'</div>'
     +'</div>';
@@ -560,6 +573,13 @@ function mRoi(m){
     +'<div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.5;background:#faf9f6;border:1px dashed #e6e1d8;border-radius:8px;padding:8px 10px;"><i class="ti ti-alert-triangle"></i> Estimations indicatives, <b>sans engagement de DBi360</b> — ordres de grandeur IA-first pour une TPE. Au dirigeant de faire chiffrer précisément (devis) pour valider le ROI.</div>'
   +'</div>';
 }
+/* Même règle que la détection (cf. recurPiedHtml) : quand l'analyse est À JOUR, on ne propose
+   pas de la repayer. Un lien gris, discret, suffit pour celui qui veut quand même relancer. */
+function _mRelance(){
+  var c=JETONS_COUT.miroir, assez=(jetEtat().reste>=c);
+  var clic = assez ? ('if(jetConsommer('+c+')){runMiroir(true)}') : 'offreView()';
+  return '<span onclick="'+clic+'" style="font-size:10.5px;color:#c7ccd3;cursor:pointer;text-decoration:underline;white-space:nowrap;">régénérer quand même</span>';
+}
 function renderMiroir(){
   var m=window.miroirData, b=window.lastMiroir||{}, aud=window.miroirAud||'externe';
   if(!m) return;
@@ -575,6 +595,46 @@ function renderMiroir(){
     pilRecap='<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Diagnostic — les 8 piliers</div><div style="margin-top:8px;">'
       +order.map(function(p){var v=b.piliers[p];return '<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:11.5px;"><div style="width:92px;color:#4b5563;">'+esc(p)+'</div><div style="flex:1;background:#f1f5f9;border-radius:5px;height:12px;"><div style="width:'+v+'%;background:'+perfColor(v)+';height:12px;border-radius:5px;"></div></div><div style="width:24px;text-align:right;font-weight:600;">'+v+'</div></div>';}).join('')
     +'</div></div>';
+  }
+  /* LE QUOTIDIEN — la 3e vue mise à côté des deux autres. L'image se subit, le questionnaire se
+     raconte ; les journées, elles, se constatent. Violet, comme le 7e outil : la couleur marque
+     partout dans l'app ce qui vient du quotidien du dirigeant. */
+  var quotSec='';
+  var q=m.quotidien, qd=(typeof miroirQuotidien==='function')?miroirQuotidien():null;
+  if(q && qd){
+    var acc=(q.accord||'complete').toLowerCase();
+    var ac=(acc.indexOf('contred')>-1)?['#991b1b','#fef2f2','#fecaca','Vos journées disent autre chose']
+          :(acc.indexOf('confirm')>-1)?['#15803d','#f0fdf4','#bbf7d0','Vos journées le confirment']
+          :['#7c3aed','#f8f6ff','#ddd6fe','Vos journées ajoutent autre chose'];
+    var vue=function(lbl,val,sub,c){
+      return '<div style="flex:1 1 88px;min-width:0;text-align:center;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:10px 6px;">'
+        +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.3px;color:#9ca3af;line-height:1.25;">'+lbl+'</div>'
+        +'<div style="font-size:22px;font-weight:800;color:'+c+';line-height:1.1;margin-top:5px;">'+val+'</div>'
+        +'<div style="font-size:9.5px;color:#9ca3af;margin-top:2px;line-height:1.25;">'+sub+'</div></div>';
+    };
+    var nbs=qd.sujets.length;
+    quotSec='<div class="sec" style="background:#f8f6ff;border-left:3px solid #7c3aed;">'
+      +'<div class="ktitle" style="color:#7c3aed;"><i class="ti ti-calendar-repeat"></i> Ce que dit votre quotidien</div>'
+      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:3px;">Ce que les autres voient, vous le subissez. Ce que vous décrivez, vous le racontez. Vos journées, elles, se constatent — voilà les trois côte à côte.</div>'
+      +'<div style="display:flex;gap:7px;margin-top:10px;">'
+        +vue('CE QUE LES AUTRES VOIENT',(b.indiceExterieur!=null?b.indiceExterieur:'–'),'sur 100','#1C1C1C')
+        +vue('CE QUE VOUS DÉCRIVEZ',(b.indiceInterieur!=null?b.indiceInterieur:'–'),'sur 100','#1C1C1C')
+        +vue('CE QUE VOS JOURNÉES MONTRENT',nbs,'sujet'+(nbs>1?'s qui reviennent':' qui revient'),'#7c3aed')
+      +'</div>'
+      +'<div style="margin-top:10px;background:'+ac[1]+';border:1px solid '+ac[2]+';border-radius:10px;padding:10px 12px;">'
+        +'<div style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+ac[0]+';">'+ac[3].toUpperCase()+'</div>'
+        +'<div style="font-size:12.5px;color:#334155;line-height:1.55;margin-top:4px;">'+esc(sansHypothese(q.journees||''))+'</div>'
+      +'</div>'
+      +(pick(q.lecture)?('<div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:9px;">'+esc(sansHypothese(pick(q.lecture)))+'</div>'):'')
+      +((Array.isArray(q.liens)&&q.liens.length)?('<div style="margin-top:9px;">'+q.liens.slice(0,3).map(function(l){
+          return '<div style="background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:9px 11px;margin-top:6px;font-size:12px;line-height:1.5;">'
+            +'<div style="font-weight:800;color:#5b21b6;">'+esc(l.sujet||'')+'</div>'
+            +'<div style="color:#6b7280;margin-top:2px;"><i class="ti ti-arrow-narrow-right"></i> '+esc(sansHypothese(l.eclaire||''))+'</div></div>';
+        }).join('')+'</div>'):'')
+      +'<div style="margin-top:9px;font-size:10.5px;color:#9ca3af;line-height:1.45;">Relevé sur '+qd.nbTaches+' tâche'+(qd.nbTaches>1?'s':'')+' que vous avez dictée'+(qd.nbTaches>1?'s':'')+' ces 30 derniers jours'
+        +((qd.nbEnCours>0)?(' · '+qd.nbEnCours+' encore ouverte'+(qd.nbEnCours>1?'s':'')+(qd.plusVieille>0?(', la plus ancienne depuis '+qd.plusVieille+' jour'+(qd.plusVieille>1?'s':'')):'')):'')
+        +(qd.date?(' · détection du '+qd.date):'')+'.</div>'
+    +'</div>';
   }
   var ahSec='';
   var ah=window.lastAH;
@@ -605,31 +665,97 @@ function renderMiroir(){
       +'<div style="font-size:12px;color:#9ca3af;margin-top:6px;">Gain annuel estimé : <b style="color:#4ade80;">'+eur(m.economie_an)+'</b></div></div>'
     +'<div style="display:flex;gap:6px;padding:12px 16px 0;">'+tog('externe','Version dirigeant')+tog('interne','Version interne')+'</div>'
     +'<div class="sec"><div style="font-size:12.5px;color:#334155;line-height:1.6;">'+esc(pick(m.cadre))+'</div></div>'
-    +vSec+pilRecap+ahSec
+    +vSec+quotSec+pilRecap+ahSec
     +'<div class="sec" style="background:#fff7ed;"><div class="ktitle" style="color:#9a3412;"><i class="ti ti-eye"></i> Ma Vision</div><div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:4px;">'+esc(pick(m.verite))+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-list-check"></i> Palier 1 — redevenir cohérent avec son image</div>'+mPlan(m,1)+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-rocket"></i> Palier 2 — dépasser grâce à l\'IA</div>'+mPlan(m,2)+'</div>'
     +mRoi(m)
     +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-calendar"></i> Cadence</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;">'+esc(m.cadence||'')+'</div></div>'
     +'<div class="sec" style="background:'+au.b+';"><div class="ktitle" style="color:'+au.t+';"><i class="ti ti-arrow-right"></i> Le prochain pas</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div></div>'
-    +'<div class="foot">MIROIR = ordonnance de pré-audit, à partir du LIVE (image) et de la BOUSSOLE (réalité). Le dirigeant garde son libre arbitre.</div>'
+    +'<div class="foot">Le MIROIR confronte trois regards : ce que les autres voient (SENTINELLE), ce que vous décrivez (BOUSSOLE), et ce que vos journées montrent (votre quotidien). La décision reste la vôtre.</div>'
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>'
   /* Boutons du bas retirés : tout se pilote par la barre du haut (décision Didier). */;
   var _mq=(typeof miroirQuand==='function')?miroirQuand():'';
   // La date de l'analyse et la régénération, à la main du dirigeant : chaque relance coûte un appel IA.
-  var _mbar=window.miroirPerime?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse' + (_mq?(' du '+_mq):'') + '.</span>'+jetBouton('Mise &agrave; jour conseill&eacute;e','miroir','runMiroir(true)')+'</div>'):(_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+'</span>'+jetBouton('Régénérer','miroir','runMiroir(true)')+'</div>'):'');
-  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR','Le miroir de votre image et de votre réalité','t360')+_mbar+html; window.scrollTo(0,0);
+  var _mbar=window.miroirPerime?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin:2px 2px 10px;"><span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos donn&eacute;es ont chang&eacute; depuis cette analyse' + (_mq?(' du '+_mq):'') + '.</span>'+jetBouton('Mise &agrave; jour conseill&eacute;e','miroir','runMiroir(true)')+'</div>'):(_mq?('<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+_mq+' — <b>à jour</b>, rien à régénérer.</span>'+_mRelance()+'</div>'):'');
+  $('miroir').innerHTML=iveEntete('ti-sparkles','MIROIR',(quotSec?'Votre image, votre réalité, vos journées':'Le miroir de votre image et de votre réalité'),'t360')+_mbar+html; window.scrollTo(0,0);
 }
 function setMiroirAudience(a){ window.miroirAud=a; renderMiroir(); }
+
+/* ===== ENREGISTREMENT DES FICHES — SOURCE UNIQUE (CLAUDE.md §7) =====
+   Avant : chaque sauvegarde passait par /api/save, qui écrivait un fichier DANS LE DÉPÔT GitHub.
+   Donc un commit par sauvegarde, donc un déploiement Vercel par sauvegarde. Constaté le 30/07 sur
+   le tableau de bord : 5 déploiements sur 13 n'étaient QUE des sauvegardes de fiches, avec UN seul
+   utilisateur. À 50 clients, plus rien ne se déploierait — et deux clients qui enregistrent à la
+   même seconde écrivent dans le MÊME dépôt : ce n'est pas un problème de volume, mais de nature.
+   La table `fiches` existait depuis l'origine pour ça (« remplace les fichiers GitHub »), elle
+   n'avait jamais été branchée. Le navigateur y écrit EN DIRECT : la RLS (`fiches_insert`) garantit
+   qu'on n'écrit que dans sa propre entreprise, et on échappe à la limite des 60 s de Vercel. */
+async function ficheEnregistrer(kind, nom, contenu, html){
+  try{
+    await window.sbReady;
+    if(!window.sb) return {ok:false, err:'hors ligne'};
+    // L'entreprise n'est pas toujours connue au moment de sauver : on la retrouve avant d'écrire.
+    if(!window.dbEnt){
+      try{
+        var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:((window.currentUser&&window.currentUser.name)||nom||null)});
+        if(!e.error && e.data) window.dbEnt=e.data;
+      }catch(x){}
+    }
+    if(!window.dbEnt) return {ok:false, err:'entreprise inconnue'};
+    var r=await window.sb.from('fiches').insert({
+      entreprise_id: window.dbEnt,
+      auteur_id: (window.currentUser&&window.currentUser.id)||null,
+      kind: kind,
+      nom: String(nom||'').slice(0,200),
+      contenu: contenu||{},
+      html: html||null
+    });
+    if(r && r.error) return {ok:false, err:r.error.message};
+    return {ok:true};
+  }catch(e){ return {ok:false, err:(e&&e.message)||'erreur'}; }
+}
+/* Le message sous le bouton, identique partout. innerHTML et non textContent : les anciens
+   appels injectaient du HTML dans textContent, les icônes s'affichaient en clair. */
+function ficheMsg(el, res, libelle){
+  if(el){
+    el.innerHTML = (res && res.ok)
+      ? '<i class="ti ti-circle-check"></i> '+(libelle||'Enregistré')
+      : '<i class="ti ti-alert-triangle"></i> Non enregistré'+((res&&res.err)?(' — '+esc(res.err)):'');
+    return;
+  }
+  /* Aucun emplacement prévu à l'écran — c'est le cas de la BOUSSOLE, dont la ligne
+     d'enregistrement a été retirée volontairement. Le SUCCÈS reste donc silencieux, comme voulu.
+     Mais un ÉCHEC ne doit JAMAIS passer inaperçu : une fiche perdue en silence, c'est le travail
+     du dirigeant qui disparaît sans que personne ne le sache. */
+  if(!res || !res.ok) ficheAlerte(res);
+}
+/* Bandeau d'alerte, affiché seulement quand un enregistrement échoue et qu'aucun écran ne
+   peut le dire. Refermable, il ne bloque rien. */
+function ficheAlerte(res){
+  try{
+    var id='ficheAlerte';
+    var old=document.getElementById(id); if(old) old.remove();
+    var d=document.createElement('div');
+    d.id=id;
+    d.style.cssText='position:fixed;left:10px;right:10px;top:10px;z-index:9999;background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.14);font-size:12.5px;color:#7f1d1d;line-height:1.5;';
+    d.innerHTML='<b><i class="ti ti-alert-triangle"></i> Votre fiche n\'a pas été enregistrée.</b>'
+      +((res&&res.err)?('<div style="margin-top:4px;color:#991b1b;">'+esc(res.err)+'</div>'):'')
+      +'<div style="margin-top:6px;color:#991b1b;">Vos réponses restent affichées : ne fermez pas la page, réessayez quand la connexion revient.</div>'
+      +'<div style="text-align:right;margin-top:8px;"><span onclick="var e=document.getElementById(\''+id+'\');if(e)e.remove();" style="cursor:pointer;font-weight:700;color:#7f1d1d;">Fermer</span></div>';
+    document.body.appendChild(d);
+  }catch(e){}
+}
+
 function saveMiroir(m){
   try{ var b=window.lastMiroir||{};
-    var payload={type:'miroir',mode:'miroir',nom:b.nom,date:new Date().toISOString(),contexte:Object.assign({},b,{ah:window.lastAH||null}),miroir:m};
+    var payload={type:'miroir',mode:'miroir',nom:b.nom,date:new Date().toISOString(),contexte:Object.assign({},b,{ah:window.lastAH||null,quotidien:(typeof miroirQuotidien==='function')?miroirQuotidien():null}),miroir:m};
     var css=document.querySelector('style')?document.querySelector('style').textContent:'';
     var body=$('miroir').innerHTML.replace(/<button[\s\S]*?<\/button>/g,'');
     var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td,table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
-    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'miroir',nom:b.nom,json:payload,html:html})})
-      .then(function(r){return r.json();}).then(function(x){var s=$('mSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> MIROIR enregistré sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';});
+    if(typeof evt==='function') evt('miroir');
+    ficheEnregistrer('miroir', b.nom, payload, html).then(function(res){ ficheMsg($('mSave'), res, 'MIROIR enregistré'); });
   }catch(e){}
 }
 /* Le MIROIR coûte un appel IA à chaque génération : on le garde et on le relit,
@@ -637,14 +763,47 @@ function saveMiroir(m){
 var miroirStore={
   key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_miroir_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
   load:function(){ try{ var s=localStorage.getItem(miroirStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
-  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',sig:iveEmpreinte(),ts:Date.now()})); }catch(e){} }
+  save:function(m,nom){ try{ localStorage.setItem(miroirStore.key(), JSON.stringify({m:m,nom:nom||'',sig:miroirSignature(),ts:Date.now()})); }catch(e){} }
 };
+/* LE QUOTIDIEN — la 3e source du MIROIR. SENTINELLE dit l'image, la BOUSSOLE dit ce que le
+   dirigeant déclare, LE QUOTIDIEN montre ce que ses journées font. On ne rappelle JAMAIS l'IA
+   ici : on relit la détection des sujets récurrents déjà payée (recurGet) et on compte les
+   tâches. Gratuit. Renvoie null quand il n'y a rien de solide à confronter. */
+function miroirQuotidien(){
+  var sv=(typeof recurGet==='function')?recurGet():null;
+  var sujets=(sv&&Array.isArray(sv.sujets))?sv.sujets:[];
+  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
+  var lim=new Date(); lim.setDate(lim.getDate()-30);
+  var maintenant=new Date(), n30=0, enCours=0, vieille=0;
+  (o.tasks||[]).forEach(function(t){
+    var d=new Date(((t.created||t.due||'')+'T00:00:00'));
+    if(isNaN(d)) return;
+    if(d>=lim) n30++;                                  // archivées comprises : une tâche refaite compte
+    if(!t.done && !t.archive){
+      enCours++;
+      var age=Math.round((maintenant-d)/864e5);
+      if(!isNaN(age) && age>vieille) vieille=age;      // ce qui traîne, et depuis quand
+    }
+  });
+  if(!sujets.length && n30<5) return null;             // trop peu dicté : rien à confronter
+  return {
+    sujets:sujets.slice(0,6).map(function(s){
+      return { sujet:String(s.sujet||s.outil||''), nb:(+s.nb||0), consequence:String(s.consequence||''),
+               qui:String(s.qui||''), priorite:String(s.priorite||''), outil:String(s.outil||'') };
+    }),
+    nbTaches:n30, nbEnCours:enCours, plusVieille:vieille,
+    date:(typeof recurQuand==='function')?recurQuand():''
+  };
+}
 /* Empreinte des données qui ont servi à l'analyse. Si elle change — nouvelle SENTINELLE,
-   questionnaire modifié, réponses des salariés — l'analyse est périmée et on le dit. */
+   questionnaire modifié, réponses des salariés, nouveau sujet récurrent — l'analyse est périmée
+   et on le dit. On y met les SUJETS détectés, jamais le nombre de tâches : sinon chaque tâche
+   dictée périmerait le MIROIR et pousserait à redépenser un jeton pour rien. */
 function miroirSignature(){
-  var b=window.lastMiroir||{};
-  var ah=(window.lastAH&&window.lastAH.iat!=null)?window.lastAH.iat:'';
-  return [b.nom||'',b.indiceInterieur,b.indiceExterieur,b.potentiel,ah].join('|');
+  var base=(typeof iveEmpreinte==='function')?iveEmpreinte():'';
+  var q=(typeof miroirQuotidien==='function')?miroirQuotidien():null;
+  var sq=q?q.sujets.map(function(s){ return s.sujet+':'+s.nb; }).join(','):'';
+  return base+'||'+sq;
 }
 function miroirQuand(){
   var s=miroirStore.load(); if(!s||!s.ts) return '';
@@ -664,7 +823,7 @@ function runMiroir(forcer){
   // faisait retomber dans un appel IA. La sauvegarde est déjà propre au compte ; c'est l'empreinte
   // des données (miroirSignature) qui dit si l'analyse est encore valable.
   if(!forcer && sv && sv.m){
-    window.miroirPerime=(sv.sig!==iveEmpreinte());   // les données ont-elles bougé depuis ?
+    window.miroirPerime=(sv.sig!==miroirSignature());   // les données ont-elles bougé depuis ? (quotidien compris)
     window.miroirData=sv.m; window.miroirAud='externe';
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
@@ -727,7 +886,10 @@ function runMiroir(forcer){
       });
     }
   }catch(e){}
-  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc, outils:_ou});
+  // LE QUOTIDIEN : la 3e vue, la seule qui se constate au lieu de se raconter. Aucun appel
+  // supplémentaire — on relit la détection déjà payée (cf. miroirQuotidien).
+  var _qt=(typeof miroirQuotidien==='function')?miroirQuotidien():null;
+  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc, outils:_ou, quotidien:_qt});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
     .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
@@ -751,6 +913,23 @@ function startBoussole(mode){
     }).catch(function(){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Fiche SENTINELLE trouvée mais illisible. Réessayez.</div>'); });
   }).catch(function(){ bMsg('<div style="font-size:12.5px;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Historique indisponible (connexion ?). Réessayez.</div>'); });
 }
+/* La sortie du questionnaire, posée EN HAUT **et** EN BAS. Avec 40 critères c'était deja long ;
+   avec les 200 du mode complet, remonter tout en haut pour valider n'avait aucun sens.
+   Source unique : un seul libellé, un seul comportement, deux emplacements. L'identifiant de la
+   ligne d'avancement est suffixé — deux éléments ne peuvent pas porter le même id. */
+function bGrilleActions(place){
+  var bas=(place==='bas');
+  return '<div class="panel" style="margin-'+(bas?'top':'bottom')+':10px;">'
+    +'<div style="font-size:13px;font-weight:700;color:#1C1C1C;">Avez-vous terminé de remplir tous les champs ?</div>'
+    +'<div id="bProg'+(bas?'_bas':'')+'" style="font-size:11.5px;color:#4b5563;margin-top:5px;"></div>'
+    +'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;">Vos réponses sont enregistrées automatiquement à chaque geste.</div>'
+    +(bas?'':'<div style="font-size:11.5px;color:#7c2d12;background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.45;"><i class="ti ti-hand-click" style="color:#E8541A;"></i> Les lignes <b>grisées</b> attendent votre réponse. Si la note affichée vous convient, <b>cliquez simplement dessus</b> pour la valider.</div>')
+    +'<div style="display:flex;gap:8px;margin-top:10px;">'
+    // Boutons écrits à la main : la classe .btn empile l'icône au-dessus du libellé.
+    +'<button type="button" onclick="bFinish()" style="flex:1;min-width:0;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:13px;font-weight:700;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-circle-check"></i> Oui — voir le diagnostic</button>'
+    +'<button type="button" onclick="bouGrilleQuitter(\'accueil\')" style="flex:1;min-width:0;border:1px solid #d7dbe3;border-radius:11px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:600;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-bookmark"></i> Non — sauvegarder et reprendre plus tard</button>'
+    +'</div></div>';
+}
 function startGrille(mode){
   showView('bGrille');
   var items=buildItems(mode); window.bItems=items; window.bMode=mode;
@@ -764,16 +943,8 @@ function startGrille(mode){
     +'<div style="font-size:11px;color:#E7DBD1;"><i class="ti ti-compass"></i> BOUSSOLE '+label+' · indice justifié en direct ('+items.length+' critères)</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="bIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100</span> <span id="bStars" style="font-size:16px;color:#f59e0b;"></span></div>'
     +'<div style="font-size:10px;color:#8891b5;">0 = inexistant · 3 = moyen · 5 = excellent</div></div>'
-    // La sortie se joue en une seule question, en haut : terminé ou pas encore.
-    +'<div class="panel" style="margin-bottom:10px;">'
-    +'<div style="font-size:13px;font-weight:700;color:#1C1C1C;">Avez-vous terminé de remplir tous les champs ?</div>'
-    +'<div id="bProg" style="font-size:11.5px;color:#4b5563;margin-top:5px;"></div>'
-    +'<div style="font-size:11.5px;color:#6b7280;margin-top:3px;">Vos réponses sont enregistrées automatiquement à chaque geste.</div>'
-    +'<div style="display:flex;gap:8px;margin-top:10px;">'
-    // Boutons écrits à la main : la classe .btn empile l'icône au-dessus du libellé.
-    +'<button type="button" onclick="bFinish()" style="flex:1;min-width:0;border:0;border-radius:11px;background:#E8541A;color:#fff;font-size:13px;font-weight:700;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-circle-check"></i> Oui — voir le diagnostic</button>'
-    +'<button type="button" onclick="bouGrilleQuitter(\'accueil\')" style="flex:1;min-width:0;border:1px solid #d7dbe3;border-radius:11px;background:#fff;color:#1C1C1C;font-size:13px;font-weight:600;padding:12px 10px;cursor:pointer;font-family:inherit;"><i class="ti ti-bookmark"></i> Non — sauvegarder et reprendre plus tard</button>'
-    +'</div></div>';
+    // La sortie se joue en une seule question — posée EN HAUT **et** EN BAS (cf. bGrilleActions).
+    +bGrilleActions('haut');
   var curP=null,curS=null,open=false;
   items.forEach(function(it){
     if(it.pilier!==curP){ if(open)html+='</div>'; curP=it.pilier; curS=null;
@@ -782,9 +953,11 @@ function startGrille(mode){
     if(mode==='complet' && it.sous!==curS){ curS=it.sous;
       html+='<div style="font-size:10.5px;font-weight:700;color:#8a5a2b;text-transform:uppercase;letter-spacing:.5px;margin-top:14px;border-bottom:1px solid #f0e6dd;padding-bottom:3px;">'+esc(curS)+'</div>';
     }
-    html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.crit)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bTouche(\''+it.id+'\')"><span class="val" id="'+it.id+'v">–</span></div></div>';
+    // La LIGNE ENTIÈRE est cliquable : cliquer vaut réponse, à la note affichée (3 par défaut).
+    html+='<div id="'+it.id+'_row" style="margin-top:10px;cursor:pointer;" onclick="bValider(\''+it.id+'\',event)"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.crit)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bTouche(\''+it.id+'\')"><span class="val" id="'+it.id+'v">–</span></div></div>';
   });
   if(open)html+='</div>';
+  html+=bGrilleActions('bas');   // meme sortie en bas : plus besoin de remonter
   html+='<div id="bFaibles" class="panel" style="display:none;background:#fef2f2;border-color:#fecaca;color:#7f1d1d;font-size:12px;"></div>'
     // En bas, uniquement les actions secondaires — sur une seule ligne.
     +'<div style="display:flex;gap:10px;justify-content:center;align-items:center;margin-top:12px;font-size:11.5px;">'
@@ -817,6 +990,45 @@ function startGrille(mode){
 }
 /* Toile d'araignée des 8 piliers : le polygone plein = aujourd'hui, le pointillé = le potentiel.
    L'écart entre les deux, c'est la marge. Tracé en SVG à la main, sans bibliothèque. */
+/* ===== BILAN DE SANTÉ DU QUESTIONNAIRE (décision Didier, 31/07) =====
+   Un 57 obtenu sur 12 critères notés et un 57 obtenu sur 200 n'ont PAS la même valeur, et
+   jusqu'ici rien à l'écran ne les distinguait. On dit donc franchement sur quoi le diagnostic
+   repose : combien de réponses sur combien, et si les salariés ont été entendus.
+   C'est ce qui lui donne son INTENSITÉ — sa force probante, pas sa note. */
+function bilanSante(r){
+  var items=window.bItems||[], total=items.length||0;
+  var repondu=0;
+  items.forEach(function(it){ var el=$(it.id); if(el && el.dataset.vu==='1') repondu++; });
+  var taux=total?Math.round(repondu/total*100):0;
+  var avecSal=!!(window.lastAH && window.lastAH.iat!=null);
+  var profond=(total>=100);                       // 200 critères = regard en profondeur
+  // L'intensité tient à TROIS choses : la complétude, la profondeur, et l'avis des équipes.
+  var pts=(taux>=90?2:taux>=60?1:0)+(profond?1:0)+(avecSal?1:0);
+  var niv = pts>=3 ? {t:'forte',   c:'#15803d', f:'#f0fdf4', b:'#bbf7d0', m:'Votre diagnostic est solide : on peut s\'y fier pour décider.'}
+          : pts>=2 ? {t:'correcte',c:'#b45309', f:'#fff7ed', b:'#fed7aa', m:'Votre diagnostic tient debout. Il gagnerait encore à être complété.'}
+          :          {t:'partielle',c:'#991b1b',f:'#fef2f2', b:'#fecaca', m:'Votre diagnostic reste indicatif : trop peu d\'éléments pour en tirer des décisions fermes.'};
+  var manque=[];
+  if(taux<90) manque.push('répondre aux '+(total-repondu)+' critères restants');
+  if(!profond) manque.push('passer au questionnaire complet (200 critères)');
+  if(!avecSal) manque.push('recueillir l\'avis de vos salariés');
+  var barre=function(lbl,val,txt,coul){
+    return '<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4b5563;"><span>'+lbl+'</span><b style="color:#1C1C1C;">'+txt+'</b></div>'
+      +'<div style="background:#eef2f7;border-radius:5px;height:8px;margin-top:4px;overflow:hidden;"><div style="width:'+val+'%;height:8px;background:'+coul+';border-radius:5px;"></div></div></div>';
+  };
+  return '<div class="sec" style="background:'+niv.f+';">'
+    +'<div class="ktitle" style="color:'+niv.c+';"><i class="ti ti-stethoscope"></i> Bilan de santé du questionnaire <span style="font-weight:400;color:#9ca3af;font-size:10px;">— sur quoi repose votre note</span></div>'
+    +'<div style="font-size:12.5px;color:#1C1C1C;margin-top:5px;line-height:1.5;">'
+      +'<b>'+repondu+' réponses sur '+total+'</b> — questionnaire '+(profond?'complet':'express')+'.<br>'
+      +(avecSal?'L\'avis de vos salariés est <b>pris en compte</b>.':'L\'avis de vos salariés <b>n\'a pas encore été recueilli</b>.')
+    +'</div>'
+    +barre('Complétude des réponses',taux,repondu+' / '+total,niv.c)
+    +barre('Regard des équipes',(avecSal?100:0),(avecSal?'recueilli':'absent'),(avecSal?'#15803d':'#d7dbe3'))
+    +'<div style="display:inline-block;margin-top:12px;font-size:11.5px;font-weight:800;color:'+niv.c+';background:#fff;border:1px solid '+niv.b+';border-radius:20px;padding:5px 13px;">'
+      +'<i class="ti ti-activity"></i> Intensité du diagnostic : '+niv.t+'</div>'
+    +'<div style="font-size:12px;color:#4b5563;margin-top:8px;line-height:1.5;">'+niv.m+'</div>'
+    +(manque.length?('<div style="font-size:11.5px;color:#6b7280;margin-top:8px;line-height:1.55;">Pour le renforcer : '+manque.join(' · ')+'.</div>'):'')
+    +'</div>';
+}
 function bRadarHtml(r){
   var noms=BPILIERS.filter(function(p){ return r.pil[p]!=null; });
   if(noms.length<3) return '';
@@ -844,8 +1056,10 @@ function bRadarHtml(r){
     var a=(-Math.PI/2)+(i*2*Math.PI/n);
     var x=C+(R+22)*Math.cos(a), y=CY+(R+22)*Math.sin(a);
     var anc=(Math.abs(Math.cos(a))<0.25)?'middle':(Math.cos(a)>0?'start':'end');
-    svg+='<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anc+'" style="font-size:10.5px;font-weight:700;fill:#1C1C1C;">'+esc(p)+'</text>'
-      +'<text x="'+x.toFixed(1)+'" y="'+(y+11).toFixed(1)+'" text-anchor="'+anc+'" style="font-size:9.5px;fill:#6b7280;">'+r.pil[p]+' → '+vPot[i]+'</text>';
+    // Étiquettes réduites (décision Didier, 31/07) : à 10,5 px les noms de piliers mangeaient
+    // le dessin. L'interligne suit — 8 px au lieu de 11, sinon les deux lignes se décollent.
+    svg+='<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anc+'" style="font-size:8.5px;font-weight:700;fill:#1C1C1C;">'+esc(p)+'</text>'
+      +'<text x="'+x.toFixed(1)+'" y="'+(y+8).toFixed(1)+'" text-anchor="'+anc+'" style="font-size:7.5px;fill:#6b7280;">'+r.pil[p]+' → '+vPot[i]+'</text>';
   });
   svg+='</svg>';
   return '<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Vos 8 piliers — aujourd\'hui et demain</div>'
@@ -864,9 +1078,13 @@ function bScan(){
   items.forEach(function(it){
     var el=$(it.id); if(!el) return;
     var lab=$(it.id+'v'), row=$(it.id+'_row');
-    // Un critère jamais touché ne compte pas. Il reste pleinement utilisable : on le signale
-    // par un tiret ambré, jamais en grisant la ligne — ce qui la ferait croire désactivée.
-    if(el.dataset.vu!=='1'){ if(lab){ lab.textContent='–'; lab.style.color='#b45309'; } if(row) row.style.opacity=''; return; }
+    // Un critère jamais touché ne compte pas. TROIS états doivent se distinguer d'un coup d'œil :
+    //   répondu       -> pleine opacité, la note chiffrée
+    //   en attente    -> grisé LÉGER (.6) + tiret ambré, curseur toujours actif
+    //   non concerné  -> grisé FRANC (.45) + « n/c » + curseur désactivé (cf. toggleNA)
+    // Le grisé de l'attente reste plus clair que celui du « non concerné », et le tiret ambré
+    // dit que la ligne attend une réponse — elle n'est pas désactivée.
+    if(el.dataset.vu!=='1'){ if(lab){ lab.textContent='–'; lab.style.color='#b45309'; } if(row) row.style.opacity='.6'; return; }
     if(lab) lab.style.color='';
     if(row && el.dataset.na!=='1') row.style.opacity='';
     if(el.dataset.na==='1') return;
@@ -896,6 +1114,17 @@ function bcalc(){
 }
 // Déplacer un curseur, c'est répondre : le critère entre alors dans les critères renseignés.
 function bTouche(id){ var el=$(id); if(el) el.dataset.vu='1'; bcalc(); }
+/* Valider une ligne SANS toucher au curseur. « oninput » ne se déclenche que si la valeur
+   CHANGE : pour garder la note 3 par défaut, il fallait aller à 4 puis revenir à 3. Absurde.
+   Un clic n'importe où sur la ligne vaut désormais réponse, à la note affichée. */
+function bValider(id,ev){
+  // Le bouton « non concerné » a sa propre logique : on le laisse faire.
+  try{ if(ev && ev.target && ev.target.closest && ev.target.closest('.naBtn')) return; }catch(e){}
+  var el=$(id); if(!el) return;
+  if(el.dataset.na==='1') return;         // une ligne « non concerné » se rouvre par son bouton
+  el.dataset.vu='1';
+  bcalc();
+}
 function toggleNA(id){
   var el=$(id),btn=$(id+'_na'),lab=$(id+'v'),row=$(id+'_row');
   if(el) el.dataset.vu='1';   // « non concerné » est aussi une réponse
@@ -952,17 +1181,32 @@ function bFinish(){
    +'<div style="font-size:12.5px;color:#8fa6d8;">· '+date+'</div></div>';
   var blocAuras='<div style="width:100%;">'
    +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
-   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA'+(_ax?' EXTÉRIEURE &amp;':'')+' INTÉRIEURE &amp; POTENTIEL</div>'+_traitD+'</div>'
-   // Toute la chaîne : l'extérieure (ce qu'on voit), l'intérieure (ce qu'on vit), le potentiel (ce qu'on vise).
-   +'<div style="display:flex;align-items:flex-start;justify-content:center;gap:clamp(10px,3.5vw,30px);margin-top:16px;flex-wrap:wrap;">'
-   /* Dans la pastille, sous le chiffre : d'où vient la valeur. */
-   +(_ax?_pastille(_ax.note,_axh,'EXTÉRIEURE',esc(_ax.couleur||''),'<span style="font-size:8.5px;letter-spacing:1.3px;font-weight:700;opacity:.92;">SENTINELLE</span>'):'')
-   /* L'intérieure est le cœur du diagnostic BOUSSOLE : 10 % plus grande que les deux autres. */
-   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx),false,1.1)
-   /* L'objectif est en orange, comme sur SENTINELLE, et cerclé de blanc : impossible de le confondre
-      avec les deux mesures constatées. L'écart est explicitement rapporté à l'intérieure. */
-   +_pastille(pot,'#E8541A','POTENTIEL','+'+progression+' vs intérieure','',true)
-   +'</div></div>';
+   +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE</div>'+_traitD+'</div>'
+   /* DÉCISION DIDIER (31/07) : cet écran ne montre plus QUE l'aura intérieure — ce que
+      l'entreprise VIT. L'extérieure appartient à SENTINELLE, le potentiel au MIROIR : les
+      empiler ici mélangeait trois regards sur un écran censé n'en porter qu'un.
+      ATTENTION : `_ax` (extérieure), `pot` et `progression` restent CALCULÉS plus haut — ils
+      alimentent window.lastMiroir, les instantanés de trajectoire et le MIROIR. On retire
+      l'AFFICHAGE, jamais le calcul. */
+   +'<div style="display:flex;align-items:flex-start;justify-content:center;margin-top:16px;">'
+   +_pastille(r.idx,au.h,'INTÉRIEURE','éclat '+ec,starsHTML(r.idx),false,1.15)
+   +'</div>'
+   /* Avec ou sans les salariés : un diagnostic bâti sur le seul regard du dirigeant n'a pas la
+      même portée que celui qui a entendu les équipes. Le dire franchement. */
+   +(function(){
+      var avec=!!(window.lastAH && window.lastAH.iat!=null);
+      return '<div style="text-align:center;margin-top:14px;">'
+        +'<span style="display:inline-block;font-size:11.5px;font-weight:700;border-radius:20px;padding:5px 14px;'
+        +(avec?'color:#86efac;background:rgba(34,197,94,.12);border:1px solid rgba(134,239,172,.35);'
+              :'color:#fcd34d;background:rgba(245,158,11,.10);border:1px solid rgba(252,211,77,.30);')+'">'
+        +'<i class="ti '+(avec?'ti-users-group':'ti-user')+'"></i> '
+        +(avec?'Réalisé AVEC vos salariés':'Réalisé SANS vos salariés')+'</span>'
+        +'<div style="font-size:11px;color:#8fa6d8;margin-top:6px;line-height:1.45;">'
+        +(avec?'Votre regard et celui de vos équipes ont été croisés.'
+              :'Ce diagnostic ne porte que votre regard. Le questionnaire aux salariés en donnera l\'autre moitié.')
+        +'</div></div>';
+    })()
+   +'</div>';
   var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:18px 16px;margin-top:22px;text-align:center;">'
    +'<div style="font-size:clamp(16px,4.6vw,20px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
    +'<div style="width:min(240px,60%);height:1px;margin:12px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
@@ -989,11 +1233,12 @@ function bFinish(){
   }
   var pz=progression<8?0:progression<18?1:progression<28?2:progression<40?3:4;
   var pzone=['Plafond','Palier','Montée','Envol','Ascension'][pz];
-  trajSec+='<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-trending-up"></i> Potentiel de Progression <span style="font-weight:400;color:#9ca3af;font-size:10px;">— la montée possible</span></div>'
-   +'<div style="font-size:12px;color:#4b5563;margin-top:4px;">Réalité <b>'+r.idx+'</b> → Potentiel <b>'+pot+'</b> · +'+progression+' points à gravir — <b>'+pzone+'</b></div>'
-   +trajDial(['Plafond','Palier','Montée','Envol','Ascension'],pz)
-   +trajLegende(['Plafond','Palier','Montée','Envol','Ascension'],pz)
-   +trajMsg('Posture de coach : l\'écart n\'est pas un défaut, c\'est le chemin. Le MIROIR en fera le plan.',pz)+'</div>';
+  /* POTENTIEL DE PROGRESSION RETIRÉ D'ICI (décision Didier, 31/07) — il est déjà affiché au
+     MIROIR, à sa vraie place : une projection n'a de sens qu'accompagnée du plan qui la rend
+     atteignable. La BOUSSOLE dit CE QUI EST, le MIROIR dit CE QU'ON PEUT VISER.
+     `pz`, `pzone`, `pot` et `progression` restent CALCULÉS juste au-dessus : ils alimentent
+     window.lastMiroir et les instantanés de trajectoire. On retire l'AFFICHAGE, pas le calcul. */
+  trajSec+=bilanSante(r);
   var details=(window.bItems||[]).map(function(it){var el=$(it.id);return {pilier:it.pilier,sous:it.sous,crit:it.crit,note:(!el||el.dataset.na==='1')?null:+el.value};});
   var pl=BPILIERS.filter(function(p){return r.pil[p]!=null;});
   var bars=pl.slice().sort(function(a,b){return r.pil[b]-r.pil[a];}).map(function(p){
@@ -1039,7 +1284,7 @@ function bFinish(){
    /* L'encart n'apparaît que s'il y a vraiment des critères faibles : sinon il n'apprend rien. */
    +(r.faibles.length?'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>':'')
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
-  window.lastMiroir={nom:nom,activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
+  window.lastMiroir={nom:cpNomCompte(nom),activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
   // Les résultats vivent sous l'onglet BOUSSOLE : la barre de navigation le montre.
   $('bGrille').innerHTML=(typeof iveNavBar==='function'?iveNavBar('boussole'):'')+card+'';
    /* Ligne d'enregistrement et boutons du bas retirés (décision Didier). */
@@ -1054,9 +1299,9 @@ function bFinish(){
   var css=document.querySelector('style')?document.querySelector('style').textContent:'';
   var fiche='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+' table td{border:1px solid #e5e7eb;padding:4px 6px;} table th{border:1px solid #e5e7eb;}</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card+annexe+'</div></body></html>';
   var payload={type:'boussole',nom:nom,json:{type:'boussole',mode:mode,nom:nom,date:date,indice:r.idx,etoiles:Math.max(1,Math.min(5,Math.round(r.idx/20))),aura:{couleur:aura,sens:ad.s,definition:ad.d,eclat:ec},trajectoire:{exterieure:ext,interieure:r.idx,potentiel:pot,indiceVerite:verite,indiceProgression:progression},piliers:r.pil,faibles:r.faibles,details:details},html:fiche};
-  fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
-    .then(function(x){return x.json();}).then(function(x){var s=$('bSave');if(s)s.textContent=(x&&x.ok)?'<i class="ti ti-circle-check"></i> Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur':'<i class="ti ti-alert-triangle"></i> Non enregistré ('+((x&&x.error)||'erreur')+')';})
-    .catch(function(){var s=$('bSave');if(s)s.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré (connexion)';});
+  // Plus de « dites synchronise sur le PC » : la fiche part directement dans la base.
+  if(typeof evt==='function') evt('boussole',{indice:r.idx});
+  ficheEnregistrer('boussole', nom, payload.json||payload, fiche).then(function(res){ ficheMsg($('bSave'), res, 'BOUSSOLE enregistrée'); });
 }
 /* ===== fin BOUSSOLE ===== */
 
@@ -1438,6 +1683,47 @@ function mesResultatsView(){
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 }
+/* ===== LE PARCOURS ANNONCÉ D'AVANCE (décision Didier, 31/07) =====
+   Avant, le dirigeant découvrait le prix par petits bouts : 4 jetons, puis encore 4, puis 3,
+   puis 1. Chaque écran devenait une négociation, et ça donnait l'impression qu'on lui soutirait
+   des jetons. Désormais on annonce le total UNE FOIS, il dit oui, et tout se produit.
+   La carte de la concurrence reste EN DEHORS du lot : c'est le poste le plus cher (Google, pas
+   l'IA) et sa valeur dépend du métier — on la conseille, on ne l'impose pas. */
+var PARCOURS=[['sentinelle','Votre analyse publique','ce que les autres voient de vous'],
+              ['miroir','Votre plan d\'action','ce qu\'il faut faire, dans quel ordre'],
+              ['detection','Les sujets qui reviennent','ce que vos journées répètent sans fin']];
+function parcoursTotal(){ return PARCOURS.reduce(function(s,e){ return s+(JETONS_COUT[e[0]]||0); },0); }
+/* La carte de la concurrence n'a pas la même valeur selon le métier : pour un coiffeur entouré
+   de dix confrères, sa position locale est déterminante ; pour un bureau d'études qui répond à
+   des appels d'offres, beaucoup moins. On le DIT, au lieu de vendre pareil à tout le monde. */
+function concConseil(){
+  var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+  var a=String(f.activite||window.lastActivite||'').toLowerCase();
+  if(/coiff|restaur|pizz|boulang|patiss|boucher|traiteur|garage|auto|pneu|carross|esthet|onglerie|opticien|pressing|fleur|bar |brasserie|hotel|camping|plomb|electric|serrur|menuis|peintre|carrel|maconn|toilettage|veterin|pharmac|tabac|epicerie|superette|primeur|salle de sport|auto-ecole/.test(a))
+    return {fort:true, txt:'Votre métier se joue sur la proximité : votre place face aux voisins pèse lourd.'};
+  return {fort:false, txt:'Selon votre métier, votre position locale compte peut-être moins — à vous d\'en juger.'};
+}
+function parcoursHtml(){
+  var total=parcoursTotal(), e=jetEtat(), assez=(e.reste>=total);
+  var lignes=PARCOURS.map(function(p){
+    var c=JETONS_COUT[p[0]]||0;
+    return '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:6px;font-size:12px;">'
+      +'<span style="color:#1C1C1C;"><b>'+p[1]+'</b> <span style="color:#9ca3af;">— '+p[2]+'</span></span>'
+      +'<span style="color:#9a3412;font-weight:700;white-space:nowrap;">'+c+' jeton'+(c>1?'s':'')+'</span></div>';
+  }).join('');
+  return '<div class="card" style="border:1.5px solid #fed7aa;overflow:hidden;">'
+    +'<div style="background:#fff7ed;padding:13px 15px;"><div style="font-size:13.5px;font-weight:800;color:#9a3412;"><i class="ti ti-route"></i> Votre parcours, annoncé d\'avance</div>'
+    +'<div style="font-size:11.5px;color:#7c2d12;margin-top:3px;line-height:1.45;">Pas de mauvaise surprise : voici tout ce qui vous sera décompté, et rien d\'autre.</div></div>'
+    +'<div class="sec">'+lignes
+    +'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:10px;padding-top:9px;border-top:1px solid #f0e6dd;font-size:13px;">'
+      +'<b style="color:#1C1C1C;">Total</b>'
+      +'<b style="color:#9a3412;white-space:nowrap;">'+total+' jetons sur vos '+e.reste+'</b></div>'
+    +(assez
+       ? '<div style="font-size:11.5px;color:#15803d;margin-top:8px;"><i class="ti ti-circle-check"></i> Votre solde suffit pour aller au bout.</div>'
+       : '<div style="font-size:11.5px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.45;"><i class="ti ti-alert-triangle"></i> Il vous manque <b>'+(total-e.reste)+' jeton'+((total-e.reste)>1?'s':'')+'</b> pour finir le parcours. Mieux vaut recharger avant de commencer que de rester bloqué au milieu. <span onclick="offreView()" style="cursor:pointer;text-decoration:underline;font-weight:700;">Recharger</span></div>')
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:9px;line-height:1.45;">Une fois produit, <b>tout se consulte gratuitement</b> — les détails, les explications, les relectures. Vous ne repayez que si vos données changent.</div>'
+    +'</div></div>';
+}
 function mesActionsView(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(!acc){ renderAuth('login'); return; }
@@ -1472,12 +1758,20 @@ function mesActionsView(){
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
+    // Le prix du parcours, annoncé UNE FOIS et en entier, avant toute dépense.
+    +(abo?parcoursHtml():'')
     +'<div class="card"><div class="sec">'
       // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
       +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 questionnaires')
       +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
       +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
-      +etape(3,'ti-map-2','Carte de la concurrence','Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.',(concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
+      // HORS PARCOURS, et on le dit : la carte se paie à part, et sa valeur dépend du métier.
+      +etape(3,'ti-map-2','Carte de la concurrence',
+             'Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.'
+             +'<div style="margin-top:5px;font-size:11.5px;color:'+(concConseil().fort?'#15803d':'#6b7280')+';">'
+               +'<i class="ti '+(concConseil().fort?'ti-thumb-up':'ti-info-circle')+'"></i> '+concConseil().txt+'</div>'
+             +(concOk?'':'<div style="margin-top:4px;font-size:11.5px;color:#9a3412;"><i class="ti ti-coins"></i> En dehors du parcours — <b>'+JETONS_COUT.concurrence+' jetons</b> à part.</div>'),
+             (concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
       +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.',(simOk?'Terminé':'À faire'),"boussoleOutil('simulateur')",!abo)
       /* SENTINELLE, BOUSSOLE et MIROIR ont leur propre onglet : voir mon360View(). */
     +'</div></div>';
@@ -1608,7 +1902,13 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    Mensuel : 30 jetons remis à zéro chaque mois. Annuel : 390 pour l'année.
    Les jetons achetés en pack ne périment jamais et se consomment APRÈS les inclus.
    BARÈME : SENTINELLE 4 · concurrence 4 · MIROIR 3 · détail 1 · détection 1. */
-var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:1,detection:1};
+/* RÈGLE TARIFAIRE (décision Didier, 31/07) : on paie ce qui PRODUIT une information neuve.
+   On ne paie JAMAIS pour la COMPRENDRE.
+   Le détail d'une action n'est pas une production : c'est l'explication d'une analyse déjà
+   payée. Son coût réel (0,004 € — six détails = 2,4 centimes) est absorbé par les 4 jetons de
+   l'analyse SENTINELLE, qui coûte 0,08 € et se vend 1 €. Marge après inclusion : 90 %, bien
+   au-dessus du plancher de 70 %. Ce n'est donc pas un cadeau, c'est déjà payé. */
+var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:0,detection:1};
 function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function jetPeriode(){
   var d=new Date();
@@ -1649,12 +1949,45 @@ function jetChip(){
 /* Bouton d'action payante, posé en haut à droite d'un encadré. */
 /* LE bouton des actions à jetons — un seul dessin pour toute l'application.
    Toujours en haut à droite de l'encadré. etat : 'payant' | 'gratuit' | 'maj'. */
+/* RETOUR VISUEL IMMÉDIAT. Ces boutons déclenchent un appel IA de 20 à 40 secondes : sans
+   témoin, on clique, rien ne bouge, et on reclique — en payant deux fois. Le bouton devient
+   une roue qui tourne dès l'appui, et se verrouille pour empêcher le double-clic.
+   Filet à 90 s : si l'écran ne s'est pas rafraîchi (panne réseau), le bouton redevient
+   cliquable au lieu de rester bloqué pour toujours. */
+function jetOccupe(btn){
+  try{
+    if(!btn || btn.dataset.occupe==='1') return;
+    btn.dataset.occupe='1';
+    btn.dataset.libelle=btn.innerHTML;
+    btn.style.pointerEvents='none'; btn.style.opacity='.8';
+    btn.innerHTML='<span class="spin" style="width:11px;height:11px;border-width:2px;display:inline-block;vertical-align:-1px;margin-right:6px;"></span>en cours…';
+    setTimeout(function(){
+      try{
+        if(btn && btn.dataset.occupe==='1' && document.body.contains(btn)){
+          btn.dataset.occupe=''; btn.style.pointerEvents=''; btn.style.opacity='';
+          btn.innerHTML=btn.dataset.libelle||btn.innerHTML;
+        }
+      }catch(e){}
+    },90000);
+  }catch(e){}
+}
 function jetBoutonBrut(libelle,cout,clic,etat){
   var c = (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
         :                      {t:'#9a3412',f:'#fffaf6',b:'#fed7aa',i:'ti-refresh'};
   var lib = libelle + ((etat==='gratuit')?'':(' · '+cout+' jeton'+(cout>1?'s':'')));
-  return '<button type="button" onclick="'+clic+'" style="flex:0 0 auto;border:1px solid '+c.b+';border-radius:20px;background:'+c.f+';color:'+c.t+';font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti '+c.i+'"></i> '+lib+'</button>';
+  // Roue d'attente seulement quand ça appelle vraiment l'IA. Le bouton « Détail » gratuit relit
+  // une réponse déjà payée : c'est instantané, une roue qui clignote serait du bruit.
+  var attente = (etat==='gratuit') ? '' : 'jetOccupe(this);';
+  return '<button type="button" onclick="'+attente+clic+'" style="flex:0 0 auto;border:1px solid '+c.b+';border-radius:20px;background:'+c.f+';color:'+c.t+';font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti '+c.i+'"></i> '+lib+'</button>';
+}
+/* Le coût annoncé en haut à droite de l'encadré, avant même de cliquer. Le prix se lit
+   séparément de l'action : le bouton dit CE QU'ON FAIT, la pastille dit CE QUE ÇA COÛTE.
+   Le nombre vient de JETONS_COUT — jamais écrit en dur, sinon il ment le jour où le tarif bouge. */
+function jetCoutChip(cle){
+  var c=JETONS_COUT[cle]||1;
+  return '<span style="font-size:11px;font-weight:700;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:4px 11px;white-space:nowrap;">'
+    +'<i class="ti ti-coins" style="font-size:12px;"></i> coût : '+c+' jeton'+(c>1?'s':'')+'</span>';
 }
 function jetBouton(libelle,cle,action){
   var c=JETONS_COUT[cle]||1, assez=(jetEtat().reste>=c);
@@ -1722,9 +2055,11 @@ function detBouton(nom,benefice,qui,origine){
   var clef='detail:'+detCle(nom);
   var etatC=(typeof iveCoffreEtat==='function')?iveCoffreEtat(clef):'absent';
   var deja=!!detGet(detCle(nom));
-  // Trois états — décision Didier : on ne paie jamais pour relire.
-  if(!deja) return jetBoutonBrut('Générer le détail',JETONS_COUT.detail,'event.stopPropagation();if(jetConsommer(JETONS_COUT.detail)){'+appel+'}else{offreView()}','payant');
-  if(etatC==='perime') return jetBoutonBrut('Mise à jour conseillée',JETONS_COUT.detail,'event.stopPropagation();'+appel,'maj');
+  // Trois états, AUCUN payant : comprendre une analyse déjà payée ne se refacture pas.
+  // La première production prend quelques secondes — d'où la roue d'attente (jetOccupe).
+  if(!deja) return jetBoutonBrut('Voir le détail',0,'event.stopPropagation();jetOccupe(this);'+appel,'gratuit');
+  // L'amont a bougé : on le SIGNALE (ambre), mais la remise à jour reste gratuite.
+  if(etatC==='perime') return jetBoutonBrut('Mettre à jour le détail',0,'event.stopPropagation();jetOccupe(this);'+appel,'maj');
   return jetBoutonBrut('Détail',0,'event.stopPropagation();'+appel,'gratuit');
 }
 function detOuvrir(nomE,benE,quiE,origE){
@@ -1784,7 +2119,7 @@ function detRendre(nom,qui,d){
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
     +iveEntete('ti-info-circle','DÉTAIL DE L\'ACTION',nom,'resultats')
     +'<div class="card"><div class="sec">'
-      +iveCoffrePerimeHtml('detail:'+detCle(nom),'if(jetConsommer(JETONS_COUT.detail)){detRegenerer()}else{offreView()}')
+      +iveCoffrePerimeHtml('detail:'+detCle(nom),'detRegenerer()')
       +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+iveQuiBadge(q)+'</div>'
       +bloc('#2563EB','#f5f8ff','#dbe7fb','ti-help-circle','POURQUOI CETTE ACTION','',esc(sansHypothese(d.pourquoi||'')))
       +bloc('#1C1C1C','#fff','#eef0f3','ti-search','D\'OÙ VIENT L\'INFORMATION','',esc(sansHypothese(d.source||'')))
@@ -1833,6 +2168,9 @@ function recurTaches30(){
 function recurCharger(cb,forcer){
   var sv=recurGet();
   var frais=sv && sv.ts && (Date.now()-sv.ts) < 7*24*3600*1000;
+  // Un resultat VIDE ne doit pas bloquer 7 jours : des que 5 nouvelles taches sont arrivees,
+  // il y a peut-etre un sujet a trouver. Un resultat NON vide, lui, reste valable.
+  if(frais && sv && !(sv.sujets||[]).length && recurNouvelles()>=5) frais=false;
   if(sv && frais && !forcer){ cb(sv.sujets||[]); return; }
   var lst=recurTaches30();
   if(lst.length<5){ recurSet({sujets:[],ts:Date.now()}); cb([]); return; }
@@ -1849,24 +2187,41 @@ function recurNouvelles(){
   var lim=new Date(sv.ts);
   var n=0;
   (o.tasks||[]).forEach(function(x){
-    var d=new Date((x.created||x.due||'')+'T23:59:59');
-    if(!isNaN(d) && d>=lim) n++;
+    // L'HORODATAGE EXACT quand on l'a. Avant, on datait chaque tâche à 23:59:59 de son jour de
+    // création : une tâche dictée AUJOURD'HUI était donc toujours « postérieure » à une détection
+    // lancée ce matin. Le bandeau « N tâches depuis la dernière détection » ne redescendait
+    // jamais à zéro et réclamait un jeton en boucle, même juste après avoir payé.
+    // Sans horodatage (anciennes tâches), on prend le DÉBUT du jour : jamais compté à tort.
+    var d = x.ts ? new Date(x.ts) : new Date(((x.created||x.due||'')+'T00:00:00'));
+    if(!isNaN(d) && d>lim) n++;
   });
   return n;
 }
 // Toujours accessible, même quand aucun sujet n'est détecté : sinon on ne peut plus relancer.
+/* RÈGLE POSÉE PAR DIDIER (31/07) : tant que les données amont n'ont pas bougé, on NE PROPOSE PAS
+   de payer. Un bouton « Relancer · 1 jeton » affiché en permanence n'est pas une information,
+   c'est un ordre déguisé — et le plus souvent pour rien, puisque rien n'a changé.
+   Trois états, un seul propose de dépenser :
+     jamais faite     -> bouton « Lancer la détection »
+     à jour           -> AUCUN bouton : la date, et un lien gris pour celui qui insiste
+     données changées -> bouton ambre « Mise à jour conseillée »
+   Même principe pour le MIROIR (cf. renderMiroir) et pour les détails (cf. detBouton). */
 function recurPiedHtml(){
   var q=recurQuand(), n=(window.__recurSujets||[]).length, nv=recurNouvelles();
-  var etat=(nv>=5)?'maj':'payant';
-  var info = (nv>=5)
-    ? '<b style="color:#b45309;">'+nv+' tâches dictées depuis la dernière détection</b> — une relance peut révéler un nouveau sujet.'
-    : ('Sujets récurrents dans vos tâches : '+(n?('<b style="color:#7c3aed;">'+n+' détecté'+(n>1?'s':'')+'</b>'):'aucun pour l\'instant')+(q?(' · analyse du '+q):''));
+  var sv=recurGet(), jamais=!(sv && sv.ts);
   var c=JETONS_COUT.detection, assez=(jetEtat().reste>=c);
   var clic = assez ? ('if(jetConsommer('+c+')){recurRelancer()}') : 'offreView()';
-  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;">'
-    +'<span style="font-size:11.5px;color:#9ca3af;">'+info+'</span>'
-    +jetBoutonBrut((nv>=5)?'Mise à jour conseillée':'Relancer la détection',c,clic,etat)
-  +'</div>';
+  var cadre=function(info,action){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;">'
+      +'<span style="font-size:11.5px;color:#9ca3af;">'+info+'</span>'+(action||'')+'</div>';
+  };
+  if(jamais) return cadre('Nous n\'avons pas encore cherché de sujet qui revient dans vos tâches.',
+                          jetBoutonBrut('Lancer la détection',c,clic,'payant'));
+  if(nv>=5) return cadre('<b style="color:#b45309;">'+nv+' tâches dictées depuis la dernière détection</b> — une relance peut révéler un nouveau sujet.',
+                          jetBoutonBrut('Mise à jour conseillée',c,clic,'maj'));
+  return cadre('Sujets qui reviennent dans vos tâches : '+(n?('<b style="color:#7c3aed;">'+n+' détecté'+(n>1?'s':'')+'</b>'):'aucun pour l\'instant')
+                 +(q?(' · analyse du '+q):'')+' — <b>à jour</b>, rien à relancer.',
+               '<span onclick="'+clic+'" style="font-size:10.5px;color:#c7ccd3;cursor:pointer;text-decoration:underline;white-space:nowrap;">relancer quand même</span>');
 }
 function recurBlocHtml(sujets){
   if(!sujets || !sujets.length) return '';
@@ -2096,7 +2451,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='30/07 · 103';
+var IVE_VERSION='31/07 · 127';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -2602,9 +2957,7 @@ function saveFiche(d){
     var uu=(d.chiffre&&d.chiffre.unite)||'€';
     var sim='<scr'+'ipt>(function(){function e(n){return n.toLocaleString("fr-FR");}var u="'+uu+'";function s(){var P=document.getElementById("sP"),H=document.getElementById("sH"),C=document.getElementById("sC");if(!P||!H||!C)return;var p=+P.value,h=+H.value,c=+C.value;document.getElementById("sPv").textContent=p;document.getElementById("sHv").textContent=h+" h";document.getElementById("sCv").textContent=c+" €";var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8);var V=document.getElementById("heroV"),S=document.getElementById("heroSub");if(!V)return;if(u==="h"){V.textContent=e(hrs);if(S)S.textContent="≈ "+soir+" soirées rendues — soit ≈ "+e(eur)+" €";}else{V.textContent=e(eur);if(S)S.textContent="≈ "+e(hrs)+" h ("+soir+" soirées) rendues";}}["sP","sH","sC"].forEach(function(id){var x=document.getElementById(id);if(x)x.addEventListener("input",s);});s();})();</scr'+'ipt>';
     const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div>'+sim+'</body></html>';
-    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:d.nom,json:d,html:html})})
-      .then(r=>r.json()).then(x=>{ if(st) st.textContent = (x && x.ok) ? '<i class="ti ti-circle-check"></i> Enregistré sur le cloud — dites « synchronise » sur le PC pour l\'archiver sur le serveur' : '<i class="ti ti-alert-triangle"></i> Non enregistré ('+((x&&x.error)||'erreur')+')'; })
-      .catch(e=>{ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré (connexion)'; });
+    ficheEnregistrer('sentinelle', d.nom, d, html).then(function(res){ ficheMsg(st, res, 'Enregistré'); });
     // Base prospects Supabase (verrou anti-doublon + historique hebdo + futur PDF/relances)
     try{
       window.sbReady.then(function(){
@@ -2636,10 +2989,14 @@ function openConcurrence(){
   if(!host){ host=document.createElement('div'); host.id='concuPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
   host.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;"><i class="ti ti-map-2"></i> La concurrence autour de vous</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Les entreprises du même métier près de '+esc(nom)+', par mot-clé. Repère public, à aujourd\'hui.</div></div>'
    +'<div class="sec">'
-   +'<label>Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+   // Même règle que dans l'espace dirigeant : le coût s'annonce en haut à droite, avant le clic.
+   +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">'
+     +'<label style="margin:0;">Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
+     +jetCoutChip('concurrence')
+   +'</div>'
    +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
    +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de votre prospect.</div>'
-   +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Trouver les 8 concurrents · 4 jetons</button>'
+   +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
    +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div></div><div id="cOut"></div>';
   host.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -2726,20 +3083,54 @@ function siteLink(nom,ville,site){ return (site && /^https?:\/\//i.test(site)) ?
 /* ===== fin CONCURRENCE ===== */
 
 /* ===== HISTORIQUE (Mes recherches) ===== */
+/* ===== MES RECHERCHES — la BASE d'abord, le dépôt ensuite =====
+   Les fiches s'enregistrent désormais dans la table `fiches` (cf. ficheEnregistrer). Les
+   anciennes restent dans le dépôt GitHub : on affiche les DEUX, sinon tout ce qui a été
+   sauvegardé avant aujourd'hui disparaîtrait de l'écran. `api/history.js` ne fait que LIRE
+   le dépôt — aucune écriture, donc aucun commit et aucun déploiement déclenché. */
+async function histListe(){
+  var items=[]; window.__histBase=window.__histBase||{};
+  try{
+    await window.sbReady;
+    if(window.sb){
+      // La RLS restreint déjà `fiches` à sa propre entreprise : pas de filtre à ajouter ici.
+      var r=await window.sb.from('fiches').select('id,kind,nom,contenu,cree_le').order('cree_le',{ascending:false}).limit(200);
+      if(!r.error && r.data){
+        r.data.forEach(function(f){
+          // Seuls ces trois types savent se rouvrir ; aura et feuille n'ont pas d'écran de reprise.
+          var k=String(f.kind||'').toLowerCase();
+          if(k!=='sentinelle' && k!=='boussole' && k!=='miroir') return;
+          var ref='base:'+f.id; window.__histBase[ref]=f.contenu;
+          items.push({ref:ref, type:k.toUpperCase(), nom:f.nom||'', date:new Date(f.cree_le).toLocaleDateString('fr-FR')});
+        });
+      }
+    }
+  }catch(e){}
+  try{
+    var d=await fetch('/api/history').then(function(x){ return x.json(); });
+    ((d&&d.items)||[]).forEach(function(it){
+      items.push({ref:String(it.url||'').replace(/\.html$/,'.json'), type:it.type, nom:it.nom, date:it.date, ancien:true});
+    });
+  }catch(e){}
+  return items;
+}
+/* Le JSON d'une fiche, quelle que soit son origine : mémoire (base) ou ancien fichier du dépôt. */
+function histJson(ref){
+  if(window.__histBase && window.__histBase[ref]) return Promise.resolve(window.__histBase[ref]);
+  return fetch(ref).then(function(r){ return r.json(); });
+}
 function openHistory(){
   var host=document.getElementById('histPanel');
   if(!host){ host=document.createElement('div'); host.id='histPanel'; host.className='card'; host.style.marginTop='14px'; document.querySelector('.wrap').appendChild(host); }
   host.innerHTML='<div style="background:#1C1C1C;color:#fff;padding:14px 16px;"><div style="font-size:16px;font-weight:600;"><i class="ti ti-folder"></i> Mes recherches</div><div style="font-size:11.5px;opacity:.85;margin-top:3px;">Vos analyses sauvegardées dans le cloud — accessibles même sans PC.</div></div><div class="sec" id="histList"><div style="text-align:center;padding:18px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement…</div></div>';
   host.scrollIntoView({behavior:'smooth',block:'start'});
-  fetch('/api/history').then(function(r){return r.json();}).then(function(d){
+  histListe().then(function(items){
     var el=document.getElementById('histList'); if(!el) return;
-    if(d.error||!d.items){ el.innerHTML='<div style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((d&&d.error)||'Indisponible')+'</div>'; return; }
-    if(!d.items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
-    el.innerHTML=d.items.map(function(it){
+    if(!items.length){ el.innerHTML='<div style="color:#6b7280;font-size:13px;">Aucune recherche sauvegardée pour l\'instant.</div>'; return; }
+    el.innerHTML=items.map(function(it){
       var badge=it.type==='BOUSSOLE'?'background:#FBE7DC;color:#cf4712':it.type==='MIROIR'?'background:#1C1C1C;color:#E8A07E':'background:#e0f2fe;color:#075985';
-      var ju=it.url.replace(/\.html$/,'.json');
       var fn=it.type==='BOUSSOLE'?'restoreBoussole':it.type==='MIROIR'?'restoreMiroir':'restoreFiche';
-      var open='href="javascript:void(0)" onclick="'+fn+'(\''+ju+'\')"';
+      var open='href="javascript:void(0)" onclick="'+fn+'(\''+it.ref+'\')"';
       return '<a '+open+' style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #eef2f5;text-decoration:none;color:inherit;">'
         +'<span style="font-size:9px;padding:2px 7px;border-radius:8px;'+badge+';white-space:nowrap;">'+it.type+'</span>'
         +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(it.nom)+'</span>'
@@ -2752,11 +3143,11 @@ function restoreFiche(url){
   document.getElementById('form').style.display='none';
   var res=document.getElementById('result'); res.innerHTML='<div style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement de la fiche…</div>';
   window.scrollTo(0,0);
-  fetch(url).then(function(r){return r.json();}).then(function(d){ render(d,true); }).catch(function(){ res.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">Fiche illisible.</div>'; });
+  histJson(url).then(function(d){ render(d,true); }).catch(function(){ res.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;">Fiche illisible.</div>'; });
 }
 function restoreBoussole(url){
   var p=document.getElementById('histPanel'); if(p) p.remove();
-  fetch(url).then(function(r){return r.json();}).then(function(d){
+  histJson(url).then(function(d){
     if($('bNom')) $('bNom').value=d.nom||'';
     window.bAuraColor=(d.aura&&d.aura.couleur)||'Violet';
     if($('bExt')) $('bExt').value=(d.trajectoire&&d.trajectoire.exterieure!=null)?d.trajectoire.exterieure:'';
@@ -2775,12 +3166,222 @@ function restoreMiroir(url){
   var p=document.getElementById('histPanel'); if(p) p.remove();
   showView('miroir');
   $('miroir').innerHTML='<div class="panel" style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement du MIROIR…</div>';
-  fetch(url).then(function(r){return r.json();}).then(function(d){
-    window.lastMiroir=d.contexte||{nom:d.nom};
+  histJson(url).then(function(d){
+    // On garde tout le contexte archivé, mais le nom AFFICHÉ reste celui du compte connecté :
+    // ouvrir la fiche d'un prospect ne doit plus renommer l'espace du dirigeant.
+    var _ctx=d.contexte||{nom:d.nom};
+    window.lastMiroir=Object.assign({},_ctx,{nom:cpNomCompte(_ctx.nom||d.nom)});
     window.miroirData=d.miroir||null; window.miroirAud='externe';
     if(!window.miroirData){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div><button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>'; return; }
     renderMiroir();
   }).catch(function(){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;">MIROIR illisible.</div>'; });
+}
+/* ===== PARTAGER LE QUESTIONNAIRE À SES SALARIÉS =====
+   Pas d'envoi d'e-mails depuis l'app : un lien, et le partage natif du téléphone (WhatsApp,
+   SMS, mail — ce que le dirigeant utilise déjà). Aucune adresse à saisir, aucune limite
+   d'envoi Gmail, et surtout AUCUNE fonction Vercel de plus — on est à 12 sur 12. */
+async function enqueteLien(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return null;
+    var mode=(window.__enqMode==='complet')?'complet':'express';
+    var r=await window.sb.from('enquetes_salaries').select('jeton,active,plafond,mode').eq('entreprise_id',ent).maybeSingle();
+    var jeton=(r && !r.error && r.data) ? r.data.jeton : null;
+    if(!jeton){
+      jeton=(window.crypto&&crypto.randomUUID)?crypto.randomUUID().replace(/-/g,'').slice(0,24)
+            :(Date.now().toString(36)+Math.random().toString(36).slice(2,12));
+      var ins=await window.sb.from('enquetes_salaries').insert({entreprise_id:ent,jeton:jeton,mode:mode});
+      if(ins && ins.error) return null;
+    }else if(r.data.mode!==mode){
+      // Le dirigeant a changé d'avis sur la longueur : le MÊME lien sert, on ne le régénère pas
+      // (ceux qui l'ont déjà reçu doivent continuer à l'ouvrir).
+      await window.sb.from('enquetes_salaries').update({mode:mode}).eq('entreprise_id',ent);
+    }
+    return location.origin+location.pathname+'?rep='+jeton;
+  }catch(e){ return null; }
+}
+async function enqueteRecues(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return [];
+    var r=await window.sb.from('reponses_salaries').select('nom,poste,iat,imh,cree_le').eq('entreprise_id',ent).order('cree_le',{ascending:true});
+    return (r && !r.error && r.data)?r.data:[];
+  }catch(e){ return []; }
+}
+/* Le message qui accompagne le lien compte autant que le lien. Un salarié qui reçoit
+   « réponds à ça » se méfie ; un salarié à qui on explique pourquoi répond vraiment. */
+function enqueteMessage(lien){
+  return 'Bonjour,\n\nJe cherche à améliorer notre organisation et j\'aimerais avoir ton avis. '
+    +'C\'est une dizaine de questions, 5 minutes, il n\'y a pas de bonne réponse.\n\n'
+    +'Le questionnaire n\'est pas anonyme : je verrai ton nom et tes réponses. '
+    +'C\'est fait pour corriger ce qui coince, pas pour évaluer qui que ce soit. '
+    +'Si tu préfères ne pas répondre, aucun souci.\n\n'+lien+'\n\nMerci !';
+}
+async function enquetePartager(btn){
+  if(btn && typeof jetOccupe==='function') jetOccupe(btn);
+  var lien=await enqueteLien();
+  var z=$('ahPartMsg');
+  if(!lien){ if(z) z.innerHTML='<span style="color:#991b1b;">Lien indisponible — vérifiez votre connexion.</span>'; return; }
+  var txt=enqueteMessage(lien);
+  try{
+    if(navigator.share){ await navigator.share({title:'Votre avis compte',text:txt}); if(z) z.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Partagé.</span>'; return; }
+  }catch(e){ /* l'utilisateur a annulé : on retombe sur la copie */ }
+  try{
+    await navigator.clipboard.writeText(txt);
+    if(z) z.innerHTML='<span style="color:#15803d;"><i class="ti ti-clipboard-check"></i> Message copié — collez-le dans WhatsApp, un SMS ou un mail.</span>';
+  }catch(e){
+    if(z) z.innerHTML='<div style="font-size:11.5px;color:#4b5563;">Copiez ce lien :</div><input readonly value="'+esc(lien)+'" onclick="this.select()" style="width:100%;font-size:12px;padding:8px;border:1px solid #d1d5db;border-radius:8px;margin-top:4px;">';
+  }
+}
+/* ===== AGRÉGATION DES RÉPONSES DES SALARIÉS =====
+   Le point qui compte : on ne calcule pas QUE des moyennes. Si le chef d'atelier note la
+   confiance à 5 et le comptable à 1, la moyenne dit 3 — un chiffre tiède qui ne veut rien dire,
+   alors que la réalité est une FRACTURE dans l'équipe, et c'est ça qu'un plan doit traiter.
+   On sort donc aussi l'écart, le minimum, le maximum et le détail par poste. */
+async function ahAgreger(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return null;
+    var r=await window.sb.from('reponses_salaries')
+      .select('nom,poste,iat,imh,indices,craintes,cree_le').eq('entreprise_id',ent).order('cree_le',{ascending:true});
+    if(r.error || !r.data || !r.data.length) return null;
+    var rows=r.data, n=rows.length;
+    var moy=function(k){ var v=rows.map(function(x){return x[k];}).filter(function(x){return x!=null;});
+                         return v.length?Math.round(v.reduce(function(a,c){return a+c;},0)/v.length):null; };
+    var iat=moy('iat'), imh=moy('imh');
+    var iats=rows.map(function(x){return x.iat;}).filter(function(x){return x!=null;});
+    var mini=iats.length?Math.min.apply(null,iats):null, maxi=iats.length?Math.max.apply(null,iats):null;
+    // Les 8 indices : moyenne clé par clé, en ignorant ceux que personne n'a renseignés.
+    var idx={}, cnt={};
+    rows.forEach(function(x){ var o=x.indices||{};
+      Object.keys(o).forEach(function(k){ if(o[k]==null) return; idx[k]=(idx[k]||0)+o[k]; cnt[k]=(cnt[k]||0)+1; }); });
+    Object.keys(idx).forEach(function(k){ idx[k]=Math.round(idx[k]/cnt[k]); });
+    // Une crainte partagée par 4 personnes sur 5 ne pèse pas comme une crainte isolée.
+    var cr={};
+    rows.forEach(function(x){ (x.craintes||[]).forEach(function(p){ var k=(p&&(p.txt||p.code))||''; if(k) cr[k]=(cr[k]||0)+1; }); });
+    var craintes=Object.keys(cr).map(function(k){ return {txt:k,code:k,intensite:cr[k],surN:n}; })
+                                .sort(function(a,b){ return b.intensite-a.intensite; });
+    var post={};
+    rows.forEach(function(x){ var p=(x.poste||'—').trim()||'—';
+      if(!post[p]) post[p]={n:0,s:0}; post[p].n++; if(x.iat!=null) post[p].s+=x.iat; });
+    var parPoste=Object.keys(post).map(function(p){ return {poste:p,n:post[p].n,iat:Math.round(post[p].s/post[p].n)}; })
+                                  .sort(function(a,b){ return a.iat-b.iat; });
+    var reco=(typeof ahReco==='function')?ahReco(iat):{key:'',zone:'',msg:''};
+    var ouv=idx['Ouverture au changement'];
+    return { nom:((window.lastMiroir&&window.lastMiroir.nom)||''), mode:'salaries',
+             iat:iat, imh:imh, band:reco.key, zone:reco.zone, reco:reco.msg,
+             indices:idx, craintes:craintes, resistance:(ouv!=null?(100-ouv):null),
+             n:n, ecart:((mini!=null&&maxi!=null)?(maxi-mini):null), mini:mini, maxi:maxi,
+             parPoste:parPoste, nominatif:true, repondants:rows.map(function(x){ return {nom:x.nom,poste:x.poste,iat:x.iat}; }) };
+  }catch(e){ return null; }
+}
+function ahAgregeHtml(a){
+  if(!a) return '';
+  // 1 réponse n'est pas une mesure d'entreprise : c'est l'avis d'une personne. On le DIT.
+  var fiable = a.n>=3 ? {t:'#15803d',f:'#f0fdf4',b:'#bbf7d0',m:a.n+' réponses : la tendance est lisible.'}
+             : a.n===2 ? {t:'#b45309',f:'#fff7ed',b:'#fed7aa',m:'2 réponses seulement : à confirmer, mais l\'écart entre elles est déjà instructif.'}
+             :           {t:'#991b1b',f:'#fef2f2',b:'#fecaca',m:'1 seule réponse : c\'est l\'avis d\'une personne, pas la maturité de l\'entreprise.'};
+  var fracture = (a.ecart!=null && a.ecart>=25);
+  return '<div style="border:1.5px solid '+fiable.b+';background:'+fiable.f+';border-radius:14px;padding:13px 14px;margin-top:14px;">'
+    +'<div style="font-size:12.5px;font-weight:800;color:'+fiable.t+';"><i class="ti ti-chart-dots"></i> Ce que disent vos salariés</div>'
+    +'<div style="display:flex;gap:14px;align-items:baseline;margin-top:8px;flex-wrap:wrap;">'
+      +'<div><span style="font-size:26px;font-weight:800;color:#1C1C1C;">'+(a.iat!=null?a.iat:'–')+'</span><span style="font-size:12px;color:#9ca3af;">/100 en moyenne</span></div>'
+      +(a.n>1&&a.ecart!=null?'<div style="font-size:12px;color:#4b5563;">du plus bas <b>'+a.mini+'</b> au plus haut <b>'+a.maxi+'</b> — <b style="color:'+(fracture?'#991b1b':'#4b5563')+';">'+a.ecart+' points d\'écart</b></div>':'')
+    +'</div>'
+    +(fracture?'<div style="font-size:12px;color:#991b1b;background:#fff;border:1px solid #fecaca;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.5;"><b><i class="ti ti-alert-triangle"></i> Vos équipes ne vivent pas la même entreprise.</b> '+a.ecart+' points séparent le plus optimiste du plus critique : la moyenne cache une fracture, et c\'est elle qu\'il faut traiter d\'abord.</div>':'')
+    +(a.parPoste&&a.parPoste.length>1?('<div style="margin-top:9px;">'+a.parPoste.map(function(p){
+        return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#4b5563;border-top:1px solid rgba(0,0,0,.05);padding:5px 0;"><span>'+esc(p.poste)+(p.n>1?(' <span style="color:#9ca3af;">×'+p.n+'</span>'):'')+'</span><b style="color:#1C1C1C;">'+p.iat+'/100</b></div>';
+      }).join('')+'</div>'):'')
+    +'<div style="font-size:11.5px;color:'+fiable.t+';margin-top:9px;line-height:1.45;"><i class="ti ti-info-circle"></i> '+fiable.m+'</div>'
+    +'<button type="button" onclick="ahAppliquer(this)" style="width:100%;border:0;border-radius:11px;background:#1C1C1C;color:#fff;font-size:13px;font-weight:800;padding:12px;margin-top:11px;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-down-circle"></i> Utiliser ces réponses dans mon analyse</button>'
+    +'<div id="ahAppMsg" style="font-size:11.5px;margin-top:7px;"></div>'
+  +'</div>';
+}
+/* Le dirigeant décide d'injecter les réponses de ses salariés dans le diagnostic. On ne le fait
+   pas automatiquement : c'est SON analyse, et il doit savoir sur quoi elle repose. */
+async function ahAppliquer(btn){
+  if(btn && typeof jetOccupe==='function') jetOccupe(btn);
+  var a=await ahAgreger(); var m=$('ahAppMsg');
+  if(!a){ if(m) m.innerHTML='<span style="color:#991b1b;">Aucune réponse à utiliser.</span>'; return; }
+  window.lastAH=a;
+  try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
+  try{ if(typeof evt==='function') evt('aura',{iat:a.iat,source:'salaries',n:a.n}); }catch(e){}
+  if(m) m.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Pris en compte. Régénérez votre MIROIR pour que le plan en tienne compte.</span>';
+}
+/* Le suivi : combien de réponses, de qui. Sans ça, le dirigeant partage et attend dans le vide. */
+async function enqueteSuivi(){
+  var z=$('ahSuivi'); if(!z) return;
+  var rep=await enqueteRecues();
+  if(!rep.length){ z.innerHTML='<div style="font-size:11.5px;color:#9ca3af;">Aucune réponse reçue pour l\'instant.</div>'; return; }
+  z.innerHTML='<div style="font-size:12px;font-weight:700;color:#1C1C1C;"><i class="ti ti-inbox"></i> '+rep.length+' réponse'+(rep.length>1?'s':'')+' reçue'+(rep.length>1?'s':'')+' sur 10 possibles</div>'
+    +rep.map(function(x){
+      return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#4b5563;border-top:1px solid #eef0f3;padding:6px 0;">'
+        +'<span><b style="color:#1C1C1C;">'+esc(x.nom||'')+'</b> — '+esc(x.poste||'')+'</span>'
+        +'<span style="white-space:nowrap;color:#9ca3af;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
+    }).join('');
+  // La synthèse : moyennes, écarts, fracture éventuelle, et le bouton pour l'injecter.
+  var a=await ahAgreger();
+  if(a) z.innerHTML+=ahAgregeHtml(a);
+}
+/* Le LIEN VISIBLE, pas un bouton de partage. Sur PC, le partage natif ne propose souvent rien
+   d'utile — Didier n'avait que WhatsApp. Un lien qu'on voit, qu'on sélectionne et qu'on colle
+   dans son propre mail marche partout, sans dépendre du système. Le partage natif reste
+   proposé en second, pour le téléphone. */
+function ahPartageHtml(){
+  var m=window.__enqMode||'express';
+  var bMode=function(v,lbl,sous){
+    var on=(m===v);
+    return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1;min-width:0;border:1.5px solid '+(on?'#E8541A':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#9a3412':'#6b7280')+';border-radius:11px;padding:9px 8px;cursor:pointer;font-family:inherit;">'
+      +'<div style="font-size:12.5px;font-weight:800;">'+lbl+'</div><div style="font-size:10.5px;margin-top:1px;">'+sous+'</div></button>';
+  };
+  return '<div class="card" style="border:1.5px solid #fed7aa;overflow:hidden;">'
+    +'<div style="background:#fff7ed;padding:13px 15px;"><div style="font-size:13.5px;font-weight:800;color:#9a3412;"><i class="ti ti-share"></i> Demander l\'avis de vos salariés</div>'
+    +'<div style="font-size:11.5px;color:#7c2d12;margin-top:3px;line-height:1.45;">Jusqu\'à 10 personnes. Chacune répond depuis son téléphone, sans créer de compte.</div></div>'
+    +'<div class="sec">'
+    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;">Le questionnaire n\'est <b>pas anonyme</b> : vous verrez le nom, le poste et les réponses de chacun. '
+      +'C\'est un choix — le nom engage celui qui répond et écarte les réponses faites au hasard. Le salarié en est informé avant de commencer, et reste libre de refuser.</div>'
+    +'<div style="font-size:11.5px;font-weight:700;color:#1C1C1C;margin-top:14px;">Quelle longueur ?</div>'
+    +'<div style="display:flex;gap:8px;margin-top:6px;">'
+      +bMode('express','Court','12 questions · 5 min')
+      +bMode('complet','Complet','30 questions · 15 min')
+    +'</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.45;">Le court obtient nettement plus de réponses. Le complet mesure plus finement — à réserver aux équipes déjà motivées.</div>'
+    +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:14.5px;font-weight:800;padding:13px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Obtenir le lien à envoyer</button>'
+    +'<div id="ahPartMsg" style="font-size:11.5px;margin-top:10px;line-height:1.5;"></div>'
+    +'<div id="ahSuivi" style="margin-top:12px;"></div>'
+    +'</div></div>';
+}
+function enqueteMode(v){ window.__enqMode=v; if(typeof ahChoice==='function') ahChoice(); }
+/* Affiche le lien EN CLAIR, sélectionnable, avec deux copies possibles : le lien seul (pour
+   celui qui rédige son propre message) ou le message complet (pour aller vite). */
+async function enqueteLienAfficher(btn){
+  var z=$('ahPartMsg'); if(z) z.innerHTML='<span class="spin" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:6px;"></span>Préparation du lien…';
+  var lien=await enqueteLien();
+  if(!lien){ if(z) z.innerHTML='<span style="color:#991b1b;">Lien indisponible — vérifiez votre connexion.</span>'; return; }
+  window.__enqLien=lien;
+  if(!z) return;
+  z.innerHTML='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:11px;padding:11px 12px;">'
+    +'<div style="font-size:11.5px;font-weight:700;color:#1C1C1C;">Le lien à envoyer à vos salariés</div>'
+    +'<input id="ahLien" readonly value="'+esc(lien)+'" onclick="this.select();" style="width:100%;font-size:12.5px;padding:9px 10px;border:1px solid #d1d5db;border-radius:9px;margin-top:6px;background:#fff;color:#1C1C1C;">'
+    +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">'
+      +'<button type="button" onclick="enqueteCopier(\'lien\')" style="flex:1;min-width:120px;border:1px solid #d7dbe3;border-radius:10px;background:#fff;color:#1C1C1C;font-size:12.5px;font-weight:700;padding:10px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Copier le lien</button>'
+      +'<button type="button" onclick="enqueteCopier(\'message\')" style="flex:1;min-width:120px;border:0;border-radius:10px;background:#1C1C1C;color:#fff;font-size:12.5px;font-weight:700;padding:10px;cursor:pointer;font-family:inherit;"><i class="ti ti-mail"></i> Copier le message entier</button>'
+    +'</div>'
+    +(navigator.share?'<div style="text-align:center;margin-top:8px;"><span onclick="enquetePartager(this)" style="font-size:11.5px;color:#6b7280;cursor:pointer;text-decoration:underline;">ou partager depuis ce téléphone</span></div>':'')
+    +'<div id="ahCopieMsg" style="font-size:11.5px;color:#15803d;margin-top:8px;min-height:16px;"></div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.5;">Le même lien sert pour tout le monde. Chacun donne son nom en arrivant.</div>'
+    +'</div>';
+}
+async function enqueteCopier(quoi){
+  var m=$('ahCopieMsg'), lien=window.__enqLien||'';
+  var txt=(quoi==='message')?enqueteMessage(lien):lien;
+  try{
+    await navigator.clipboard.writeText(txt);
+    if(m) m.innerHTML='<i class="ti ti-circle-check"></i> '+(quoi==='message'?'Message copié':'Lien copié')+' — collez-le dans votre mail.';
+  }catch(e){
+    var el=$('ahLien'); if(el){ el.select(); }
+    if(m) m.innerHTML='<span style="color:#b45309;">Copie automatique refusée par le navigateur — le lien est sélectionné, faites Ctrl+C.</span>';
+  }
 }
 /* ===== QUESTIONNAIRE AUX SALARIÉS (fonctions) ===== */
 function ahChoice(){
@@ -2810,12 +3411,164 @@ function ahChoice(){
       +parcoursCarte('#166534','#f2f9f4','#a7e3bd','ti-users-group','SALARIÉS<br>COMPLET','Approfondir la maturité humaine',
           parcoursLigne('ti-list-details','30 critères détaillés')+parcoursLigne('ti-shield-check','Indice définitif')+parcoursLigne('ti-chart-bar','IAT / IMH')+parcoursLigne('ti-map','Cartographie des craintes'))
     +'</div>'
+    /* CORRIGÉ le 31/07 : cet encadré promettait l'anonymat. Depuis le questionnaire partagé,
+       les réponses sont NOMINATIVES — laisser cette promesse aurait fait mentir l'application
+       à des salariés qui donnent leur nom. On dit ce qui est vrai, et pourquoi. */
     +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
-      +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-lock" style="font-size:18px;color:#15803d;"></i></div>'
-      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">Les réponses sont anonymes.</b> Aucun salarié n\'est identifié : on mesure le fonctionnement de l\'entreprise, pas les personnes.</div>'
+      +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-user-check" style="font-size:18px;color:#15803d;"></i></div>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">On note le système, jamais les personnes.</b> Quand un salarié répond par le lien partagé, il donne son nom et son poste — il en est informé avant de commencer et reste libre de refuser.</div>'
     +'</div>'
-   +'</div></div>';
+    // Le partage aux salariés : le lien, le message, et le suivi des réponses reçues.
+    +'</div></div>'+ahPartageHtml();
   window.scrollTo(0,0);
+  if(typeof enqueteSuivi==='function') enqueteSuivi();
+}
+/* La sortie du questionnaire aux salariés, posée EN HAUT **et** EN BAS, comme celle du
+   questionnaire dirigeant. Source unique : un seul libellé, deux emplacements.
+   ATTENTION — pas de « sauvegarder et reprendre plus tard » ici, contrairement au questionnaire
+   dirigeant : les réponses des salariés ne sont enregistrées NULLE PART tant que le
+   questionnaire n'est pas terminé. Promettre une reprise serait faux. */
+/* ===== LE QUESTIONNAIRE PARTAGÉ AUX SALARIÉS (décision Didier, 31/07) =====
+   Le salarié n'a PAS de compte : il arrive par un lien `?rep=<jeton>`. Il ne touche jamais aux
+   tables — deux fonctions Supabase (`enquete_ouvrir`, `reponse_salarie_envoyer`) sont son seul
+   accès, et elles ne lui montrent rien des réponses des autres.
+   CHOIX ASSUMÉ : la réponse est NOMINATIVE. Dans une TPE de cinq personnes, l'anonymat est une
+   illusion — le dirigeant devine qui a écrit quoi. Autant le dire franchement : le nom engage
+   celui qui répond, et écarte le saboteur qui met zéro partout.
+   CONTREPARTIE : on le DIT au salarié, mot pour mot, avant qu'il commence. C'est la condition
+   du consentement éclairé, et c'est ce qui rend le dispositif honnête. */
+function repJeton(){
+  try{ return (new URLSearchParams(location.search)).get('rep')||''; }catch(e){ return ''; }
+}
+function repVue(html){
+  try{ ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante']
+        .forEach(function(id){ var e=$(id); if(e) e.style.display='none'; }); }catch(e){}
+  var h=$('repView');
+  if(!h){ h=document.createElement('div'); h.id='repView'; (document.querySelector('.wrap')||document.body).appendChild(h); }
+  h.style.display='block'; h.innerHTML=html; window.scrollTo(0,0);
+}
+function repCadre(inner){
+  return '<div class="card" style="overflow:hidden;margin-top:10px;">'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;">'
+      +'<div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-users-group"></i> VOTRE AVIS COMPTE</div>'
+      +'<div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(window.__repEnt||'')+'</div></div>'
+    +'<div class="sec">'+inner+'</div></div>';
+}
+async function repDemarrer(){
+  var j=repJeton(); if(!j) return false;
+  repVue('<div class="panel" style="text-align:center;padding:30px;color:#6b7280;font-size:13px;"><div class="spin"></div><div style="margin-top:10px;">Nous ouvrons le questionnaire…</div></div>');
+  try{
+    await window.sbReady;
+    if(!window.sb){ repVue(repCadre('<div style="color:#991b1b;font-size:13px;">Service indisponible. Réessayez dans un instant.</div>')); return true; }
+    var r=await window.sb.rpc('enquete_ouvrir',{p_jeton:j});
+    var d=(r && !r.error) ? r.data : null;
+    if(!d || !d.ok){
+      var raison=(d&&d.raison)||'lien inconnu';
+      var msg = raison==='complet' ? 'Toutes les réponses attendues ont déjà été reçues. Merci quand même !'
+              : raison==='enquete close' ? 'Ce questionnaire est clos.'
+              : 'Ce lien n\'est pas valide. Demandez-en un nouveau à votre direction.';
+      repVue(repCadre('<div style="font-size:13px;color:#4b5563;line-height:1.6;">'+esc(msg)+'</div>'));
+      return true;
+    }
+    window.__repEnt=d.entreprise||''; window.__repJeton=j; window.__repMode=(d.mode==='complet')?'complet':'express';
+    repAccueil(d);
+  }catch(e){ repVue(repCadre('<div style="color:#991b1b;font-size:13px;">Connexion impossible. Réessayez.</div>')); }
+  return true;
+}
+/* L'écran de consentement. Il dit EXACTEMENT ce que le dirigeant verra — nom, poste, et chaque
+   réponse. Pas de formule vague : c'est ce qui distingue un consentement éclairé d'une case
+   cochée à l'aveugle, et c'est ce que le RGPD demande. */
+function repAccueil(d){
+  repVue(repCadre(
+     '<div style="font-size:14.5px;font-weight:700;color:#1C1C1C;">Votre direction souhaite votre avis</div>'
+    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;margin-top:6px;">'
+      // Le nombre exact, jamais « une dizaine » : on ne fait pas commencer quelqu'un en lui
+      // laissant croire que c'est court alors que le dirigeant a choisi les 30 questions.
+      +(window.__repMode==='complet' ? '<b>30 questions</b> sur la vie de l\'entreprise' : '<b>12 questions</b> sur la vie de l\'entreprise')
+      +' : la confiance, la communication, ce qui vous facilite ou vous complique le travail. '
+      +(window.__repMode==='complet' ? 'Comptez un quart d\'heure. ' : 'Cinq minutes, pas plus. ')
+      +'Il n\'y a pas de bonne réponse.</div>'
+    +'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:11px;padding:12px 13px;margin-top:12px;">'
+      +'<div style="font-size:12.5px;font-weight:800;color:#9a3412;"><i class="ti ti-eye"></i> Ce que verra votre direction</div>'
+      +'<div style="font-size:12.5px;color:#7c2d12;line-height:1.6;margin-top:5px;">'
+        +'<b>Votre nom, votre poste, et chacune de vos réponses.</b> Ce questionnaire n\'est <b>pas anonyme</b>, et nous préférons vous le dire clairement plutôt que de vous promettre le contraire.'
+        +'<br><br>Vos réponses servent à <b>améliorer l\'organisation</b>, jamais à vous évaluer. Vous pouvez demander leur suppression à tout moment à votre direction.</div></div>'
+    +'<div style="font-size:12.5px;color:#4b5563;margin-top:14px;">Votre nom</div>'
+    +'<input type="text" id="repNom" placeholder="Prénom et nom" autocomplete="name" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;margin-top:4px;">'
+    +'<div style="font-size:12.5px;color:#4b5563;margin-top:10px;">Votre poste</div>'
+    +'<input type="text" id="repPoste" placeholder="ex : chef d\'atelier, comptable, commercial" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;margin-top:4px;">'
+    +'<label style="display:flex;gap:9px;align-items:flex-start;margin-top:14px;cursor:pointer;">'
+      +'<input type="checkbox" id="repOk" style="width:19px;height:19px;flex:0 0 auto;margin-top:1px;">'
+      +'<span style="font-size:12.5px;color:#4b5563;line-height:1.5;">J\'ai lu ce qui précède et j\'accepte que mon nom, mon poste et mes réponses soient transmis à ma direction.</span></label>'
+    +'<div id="repErr" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
+    +'<button type="button" onclick="repCommencer()" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:15px;font-weight:800;padding:14px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-player-play"></i> Commencer</button>'
+    +'<div style="text-align:center;margin-top:10px;"><span onclick="repRefus()" style="font-size:12px;color:#9ca3af;cursor:pointer;text-decoration:underline;">Je préfère ne pas répondre</span></div>'
+    +'<div style="font-size:11px;color:#c7ccd3;margin-top:12px;line-height:1.5;">Participation volontaire. Refuser n\'a aucune conséquence.</div>'
+  ));
+}
+function repRefus(){
+  repVue(repCadre('<div style="text-align:center;padding:14px 4px;">'
+    +'<div style="font-size:15px;font-weight:700;color:#1C1C1C;">C\'est noté, merci.</div>'
+    +'<div style="font-size:12.5px;color:#6b7280;line-height:1.6;margin-top:8px;">Vous pouvez fermer cette page. Personne ne sera informé de votre refus.</div></div>'));
+}
+function repCommencer(){
+  var n=($('repNom')&&$('repNom').value||'').trim(), p=($('repPoste')&&$('repPoste').value||'').trim();
+  var ok=$('repOk')&&$('repOk').checked, e=$('repErr');
+  if(!n||!p){ if(e) e.textContent='Merci d\'indiquer votre nom et votre poste.'; return; }
+  if(!ok){ if(e) e.textContent='Merci de cocher la case pour continuer.'; return; }
+  window.__repNom=n; window.__repPoste=p;
+  repQuestionnaire();
+}
+/* Les mêmes questions et le MÊME calcul que le questionnaire interne : on réutilise AH_CRITERES
+   et ahScan() plutôt que d'en écrire une seconde version qui divergerait au premier changement. */
+function repQuestionnaire(){
+  // La longueur est celle CHOISIE PAR LE DIRIGEANT au moment du partage : 12 ou 30 questions.
+  var court=(window.__repMode!=='complet');
+  var take=AH_CRITERES.filter(function(x){ return court ? (x.x===1) : true; });
+  window.ahItems=take.map(function(x){ return {id:'ah_'+x.c, code:x.c, dom:x.d, t:x.t}; });
+  var html='<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Notez de 0 à 5. <b>0</b> = pas du tout, <b>5</b> = tout à fait. Si une question ne vous concerne pas, dites-le.</div>';
+  var curD=null, open=false;
+  window.ahItems.forEach(function(it){
+    if(it.dom!==curD){ if(open) html+='</div>'; curD=it.dom;
+      html+='<div class="panel" style="margin-bottom:10px;margin-top:12px;"><div style="font-weight:700;color:#1C1C1C;">'+esc(curD)+'</div>'; open=true; }
+    html+='<div id="'+it.id+'_row" style="margin-top:12px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.45;flex:1;">'+esc(it.t)+'</div>'
+        +'<button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div>'
+      +'<div class="simrow" style="margin-top:4px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="bTouche(\''+it.id+'\')"><span class="val" id="'+it.id+'v">–</span></div></div>';
+  });
+  if(open) html+='</div>';
+  html+='<div id="repErr2" style="font-size:12px;color:#991b1b;margin-top:10px;"></div>'
+    +'<button type="button" onclick="repEnvoyer(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:15px;font-weight:800;padding:15px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-send"></i> Renvoyer mes réponses</button>'
+    +'<div style="font-size:11px;color:#9ca3af;text-align:center;margin-top:8px;">Rien n\'est transmis tant que vous n\'avez pas appuyé sur ce bouton.</div>';
+  repVue(repCadre(html));
+}
+async function repEnvoyer(btn){
+  var e=$('repErr2');
+  try{
+    var r=(typeof ahScan==='function')?ahScan():null;
+    if(!r || r.iat==null){ if(e) e.textContent='Répondez au moins à quelques questions avant d\'envoyer.'; return; }
+    if(btn && typeof jetOccupe==='function') jetOccupe(btn);
+    var byCode=r.byCode||{};
+    var env=await window.sb.rpc('reponse_salarie_envoyer',{
+      p_jeton:window.__repJeton, p_nom:window.__repNom, p_poste:window.__repPoste,
+      // `dom` = les 6 domaines affichés au salarié ; `idx` = les 8 INDICES HUMAINS dont le MIROIR
+      // se sert pour doser son plan. Il faut les deux : oublier `idx` faisait travailler
+      // l'analyse sur des données incomplètes, sans que rien ne le signale.
+      p_reponses:byCode, p_iat:r.iat, p_imh:r.imh,
+      p_domaines:(r.dom||{}), p_indices:(r.idx||{}), p_craintes:(r.craintes||[])
+    });
+    var d=(env && !env.error)?env.data:null;
+    if(!d || !d.ok){ if(e) e.textContent='Envoi impossible : '+((d&&d.raison)||'réessayez dans un instant.'); return; }
+    repVue(repCadre('<div style="text-align:center;padding:14px 4px;">'
+      +'<div style="width:62px;height:62px;border-radius:50%;background:#f0fdf4;display:inline-flex;align-items:center;justify-content:center;"><i class="ti ti-circle-check" style="font-size:32px;color:#16a34a;"></i></div>'
+      +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;margin-top:12px;">Merci, c\'est envoyé.</div>'
+      +'<div style="font-size:12.5px;color:#6b7280;line-height:1.6;margin-top:8px;">Votre avis va servir à améliorer le fonctionnement de l\'entreprise. Vous pouvez fermer cette page.</div></div>'));
+  }catch(x){ if(e) e.textContent='Envoi impossible. Vérifiez votre connexion et réessayez.'; }
+}
+function ahActions(){
+  return '<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
+    +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
 }
 function ahStart(mode){
   showView('ahView');
@@ -2827,7 +3580,8 @@ function ahStart(mode){
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;">'+titre+'</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
-    +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 solide · 5 ancré · <span id="ahImh">–</span> IMH</div></div>';
+    +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 solide · 5 ancré · <span id="ahImh">–</span> IMH</div></div>'
+    +'<div class="panel" style="margin-bottom:10px;">'+ahActions()+'</div>';   // la même sortie en HAUT
   var curD=null, open=false;
   window.ahItems.forEach(function(it){
     if(it.dom!==curD){ if(open)html+='</div>'; curD=it.dom;
@@ -2836,8 +3590,7 @@ function ahStart(mode){
     html+='<div id="'+it.id+'_row" style="margin-top:10px;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;"><div style="font-size:12.5px;color:#4b5563;line-height:1.4;flex:1;">'+esc(it.t)+'</div><button type="button" class="naBtn" id="'+it.id+'_na" onclick="toggleNA(\''+it.id+'\')">non concerné</button></div><div class="simrow" style="margin-top:3px;"><input type="range" min="0" max="5" step="1" value="3" id="'+it.id+'" oninput="ahCalc()"><span class="val" id="'+it.id+'v" style="width:88px;font-size:11px;">3 · installé</span></div></div>';
   });
   if(open)html+='</div>';
-  html+='<button class="btn btn-primary" onclick="ahFinish()"><i class="ti ti-circle-check"></i> '+(window.ahControleMode?'Terminer le contrôle &amp; voir l\'évolution':'Terminer &amp; voir la maturité humaine')+'</button>'
-    +'<button class="btn btn-ghost" onclick="window.ahControleMode=false;'+(window.ahControleMode?'dirigeantSpace':'ahChoice')+'()">← Retour</button>';
+  html+=ahActions();
   $("ahView").innerHTML=iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent","actions")+html;
   ahCalc();
 }
@@ -2911,21 +3664,171 @@ function saveAura(r,card){
     var body=card.replace(/<canvas[^>]*><\/canvas>/,'<div style="font-size:11px;color:#9ca3af;">(radar interactif dans l\'app)</div>');
     var html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+body+'</div></body></html>';
     var payload={type:'aura',mode:window.ahMode,nom:window.ahNom,date:new Date().toISOString(),iat:r.iat,imh:r.imh,indices:r.idx,domaines:r.dom,craintes:r.craintes};
-    fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'aura',nom:window.ahNom,json:payload,html:html})})
-      .then(function(x){return x.json();}).then(function(x){var s=$('ahSave');if(s)s.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> AURA enregistrée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré';}).catch(function(){});
+    if(typeof evt==='function') evt('aura',{iat:r.iat});
+    ficheEnregistrer('aura', window.ahNom, payload, html).then(function(res){ ficheMsg($('ahSave'), res, 'Questionnaire salariés enregistré'); });
   }catch(e){}
 }
 /* ===== FEUILLE DE ROUTE (5e temps : le suivi vivant) ===== */
 function frSlug(s){ return (s||'entreprise').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,50)||'ENTREPRISE'; }
 function frLoad(slug){ try{ return JSON.parse(localStorage.getItem('fr_'+slug))||{}; }catch(e){ return {}; } }
 function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={}; d.steps.forEach(function(s){ st[s.id]=s.status; if(s.note)no[s.id]=s.note; if(s.help)he[s.id]=s.help; }); try{ localStorage.setItem('fr_'+d.slug, JSON.stringify({statuses:st,notes:no,helps:he,chat:(window.frChat||[]).slice(-40),ts:Date.now()})); }catch(e){} if(typeof syncPush==='function') syncPush(); var el=$('frLocal'); if(el) el.innerHTML='<i class="ti ti-device-mobile-check"></i> Progression enregistrée (appareil + cloud)'; }
+/* ===== FEUILLE DE ROUTE — LA BASE FAIT FOI, LE NAVIGATEUR N'EST QU'UN CACHE =====
+   Jusqu'ici l'avancement vivait dans localStorage et voyageait dans le bloc `pm_data` : il
+   suivait bien d'un appareil a l'autre, mais deux appareils ouverts en meme temps s'ecrasaient
+   l'un l'autre (le dernier qui ecrit gagne). La table `feuille_route` existe depuis l'origine
+   pour ca et n'avait jamais ete branchee. Le navigateur y ecrit en direct : la RLS
+   (`feuille_upsert`) garantit qu'on ne touche que sa propre entreprise. */
+async function frEntreprise(){
+  try{
+    await window.sbReady;
+    if(!window.sb) return null;
+    if(!window.dbEnt){
+      var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:((window.currentUser&&window.currentUser.name)||null)});
+      if(!e.error && e.data) window.dbEnt=e.data;
+    }
+    return window.dbEnt||null;
+  }catch(x){ return null; }
+}
+/* ===== EVENEMENTS D'USAGE =====
+   La table `events` existait depuis l'origine et n'etait JAMAIS alimentee : impossible de savoir
+   qui utilise quoi, ni de reperer un client qui decroche. La vue console s'en sert deja
+   (`derniere_activite`, `actions_30j`, statuts silence/stagnation/regression) — elle n'avait
+   simplement aucune donnee a lire. Ecriture silencieuse : un evenement perdu ne doit jamais
+   gener le dirigeant. */
+async function evt(type, meta){
+  try{
+    var ent=await frEntreprise(); if(!ent || !window.sb) return;
+    await window.sb.from('events').insert({
+      entreprise_id: ent,
+      auteur_id: (window.currentUser&&window.currentUser.id)||null,
+      type: String(type||'ouverture').slice(0,40),
+      meta: meta||{}
+    });
+  }catch(e){}
+}
+async function frCharger(){
+  try{
+    var ent=await frEntreprise(); if(!ent) return null;
+    var r=await window.sb.from('feuille_route').select('steps,chat,next_point').eq('entreprise_id',ent).maybeSingle();
+    if(r.error || !r.data) return null;
+    return r.data;
+  }catch(e){ return null; }
+}
+/* La base stocke les etapes ENTIERES ; l'ecran, lui, les reconstruit depuis le plan du MIROIR
+   et n'a besoin que des statuts/notes/aides. On convertit pour ne pas toucher au reste. */
+function frDepuisBase(row){
+  if(!row || !Array.isArray(row.steps)) return null;
+  var st={}, no={}, he={};
+  row.steps.forEach(function(s){ if(!s||!s.id) return;
+    st[s.id]=s.status||'todo'; if(s.note) no[s.id]=s.note; if(s.help) he[s.id]=s.help; });
+  return {statuses:st, notes:no, helps:he, chat:(row.chat||[])};
+}
+async function frSauver(){
+  var d=window.frData; if(!d) return {ok:false, err:'aucune feuille'};
+  frSaveLocal();                                   // cache local d'abord : instantane, jamais perdu
+  try{
+    var ent=await frEntreprise(); if(!ent) return {ok:false, err:'hors ligne'};
+    var np=null; try{ np=localStorage.getItem('cp_next_'+cpCle())||null; }catch(e){}
+    var r=await window.sb.from('feuille_route').upsert({
+      entreprise_id: ent,
+      steps: d.steps||[],
+      chat: (window.frChat||[]).slice(-40),
+      next_point: np
+    },{onConflict:'entreprise_id'});
+    if(r && r.error) return {ok:false, err:r.error.message};
+    return {ok:true};
+  }catch(e){ return {ok:false, err:(e&&e.message)||'erreur'}; }
+}
 var FR_MSG={
   done:["Bravo. Le plus dur, c'est de commencer — et vous venez de le faire.","C'est fait, et ça compte. Chaque étape franchie recrée de la confiance.","Excellent. Vous avancez pour de vrai, pas sur le papier."],
   progress:["Parfait, vous êtes dedans. Qu'est-ce qui freine le plus en ce moment ?","On y est presque. Notez ce qui coince, on le lèvera ensemble.","Ça bouge — c'est déjà une victoire. Dites-moi où vous en êtes."],
   blocked:["On ne lâche rien, et vous n'êtes pas seul. Un blocage, c'est une information, pas un échec.","Normal de buter ici. On va contourner ensemble, à votre rythme.","Ça bloque ? On respire, et on trouve un chemin plus simple. Vous n'êtes pas seul."]
 };
 function frPick(arr,id){ var h=0; for(var i=0;i<id.length;i++) h=(h*31+id.charCodeAt(i))>>>0; return arr[h%arr.length]; }
-function frBuild(){
+/* Identifiant d'une etape, derive de SON CONTENU et non de sa position. Ainsi, regenerer le
+   MIROIR conserve l'avancement des leviers inchanges, et les leviers nouveaux repartent a zero. */
+function frCle(p){
+  var base=String((p&&(p.levier||p.frein)||'')+'|'+((p&&p.palier)||1)).toLowerCase().replace(/[^a-z0-9]+/g,'');
+  var h=0; for(var k=0;k<base.length;k++) h=(h*31+base.charCodeAt(k))>>>0;
+  return 'fr'+h.toString(36);
+}
+/* Reprise UNIQUE des anciens identifiants positionnels (fr_0, fr_1...) vers les nouveaux.
+   Sans elle, l'avancement deja saisi paraitrait efface du jour au lendemain. */
+function frRepriseIds(saved, steps){
+  if(!saved || !saved.statuses) return saved||{};
+  var dejaNeuf=steps.some(function(s){ return saved.statuses[s.id]!=null; });
+  if(dejaNeuf) return saved;
+  var ancien=Object.keys(saved.statuses).some(function(k){ return /^fr_\d+$/.test(k); });
+  if(!ancien) return saved;
+  var st={}, no={}, he={};
+  steps.forEach(function(s,i){
+    var vieux='fr_'+i;
+    if(saved.statuses[vieux]!=null) st[s.id]=saved.statuses[vieux];
+    if(saved.notes && saved.notes[vieux]) no[s.id]=saved.notes[vieux];
+    if(saved.helps && saved.helps[vieux]) he[s.id]=saved.helps[vieux];
+  });
+  return {statuses:st, notes:no, helps:he, chat:saved.chat};
+}
+/* ===== LE PLAN DEVIENT DES TACHES =====
+   Une feuille de route qu'on consulte ne se fait pas. Chaque etape descend donc dans LA liste
+   du quotidien — une seule liste, avec une etiquette d'origine (decision Didier : jamais deux
+   listes). La tache et l'etape restent liees par `frId` : cocher l'une coche l'autre. */
+/* Le libelle d'une etape tel qu'il doit apparaitre dans la liste du matin. Le texte du MIROIR
+   est ecrit pour un document de reunion : il porte des renvois « [3] » vers les outils
+   SENTINELLE et peut faire deux lignes. Dans une liste de taches, ca ne se lit pas.
+   Le texte complet reste visible sur l'ecran Feuille de route. */
+function frTitreTache(txt){
+  var s=String(txt||'').replace(/\[\s*\d+\s*\]/g,' ')      // les renvois [1] [3] [6]
+                       .replace(/\s*[+&]\s*$/,'')
+                       .replace(/\s{2,}/g,' ')
+                       .replace(/^[\s—–-]+/,'').trim();
+  if(s.length>72){                                          // on coupe au dernier mot entier
+    var c=s.slice(0,72), i=c.lastIndexOf(' ');
+    s=(i>40?c.slice(0,i):c).replace(/[\s,;:—–-]+$/,'')+'…';
+  }
+  return s?s.charAt(0).toUpperCase()+s.slice(1):s;
+}
+function frTachesSync(){
+  var d=window.frData; if(!d||!d.steps||!d.steps.length) return;
+  var o=pmLoad(), chg=false, td=pmTodayStr(), parFr={};
+  (o.tasks||[]).forEach(function(t){ if(t.frId) parFr[t.frId]=t; });
+  d.steps.forEach(function(s){
+    var t=parFr[s.id], fait=(s.status==='done');
+    if(!t){
+      o.tasks.push({ id:pmUid('p'), t:frTitreTache(s.titre), frId:s.id, origine:'plan', cat:'autre',
+                     created:td, due:td, done:fait, doneAt:(fait?td:null), reports:0 });
+      chg=true;
+    }else{
+      var _lib=frTitreTache(s.titre);
+      if(t.t!==_lib){ t.t=_lib; chg=true; }                 // le MIROIR a reformule l'etape
+      if(!!t.done!==fait){ t.done=fait; t.doneAt=(fait?td:null); chg=true; }
+      if(t.archive){ t.archive=false; chg=true; }        // une etape du plan reste visible
+    }
+  });
+  if(chg) pmSave(o);
+}
+/* L'autre sens : cocher la tache dans le quotidien fait avancer la feuille de route. */
+function frDepuisTache(id){
+  try{
+    var o=pmLoad(), t=null;
+    (o.tasks||[]).forEach(function(x){ if(x.id===id) t=x; });
+    if(!t||!t.frId) return;
+    var v=t.done?'done':'todo', d=window.frData;
+    if(d&&d.steps){
+      var chg=false;
+      d.steps.forEach(function(s){ if(s.id===t.frId && s.status!==v){ s.status=v; chg=true; } });
+      if(chg) frSauver();
+    }else{
+      // La feuille n'est pas ouverte : on ecrit directement dans sa sauvegarde.
+      var k='fr_'+cpCle(), sv=null;
+      try{ sv=JSON.parse(localStorage.getItem(k)||'null'); }catch(e){}
+      if(sv){ sv.statuses=sv.statuses||{}; sv.statuses[t.frId]=v;
+              localStorage.setItem(k, JSON.stringify(sv));
+              if(typeof syncPush==='function') syncPush(); }
+    }
+  }catch(e){}
+}
+async function frBuild(){
   // Le plan vient du MIROIR déjà produit : on le relit dans sa sauvegarde si la session est neuve.
   var m=window.miroirData;
   if((!m||!Array.isArray(m.plan)||!m.plan.length) && typeof miroirStore!=='undefined'){
@@ -2939,17 +3842,37 @@ function frBuild(){
   var rhythm = band==='Blocage' ? ['Semaine 1','Semaine 2','Semaine 4','Semaine 6','Mois 2','Mois 3','Mois 4','Mois 5']
              : band==='Appui'   ? ['Semaine 1','Semaine 2','Semaine 3','Semaine 4','Semaine 6','Semaine 8','Semaine 10','Semaine 12']
              :                    ['Semaine 1','Semaine 2','Semaine 3','Semaine 5','Semaine 7','Mois 3','Mois 4','Mois 5'];
-  var slug=frSlug(b.nom), saved=frLoad(slug);
+  // LA BASE D'ABORD, le cache local seulement si elle est muette (hors ligne, 1re fois).
+  var slug=cpCle();
+  var _row=await frCharger();
+  var saved=frDepuisBase(_row) || frLoad(slug);
   var plan=m.plan.slice().sort(function(a,c){return (a.palier||1)-(c.palier||1);});
-  var steps=plan.map(function(p,i){ var id='fr_'+i; return {
-    id:id, palier:p.palier||1, type:p.type||'humain', titre:p.levier||p.frein||('Étape '+(i+1)), detail:p.mise_en_oeuvre||'', indicateur:p.indicateur||'', echeance:rhythm[i]||('Étape '+(i+1)),
-    status:(saved.statuses&&saved.statuses[id])||'todo', note:(saved.notes&&saved.notes[id])||'', help:(saved.helps&&saved.helps[id])||null }; });
+  // Identifiants STABLES, derives du contenu du levier (cf. frCle). Avant, les etapes etaient
+  // numerotees par position (fr_0, fr_1...) : regenerer le MIROIR recollait vos « fait » et vos
+  // notes sur les MAUVAISES etapes, en silence.
+  var vus={};
+  var steps=plan.map(function(p,i){
+    var id=frCle(p);
+    while(vus[id]) id=id+'b';        // deux leviers au libelle identique : on les distingue
+    vus[id]=1;
+    return { id:id, palier:p.palier||1, type:p.type||'humain', titre:p.levier||p.frein||('Étape '+(i+1)),
+             detail:p.mise_en_oeuvre||'', indicateur:p.indicateur||'', echeance:rhythm[i]||('Étape '+(i+1)),
+             status:'todo', note:'', help:null };
+  });
+  saved=frRepriseIds(saved, steps);   // reprise unique des anciens identifiants positionnels
+  steps.forEach(function(s){
+    s.status=(saved.statuses&&saved.statuses[s.id])||'todo';
+    s.note=(saved.notes&&saved.notes[s.id])||'';
+    s.help=(saved.helps&&saved.helps[s.id])||null;
+  });
   window.frData={nom:b.nom,slug:slug,band:band,rythmeTxt:(band==='Blocage'?'Zone Blocage — on avance en douceur, un pas à la fois':band==='Appui'?'Zone Appui — l\'équipe est prête, on peut enchaîner':'Zone Vigilance — on sécurise à chaque étape'),steps:steps};
   window.frChat=(saved.chat)||[]; window.frChatBusy=false;
+  frTachesSync();                 // le plan descend dans la liste du quotidien
+  frSauver();                     // 1re ouverture : on seme la base depuis le cache local
   showView('frView'); frRender(); window.scrollTo(0,0);
 }
-function frSet(id,status){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.status=(s.status===status?'todo':status); }); frSaveLocal(); frRender(); }
-function frNote(id,val){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.note=val; }); frSaveLocal(); }
+function frSet(id,status){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.status=(s.status===status?'todo':status); }); frSauver(); frTachesSync(); frRender(); if(typeof evt==='function') evt('maj_feuille',{etape:id,statut:status}); }
+function frNote(id,val){ var d=window.frData; if(!d) return; d.steps.forEach(function(s){ if(s.id===id) s.note=val; }); frSauver(); }
 function frTypeBadge(t){ var map={IA:['#eef2ff','#4338ca','ti-robot'],humain:['#f0fdf4','#166534','ti-users'],externe:['#fff7ed','#9a3412','ti-user-plus']}; var c=map[t]||map.humain; return '<span style="display:inline-flex;align-items:center;gap:3px;background:'+c[0]+';color:'+c[1]+';border-radius:10px;padding:1px 8px;font-size:10.5px;font-weight:600;"><i class="ti '+c[2]+'"></i> '+esc(t)+'</span>'; }
 function frRender(){
   var d=window.frData; if(!d) return;
@@ -3006,7 +3929,7 @@ function frChatSend(){
   var inp=$('frChatIn'); if(!inp) return; var val=(inp.value||'').trim(); if(!val||window.frChatBusy) return;
   inp.value='';
   window.frChat=window.frChat||[]; window.frChat.push({role:'user',content:val});
-  window.frChatBusy=true; frChatRender(); frSaveLocal();
+  window.frChatBusy=true; frChatRender(); frSauver();
   var d=window.frData||{}, ah=window.lastAH||{}, b=window.lastMiroir||{};
   var ctx={nom:d.nom,activite:b.activite||'',iat:ah.iat,band:ah.band,craintes:(ah.craintes||[]).map(function(p){return p.txt||p.code;}),
     steps:(d.steps||[]).map(function(s){return {titre:s.titre,statut:s.status,note:s.note||'',palier:s.palier,type:s.type,echeance:s.echeance};}),
@@ -3053,9 +3976,7 @@ function frCloud(){
   var d=window.frData; if(!d) return; var msg=$('frCloudMsg'); if(msg)msg.innerHTML='<span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:5px;"></span>Envoi sur le cloud…';
   var done=d.steps.filter(function(s){return s.status==='done';}).length;
   var payload={type:'feuille',nom:d.nom,date:new Date().toISOString(),band:d.band,avancement:done+'/'+d.steps.length,steps:d.steps};
-  fetch('/api/save',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({type:'feuille',nom:d.nom,json:payload})})
-    .then(function(r){return r.json();}).then(function(x){ if(msg)msg.innerHTML=(x&&x.ok)?'<i class="ti ti-circle-check"></i> Feuille de route sauvegardée sur le cloud':'<i class="ti ti-alert-triangle"></i> Non enregistré'; })
-    .catch(function(){ if(msg)msg.innerHTML='<i class="ti ti-alert-triangle"></i> Envoi impossible (connexion ?)'; });
+  ficheEnregistrer('feuille', d.nom, payload, null).then(function(res){ ficheMsg(msg, res, 'Feuille de route sauvegardée'); });
 }
 /* ===== COCKPIT (synthèse unifiée des 5 temps) ===== */
 function cpBand(b){ return b==='Blocage'?'#dc2626':b==='Appui'?'#16a34a':b==='Vigilance'?'#ea580c':'#9ca3af'; }
@@ -3099,7 +4020,7 @@ function cockpitBuild(){
   if(avanc!=null){ avancSec='<div style="padding:10px 14px 0;"><div style="display:flex;justify-content:space-between;font-size:10.5px;color:#6b7280;margin-bottom:4px;"><span><i class="ti ti-route"></i> Feuille de route</span><span>'+done+' / '+total+' étapes</span></div><div style="height:8px;background:#eef2f7;border-radius:4px;overflow:hidden;"><div style="width:'+avanc+'%;height:100%;background:#16a34a;border-radius:4px;"></div></div></div>'; }
   var missing=[]; if(reel==null)missing.push('BOUSSOLE'); if(!ah)missing.push('Questionnaire aux salariés'); if(!m)missing.push('MIROIR'); if(!fr)missing.push('Feuille de route');
   var missSec = missing.length? '<div style="padding:10px 14px 0;"><div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;"><i class="ti ti-bulb"></i> Pour un Cockpit complet, il reste à faire : '+missing.join(' · ')+'.</div></div>' : '';
-  var nextP=null; try{nextP=localStorage.getItem('cp_next_'+cpSlug());}catch(e){}
+  var nextP=null; try{nextP=localStorage.getItem('cp_next_'+cpCle());}catch(e){}
   var followSec='';
   if(nextP){ followSec='<div style="padding:9px 14px 0;"><div style="font-size:11px;color:#1d4ed8;background:#eff6ff;border-radius:8px;padding:6px 10px;text-align:center;"><i class="ti ti-calendar-check"></i> Prochain point prévu : '+new Date(nextP).toLocaleDateString('fr-FR')+'</div></div>'; }
   else if(snaps.length===1){ followSec='<div style="padding:9px 14px 0;"><div style="font-size:10.5px;color:#6b7280;text-align:center;"><i class="ti ti-device-floppy"></i> Mesure enregistrée. Refaites le diagnostic plus tard pour voir votre progression.</div></div>'; }
@@ -3118,6 +4039,91 @@ function cockpitBuild(){
 }
 function cockpitPrint(){ var old=document.title; document.title='Cockpit_'+frSlug(window.lastMiroir&&window.lastMiroir.nom||'entreprise'); window.print(); setTimeout(function(){document.title=old;},1500); }
 function cpSlug(){ var b=window.lastMiroir||{}, ah=window.lastAH; return frSlug(b.nom||(ah&&ah.nom)||'entreprise'); }
+/* ===== IDENTITÉ DE STOCKAGE — c'est le COMPTE, jamais le nom de l'entreprise. =====
+   Le nom d'entreprise est une donnée d'AFFICHAGE, pas une identité : il vaut « ENTREPRISE »
+   tant que le compte n'est pas chargé, il prend le nom TAPÉ à la fin d'une BOUSSOLE, et il
+   devient celui de la fiche ouverte depuis l'Historique. Chaque variation créait un seau neuf
+   et les tâches du dirigeant paraissaient perdues. Les 13 autres stockages de l'app se nomment
+   déjà par le compte ; ces 5-là (pm_, cp_snaps_, fr_, cp_next_, diag_) les rejoignent.
+   cpSlug() est CONSERVÉ : il sert encore au nom du fichier .ics et à retrouver les anciens seaux. */
+function cpCle(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return (((a&&a.email)||'anon')+'').toLowerCase(); }
+/* Le nom AFFICHÉ suit le compte connecté. Le nom saisi sert encore à l'ANALYSE, jamais à
+   l'identité. Exception : le consultant (admin) analyse des prospects — son écran doit garder
+   le nom qu'il a tapé, sinon toutes ses fiches s'appelleraient comme sa propre société. */
+function cpNomCompte(saisi){
+  if(typeof iveIsAdmin==='function' && iveIsAdmin()) return saisi||'';
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  return ((a&&a.name)||saisi||'');
+}
+/* Reprise UNIQUE, par compte, des seaux nommés à l'ancienne. On FUSIONNE tout ce qui traîne sur
+   l'appareil — les tâches d'un même dirigeant s'étaient éparpillées entre « ENTREPRISE »,
+   « FEU_VERT » et « FEU_VERT_METZ_MARLY » — et on n'EFFACE RIEN : les anciens seaux restent en
+   place. Un seau au nouveau format contient une adresse e-mail : on l'ignore, ce qui empêche de
+   ramasser au passage les données d'un autre compte utilisé sur le même appareil. */
+function cpAnciensSeaux(prefixe){
+  var r=[];
+  try{
+    for(var i=0;i<localStorage.length;i++){
+      var k=localStorage.key(i);
+      if(k && k.indexOf(prefixe)===0 && k.indexOf('@')===-1 && k.length>prefixe.length) r.push(k);
+    }
+  }catch(e){}
+  // Le seau le plus vraisemblable d'abord : celui du nom du compte, puis le seau par défaut.
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var pref=[prefixe+frSlug((a&&a.name)||''), prefixe+'ENTREPRISE'];
+  return r.sort(function(x,y){ return (pref.indexOf(y)>-1?1:0)-(pref.indexOf(x)>-1?1:0); });
+}
+/* SOURCE UNIQUE de fusion du quotidien (CLAUDE.md §7) — appelée par cpFusionner() ET par
+   syncPull(). `base` fait foi ; `ajout` n'apporte que ce qui manque. Dédoublonnage par
+   identifiant : une tâche présente des deux côtés n'est jamais comptée deux fois. */
+function pmFusion(base, ajout){
+  base=base||{}; base.days=base.days||{}; base.tasks=base.tasks||[]; base.decisions=base.decisions||[];
+  if(!ajout) return base;
+  var vuT={}, vuD={};
+  base.tasks.forEach(function(t){ if(t&&t.id) vuT[t.id]=1; });
+  base.decisions.forEach(function(d){ if(d&&d.id) vuD[d.id]=1; });
+  (ajout.tasks||[]).forEach(function(t){ if(t&&t.id&&!vuT[t.id]){ vuT[t.id]=1; base.tasks.push(t); } });
+  (ajout.decisions||[]).forEach(function(d){ if(d&&d.id&&!vuD[d.id]){ vuD[d.id]=1; base.decisions.push(d); } });
+  for(var j in (ajout.days||{})) if(!base.days[j]) base.days[j]=ajout.days[j];   // un jour déjà rempli n'est pas écrasé
+  return base;
+}
+/* Idem pour les instantanés : on additionne, on dédoublonne par date, on retrie. */
+function cpFusionSnaps(base, ajout){
+  var a=(Array.isArray(base)?base:[]).concat(Array.isArray(ajout)?ajout:[]), vu={};
+  return a.filter(function(s){ var id=((s&&(s.d||s.t))||'')+''; if(!id||vu[id]) return false; vu[id]=1; return true; })
+          .sort(function(x,y){ return (x.t||0)-(y.t||0); });
+}
+function cpFusionner(){
+  try{
+    var c=cpCle(); if(c==='anon') return;                       // pas de compte : rien à reprendre
+    var temoin='cp_fusion_v1_'+c; if(localStorage.getItem(temoin)) return;
+    var lu=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
+    // --- Tâches, décisions, journal du jour : on ADDITIONNE (pmFusion, source unique).
+    var cible=lu('pm_'+c)||{days:{},tasks:[],decisions:[]};
+    cpAnciensSeaux('pm_').forEach(function(k){ cible=pmFusion(cible, lu(k)); });
+    localStorage.setItem('pm_'+c, JSON.stringify(cible));
+    // --- Instantanés : même règle (cpFusionSnaps).
+    var snaps=lu('cp_snaps_'+c)||[];
+    cpAnciensSeaux('cp_snaps_').forEach(function(k){ snaps=cpFusionSnaps(snaps, lu(k)); });
+    if(snaps.length) localStorage.setItem('cp_snaps_'+c, JSON.stringify(snaps));
+    // --- Feuille de route, diagnostic, échéance : un seul jeu de valeurs — on prend le seau le
+    //     plus vraisemblable (cpAnciensSeaux le classe en tête) et on n'écrase jamais l'existant.
+    ['fr_','diag_','cp_next_'].forEach(function(p){
+      if(localStorage.getItem(p+c)!=null) return;
+      var seaux=cpAnciensSeaux(p);
+      for(var i=0;i<seaux.length;i++){
+        var v=localStorage.getItem(seaux[i]);
+        if(v!=null){ localStorage.setItem(p+c,v); break; }
+      }
+    });
+    localStorage.setItem(temoin,'1');
+    // Le cloud n'a JAMAIS connu ces tâches-là : elles dormaient dans un seau que syncPush ne
+    // lisait pas. On demande donc à la PROCHAINE syncPull de fusionner au lieu d'écraser —
+    // une seule fois. Ensuite le cloud reprend la main, sinon une tâche supprimée sur un
+    // appareil ressusciterait à chaque synchro depuis l'autre.
+    localStorage.setItem('cp_fusion_att_'+c,'1');
+  }catch(e){}
+}
 function cpSnapshot(force){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData;
   if(b.indiceInterieur==null && !ah) return [];
@@ -3126,13 +4132,57 @@ function cpSnapshot(force){
     iat:(ah?ah.iat:null), imh:(ah?ah.imh:null), resist:(ah?ah.resistance:null),
     piliers:(b.piliers||null), indices:(ah?ah.indices:null), craintes:(ah&&ah.craintes?ah.craintes.length:null),
     av:((fr&&fr.steps.length)?Math.round(fr.steps.filter(function(s){return s.status==='done';}).length/fr.steps.length*100):null)};
-  var key='cp_snaps_'+cpSlug(), arr=[]; try{arr=JSON.parse(localStorage.getItem(key))||[];}catch(e){}
+  var key='cp_snaps_'+cpCle(), arr=[]; try{arr=JSON.parse(localStorage.getItem(key))||[];}catch(e){}
   if(!force) arr=arr.filter(function(x){return x.d!==snap.d;});
   arr.push(snap); arr.sort(function(a,c){return a.t-c.t;});
   if(arr.length>12) arr=arr.slice(-12);
   try{localStorage.setItem(key,JSON.stringify(arr));}catch(e){}
   if(typeof syncPush==='function') syncPush();
+  cpSnapBase(snap, force);        // la base fait foi ; le local reste le cache d'affichage
   return arr;
+}
+/* ===== INSTANTANES — vers la table `snapshots` =====
+   Ils vivaient dans localStorage et voyageaient dans le bloc `pm_data`. La table existe depuis
+   l'origine. On y ecrit en direct (RLS `snapshots_insert`). L'ecriture est « au fil de l'eau » :
+   si elle echoue (hors ligne), le cache local garde la mesure et la console la reverra au
+   prochain passage. `craintes` cote ecran = colonne `peurs` en base ; `t` passe du nombre de
+   millisecondes a une vraie date. */
+async function cpSnapBase(snap, force){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    if(!force){
+      // Une seule mesure par jour : on remplace celle du jour au lieu d'empiler.
+      await window.sb.from('snapshots').delete().eq('entreprise_id',ent).eq('d',snap.d);
+    }
+    await window.sb.from('snapshots').insert({
+      entreprise_id: ent,
+      auteur_id: (window.currentUser&&window.currentUser.id)||null,
+      d: snap.d,
+      t: new Date(snap.t||Date.now()).toISOString(),
+      ive: snap.ive, image: snap.image, pot: snap.pot,
+      iat: snap.iat, imh: snap.imh, resist: snap.resist,
+      peurs: snap.craintes, av: snap.av,
+      piliers: snap.piliers||{}, indices: snap.indices||{}
+    });
+  }catch(e){}
+}
+/* Rafraichit le cache local depuis la base. Appele apres la connexion : c'est ce qui fait que
+   la base devient la verite, et que l'ecran suit d'un appareil a l'autre. */
+async function cpSnapsCharger(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var r=await window.sb.from('snapshots').select('d,t,ive,image,pot,iat,imh,resist,peurs,av,piliers,indices')
+      .eq('entreprise_id',ent).order('t',{ascending:true}).limit(12);
+    if(r.error || !r.data || !r.data.length) return;
+    var arr=r.data.map(function(x){
+      return { d:x.d, t:new Date(x.t).getTime(), ive:x.ive, image:x.image, pot:x.pot,
+               iat:x.iat, imh:x.imh, resist:x.resist, craintes:x.peurs, av:x.av,
+               piliers:x.piliers||null, indices:x.indices||null };
+    });
+    localStorage.setItem('cp_snaps_'+cpCle(), JSON.stringify(arr));
+  }catch(e){}
 }
 function cpDelta(lab,before,after,higherBetter){
   if(before==null||after==null) return '';
@@ -3141,7 +4191,7 @@ function cpDelta(lab,before,after,higherBetter){
   return '<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12px;"><div style="flex:1;color:#4b5563;">'+esc(lab)+'</div><div style="color:#9ca3af;width:26px;text-align:right;">'+before+'</div><i class="ti ti-arrow-right" style="color:#cbd5e1;font-size:12px;"></i><div style="font-weight:600;width:26px;">'+after+'</div><div style="width:50px;text-align:right;color:'+col+';font-weight:600;font-size:11px;"><i class="ti '+ic+'"></i> '+(diff>0?'+':'')+diff+'</div></div>';
 }
 function cockpitCompare(){
-  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpCle()))||[];}catch(e){}
   if(arr.length<2){ alert('Il faut au moins deux mesures pour voir votre évolution : la situation initiale, et un contrôle. Lancez un contrôle après avoir avancé sur vos actions.'); return; }
   var init=arr[0], cur=arr[arr.length-1], prev=(arr.length>=3)?arr[arr.length-2]:null;
   var nom=(window.lastMiroir&&window.lastMiroir.nom)||(window.lastAH&&window.lastAH.nom)||'—';
@@ -3189,14 +4239,14 @@ function lancerControle(){
       }
     }
   }catch(e){}
-  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[];}catch(e){}
+  var arr=[]; try{arr=JSON.parse(localStorage.getItem('cp_snaps_'+cpCle()))||[];}catch(e){}
   if(!arr.length) cpSnapshot(); // fige la situation initiale si pas encore de photo
   window.ahControleMode=true;
   window.ahNom=b.nom||(ah&&ah.nom)||window.ahNom||'Mon entreprise';
   ahStart('express'); window.scrollTo(0,0);
 }
 /* ===== POINT DU MATIN (accueil dirigeant) ===== */
-function pmKey(){ return 'pm_'+cpSlug(); }
+function pmKey(){ return 'pm_'+cpCle(); }
 function pmTodayStr(){ return new Date().toISOString().slice(0,10); }
 function pmDaysBetween(a){ return Math.max(0,Math.round((new Date(pmTodayStr())-new Date(a))/864e5)); }
 function pmUid(p){ return (p||'x')+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
@@ -3206,10 +4256,102 @@ function pmLoad(){ var o={days:{},tasks:[],decisions:[]}; try{ var s=JSON.parse(
   o.priorites=undefined;
   o.decisions=o.decisions.map(function(d){ return (typeof d==='string')?{id:pmUid('d'),t:d,created:td,resolved:false}:{id:d.id||pmUid('d'),t:d.t,created:d.created||td,resolved:!!d.resolved}; });
   return o; }
-function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} if(typeof syncPush==='function') syncPush(); }
+function pmSave(o){ try{ localStorage.setItem(pmKey(),JSON.stringify(o)); }catch(e){} if(typeof syncPush==='function') syncPush(); pmSyncBase(); }
+
+/* ===== LE QUOTIDIEN EN VRAIES LIGNES (tables taches / decisions / journees) =====
+   Tout le quotidien tenait dans UN bloc JSON par entreprise (pm_data). Deux appareils ouverts
+   en meme temps ecrasaient le bloc ENTIER : le dernier qui ecrit gagne, l'autre perd son
+   travail sans un mot. Avec une ligne par tache, deux appareils qui touchent des taches
+   differentes ne se genent plus.
+   pm_data continue d'etre alimente : filet de securite tant que la bascule n'a pas vecu. */
+var PM_PRET=false;   // vrai UNIQUEMENT quand la base a ete lue une fois avec succes
+
+function pmTacheRow(ent,t){
+  return { entreprise_id:ent, auteur_id:((window.currentUser&&window.currentUser.id)||null),
+           cle:String(t.id||''), texte:String(t.t||''), norm:t.norm||null, categorie:t.cat||null,
+           source:t.src||null, origine:t.origine||null, fr_id:t.frId||null,
+           priorite:+(t.prio||0), echeance:t.ech||null, rappel:t.rappel||null,
+           rappel_code:t.rappelCode||null, rappel_fait:!!t.rappelFait,
+           faite:!!t.done, faite_le:t.doneAt||null, archivee:!!t.archive,
+           reports:+(t.reports||0), creee_le:t.created||null, due_le:t.due||null, ts:t.ts||null };
+}
+function pmTacheObj(r){
+  return { id:r.cle, t:r.texte, norm:r.norm||undefined, cat:r.categorie||undefined,
+           src:r.source||undefined, origine:r.origine||undefined, frId:r.fr_id||undefined,
+           prio:r.priorite||0, ech:r.echeance||null, rappel:r.rappel||null,
+           rappelCode:r.rappel_code||null, rappelFait:!!r.rappel_fait,
+           done:!!r.faite, doneAt:r.faite_le||null, archive:!!r.archivee,
+           reports:r.reports||0, created:r.creee_le||null, due:r.due_le||null, ts:r.ts||null };
+}
+/* Envoi vers la base. Un seul appel reseau par famille : Supabase accepte un tableau entier.
+   Les SUPPRESSIONS ne partent que si PM_PRET est vrai — sinon un cache local vide (appareil
+   neuf, lecture pas encore faite) effacerait toutes les taches en base. */
+/* Envoi DIFFERE et SERIALISE. Deux gestes rapproches declenchaient deux envois concurrents :
+   le premier calculait ses suppressions sur un etat deja perime et effacait la tache que le
+   second venait d'ajouter. On ne garde donc qu'un envoi a la fois, toujours sur l'etat COURANT
+   (relu au moment de l'envoi, jamais sur une copie figee). */
+var __pmT=null, __pmEnVol=false, __pmRedem=false;
+function pmSyncBase(){
+  clearTimeout(__pmT);
+  __pmT=setTimeout(function(){ pmSyncMaintenant(); }, 400);
+}
+async function pmSyncMaintenant(){
+  if(__pmEnVol){ __pmRedem=true; return; }        // un envoi est deja en route : on repassera
+  __pmEnVol=true;
+  try{ await pmEnvoyer(pmLoad()); }catch(e){}
+  __pmEnVol=false;
+  if(__pmRedem){ __pmRedem=false; pmSyncMaintenant(); }
+}
+async function pmEnvoyer(o){
+  try{
+    if(!o) return;
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var taches=(o.tasks||[]).filter(function(t){ return t && t.id; });
+    var decs=(o.decisions||[]).filter(function(d){ return d && d.id; });
+    if(taches.length) await window.sb.from('taches').upsert(taches.map(function(t){ return pmTacheRow(ent,t); }),{onConflict:'entreprise_id,cle'});
+    if(decs.length)   await window.sb.from('decisions').upsert(decs.map(function(d){ return {entreprise_id:ent,auteur_id:((window.currentUser&&window.currentUser.id)||null),cle:String(d.id),texte:String(d.t||''),creee_le:d.created||null,resolue:!!d.resolved}; }),{onConflict:'entreprise_id,cle'});
+    var jours=Object.keys(o.days||{});
+    if(jours.length) await window.sb.from('journees').upsert(jours.map(function(j){ var x=o.days[j]||{}; return {entreprise_id:ent,jour:j,climat:(x.climat!=null?x.climat:null),treso:(x.treso!=null?x.treso:null),geste:x.geste||null}; }),{onConflict:'entreprise_id,jour'});
+    if(PM_PRET){
+      if(taches.length) await window.sb.from('taches').delete().eq('entreprise_id',ent).not('cle','in','('+taches.map(function(t){ return '"'+String(t.id).replace(/"/g,'')+'"'; }).join(',')+')');
+      if(decs.length)   await window.sb.from('decisions').delete().eq('entreprise_id',ent).not('cle','in','('+decs.map(function(d){ return '"'+String(d.id).replace(/"/g,'')+'"'; }).join(',')+')');
+    }
+  }catch(e){}
+}
+/* Lecture au demarrage. On FUSIONNE (base + ce que le local est seul a avoir) plutot que
+   d'ecraser : une tache saisie hors ligne ne doit pas disparaitre au retour du reseau. */
+async function pmCharger(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var rt=await window.sb.from('taches').select('*').eq('entreprise_id',ent).limit(2000);
+    var rd=await window.sb.from('decisions').select('*').eq('entreprise_id',ent).limit(500);
+    var rj=await window.sb.from('journees').select('*').eq('entreprise_id',ent).limit(400);
+    if(rt.error||rd.error||rj.error) return;              // on ne touche a rien en cas de doute
+    var local=pmLoad();
+    if(!(rt.data||[]).length && !(rd.data||[]).length && !(rj.data||[]).length){
+      // Base vide : c'est la premiere fois. On l'ENSEMENCE depuis le local, on n'efface rien.
+      PM_PRET=true; await pmEnvoyer(local); return;
+    }
+    var vusT={}, tasks=(rt.data||[]).map(pmTacheObj);
+    tasks.forEach(function(t){ vusT[t.id]=1; });
+    (local.tasks||[]).forEach(function(t){ if(t&&t.id&&!vusT[t.id]) tasks.push(t); });
+    var vusD={}, decs=(rd.data||[]).map(function(r){ return {id:r.cle,t:r.texte,created:r.creee_le,resolved:!!r.resolue}; });
+    decs.forEach(function(d){ vusD[d.id]=1; });
+    (local.decisions||[]).forEach(function(d){ if(d&&d.id&&!vusD[d.id]) decs.push(d); });
+    var days={};
+    (rj.data||[]).forEach(function(r){ days[r.jour]={climat:r.climat,treso:r.treso,geste:r.geste}; });
+    for(var j in (local.days||{})) if(!days[j]) days[j]=local.days[j];
+    var fusion={days:days, tasks:tasks, decisions:decs, infos:local.infos||[]};
+    try{ localStorage.setItem(pmKey(), JSON.stringify(fusion)); }catch(e){}
+    PM_PRET=true;
+    await pmEnvoyer(fusion);      // on renvoie ce que le local avait en propre
+  }catch(e){}
+}
 function pmDay(o){ var k=new Date().toISOString().slice(0,10); if(!o.days[k]) o.days[k]={}; return o.days[k]; }
 function pmStreak(o){ var n=0,dt=new Date(),k0=dt.toISOString().slice(0,10); if(!(o.days[k0]&&o.days[k0].climat)) dt.setDate(dt.getDate()-1); for(;;){ var k=dt.toISOString().slice(0,10); if(o.days[k]&&o.days[k].climat){n++;dt.setDate(dt.getDate()-1);} else break; } return n; }
-function pmSnaps(){ try{ return JSON.parse(localStorage.getItem('cp_snaps_'+cpSlug()))||[]; }catch(e){ return []; } }
+function pmSnaps(){ try{ return JSON.parse(localStorage.getItem('cp_snaps_'+cpCle()))||[]; }catch(e){ return []; } }
 function pmCap(){ var snaps=pmSnaps(), ah=window.lastAH, iat=ah?ah.iat:(snaps.length?snaps[snaps.length-1].iat:null); if(iat==null) return null;
   var obj=iat<=40?50:iat<=70?70:85, palier=iat<=70?'Palier 1 · Confiance':'Palier 2 · Déploiement', base=iat<=40?0:iat<=70?40:70;
   var pct=Math.max(5,Math.min(100,Math.round((iat-base)/(obj-base)*100))), fr=window.frData;
@@ -3246,7 +4388,7 @@ function pmAddTask(text){ if(!text||!text.trim())return; var o=pmLoad(); o.tasks
 function pmAddInfo(text){ if(!text||!text.trim())return; var o=pmLoad(); if(!o.infos)o.infos=[]; o.infos.push({id:pmUid('i'),t:text.trim(),created:pmTodayStr(),statut:'nouvelle'}); pmSave(o); }
 // Stade du dirigeant : 'info' tant qu'il n'a que la SENTINELLE (pas encore de MIROIR/feuille), 'tache' ensuite
 function capMode(){ return ((window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)||window.lastAH||window.frData||pmSnaps().length)?'tache':'info'; }
-function pmToggleTask(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); pmRerender(); }
+function pmToggleTask(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); frDepuisTache(id); pmRerender(); }
 function pmDelTask(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){return t.id!==id;}); pmSave(o); pmRerender(); }
 function pmQuickAdd(){ var el=$('pmTaskIn'); if(!el)return; pmAddTask(el.value); el.value=''; pmRerender(); }
 function pmAddDecision(){ var el=$('pmDecIn'); if(!el||!el.value.trim())return; var o=pmLoad(); o.decisions.push({id:pmUid('d'),t:el.value.trim(),created:pmTodayStr(),resolved:false}); pmSave(o); pmRerender(); }
@@ -3306,9 +4448,19 @@ function iveAbonnementChip(){
 function sentRelancer(){
   if(typeof run!=='function'){ alert('Relance indisponible.'); return; }
   if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
-  var nom=window.lastNom||'', ville=window.lastVille||'';
-  if(!nom){ alert('Nom de l\'entreprise introuvable.'); return; }
-  run({nom:nom, ville:ville});
+  // L'API ne lit QUE le champ « text » : envoyer {nom,ville} renvoyait un 400 à tous les coups.
+  // On reprend sentKey(), la MÊME clé que le premier scan, sinon la relance viserait une autre fiche.
+  var k=(typeof sentKey==='function')?(sentKey()||{}):{};
+  var q=((k.texte)||'').trim();
+  if(!q){ var n=window.lastNom||'', v=window.lastVille||''; q=(n+(v?', '+v:'')).trim(); }
+  if(!q){ alert('Nom de l\'entreprise introuvable.'); return; }
+  // Espace dirigeant : en cas d'échec, la carte « Réessayer » — jamais le formulaire consultant,
+  // qui redemandait un nom et une ville que l'application connaît déjà.
+  window.selfServe=true;
+  // Relance VOULUE et payée : on saute le verrou « SENTINELLE immuable », sinon le clic ne
+  // faisait que renvoyer le dirigeant à son espace sans rien remesurer.
+  window.__remesure=true;
+  run({ text:q });
 }
 function iveDateAnalyse(){
   var d=window.__sentDern||((window.__lastGet)?new Date(window.__lastGet.dernier||window.__lastGet.date):null);
@@ -3426,13 +4578,14 @@ function sentApercu(){
     var dia='clamp(88px,26vw,124px)';
     var past=function(bg,lab,val,sub){ return '<div style="text-align:center;flex:0 1 auto;min-width:0;"><div style="width:'+dia+';height:'+dia+';border-radius:50%;margin:0 auto;background:'+bg+';box-shadow:0 8px 26px '+bg+'55;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;"><span style="font-size:clamp(8.5px,2.5vw,10px);font-weight:700;letter-spacing:.8px;opacity:.9;white-space:nowrap;">'+lab+'</span><span style="font-size:clamp(30px,9vw,42px);font-weight:800;line-height:1;">'+val+'</span><span style="font-size:clamp(9.5px,2.7vw,11px);opacity:.85;">/100</span></div><div style="font-size:clamp(10px,3vw,11.5px);color:#6b7280;margin-top:8px;font-weight:600;line-height:1.25;">'+sub+'</div></div>'; };
     $('dirigeant').innerHTML=cadre(
-      '<div style="display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);flex-wrap:nowrap;margin-top:6px;">'
+      // Relancer se joue EN HAUT À DROITE de l'encadré, au-dessus des deux pastilles.
+      '<div style="display:flex;justify-content:flex-end;margin:-2px 0 4px;">'+jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()')+'</div>'
+      +'<div style="display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);flex-wrap:nowrap;margin-top:6px;">'
         +past(v.hex,'MON AURA',v.est,'Aura '+esc(v.coul))
         +'<div style="text-align:center;flex:0 0 auto;color:#9ca3af;"><i class="ti ti-arrow-right" style="font-size:clamp(20px,5.5vw,26px);color:#E8541A;"></i><div style="font-size:clamp(8.5px,2.4vw,9.5px);color:#c2410c;font-weight:700;">objectif</div></div>'
         +past('#E8541A','OBJECTIF',v.pot,'à atteindre')
       +'</div>'
       +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
-      +'<div style="display:flex;justify-content:flex-end;margin-bottom:8px;">'+jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()')+'</div>'
       +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
       +'<div style="margin-top:18px;">'+(typeof iveCarteIdentite==='function'?iveCarteIdentite(f):'')+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:20px 0 8px;"><i class="ti ti-layout-grid" style="color:#2563EB;"></i> VUE D\'ENSEMBLE</div>'
@@ -3922,6 +5075,9 @@ function dicteeView(filtre){
                             :chip('#7c3aed','#f3e8ff','ti-bell','rappel '+quand);
               })()
             +(rep>=2?chip('#c2410c','#fff7ed','ti-repeat','demandée '+rep+' fois'):'')
+            // D'ou vient cette tache ? Dictee par vous, ou descendue de votre plan. Une seule
+            // liste, une etiquette pour distinguer (decision Didier).
+            +(t.origine==='plan'?chip('#1d4ed8','#eff6ff','ti-route','de votre plan'):'')
             +chip('#6b7280','#f8fafc',c[1],c[0])
             +'<span style="font-size:9.5px;color:#c7ccd3;"><i class="ti ti-clock"></i> '+dicteeQuand(t)+'</span>'
           +'</div></div>'
@@ -3990,7 +5146,7 @@ function dicteeView(filtre){
   if(window.__dicScroll!=null) window.scrollTo(0,window.__dicScroll); else window.scrollTo(0,0);
   tacheBrancherSwipe();
 }
-function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); dicteeRerendu(); }
+function dicteeToggle(id){ var o=pmLoad(); o.tasks.forEach(function(t){ if(t.id===id){ t.done=!t.done; t.doneAt=t.done?pmTodayStr():null; } }); pmSave(o); frDepuisTache(id); dicteeRerendu(); }
 function dicteeDel(id){ var o=pmLoad(); o.tasks=o.tasks.filter(function(t){ return t.id!==id; }); pmSave(o); dicteeRerendu(); }
 
 // Une consigne par enregistrement : la dictée devient UNE tâche, nettoyée et classée.
@@ -4001,6 +5157,29 @@ function dicteeTraiter(txt){
   var e2=$('micEtat');
   if(e2) e2.innerHTML=t?'<span style="color:#166534;"><i class="ti ti-circle-check"></i> Tâche enregistrée.</span>'
                        :'<span style="color:#991b1b;">Rien à enregistrer.</span>';
+}
+/* Bip de départ et bip d'arrêt. Synthétisé à la volée (Web Audio) : aucun fichier à charger,
+   ça marche hors ligne et rien ne retarde le micro.
+   DEUX HAUTEURS DIFFÉRENTES, et c'est le point : un son montant pour « je vous écoute », un son
+   descendant pour « c'est fini ». On les distingue à l'oreille SANS regarder l'écran — tout
+   l'intérêt quand on dicte en conduisant ou les mains prises.
+   Le bip n'est jamais posé sur rec.onstart : le navigateur coupe et relance la reconnaissance
+   à chaque silence, ça sonnerait sans arrêt. Il est posé sur L'APPUI du dirigeant. */
+function bip(depart){
+  try{
+    var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    var ctx=window.__bipCtx||(window.__bipCtx=new AC());
+    if(ctx.state==='suspended'){ try{ ctx.resume(); }catch(e){} }
+    var o=ctx.createOscillator(), g=ctx.createGain(), t=ctx.currentTime;
+    o.type='sine';
+    o.frequency.setValueAtTime(depart?880:660, t);
+    o.frequency.exponentialRampToValueAtTime(depart?1320:440, t+0.09);   // monte au départ, descend à l'arrêt
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.16, t+0.012);                  // attaque douce : pas de « clac »
+    g.gain.exponentialRampToValueAtTime(0.0001, t+0.16);
+    o.connect(g); g.connect(ctx.destination);
+    o.start(t); o.stop(t+0.18);
+  }catch(e){}
 }
 // Appui SIMPLE : une pression pour démarrer, une pression pour terminer.
 function dicteeBrancherMicro(){
@@ -4050,7 +5229,9 @@ function dicteeBrancherMicro(){
     };
     try{ rec.start(); }catch(e){ window.__dicteeOn=false; if(etat) etat.textContent='Impossible de démarrer le micro.'; }
   };
-  btn.onclick=function(ev){ if(ev&&ev.preventDefault) ev.preventDefault(); if(window.__dicteeOn) arreter(); else demarrer(); };
+  btn.onclick=function(ev){ if(ev&&ev.preventDefault) ev.preventDefault();
+    if(window.__dicteeOn){ bip(false); arreter(); } else { bip(true); demarrer(); }
+  };
 }
 
 /* --- Vue complète d'avant : CONSERVÉE (cf. CLAUDE.md règle 5), accessible aux admins --- */
@@ -4268,7 +5449,7 @@ function b_nom(){ var acc=currentAccount(); return (window.lastMiroir&&window.la
 function cockpitRemesure(){
   var b=window.lastMiroir||{}, nom=b.nom||(window.lastAH&&window.lastAH.nom)||'votre entreprise';
   var d=new Date(); d.setMonth(d.getMonth()+3);
-  try{ localStorage.setItem('cp_next_'+cpSlug(), d.toISOString().slice(0,10)); }catch(e){}
+  try{ localStorage.setItem('cp_next_'+cpCle(), d.toISOString().slice(0,10)); }catch(e){}
   var dt=d.toISOString().slice(0,10).replace(/-/g,'');
   var ics='BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//DBi360//LIVE//FR\nBEGIN:VEVENT\nUID:'+Date.now()+'@live-dbi360\nDTSTART;VALUE=DATE:'+dt+'\nSUMMARY:Point LIVE — re-mesure de '+nom+'\nDESCRIPTION:Refaire le diagnostic LIVE / BOUSSOLE / AURA pour mesurer les progrès et actualiser le Cockpit.\nEND:VEVENT\nEND:VCALENDAR';
   try{ var blob=new Blob([ics],{type:'text/calendar'}); var url=URL.createObjectURL(blob); var a=document.createElement('a'); a.href=url; a.download='Point_LIVE_'+cpSlug()+'.ics'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},2000); }catch(e){}
@@ -4293,6 +5474,7 @@ async function loadUser(){
     // La formule d'abonnement suit le compte, pas l'appareil.
     if(m.ive_plan){ window.__boussolePlan=m.ive_plan; try{ localStorage.setItem(ivePlanCle(),m.ive_plan); }catch(e){} }
     if(!window.lastMiroir||!window.lastMiroir.nom) window.lastMiroir={nom:window.currentUser.name};
+    cpFusionner();   // AVANT syncPull : on rassemble le local, le cloud tranchera ensuite
     try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
     await syncPull();
     try{
@@ -4302,7 +5484,7 @@ async function loadUser(){
         if(d.lastMiroir) window.lastMiroir=Object.assign({},d.lastMiroir,{nom:nm||d.lastMiroir.nom});
         if(d.lastAH){ window.lastAH=d.lastAH; if(nm)window.lastAH.nom=nm; }
         if(d.miroirData) window.miroirData=d.miroirData;
-        var slg=cpSlug();
+        var slg=cpCle();
         localStorage.setItem('diag_'+slg,JSON.stringify({lastMiroir:window.lastMiroir,lastAH:window.lastAH,miroirData:window.miroirData}));
         if(window.lastAH || (window.lastMiroir&&window.lastMiroir.indiceInterieur!=null)) cpSnapshot();
         window.__gotHandoff=true; syncPush(true);
@@ -4315,11 +5497,16 @@ async function syncPull(){
   if(!window.sb || !window.dbEnt || !window.currentUser) return;
   try{
     var r=await window.sb.from('pm_data').select('data').eq('entreprise_id',window.dbEnt).maybeSingle();
-    var slug=cpSlug();
+    var slug=cpCle();   // le cloud est indexé par entreprise_id : seul le nom LOCAL du seau change
+    // Réconciliation UNIQUE après la reprise des anciens seaux : sans elle, le cloud effacerait
+    // des tâches qu'il n'a jamais connues, celles-là mêmes que cpFusionner vient de récupérer.
+    var recup=false; try{ recup=!!localStorage.getItem('cp_fusion_att_'+slug); }catch(e){}
+    var lire=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
     if(r && r.data && r.data.data && Object.keys(r.data.data).length){
       var b=r.data.data;
-      if(b.pm) localStorage.setItem('pm_'+slug,JSON.stringify(b.pm));
-      if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(b.snaps));
+      // Le cloud fait foi ; le local n'apporte que ce qu'il est seul à avoir (pmFusion, source unique).
+      if(b.pm) localStorage.setItem('pm_'+slug,JSON.stringify(recup?pmFusion(b.pm,lire('pm_'+slug)):b.pm));
+      if(b.snaps) localStorage.setItem('cp_snaps_'+slug,JSON.stringify(recup?cpFusionSnaps(b.snaps,lire('cp_snaps_'+slug)):b.snaps));
       if(b.fr) localStorage.setItem('fr_'+slug,JSON.stringify(b.fr));
       if(b.next) localStorage.setItem('cp_next_'+slug,b.next);
       if(b.diag){ localStorage.setItem('diag_'+slug,JSON.stringify(b.diag)); var nm=(window.currentUser&&window.currentUser.name)||'';
@@ -4329,6 +5516,12 @@ async function syncPull(){
     } else {
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
+    // Réconciliation faite : on retire le témoin (le cloud redevient prioritaire) et on renvoie
+    // au cloud les tâches récupérées, sinon elles resteraient prisonnières de cet appareil.
+    if(recup){ try{ localStorage.removeItem('cp_fusion_att_'+slug); }catch(e){} syncPush(true); }
+    if(typeof pmCharger==='function') await pmCharger();        // le quotidien : la base fait foi, on fusionne
+    if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
+    if(typeof evt==='function') evt('login');
   }catch(e){ console.warn('syncPull', e && e.message); }
 }
 function syncPush(now){
@@ -4336,7 +5529,7 @@ function syncPush(now){
   clearTimeout(window.__pushT);
   window.__pushT=setTimeout(function(){
     try{
-      var slug=cpSlug();
+      var slug=cpCle();
       var g=function(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } };
       var blob={ pm:g('pm_'+slug), snaps:g('cp_snaps_'+slug), fr:g('fr_'+slug), next:(localStorage.getItem('cp_next_'+slug)||null), diag:g('diag_'+slug) };
       window.sb.from('pm_data').upsert({ entreprise_id:window.dbEnt, data:blob },{ onConflict:'entreprise_id' }).then(function(res){ if(res && res.error) console.warn('syncPush', res.error.message); });
@@ -4514,13 +5707,16 @@ function bouGrilleChip(){
     e.innerHTML=q?('<i class="ti ti-device-floppy"></i> Enregistré automatiquement · '+q):'';
   }
   // L'avancement, visible en permanence : on sait toujours ce qu'il reste à faire.
-  var p=$('bProg'); if(!p) return;
+  // Deux emplacements (haut et bas) : les deux affichent le même avancement.
+  var p=$('bProg'), p2=$('bProg_bas'); if(!p && !p2) return;
   var items=window.bItems||[], total=items.length, fait=0;
   items.forEach(function(it){ var el=$(it.id); if(el && el.dataset.vu==='1') fait++; });
   var reste=total-fait;
-  p.innerHTML=reste>0
+  var txt=reste>0
     ? '<b style="color:#b45309;">'+fait+' / '+total+'</b> critères renseignés — il en reste <b>'+reste+'</b>'
     : '<b style="color:#15803d;"><i class="ti ti-circle-check"></i> Les '+total+' critères sont renseignés.</b>';
+  if(p) p.innerHTML=txt;
+  if(p2) p2.innerHTML=txt;
 }
 // Quitter en gardant tout : la grille est déjà sauvegardée à chaque geste, on ne fait que confirmer.
 function bouGrilleQuitter(dest){
@@ -4942,11 +6138,12 @@ function boussoleOutil(which){
       // Le bouton de relance vit dans l'encadré, en haut à droite — comme partout ailleurs.
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
         +'<label style="margin:0;">Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
-        +(concFaite()?jetBouton('Relancer','concurrence','runConcurrence()'):'')
+        // En haut à droite : le coût, annoncé AVANT le clic. Et la relance quand une recherche existe déjà.
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+jetCoutChip('concurrence')+(concFaite()?jetBouton('Relancer','concurrence','runConcurrence()'):'')+'</div>'
       +'</div>'
       +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
       +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de vous.</div>'
-      +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Trouver les 8 concurrents · 4 jetons</button>'
+      +'<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
       /* Note d'attente et bouton de retour retirés : la navigation se fait par le haut. */
       +'</div></div><div id="cOut"></div></div>';
     showView('dirigeant'); window.scrollTo(0,0);
