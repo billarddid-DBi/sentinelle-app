@@ -995,6 +995,86 @@ function startGrille(mode){
    jusqu'ici rien à l'écran ne les distinguait. On dit donc franchement sur quoi le diagnostic
    repose : combien de réponses sur combien, et si les salariés ont été entendus.
    C'est ce qui lui donne son INTENSITÉ — sa force probante, pas sa note. */
+/* ===== CE QUE VOS RÉPONSES RÉVÈLENT =====
+   La première version de ce bloc disait « 40 réponses sur 40, intensité correcte » : de
+   l'information sur l'OUTIL, pas sur l'ENTREPRISE. Didier : « ça ou rien, c'est pareil ».
+   Il a raison. Un bilan doit apprendre quelque chose qu'on ne savait pas.
+   Tout est CALCULÉ depuis ses réponses — aucun appel IA, aucun jeton, et chaque phrase est
+   traçable à une note. La prescription reste au MIROIR : ici on lit, on ne prescrit pas. */
+function bilanLecture(r){
+  var items=window.bItems||[], notes=[];
+  items.forEach(function(it){
+    var el=$(it.id); if(!el || el.dataset.vu!=='1' || el.dataset.na==='1') return;
+    notes.push({pilier:it.pilier, crit:it.crit, n:+el.value});
+  });
+  if(notes.length<5) return '';                     // trop peu pour dire quoi que ce soit d'honnête
+
+  var pil=r.pil||{}, noms=Object.keys(pil).filter(function(p){ return pil[p]!=null; });
+  if(noms.length<3) return '';
+  var tri=noms.slice().sort(function(a,b){ return pil[b]-pil[a]; });
+  var ecartPil=pil[tri[0]]-pil[tri[tri.length-1]];
+  /* On ne prend PAS mécaniquement les deux derniers du classement : sur un profil où sept
+     piliers sont à 80 et un à 20, le « deuxième plus faible » est en réalité un point fort, et
+     l'écran affichait « fragilité : Performance à 80 ». On ne retient donc que ce qui est
+     réellement au-dessus ou au-dessous de la moyenne de l'entreprise. */
+  var moyPil=Math.round(noms.reduce(function(s,p){ return s+pil[p]; },0)/noms.length);
+  var hauts=tri.filter(function(p){ return pil[p]>moyPil; }).slice(0,2);
+  var bas=tri.filter(function(p){ return pil[p]<moyPil; }).slice(-2).reverse();
+
+  // Les critères vraiment bas. 1/5 n'est pas 2/5 : l'un est une absence, l'autre une faiblesse.
+  var critiques=notes.filter(function(x){ return x.n<=1; });
+  var faibles=notes.filter(function(x){ return x.n===2; });
+
+  // CONCENTRÉ ou DISPERSÉ ? C'est le vrai renseignement : un problème logé dans un pilier se
+  // répare ; le même nombre de faiblesses éparpillées sur six piliers est un sujet de fond.
+  var parPil={};
+  critiques.concat(faibles).forEach(function(x){ parPil[x.pilier]=(parPil[x.pilier]||0)+1; });
+  var pilsTouches=Object.keys(parPil).length;
+  var pire=Object.keys(parPil).sort(function(a,b){ return parPil[b]-parPil[a]; })[0];
+  var totalBas=critiques.length+faibles.length;
+  var concentre = totalBas>=3 && pire && (parPil[pire]/totalBas)>=0.45;
+
+  var ligne=function(ic,coul,titre,txt){
+    return '<div style="display:flex;gap:10px;align-items:flex-start;margin-top:11px;">'
+      +'<i class="ti '+ic+'" style="font-size:17px;color:'+coul+';flex:0 0 auto;margin-top:1px;"></i>'
+      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;"><b style="color:#1C1C1C;">'+titre+'</b> '+txt+'</div></div>';
+  };
+  // Un ou deux piliers selon ce que les notes permettent d'affirmer — jamais un chiffre forcé.
+  var liste=function(t){ return t.map(function(p){ return esc(p)+' à <b>'+pil[p]+'</b>'; }).join(' et '); };
+  var h='';
+  if(hauts.length) h+=ligne('ti-trending-up','#15803d',
+      (hauts.length>1?'Vos deux appuis.':'Votre point d\'appui.'),
+      liste(hauts)+' — au-dessus de votre moyenne de '+moyPil+'. C\'est là que votre entreprise est la plus sûre d\'elle.');
+  if(bas.length) h+=ligne('ti-trending-down','#b45309',
+      (bas.length>1?'Vos deux fragilités.':'Votre fragilité.'),
+      liste(bas)+' — en dessous de votre moyenne de '+moyPil+'.');
+  if(!hauts.length && !bas.length) h+=ligne('ti-equal','#6b7280','Un profil sans relief.',
+      'Vos huit piliers sont tous au même niveau, autour de '+moyPil+'. Aucun ne tire l\'entreprise vers le haut ni vers le bas.');
+  h+=ligne(ecartPil>=30?'ti-scale-outline':'ti-scale','#1d4ed8',
+      ecartPil>=30?'Une entreprise déséquilibrée.':'Une entreprise homogène.',
+      ecartPil+' points séparent votre pilier le plus solide du plus faible. '
+      +(ecartPil>=30?'Vous excellez quelque part et vous portez un angle mort ailleurs — c\'est souvent là que ça casse en grandissant.'
+                    :'Aucun domaine ne décroche vraiment par rapport aux autres.'));
+  if(totalBas>0){
+    h+=ligne(concentre?'ti-target':'ti-scatter-plot',concentre?'#15803d':'#991b1b',
+        concentre?'Vos difficultés sont groupées.':'Vos difficultés sont dispersées.',
+        totalBas+' critère'+(totalBas>1?'s':'')+' noté'+(totalBas>1?'s':'')+' 1 ou 2 sur 5, '
+        +(concentre
+          ? 'dont '+parPil[pire]+' sur le seul pilier <b>'+esc(pire)+'</b>. Bonne nouvelle : un problème logé à un endroit se répare. Vous savez par où commencer.'
+          : 'répartis sur <b>'+pilsTouches+' piliers</b> différents. Ce n\'est pas un problème isolé mais un sujet de fond : c\'est la façon de s\'organiser qui est en cause, pas un domaine en particulier.'));
+  }
+  if(critiques.length){
+    h+=ligne('ti-alert-triangle','#991b1b','Ce qui est absent, pas seulement faible.',
+        '<b>'+critiques.length+' critère'+(critiques.length>1?'s sont notés':' est noté')+' 1 sur 5</b> — '
+        +esc(critiques.slice(0,3).map(function(x){ return x.crit; }).join(' · '))
+        +(critiques.length>3?(' · et '+(critiques.length-3)+' autre'+((critiques.length-3)>1?'s':'')):'')+'.');
+  }
+  return '<div style="background:#fff;border:1px solid #eef0f3;border-radius:13px;padding:13px 14px;margin-top:12px;">'
+    +'<div style="font-size:12.5px;font-weight:800;color:#1C1C1C;"><i class="ti ti-file-text" style="color:#E8541A;"></i> Ce que vos réponses révèlent</div>'
+    +h
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:12px;line-height:1.5;">Lecture directe de vos notes — aucune interprétation ajoutée. Le <b>MIROIR</b> en tirera le plan d\'action.</div>'
+  +'</div>';
+}
 function bilanSante(r){
   var items=window.bItems||[], total=items.length||0;
   var repondu=0;
@@ -1015,18 +1095,24 @@ function bilanSante(r){
     return '<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4b5563;"><span>'+lbl+'</span><b style="color:#1C1C1C;">'+txt+'</b></div>'
       +'<div style="background:#eef2f7;border-radius:5px;height:8px;margin-top:4px;overflow:hidden;"><div style="width:'+val+'%;height:8px;background:'+coul+';border-radius:5px;"></div></div></div>';
   };
+  /* L'ORDRE COMPTE. Avant, ce bloc s'ouvrait sur « 40 réponses sur 40, intensité correcte » —
+     de l'information sur l'outil, pas sur l'entreprise. La LECTURE passe devant ; la fiabilité
+     devient une mention repliable, utile mais secondaire. */
   return '<div class="sec" style="background:'+niv.f+';">'
-    +'<div class="ktitle" style="color:'+niv.c+';"><i class="ti ti-stethoscope"></i> Bilan de santé du questionnaire <span style="font-weight:400;color:#9ca3af;font-size:10px;">— sur quoi repose votre note</span></div>'
-    +'<div style="font-size:12.5px;color:#1C1C1C;margin-top:5px;line-height:1.5;">'
-      +'<b>'+repondu+' réponses sur '+total+'</b> — questionnaire '+(profond?'complet':'express')+'.<br>'
-      +(avecSal?'L\'avis de vos salariés est <b>pris en compte</b>.':'L\'avis de vos salariés <b>n\'a pas encore été recueilli</b>.')
-    +'</div>'
-    +barre('Complétude des réponses',taux,repondu+' / '+total,niv.c)
-    +barre('Regard des équipes',(avecSal?100:0),(avecSal?'recueilli':'absent'),(avecSal?'#15803d':'#d7dbe3'))
-    +'<div style="display:inline-block;margin-top:12px;font-size:11.5px;font-weight:800;color:'+niv.c+';background:#fff;border:1px solid '+niv.b+';border-radius:20px;padding:5px 13px;">'
-      +'<i class="ti ti-activity"></i> Intensité du diagnostic : '+niv.t+'</div>'
-    +'<div style="font-size:12px;color:#4b5563;margin-top:8px;line-height:1.5;">'+niv.m+'</div>'
-    +(manque.length?('<div style="font-size:11.5px;color:#6b7280;margin-top:8px;line-height:1.55;">Pour le renforcer : '+manque.join(' · ')+'.</div>'):'')
+    +'<div class="ktitle" style="color:'+niv.c+';"><i class="ti ti-stethoscope"></i> Le bilan de votre questionnaire</div>'
+    +bilanLecture(r)
+    +'<div style="background:#fff;border:1px solid '+niv.b+';border-radius:11px;margin-top:12px;overflow:hidden;">'
+      +'<button type="button" onclick="sentToggle(\'bFiab\')" style="width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;background:transparent;border:none;cursor:pointer;font-family:inherit;text-align:left;">'
+        +'<i class="ti ti-activity" style="font-size:16px;color:'+niv.c+';flex:0 0 auto;"></i>'
+        +'<div style="flex:1;min-width:0;font-size:12px;color:#4b5563;">Fiabilité de ce bilan : <b style="color:'+niv.c+';">'+niv.t+'</b>'
+          +' <span style="color:#9ca3af;">('+repondu+'/'+total+' réponses'+(avecSal?', avec vos salariés':'')+')</span></div>'
+        +'<i class="ti ti-chevron-down" id="bFiab_ic" style="color:#9ca3af;font-size:17px;transition:transform .2s;flex:0 0 auto;"></i></button>'
+      +'<div id="bFiab" style="display:none;padding:0 13px 12px;">'
+        +barre('Complétude des réponses',taux,repondu+' / '+total,niv.c)
+        +barre('Regard des équipes',(avecSal?100:0),(avecSal?'recueilli':'absent'),(avecSal?'#15803d':'#d7dbe3'))
+        +'<div style="font-size:12px;color:#4b5563;margin-top:9px;line-height:1.5;">'+niv.m+'</div>'
+        +(manque.length?('<div style="font-size:11.5px;color:#6b7280;margin-top:7px;line-height:1.55;">Pour le renforcer : '+manque.join(' · ')+'.</div>'):'')
+      +'</div></div>'
     +'</div>';
 }
 function bRadarHtml(r){
@@ -1282,7 +1368,17 @@ function bFinish(){
    /* La carte d'énergie est remplacée par le radar (décision Didier) — son code reste plus haut. */
    +bRadarHtml(r)
    /* L'encart n'apparaît que s'il y a vraiment des critères faibles : sinon il n'apprend rien. */
-   +(r.faibles.length?'<div class="sec" style="background:#fef2f2;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Besoins à creuser (≤2/5)</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6;margin-top:4px;">'+bes+'</div></div>':'')
+   /* REPLIÉ PAR DÉFAUT (décision Didier, 31/07) : sur 200 critères la liste faisait vingt lignes
+      rouges d'affilée — illisible et décourageant. Le nombre suffit à l'écran ; le détail
+      s'ouvre pour qui veut le lire. Même mécanique d'accordéon que le reste de l'app. */
+   +(r.faibles.length?'<div class="sec" style="background:#fef2f2;padding:0;overflow:hidden;">'
+     +'<button type="button" onclick="sentToggle(\'bFaiblesListe\')" style="width:100%;display:flex;align-items:center;gap:10px;padding:13px 15px;background:transparent;border:none;cursor:pointer;font-family:inherit;text-align:left;">'
+       +'<i class="ti ti-alert-triangle" style="font-size:17px;color:#991b1b;flex:0 0 auto;"></i>'
+       +'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:700;color:#991b1b;">Besoins à creuser</div>'
+       +'<div style="font-size:11.5px;color:#b45309;margin-top:1px;">'+r.faibles.length+' critère'+(r.faibles.length>1?'s notés':' noté')+' 1 ou 2 sur 5 — voir le détail</div></div>'
+       +'<i class="ti ti-chevron-down" id="bFaiblesListe_ic" style="color:#991b1b;font-size:18px;transition:transform .2s;flex:0 0 auto;"></i></button>'
+     +'<div id="bFaiblesListe" style="display:none;padding:0 15px 14px;"><div style="font-size:12px;color:#7f1d1d;line-height:1.6;">'+bes+'</div></div>'
+   +'</div>':'')
    +'<div class="foot">Regard subjectif du répondant · à confronter à la phase humaine. Indice = moyenne des notes /5 × 20, traçable critère par critère.</div></div>';
   window.lastMiroir={nom:cpNomCompte(nom),activite:(window.lastActivite||''),archetype:(window.lastArchetype||''),indiceInterieur:r.idx,indiceExterieur:ext,potentiel:pot,ecart:verite,zoneVerite:(verite==null?null:(verite<=-20?'Glaciation':verite<=-8?'Refroidissement':verite<8?'Équilibre':verite<20?'Élan':'Combustion')),piliers:r.pil,faibles:r.faibles,criteres:(details||[]).filter(function(x){return x.note!=null&&x.note<=3;}).sort(function(a,b){return a.note-b.note;}).slice(0,28).map(function(x){return {c:x.crit,n:x.note,p:x.pilier};}),aura:aura+' — '+(ad&&ad.s||'')};
   // Les résultats vivent sous l'onglet BOUSSOLE : la barre de navigation le montre.
@@ -2451,7 +2547,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 127';
+var IVE_VERSION='31/07 · 129';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
