@@ -2291,17 +2291,6 @@ function jetOccupe(btn){
     },90000);
   }catch(e){}
 }
-/* Le filet de 90 s est un FILET, pas une horloge. Une action qui se termine doit rendre son
-   bouton tout de suite : sinon l'écran affiche « en cours… » alors qu'il n'y a plus rien en
-   cours, et le dirigeant attend pour rien (constaté le 31/07 sur « Utiliser ces réponses »,
-   où le travail était fini avant même que le message de confirmation ne s'affiche). */
-function jetLibre(btn){
-  try{
-    if(!btn || btn.dataset.occupe!=='1') return;
-    btn.dataset.occupe=''; btn.style.pointerEvents=''; btn.style.opacity='';
-    if(btn.dataset.libelle) btn.innerHTML=btn.dataset.libelle;
-  }catch(e){}
-}
 function jetBoutonBrut(libelle,cout,clic,etat){
   var c = (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
@@ -2779,7 +2768,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 146';
+var IVE_VERSION='31/07 · 147';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3622,24 +3611,13 @@ function ahAgregeHtml(a){
         return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#4b5563;border-top:1px solid rgba(0,0,0,.05);padding:5px 0;"><span>'+esc(p.poste)+(p.n>1?(' <span style="color:#9ca3af;">×'+p.n+'</span>'):'')+'</span><b style="color:#1C1C1C;">'+p.iat+'/100</b></div>';
       }).join('')+'</div>'):'')
     +'<div style="font-size:11.5px;color:'+fiable.t+';margin-top:9px;line-height:1.45;"><i class="ti ti-info-circle"></i> '+fiable.m+'</div>'
-    +'<button type="button" onclick="ahAppliquer(this)" style="width:100%;border:0;border-radius:11px;background:#1C1C1C;color:#fff;font-size:13px;font-weight:800;padding:12px;margin-top:11px;cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-down-circle"></i> Utiliser ces réponses dans mon analyse</button>'
+    /* Le bouton « Utiliser ces réponses dans mon analyse » a disparu (31/07/2026). C'était une
+       friction pour rien — la lecture est gratuite — et surtout un piège : sans le clic, le
+       MIROIR se bâtissait sur le seul regard du dirigeant, sans que rien ne le prévienne que
+       l'avis de ses équipes existait. C'est pris en compte d'office, on le lui dit. */
+    +'<div style="font-size:11.5px;color:#15803d;margin-top:9px;line-height:1.45;"><i class="ti ti-circle-check"></i> <b>Pris en compte dans votre analyse.</b> Régénérez votre MIROIR pour que le plan en tienne compte.</div>'
     +'<div id="ahAppMsg" style="font-size:11.5px;margin-top:7px;"></div>'
   +'</div>';
-}
-/* Le dirigeant décide d'injecter les réponses de ses salariés dans le diagnostic. On ne le fait
-   pas automatiquement : c'est SON analyse, et il doit savoir sur quoi elle repose. */
-async function ahAppliquer(btn){
-  if(btn && typeof jetOccupe==='function') jetOccupe(btn);
-  var a=await ahAgreger(); var m=$('ahAppMsg');
-  // Le bouton est rendu dans TOUS les cas, succès comme échec : il ne doit jamais rester
-  // bloqué sur « en cours… » pendant 90 s alors que le travail est terminé.
-  if(!a){ if(typeof jetLibre==='function') jetLibre(btn);
-          if(m) m.innerHTML='<span style="color:#991b1b;">Aucune réponse à utiliser.</span>'; return; }
-  window.lastAH=a;
-  try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
-  try{ if(typeof evt==='function') evt('aura',{iat:a.iat,source:'salaries',n:a.n}); }catch(e){}
-  if(typeof jetLibre==='function') jetLibre(btn);
-  if(m) m.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Pris en compte. Régénérez votre MIROIR pour que le plan en tienne compte.</span>';
 }
 /* Le suivi : combien de réponses, de qui. Sans ça, le dirigeant partage et attend dans le vide. */
 async function enqueteSuivi(){
@@ -3652,9 +3630,29 @@ async function enqueteSuivi(){
         +'<span><b style="color:#1C1C1C;">'+esc(x.nom||'')+'</b> — '+esc(x.poste||'')+'</span>'
         +'<span style="white-space:nowrap;color:#9ca3af;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
     }).join('');
-  // La synthèse : moyennes, écarts, fracture éventuelle, et le bouton pour l'injecter.
+  // La synthèse : moyennes, écarts, fracture éventuelle. PRISE EN COMPTE d'office (cf. ahAuto).
   var a=await ahAgreger();
-  if(a) z.innerHTML+=ahAgregeHtml(a);
+  if(a){ window.lastAH=a; try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){} z.innerHTML+=ahAgregeHtml(a); }
+}
+/* LES RÉPONSES DES SALARIÉS COMPTENT D'OFFICE — demande de Didier, 31/07/2026 :
+   « pourquoi je dois systématiquement envoyer les réponses des salariés pour que je les voie
+   apparaître dans la BOUSSOLE ? Si ça ne coûte rien, fais-le automatiquement. »
+   Il a raison : ahAgreger() ne fait qu'une lecture de la table reponses_salaries, aucun appel
+   d'IA, aucun jeton. Le bouton « Utiliser ces réponses » n'était donc qu'une friction — et un
+   piège : un dirigeant qui ne cliquait pas obtenait un MIROIR bâti sur son seul regard, sans
+   jamais savoir que l'avis de ses équipes existait et dormait à côté.
+   Une seule lecture par session (témoin __ahAuto), puis window.lastAH est posé pour tout le
+   monde : écran BOUSSOLE, empreinte du MIROIR, instantanés de trajectoire. */
+async function ahAuto(){
+  if(window.__ahAuto) return window.lastAH||null;
+  window.__ahAuto=1;
+  try{
+    var a=(typeof ahAgreger==='function')?await ahAgreger():null;
+    if(!a) return null;
+    window.lastAH=a;
+    try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){}
+    return a;
+  }catch(e){ return null; }
 }
 /* Le LIEN VISIBLE, pas un bouton de partage. Sur PC, le partage natif ne propose souvent rien
    d'utile — Didier n'avait que WhatsApp. Un lien qu'on voit, qu'on sélectionne et qu'on colle
@@ -5875,6 +5873,8 @@ async function syncPull(){
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
     if(typeof pmCharger==='function') await pmCharger();        // le quotidien : la base fait foi, on fusionne
+    // Les réponses des salariés comptent d'office, dès l'ouverture (lecture gratuite, cf. ahAuto).
+    if(typeof ahAuto==='function') await ahAuto();
     if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
     if(typeof evt==='function') evt('login');
   }catch(e){ console.warn('syncPull', e && e.message); }
