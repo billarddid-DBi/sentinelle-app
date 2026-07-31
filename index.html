@@ -1755,6 +1755,16 @@ async function run(payload){
   // complète s'affiche (les étudiés surlignés). 1er scan offert ; re-mesure hebdo (flag __remesure) = on saute les verrous.
   var remesure=!!window.__remesure; window.__remesure=false;
   if(!remesure) window.__scanAdresse=null;
+  /* FILET : une re-mesure SANS adresse crée une fiche orpheline que plus personne ne lit
+     (cf. sentRelancer). Plutôt que de compter sur chaque appelant pour y penser, on va la
+     rechercher ici — dans le compte, puis dans la dernière fiche lue. Un seul oubli suffisait
+     à perdre une analyse payée ; ce filet vaut mieux qu'une consigne. */
+  if(remesure && !window.__scanAdresse){
+    try{
+      var _k=(typeof sentKey==='function')?(sentKey()||{}):{};
+      window.__scanAdresse=_k.adresse||(window.__lastGet&&window.__lastGet.adresse)||null;
+    }catch(e){}
+  }
   try{
     if(!remesure && payload.text && window.sbReady){
       await window.sbReady;
@@ -2712,7 +2722,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 134';
+var IVE_VERSION='31/07 · 135';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4722,6 +4732,15 @@ function sentRelancer(){
   // Relance VOULUE et payée : on saute le verrou « SENTINELLE immuable », sinon le clic ne
   // faisait que renvoyer le dirigeant à son espace sans rien remesurer.
   window.__remesure=true;
+  /* L'ADRESSE DOIT SUIVRE LA RELANCE — sans elle, les 4 jetons partent en fumée.
+     sentinelle_save range la fiche sous la clé (nom, ville, ADRESSE). Sans adresse,
+     adresse_norm vaut '' : ce n'est plus la même clé, donc au lieu de mettre à jour la
+     fiche, la base en INSÈRE une seconde. Et sentinelle_get, qui exige adresse_norm <> ''
+     quand une adresse est connue, ne la voit jamais : le dirigeant continue de lire son
+     ancienne analyse, sans savoir que la nouvelle existe. Constaté le 31/07/2026 sur la
+     fiche de Didier — deux lignes « Feu Vert Metz Marly », l'orpheline sans adresse.
+     remesurer() le faisait déjà (cf. __scanAdresse) ; ce chemin-ci l'avait oublié. */
+  window.__scanAdresse=(k.adresse||null);
   run({ text:q });
 }
 function iveDateAnalyse(){
