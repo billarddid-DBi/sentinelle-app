@@ -853,24 +853,68 @@ function renderMiroir(){
     var nbs=qd.sujets.length;
     var rg=(m.regards&&typeof m.regards==='object')?m.regards:{};
     var ah=(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null;
-    /* Repli SANS IA : on ne dit que ce qui est déjà mesuré, jamais une interprétation inventée. */
+    /* REPLI SANS IA — un DIAGNOSTIC, pas une légende de méthode.
+       Première version : « Mesuré sur vos avis et vos réseaux », « Votre appui : Processus (72) ».
+       Didier, à raison : « n'importe quoi pour le bilan ». Ces phrases décrivaient l'instrument
+       et répétaient un chiffre affiché juste au-dessus — un médecin ne dit pas « mesuré au
+       tensiomètre », il dit ce qu'il voit et ce que ça implique.
+       Chaque phrase ci-dessous NOMME un fait déjà mesuré, puis sa CONSÉQUENCE. Jamais dure,
+       jamais complaisante : on laisse la personne debout. Et jamais une interprétation qui
+       dépasse la donnée — sans quoi ce serait de l'invention, pas un diagnostic. */
     var replis=(function(){
       var o={};
       try{
+        // — Ce que les autres voient : sa place, pas la méthode.
         var cs=(typeof concStore!=='undefined')?concStore.load():null;
-        var nb=(cs&&cs.d&&cs.d.concurrents)?cs.d.concurrents.length:0;
-        o.exterieur=nb?('Mesuré sur vos avis, votre fiche et vos réseaux, face à '+nb+' concurrents.')
-                      :'Mesuré sur vos avis, votre fiche, votre site et vos réseaux.';
+        var lst=(cs&&cs.d&&Array.isArray(cs.d.concurrents))?cs.d.concurrents:[];
+        var notes=[]; lst.forEach(function(x){ var v=(x&&x.aura&&x.aura.note!=null)?+x.aura.note:null; if(v!=null&&!isNaN(v)) notes.push(v); });
+        var ex=(b.indiceExterieur!=null)?+b.indiceExterieur:null;
+        if(ex!=null && notes.length){
+          var mieux=notes.filter(function(v){ return v>ex; }).length, rang=mieux+1;
+          o.exterieur = (rang===1)
+            ? 'Personne ne fait mieux que vous dans le voisinage : cette avance se défend, elle ne se garde pas toute seule.'
+            : (mieux<=notes.length/3
+               ? 'Vous êtes '+rang+'e sur '+(notes.length+1)+' : bien placé, mais pas au point qu\'on vous choisisse d\'évidence.'
+               : 'Vous êtes '+rang+'e sur '+(notes.length+1)+' : le voisinage se voit mieux que vous, à qualité comparable.');
+        }else if(ex!=null){
+          o.exterieur = (ex>=70) ? 'Le public vous voit solide. Cette confiance est un capital : elle se perd plus vite qu\'elle ne se construit.'
+                      : (ex>=50) ? 'Vous inspirez confiance sans vous distinguer : on vous choisit plus par défaut que par envie.'
+                                 : 'Votre présence publique dit moins que ce que vous valez : ceux qui vous cherchent vous trouvent mal.';
+        }
+        // — Ce que vous décrivez : le déséquilibre, pas la liste.
         if(b.piliers){
           var ks=Object.keys(b.piliers).filter(function(k){ return b.piliers[k]!=null; });
-          if(ks.length){
+          if(ks.length>1){
             var haut=ks.reduce(function(a,c){ return b.piliers[c]>b.piliers[a]?c:a; });
             var bas=ks.reduce(function(a,c){ return b.piliers[c]<b.piliers[a]?c:a; });
-            o.interieur='Votre appui : '+haut+' ('+b.piliers[haut]+'). Votre fragilité : '+bas+' ('+b.piliers[bas]+').';
+            var ecartPil=b.piliers[haut]-b.piliers[bas];
+            o.interieur = (ecartPil>=30)
+              ? 'Vous tenez sur « '+haut+' » et vous portez « '+bas+' » : c\'est là que ça cède quand le volume monte.'
+              : (ecartPil>=15
+                 ? '« '+bas+' » avance moins vite que le reste : rien d\'alarmant, mais c\'est ce point qui vous freinera.'
+                 : 'Votre entreprise avance d\'un bloc, sans point faible net — ni levier évident pour accélérer.');
           }
         }
-        o.quotidien='Relevé sur '+(qd.nbTaches||0)+' tâches que vous avez dictées, pas sur un déclaratif.';
-        if(ah) o.humain=ah.n+' réponse'+(ah.n>1?'s':'')+(ah.ecart!=null&&ah.n>1?(', '+ah.ecart+' points d\'écart entre elles.'):'.');
+        // — Ce que vos journées montrent : ce que la répétition prend.
+        if(qd.sujets && qd.sujets.length){
+          var s0=qd.sujets[0], nbf=(+s0.nb||0);
+          o.quotidien = nbf
+            ? '« '+String(s0.sujet||'').slice(0,42)+' » revient '+nbf+' fois : ce temps-là ne va pas à ce que vous seul pouvez faire.'
+            : 'Un même sujet occupe vos journées : ce n\'est plus un imprévu, c\'est devenu votre organisation.';
+          if(qd.nbEnCours>=10) o.quotidien+=' '+qd.nbEnCours+' tâches restent ouvertes.';
+        }
+        // — Ce que vivent vos équipes : l'écart avant la moyenne, et jamais un jugement.
+        if(ah){
+          o.humain = (ah.n<2)
+            ? 'Une seule voix, pas encore une mesure : elle indique une direction, elle ne dit pas l\'entreprise.'
+            : (ah.ecart!=null && ah.ecart>=25)
+              ? ah.ecart+' points séparent vos équipes : elles ne vivent pas la même entreprise. C\'est cet écart qu\'il faut traiter, pas la moyenne.'
+              : (ah.iat!=null && ah.iat<=40)
+                ? 'Vos équipes ne se sentent pas prêtes. Rien ne tiendra tant que ce point n\'aura pas été entendu.'
+                : (ah.iat!=null && ah.iat>=71)
+                  ? 'Vos équipes suivent et se parlent : c\'est le moment d\'oser, cette disponibilité ne dure pas.'
+                  : 'Vos équipes ne sont ni fermées ni acquises : ce qui se décidera maintenant fera pencher la suite.';
+        }
       }catch(e){}
       return o;
     })();
@@ -2964,7 +3008,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/07 · 164';
+var IVE_VERSION='31/07 · 165';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
