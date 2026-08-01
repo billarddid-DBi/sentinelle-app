@@ -2991,7 +2991,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 174';
+var IVE_VERSION='01/08 · 175';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5727,7 +5727,10 @@ function sentComplet(){
     if(typeof sentSlides==='function') sentSlides(f,'homeSlides','',header);
   };
   var _c=iveFicheDuCompte(); if(_c) return rendre(_c);
-  $('dirigeant').innerHTML=adminBar()+'<div class="card"><div class="sec" style="text-align:center;padding:26px;color:#6b7280;font-size:13px;"><span class="spin"></span><div style="margin-top:10px;">Nous rassemblons votre analyse…</div></div></div>';
+  /* Trouvé en retirant les boutons du bas (01/08) : cet écran d'attente n'avait AUCUNE sortie.
+     Une erreur renvoie bien vers l'aperçu, mais une base qui ne répond pas — pas d'erreur, pas
+     de réponse — laissait le dirigeant devant un rond qui tourne, sans rien à toucher. */
+  $('dirigeant').innerHTML=adminBar()+(typeof iveNavBar==='function'?iveNavBar('accueil'):'')+'<div class="card"><div class="sec" style="text-align:center;padding:26px;color:#6b7280;font-size:13px;"><span class="spin"></span><div style="margin-top:10px;">Nous rassemblons votre analyse…</div></div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
   var k=sentKey(acc), q=k.texte;
   if(!q||!q.trim()) return sentApercu();
@@ -5907,7 +5910,9 @@ function dicteeEnregistrerView(){
       +'</div>'
       +'<div style="display:flex;gap:7px;margin-top:18px;"><input id="dicIn" type="text" placeholder="…ou écrivez la tâche ici" onkeydown="if(event.key===\'Enter\')dicteeAjout();" style="flex:1;font-size:16px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:10px;box-sizing:border-box;font-family:inherit;"><button type="button" onclick="dicteeAjout()" style="border:none;background:#1C1C1C;color:#fff;border-radius:10px;padding:0 16px;cursor:pointer;font-size:18px;"><i class="ti ti-plus"></i></button></div>'
       +'<button class="btn btn-primary" style="margin-top:18px;" onclick="dicteeView()"><i class="ti ti-list-check"></i> Voir mes tâches'+(att?' ('+att+')':'')+'</button>'
-      +'<button class="btn btn-ghost" style="margin-top:8px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
+      /* Bouton « Retour » du bas retiré le 01/08 : depuis que la barre du haut est devenue
+         « ← Accueil », il menait au même endroit. Deux boutons pour un seul geste obligent à
+         se demander lequel prendre. */
     +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
   dicteeBrancherMicro();
@@ -6167,7 +6172,9 @@ function dicteeView(filtre){
       +(filtre==='afaire'&&tri==='ordre'&&vues.length>1?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:9px 12px;font-size:11.5px;color:#7c2d12;margin-top:12px;line-height:1.45;"><i class="ti ti-arrows-sort"></i> <b>Mon ordre</b> — utilisez les flèches <i class="ti ti-chevron-up"></i> <i class="ti ti-chevron-down"></i> à droite de chaque tâche pour les ranger comme vous voulez.</div>':'')
       +(vues.length?'<div style="font-size:11px;color:#9ca3af;margin-top:14px;text-align:center;"><i class="ti ti-arrows-horizontal"></i> Faites glisser une tâche '+(filtre==='faites'?'pour la remettre à faire':'pour la marquer faite')+' · appuyez dessus pour la régler</div>':'')
       +liste+repBloc
-      +'<button class="btn btn-ghost" style="margin-top:16px;" onclick="dirigeantSpace()"><i class="ti ti-arrow-left"></i> Retour</button>'
+      /* Bouton « Retour » du bas retiré le 01/08, comme sur l'écran d'enregistrement : la barre
+         du haut est devenue « ← Accueil » et menait déjà là. Sur une liste de tâches longue, il
+         était en plus tout en bas — donc invisible tant qu'on n'avait pas tout fait défiler. */
     +'</div></div>';
   showView('dirigeant');
   // On revient au même endroit après une action sur une tâche ; sinon, en haut (nouvel écran).
