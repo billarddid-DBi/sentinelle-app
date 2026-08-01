@@ -2991,7 +2991,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 173';
+var IVE_VERSION='01/08 · 174';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5245,6 +5245,24 @@ function iveIdentLigne(){
   if(!n) return '';
   return '<div style="font-size:11.5px;color:#9ca3af;margin-top:4px;white-space:normal;line-height:1.35;"><i class="ti ti-building-store"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>';
 }
+/* LE TITRE DES BANDEAUX « BIENVENUE » — modèle B validé par Didier le 01/08/2026.
+   Avant, deux lignes : le nom du COMPTE en blanc (« feu vert », ce qu'il avait tapé à
+   l'inscription) et, en dessous en gris minuscule, le nom OFFICIEL de l'établissement avec sa
+   ville. Le moins important était le plus visible. Une seule ligne désormais : le nom officiel
+   prend la place et la taille du blanc, précédé du pictogramme de boutique en orange.
+   REPLI ASSUMÉ : tant qu'aucune analyse n'a été faite, on ne connaît pas le nom officiel — on
+   affiche alors le nom du compte, sans pictogramme, plutôt qu'un bandeau vide. Le pictogramme
+   annonce l'établissement identifié ; le mettre devant une saisie libre serait un mensonge.
+   N'est PAS utilisé sur les écrans intérieurs : là, la ligne blanche est le titre de l'écran
+   (« Simulateur de gain »…) et l'identité reste en gris dessous, via iveIdentLigne(). */
+function iveIdentTitre(nomCompte){
+  if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var n=window.lastNom||'', v=window.lastVille||(a&&a.ville)||'';
+  var st='font-size:16px;font-weight:600;margin-top:3px;line-height:1.3;';
+  if(!n) return '<div style="'+st+'">'+esc(nomCompte||(a&&a.name)||'')+'</div>';
+  return '<div style="'+st+'"><i class="ti ti-building-store" style="color:#E8A07E;"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>';
+}
 function iveBandDroite(avecDeconnexion){
   // La mise en forme est passée en CSS (.iveHeadR) : c'est le seul moyen d'avoir une règle
   // qui change avec la largeur de l'écran — un style écrit ici ne sait pas où il s'affiche.
@@ -5470,7 +5488,7 @@ function dirigeantSpace(){
   var _verrou=!iveAbonne();
   var G=iveGrilleEtats();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(true)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div>'+iveIdentTitre(nom)+'</div>'+iveBandDroite(true)+'</div></div>'
     /* PAS DE BARRE DE RETOUR ICI : on y est déjà. iveNavBar() est devenue un « ← Accueil » et
        l'afficher sur l'accueil donnait un bouton qui ne mène nulle part. */
     /* LES DEUX GESTES DU JOUR, CÔTE À CÔTE ET COMPACTS. Le grand cercle orange occupait à lui
@@ -6254,7 +6272,7 @@ function dirigeantSpaceComplet(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
   // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
   if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
-    $('dirigeant').innerHTML=adminBar()+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
+    $('dirigeant').innerHTML=adminBar()+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div>'+iveIdentTitre(nom)+'</div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
       +'<div class="sec">'
       +'<div style="text-align:center;margin-top:2px;">'
         +'<button id="iveBtn" class="ivePastille" onclick="lancerMaSentinelle()" aria-label="Découvrir mon IVE">'
@@ -6313,7 +6331,7 @@ function dirigeantSpaceComplet(){
           window.lastSite=_f.site||'';
           var meaning='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;flex:1;min-width:158px;font-size:11.5px;color:#7c2d12;line-height:1.5;"><b><i class="ti ti-palette"></i> Ce que dit votre note</b><div style="margin-top:2px;">IVE '+esc(coul)+(_adef&&_adef.s?' — '+esc(_adef.s):'')+'.'+(_adef&&_adef.d?' '+esc(_adef.d):'')+'</div>'+(_f.valeurs?'<div style="margin-top:6px;"><b>Vos valeurs :</b> '+esc(_f.valeurs)+'</div>':'')+(_f.imagePercue?'<div style="margin-top:4px;"><b>Votre image :</b> '+esc(_f.imagePercue)+'</div>':'')+'</div>';
           var cockpit='<div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">'+band+'<div style="flex:0 0 auto;text-align:center;">'+pastille+'<div style="font-size:10px;color:#9ca3af;margin-top:7px;font-weight:600;letter-spacing:.3px;">'+(diff>0?'Prochain scan : J-'+diff:'Re-mesure disponible')+'</div></div>'+meaning+'</div>'+evo+infHtml;
-          var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
+          var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div>'+iveIdentTitre(dg.nom||acc.name||'')+'</div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
           $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>';
           if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit,header);
       };
