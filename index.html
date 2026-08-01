@@ -3016,7 +3016,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 181';
+var IVE_VERSION='01/08 · 182';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3918,11 +3918,11 @@ function ahAgregeHtml(a){
       +'<div><span style="font-size:26px;font-weight:800;color:#1C1C1C;">'+(a.iat!=null?a.iat:'–')+'</span><span style="font-size:12px;color:#9ca3af;">/100 en moyenne</span></div>'
       +(a.n>1&&a.ecart!=null?'<div style="font-size:12px;color:#4b5563;">de <b>'+a.mini+'</b> à <b>'+a.maxi+'</b> · <b style="color:'+(fracture?'#b45309':'#4b5563')+';">'+a.ecart+' points d\'écart</b></div>':'')
     +'</div>'
-    /* TEXTE REPRIS DE LA MAQUETTE DE DIDIER (01/08). L'ancien disait : « Vos équipes ne vivent
-       pas la même entreprise. La moyenne cache une fracture, et c'est elle qu'il faut traiter
-       d'abord. » Juste, mais assené — et contraire à la règle qu'il a lui-même posée : on est là
-       pour être constructif, pas critique. Le fait reste, le verdict part. */
-    +(fracture?'<div style="font-size:12px;color:#7c2d12;background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin-top:9px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;"><i class="ti ti-alert-triangle" style="color:#b45309;font-size:16px;flex:0 0 auto;"></i><span>Vos équipes ne vivent pas toutes la même réalité. L\'écart observé est un signal à prendre en compte.</span></div>':'')
+    /* L'ENCADRÉ D'ALERTE SUR L'ÉCART EST SUPPRIMÉ (Didier, 01/08). Il a d'abord été adouci —
+       « Vos équipes ne vivent pas la même entreprise, la moyenne cache une fracture » devenu
+       « ne vivent pas toutes la même réalité » — puis retiré : le chiffre juste au-dessus,
+       « 43 points d'écart » en couleur, dit déjà la même chose sans commentaire. Un fait chiffré
+       n'a pas besoin qu'on l'explique au dirigeant ; le commenter le transformait en reproche. */
     /* La liste par poste est retirée : elle répétait, en moins lisible, ce que le suivi des
        réponses affiche déjà nom par nom juste au-dessus. */
     +'<div style="font-size:11.5px;color:'+fiable.t+';margin-top:9px;line-height:1.45;"><i class="ti ti-info-circle"></i> '+fiable.m+'</div>'
@@ -4015,11 +4015,24 @@ async function ahAuto(){
    d'utile — Didier n'avait que WhatsApp. Un lien qu'on voit, qu'on sélectionne et qu'on colle
    dans son propre mail marche partout, sans dépendre du système. Le partage natif reste
    proposé en second, pour le téléphone. */
+/* GRAPHISME REPRIS DE LA MAQUETTE DE DIDIER (01/08) : un en-tête à pictogramme, une ligne de
+   conditions en petit, deux cartes de version cochables, puis l'action.
+   L'ENCADRÉ « Réponses nominatives » A ÉTÉ RETIRÉ À SA DEMANDE — et c'est sans conséquence pour
+   le salarié, ce que j'ai vérifié avant de le supprimer : il est informé LÀ OÙ ÇA COMPTE, sur sa
+   propre page (« Ce que verra votre direction : votre nom, votre poste, et chacune de vos
+   réponses »), et le message d'invitation prêt à l'emploi le redit. Cet encadré-ci ne s'adressait
+   qu'au dirigeant, qui l'a lu une fois pour toutes. */
 function ahPartageHtml(){
+  /* LE BLOC EST ISOLÉ DANS SON PROPRE CONTENEUR (01/08). Signalé par Didier : cliquer sur
+     « Court » ou « Complet » faisait remonter la page tout en haut. La cause n'était pas le
+     défilement mais le REDESSIN — changer de version rappelait ahChoice(), qui reconstruit
+     l'écran entier et se termine par un scrollTo(0,0). On ne redessine plus que ce bloc, et
+     rien ne bouge. Le suivi des réponses reste HORS du conteneur : il n'a aucune raison d'être
+     recalculé parce qu'on a changé la longueur du questionnaire. */
+  return '<div id="ahPartage">'+ahPartageInner()+'</div><div id="ahSuivi"></div>';
+}
+function ahPartageInner(){
   var m=window.__enqMode||'express';
-  /* Les deux versions deviennent des cartes cochables, comme sur la maquette : la pastille en
-     haut à gauche dit laquelle est retenue. Une bordure de couleur seule ne suffit pas — sur un
-     petit écran on ne sait plus laquelle des deux est « allumée ». */
   var bMode=function(v,lbl,sous){
     var on=(m===v);
     return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1 1 0;min-width:0;position:relative;border:2px solid '+(on?'#E8541A':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:14px;padding:16px 8px 12px;cursor:pointer;font-family:inherit;text-align:center;">'
@@ -4028,14 +4041,7 @@ function ahPartageHtml(){
       +'<div style="font-size:14px;font-weight:800;color:'+(on?'#9a3412':'#1C1C1C')+';margin-top:6px;">'+lbl+'</div>'
       +'<div style="font-size:11px;color:'+(on?'#c2410c':'#9ca3af')+';margin-top:2px;">'+sous+'</div></button>';
   };
-  /* GRAPHISME REPRIS DE LA MAQUETTE DE DIDIER (01/08) : un en-tête à pictogramme, une ligne de
-     conditions en petit, deux cartes de version cochables, puis l'action.
-     L'ENCADRÉ « Réponses nominatives » A ÉTÉ RETIRÉ À SA DEMANDE — et c'est sans conséquence
-     pour le salarié, ce que j'ai vérifié avant de le supprimer : il est informé LÀ OÙ ÇA COMPTE,
-     sur sa propre page (« Ce que verra votre direction : votre nom, votre poste, et chacune de
-     vos réponses »), et le message d'invitation prêt à l'emploi le redit. Cet encadré-ci ne
-     s'adressait qu'au dirigeant, qui l'a lu une fois pour toutes. */
-  return '<div class="card" style="overflow:hidden;">'
+  return '<div class="card" style="overflow:visible;">'
     +'<div class="sec">'
     +'<div style="display:flex;align-items:flex-start;gap:12px;">'
       +'<i class="ti ti-users-group" style="font-size:27px;color:#E8541A;flex:0 0 auto;margin-top:2px;"></i>'
@@ -4053,10 +4059,18 @@ function ahPartageHtml(){
     +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.45;">Le court favorise plus de réponses. Le complet permet une lecture plus détaillée.</div>'
     +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:14.5px;font-weight:800;padding:14px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Partager le questionnaire</button>'
     +'<div id="ahPartMsg" style="font-size:11.5px;margin-top:10px;line-height:1.5;"></div>'
-    +'</div></div>'
-    +'<div id="ahSuivi"></div>';
+    +'</div></div>';
 }
-function enqueteMode(v){ window.__enqMode=v; if(typeof ahChoice==='function') ahChoice(); }
+/* On ne redessine QUE le bloc de partage. Rappeler ahChoice() reconstruisait tout l'écran et se
+   terminait par un scrollTo(0,0) : le dirigeant, qui venait de faire défiler jusqu'ici, se
+   retrouvait en haut de la page à chaque clic. Si le conteneur n'existe pas (écran pas encore
+   monté), on retombe sur l'ancien chemin plutôt que de ne rien faire. */
+function enqueteMode(v){
+  window.__enqMode=v;
+  var z=document.getElementById('ahPartage');
+  if(z){ z.innerHTML=ahPartageInner(); return; }
+  if(typeof ahChoice==='function') ahChoice();
+}
 /* Affiche le lien EN CLAIR, sélectionnable, avec deux copies possibles : le lien seul (pour
    celui qui rédige son propre message) ou le message complet (pour aller vite). */
 async function enqueteLienAfficher(btn){
