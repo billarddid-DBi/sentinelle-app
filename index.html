@@ -3016,7 +3016,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 180';
+var IVE_VERSION='01/08 · 181';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3908,7 +3908,7 @@ async function ahAgreger(){
 function ahAgregeHtml(a){
   if(!a) return '';
   // 1 réponse n'est pas une mesure d'entreprise : c'est l'avis d'une personne. On le DIT.
-  var fiable = a.n>=3 ? {t:'#15803d',f:'#f0fdf4',b:'#bbf7d0',m:a.n+' réponses : la tendance est lisible.'}
+  var fiable = a.n>=3 ? {t:'#15803d',f:'#f0fdf4',b:'#bbf7d0',m:a.n+' réponses reçues : une première tendance se dessine.'}
              : a.n===2 ? {t:'#b45309',f:'#fff7ed',b:'#fed7aa',m:'2 réponses seulement : à confirmer, mais l\'écart entre elles est déjà instructif.'}
              :           {t:'#991b1b',f:'#fef2f2',b:'#fecaca',m:'1 seule réponse : c\'est l\'avis d\'une personne, pas la maturité de l\'entreprise.'};
   var fracture = (a.ecart!=null && a.ecart>=25);
@@ -3916,32 +3916,62 @@ function ahAgregeHtml(a){
     +'<div style="font-size:12.5px;font-weight:800;color:'+fiable.t+';"><i class="ti ti-chart-dots"></i> Ce que disent vos salariés</div>'
     +'<div style="display:flex;gap:14px;align-items:baseline;margin-top:8px;flex-wrap:wrap;">'
       +'<div><span style="font-size:26px;font-weight:800;color:#1C1C1C;">'+(a.iat!=null?a.iat:'–')+'</span><span style="font-size:12px;color:#9ca3af;">/100 en moyenne</span></div>'
-      +(a.n>1&&a.ecart!=null?'<div style="font-size:12px;color:#4b5563;">du plus bas <b>'+a.mini+'</b> au plus haut <b>'+a.maxi+'</b> — <b style="color:'+(fracture?'#991b1b':'#4b5563')+';">'+a.ecart+' points d\'écart</b></div>':'')
+      +(a.n>1&&a.ecart!=null?'<div style="font-size:12px;color:#4b5563;">de <b>'+a.mini+'</b> à <b>'+a.maxi+'</b> · <b style="color:'+(fracture?'#b45309':'#4b5563')+';">'+a.ecart+' points d\'écart</b></div>':'')
     +'</div>'
-    +(fracture?'<div style="font-size:12px;color:#991b1b;background:#fff;border:1px solid #fecaca;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.5;"><b><i class="ti ti-alert-triangle"></i> Vos équipes ne vivent pas la même entreprise.</b> '+a.ecart+' points séparent le plus optimiste du plus critique : la moyenne cache une fracture, et c\'est elle qu\'il faut traiter d\'abord.</div>':'')
-    +(a.parPoste&&a.parPoste.length>1?('<div style="margin-top:9px;">'+a.parPoste.map(function(p){
-        return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#4b5563;border-top:1px solid rgba(0,0,0,.05);padding:5px 0;"><span>'+esc(p.poste)+(p.n>1?(' <span style="color:#9ca3af;">×'+p.n+'</span>'):'')+'</span><b style="color:#1C1C1C;">'+p.iat+'/100</b></div>';
-      }).join('')+'</div>'):'')
+    /* TEXTE REPRIS DE LA MAQUETTE DE DIDIER (01/08). L'ancien disait : « Vos équipes ne vivent
+       pas la même entreprise. La moyenne cache une fracture, et c'est elle qu'il faut traiter
+       d'abord. » Juste, mais assené — et contraire à la règle qu'il a lui-même posée : on est là
+       pour être constructif, pas critique. Le fait reste, le verdict part. */
+    +(fracture?'<div style="font-size:12px;color:#7c2d12;background:#fff;border:1px solid #fed7aa;border-radius:10px;padding:9px 11px;margin-top:9px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;"><i class="ti ti-alert-triangle" style="color:#b45309;font-size:16px;flex:0 0 auto;"></i><span>Vos équipes ne vivent pas toutes la même réalité. L\'écart observé est un signal à prendre en compte.</span></div>':'')
+    /* La liste par poste est retirée : elle répétait, en moins lisible, ce que le suivi des
+       réponses affiche déjà nom par nom juste au-dessus. */
     +'<div style="font-size:11.5px;color:'+fiable.t+';margin-top:9px;line-height:1.45;"><i class="ti ti-info-circle"></i> '+fiable.m+'</div>'
     /* Le bouton « Utiliser ces réponses dans mon analyse » a disparu (31/07/2026). C'était une
        friction pour rien — la lecture est gratuite — et surtout un piège : sans le clic, le
        MIROIR se bâtissait sur le seul regard du dirigeant, sans que rien ne le prévienne que
        l'avis de ses équipes existait. C'est pris en compte d'office, on le lui dit. */
-    +'<div style="font-size:11.5px;color:#15803d;margin-top:9px;line-height:1.45;"><i class="ti ti-circle-check"></i> <b>Pris en compte dans votre analyse.</b> Régénérez votre MIROIR pour que le plan en tienne compte.</div>'
+    /* « Régénérez votre MIROIR pour que le plan en tienne compte » est retiré : depuis les
+       repères de fraîcheur, la tuile MIROIR de l'accueil affiche d'elle-même « À rafraîchir »
+       dès qu'une réponse arrive. L'injonction faisait doublon avec un signal mieux placé. */
+    +'<div style="font-size:11.5px;color:#15803d;margin-top:9px;line-height:1.45;"><i class="ti ti-circle-check"></i> Ces réponses sont <b>intégrées à votre analyse</b>.</div>'
     +'<div id="ahAppMsg" style="font-size:11.5px;margin-top:7px;"></div>'
   +'</div>';
 }
 /* Le suivi : combien de réponses, de qui. Sans ça, le dirigeant partage et attend dans le vide. */
+/* Chaque salarié tape son nom comme il veut : « DUPONT michel », « paul auchon ». Aligné dans
+   une liste, ça se lit mal. On corrige la CASSE à l'affichage seulement — jamais en base, ce
+   qu'il a écrit reste ce qu'il a écrit — et on ne réordonne pas prénom/nom : impossible de
+   savoir lequel est lequel sans se tromper un jour sur deux. */
+function ahNomPropre(s){
+  s=(s||'').trim();
+  if(!s) return '';
+  return s.split(/\s+/).map(function(m){
+    return m.charAt(0).toLocaleUpperCase('fr')+m.slice(1).toLocaleLowerCase('fr');
+  }).join(' ');
+}
 async function enqueteSuivi(){
   var z=$('ahSuivi'); if(!z) return;
   var rep=await enqueteRecues();
-  if(!rep.length){ z.innerHTML='<div style="font-size:11.5px;color:#9ca3af;">Aucune réponse reçue pour l\'instant.</div>'; return; }
-  z.innerHTML='<div style="font-size:12px;font-weight:700;color:#1C1C1C;"><i class="ti ti-inbox"></i> '+rep.length+' réponse'+(rep.length>1?'s':'')+' reçue'+(rep.length>1?'s':'')+' sur 10 possibles</div>'
+  var cadre=function(inner){
+    return '<div class="card" style="overflow:hidden;margin-top:10px;"><div class="sec">'
+      +'<div style="display:flex;align-items:center;gap:11px;">'
+        +'<i class="ti ti-users-group" style="font-size:24px;color:#E8541A;flex:0 0 auto;"></i>'
+        +'<div style="font-size:15px;font-weight:800;color:#1C1C1C;">Suivi des réponses</div>'
+      +'</div>'+inner+'</div></div>';
+  };
+  if(!rep.length){
+    z.innerHTML=cadre('<div style="font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.45;">Aucune réponse pour l\'instant. Les noms apparaîtront ici au fur et à mesure.</div>');
+    return;
+  }
+  z.innerHTML=cadre(
+    '<div style="font-size:12px;color:#6b7280;margin-top:3px;">'+rep.length+' réponse'+(rep.length>1?'s':'')+' reçue'+(rep.length>1?'s':'')+' sur 10 invitations</div>'
+    +'<div style="margin-top:10px;">'
     +rep.map(function(x){
-      return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#4b5563;border-top:1px solid #eef0f3;padding:6px 0;">'
-        +'<span><b style="color:#1C1C1C;">'+esc(x.nom||'')+'</b> — '+esc(x.poste||'')+'</span>'
-        +'<span style="white-space:nowrap;color:#9ca3af;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
-    }).join('');
+      return '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px solid #eef0f3;padding:9px 0;">'
+        +'<span style="font-size:13px;color:#4b5563;min-width:0;"><b style="color:#1C1C1C;">'+esc(ahNomPropre(x.nom))+'</b>'+(x.poste?' · '+esc(x.poste):'')+'</span>'
+        +'<span style="white-space:nowrap;font-size:13px;font-weight:800;color:#E8541A;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
+    }).join('')
+    +'</div>');
   // La synthèse : moyennes, écarts, fracture éventuelle. PRISE EN COMPTE d'office (cf. ahAuto).
   var a=await ahAgreger();
   if(a){ window.lastAH=a; try{ if(typeof cpSnapshot==='function') cpSnapshot(); }catch(e){} z.innerHTML+=ahAgregeHtml(a); }
@@ -3987,27 +4017,44 @@ async function ahAuto(){
    proposé en second, pour le téléphone. */
 function ahPartageHtml(){
   var m=window.__enqMode||'express';
+  /* Les deux versions deviennent des cartes cochables, comme sur la maquette : la pastille en
+     haut à gauche dit laquelle est retenue. Une bordure de couleur seule ne suffit pas — sur un
+     petit écran on ne sait plus laquelle des deux est « allumée ». */
   var bMode=function(v,lbl,sous){
     var on=(m===v);
-    return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1;min-width:0;border:1.5px solid '+(on?'#E8541A':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';color:'+(on?'#9a3412':'#6b7280')+';border-radius:11px;padding:9px 8px;cursor:pointer;font-family:inherit;">'
-      +'<div style="font-size:12.5px;font-weight:800;">'+lbl+'</div><div style="font-size:10.5px;margin-top:1px;">'+sous+'</div></button>';
+    return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1 1 0;min-width:0;position:relative;border:2px solid '+(on?'#E8541A':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:14px;padding:16px 8px 12px;cursor:pointer;font-family:inherit;text-align:center;">'
+      +(on?'<span style="position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#E8541A;display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="font-size:14px;color:#fff;"></i></span>':'')
+      +'<i class="ti ti-clipboard-list" style="font-size:25px;color:'+(on?'#E8541A':'#9ca3af')+';"></i>'
+      +'<div style="font-size:14px;font-weight:800;color:'+(on?'#9a3412':'#1C1C1C')+';margin-top:6px;">'+lbl+'</div>'
+      +'<div style="font-size:11px;color:'+(on?'#c2410c':'#9ca3af')+';margin-top:2px;">'+sous+'</div></button>';
   };
-  return '<div class="card" style="border:1.5px solid #fed7aa;overflow:hidden;">'
-    +'<div style="background:#fff7ed;padding:13px 15px;"><div style="font-size:13.5px;font-weight:800;color:#9a3412;"><i class="ti ti-share"></i> Demander l\'avis de vos salariés</div>'
-    +'<div style="font-size:11.5px;color:#7c2d12;margin-top:3px;line-height:1.45;">Jusqu\'à 10 personnes. Chacune répond depuis son téléphone, sans créer de compte.</div></div>'
+  /* GRAPHISME REPRIS DE LA MAQUETTE DE DIDIER (01/08) : un en-tête à pictogramme, une ligne de
+     conditions en petit, deux cartes de version cochables, puis l'action.
+     L'ENCADRÉ « Réponses nominatives » A ÉTÉ RETIRÉ À SA DEMANDE — et c'est sans conséquence
+     pour le salarié, ce que j'ai vérifié avant de le supprimer : il est informé LÀ OÙ ÇA COMPTE,
+     sur sa propre page (« Ce que verra votre direction : votre nom, votre poste, et chacune de
+     vos réponses »), et le message d'invitation prêt à l'emploi le redit. Cet encadré-ci ne
+     s'adressait qu'au dirigeant, qui l'a lu une fois pour toutes. */
+  return '<div class="card" style="overflow:hidden;">'
     +'<div class="sec">'
-    +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;">Le questionnaire n\'est <b>pas anonyme</b> : vous verrez le nom, le poste et les réponses de chacun. '
-      +'C\'est un choix — le nom engage celui qui répond et écarte les réponses faites au hasard. Le salarié en est informé avant de commencer, et reste libre de refuser.</div>'
-    +'<div style="font-size:11.5px;font-weight:700;color:#1C1C1C;margin-top:14px;">Quelle longueur ?</div>'
-    +'<div style="display:flex;gap:8px;margin-top:6px;">'
+    +'<div style="display:flex;align-items:flex-start;gap:12px;">'
+      +'<i class="ti ti-users-group" style="font-size:27px;color:#E8541A;flex:0 0 auto;margin-top:2px;"></i>'
+      +'<div style="min-width:0;">'
+        +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;line-height:1.25;">Inviter vos salariés</div>'
+        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.45;margin-top:2px;">Envoyez un lien pour recueillir leur ressenti.</div>'
+      +'</div>'
+    +'</div>'
+    +'<div style="font-size:11px;color:#9ca3af;line-height:1.45;margin-top:9px;"><i class="ti ti-device-mobile"></i> Jusqu\'à 10 personnes · réponse depuis le téléphone · sans compte</div>'
+    +'<div style="font-size:12.5px;font-weight:700;color:#1C1C1C;margin-top:15px;">Choisissez la version</div>'
+    +'<div style="display:flex;gap:9px;margin-top:7px;">'
       +bMode('express','Court','12 questions · 5 min')
       +bMode('complet','Complet','30 questions · 15 min')
     +'</div>'
-    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.45;">Le court obtient nettement plus de réponses. Le complet mesure plus finement — à réserver aux équipes déjà motivées.</div>'
-    +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:14.5px;font-weight:800;padding:13px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Obtenir le lien à envoyer</button>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.45;">Le court favorise plus de réponses. Le complet permet une lecture plus détaillée.</div>'
+    +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:14.5px;font-weight:800;padding:14px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Partager le questionnaire</button>'
     +'<div id="ahPartMsg" style="font-size:11.5px;margin-top:10px;line-height:1.5;"></div>'
-    +'<div id="ahSuivi" style="margin-top:12px;"></div>'
-    +'</div></div>';
+    +'</div></div>'
+    +'<div id="ahSuivi"></div>';
 }
 function enqueteMode(v){ window.__enqMode=v; if(typeof ahChoice==='function') ahChoice(); }
 /* Affiche le lien EN CLAIR, sélectionnable, avec deux copies possibles : le lien seul (pour
