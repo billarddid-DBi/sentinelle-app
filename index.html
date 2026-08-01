@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 188';
+var IVE_VERSION='01/08 · 189';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5314,7 +5314,11 @@ function pmPrioFetch(){ var o=pmLoad(),t=pmDay(o); if(t.prio||window.pmFetching)
     .then(function(x){ done((x&&x.action)?{action:x.action,objectif:x.objectif||'Ton cap',pourquoi:x.pourquoi||'',type:x.type||'humain'}:{action:'Prends la température de l\'équipe ce matin, un mot à chacun.',objectif:'Écoute',pourquoi:'Rien ne vaut le contact direct pour sentir l\'ambiance.',type:'humain'}); })
     .catch(function(){ done({action:'Avance d\'un pas sur ta feuille de route aujourd\'hui.',objectif:'Ton cap',pourquoi:'La régularité fait la transformation.',type:'humain'}); }); }
 // Admin = un seul email (billard.did@gmail.com). Côté serveur c'est prof.role==='admin' (is_admin) qui fait foi ;
-// ici c'est purement UI : afficher le bouton « Nouvelle analyse » et la vue consultant complète.
+/* ici c'est purement UI : afficher le bouton « Analyser un prospect » et la vue consultant.
+   RENOMMÉ le 01/08 — il s'appelait « Nouvelle analyse » et Didier s'est fait avoir : « j'ai un
+   bouton qui me ramène à une recherche ??? ». Le libellé se lisait « relancer MON analyse »,
+   alors qu'il fait basculer l'application en mode consultant sur une AUTRE entreprise. Un
+   bouton qui change de contexte doit le dire dans son nom, pas seulement dans l'écran suivant. */
 function iveIsAdmin(){ return !!(window.currentUser && (window.currentUser.email||'').toLowerCase()==='billard.did@gmail.com'); }
 // Abonné à la BOUSSOLE ? admin, ou prix>0, ou choix simulé (tant que le vrai paiement n'est pas branché).
 // Formule choisie : mémorisée par compte, pour qu'elle survive au rechargement (paiement simulé).
@@ -5523,7 +5527,7 @@ function adminBar(){
   return '<div style="background:#1C1C1C;border:1px solid #3f3f46;border-radius:12px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'
     +'<div style="font-size:11.5px;color:#e5e7eb;line-height:1.2;"><i class="ti ti-shield-check" style="color:#E8541A;"></i> <b>Mode admin</b> · DBi360<div style="font-size:9.5px;color:#9ca3af;margin-top:1px;">Vue consultant complète débloquée</div></div>'
     +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-right:6px;"><i class="ti ti-stethoscope"></i> Contrôle</button>'
-    +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Nouvelle analyse</button>'
+    +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Analyser un prospect</button>'
     +'</div>';
 }
 /* ===================== ACCUEIL DIRIGEANT — DEUX PORTES =====================
