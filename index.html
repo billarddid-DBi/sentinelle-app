@@ -2991,7 +2991,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 172';
+var IVE_VERSION='01/08 · 173';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5497,14 +5497,20 @@ function dirigeantSpace(){
        porte son ÉTAT — c'est ce qui manque à une grille d'app d'atelier, où toutes les fonctions
        sont indépendantes. Ici il y a un ordre : sans état, on tape MIROIR en premier et on
        reçoit « il vous manque l'une des deux ». */
+    /* DEUX SECTIONS AU LIEU D'UNE (demande de Didier, 01/08) : d'abord CE QU'IL DONNE, ensuite
+       CE QUE L'APPLICATION EN TIRE. Les six tuiles étaient mélangées, l'ordre ne racontait rien.
+       Là, la lecture de haut en bas suit exactement le chemin : on renseigne, puis on lit. */
+    +'<div class="ivSect">VOS INFORMATIONS</div>'
+    +'<div class="ivGrille">'
+      +ivTuile('ti-clipboard-list','Questionnaire dirigeant','iveNav(\'questionnaire\')',G.quest.txt,G.quest.ton,_verrou)
+      +ivTuile('ti-users-group','Questionnaire salariés','ahChoice()',G.sal.txt,G.sal.ton,_verrou)
+      +ivTuile('ti-map-2','Carte de la concurrence','boussoleOutil(\'concurrence\')',G.conc.txt,G.conc.ton,_verrou)
+    +'</div>'
     +'<div class="ivSect">VOTRE DIAGNOSTIC</div>'
     +'<div class="ivGrille">'
       +ivTuile('ti-radar-2','SENTINELLE','sentApercu()',G.sent.txt,G.sent.ton,false)
-      +ivTuile('ti-clipboard-list','Questionnaire dirigeant','iveNav(\'questionnaire\')',G.quest.txt,G.quest.ton,_verrou)
-      +ivTuile('ti-users-group','Questionnaire salariés','ahChoice()',G.sal.txt,G.sal.ton,_verrou)
       +ivTuile('ti-compass','BOUSSOLE','iveNav(\'boussole\')',G.bou.txt,G.bou.ton,_verrou)
       +ivTuile('ti-sparkles','MIROIR','runMiroir()',G.mir.txt,G.mir.ton,_verrou)
-      +ivTuile('ti-map-2','Carte de la concurrence','boussoleOutil(\'concurrence\')',G.conc.txt,G.conc.ton,_verrou)
     +'</div>'
     +'<div class="ivSect">VOTRE PLAN &amp; VOTRE COMPTE</div>'
     +'<div class="ivGrille">'
@@ -5526,6 +5532,32 @@ function dirigeantSpace(){
     +(iveIsAdmin()?'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="dirigeantSpaceComplet();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-lock-open"></i> Vue complète (admin)</a></div>':'')
     +'<div class="foot" style="margin-top:14px;"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+'</div>';
   showView('dirigeant'); window.scrollTo(0,0);
+  iveGrilleFicheAsync();
+}
+/* LA TUILE SENTINELLE MENTAIT À LA CONNEXION. Signalé par la capture de Didier le 01/08 : elle
+   affichait « À lancer » alors que son analyse était faite et payée. Sa note vient de la fiche
+   SENTINELLE, et cette fiche n'est PAS en mémoire quand on arrive sur l'accueil — les cinq
+   autres tuiles lisent des données locales, elles étaient justes, ce qui rendait la seule
+   fausse d'autant plus trompeuse. Même cause que le MIROIR ouvert directement (v169).
+   On va chercher la fiche en arrière-plan et on redessine SI ELLE ARRIVE. Trois précautions :
+   le témoin est relâché DANS la réponse (un témoin posé d'avance condamne la session si la
+   première lecture échoue) ; on ne redessine que si la note est réellement apparue, sinon on
+   bouclerait ; et on ne redessine QUE si la grille est encore à l'écran — sinon on ramènerait
+   le dirigeant de force sur l'accueil au milieu de ce qu'il était en train de lire. */
+function iveGrilleFicheAsync(){
+  try{
+    var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+    if(f.indice && f.indice.estime!=null) return;
+    if(typeof iveChargerFiche!=='function' || window.__grilleFicheEnVol) return;
+    window.__grilleFicheEnVol=1;
+    iveChargerFiche(function(){
+      window.__grilleFicheEnVol=0;
+      var g=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+      if(!(g.indice && g.indice.estime!=null)) return;                 // rien de neuf : on ne touche à rien
+      if(!document.querySelector('#dirigeant .ivTuile')) return;        // il a quitté l'accueil
+      dirigeantSpace();
+    });
+  }catch(e){ window.__grilleFicheEnVol=0; }
 }
 
 /* --- APERÇU SENTINELLE : la couleur et l'objectif. Rien d'autre — la suite est payante. --- */
