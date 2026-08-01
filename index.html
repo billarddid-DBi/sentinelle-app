@@ -1392,9 +1392,18 @@ function startGrille(mode){
     +'<span style="color:#d7dbe3;">|</span>'
     +'<span onclick="showView(\'bChoice\')" style="cursor:pointer;color:#6b7280;">← Retour</span></div>';
   $('bGrille').innerHTML=html;
-  // On remet les réponses déjà données (même formule uniquement) : le questionnaire se modifie.
+  /* ON REMET LES RÉPONSES DÉJÀ DONNÉES, QUELLE QUE SOIT LA FORMULE ROUVERTE.
+     Avant le 01/08 la condition exigeait `sv.mode===mode` : passer de l'Express au Complet
+     effaçait les 40 réponses déjà saisies. Or les 40 critères de l'Express sont EXACTEMENT les
+     premiers de chaque sous-domaine du Complet — mêmes questions, mêmes identifiants. Le
+     dirigeant refaisait donc à l'identique un travail qu'il avait déjà fait.
+     Pire : l'écran de choix promettait noir sur blanc « Vous pourrez passer de l'Express au
+     Complet à tout moment, vos données sont conservées ». La promesse était fausse depuis le
+     début. On la rend vraie plutôt que de la retirer.
+     La restauration se fait par IDENTIFIANT : un critère absent de la formule ouverte est
+     simplement ignoré, et repassé du Complet à l'Express on retrouve ses 40 réponses. */
   var sv=(typeof bouGrilleStore!=='undefined')?bouGrilleStore.load():null;
-  if(sv && sv.mode===mode && sv.notes){
+  if(sv && sv.notes){
     window.bResto=1;
     items.forEach(function(it){
       var o=sv.notes[it.id]; if(!o) return;
@@ -2377,18 +2386,28 @@ function offreView(){
    SOURCE UNIQUE : ne jamais recopier ce bloc ailleurs. */
 /* Gabarit des ecrans de choix de parcours (BOUSSOLE et salaries) - SOURCE UNIQUE. */
 function parcoursLigne(ic,txt){
-    return '<div style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:10px 12px;margin-top:7px;">'
+    // align-items:flex-start depuis que certaines lignes tiennent sur trois lignes de texte :
+    // centrée, l'icône se retrouvait au milieu du paragraphe au lieu d'être en tête.
+    return '<div style="display:flex;align-items:flex-start;gap:10px;background:#fff;border-radius:10px;padding:10px 12px;margin-top:7px;">'
       +'<i class="ti '+ic+'" style="font-size:17px;color:#6b7280;flex:0 0 auto;"></i>'
       +'<span style="font-size:12.5px;color:#1C1C1C;line-height:1.35;">'+txt+'</span></div>';
 }
+/* LA CARTE EST LE BOUTON (décision Didier, 01/08). Les deux boutons « Commencer le parcours »
+   qui la surplombaient ont disparu : ils faisaient choisir deux fois. Mais une carte cliquable
+   sans rien qui le signale ne se fait pas toucher sur un téléphone — il n'y a pas de survol pour
+   le découvrir. D'où la bande colorée en bas, qui appartient à la carte et l'annonce.
+   `display:flex;flex-direction:column` + `flex:1` sur les lignes : les deux cartes gardent la
+   même hauteur et leurs deux bandes s'alignent, même si l'une a un texte plus long. */
 function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
-    return '<div style="flex:1 1 250px;min-width:0;background:'+fond+';border:1px solid '+bord+';border-radius:16px;padding:18px 15px;">'
+    return '<div onclick="'+action+'" style="flex:1 1 250px;min-width:0;background:'+fond+';border:2px solid '+bord+';border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;">'
+      +'<div style="padding:18px 15px 0;">'
       +'<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+icone+'" style="font-size:25px;color:'+coul+';"></i></div>'
       +'<div style="text-align:center;font-size:17px;font-weight:800;color:'+coul+';line-height:1.2;margin-top:10px;letter-spacing:.3px;">'+titre+'</div>'
       +'<div style="height:1px;background:'+bord+';margin:11px 6px;"></div>'
       +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
-      +'<div style="margin-top:10px;">'+lignes+'</div>'
-      /* Les boutons de départ sont remontés au-dessus des deux cartes (décision Didier). */
+      +'</div>'
+      +'<div style="padding:10px 13px 14px;flex:1;">'+lignes+'</div>'
+      +'<div style="background:'+coul+';color:#fff;text-align:center;padding:13px;font-size:13.5px;font-weight:800;">'+libBouton+' <i class="ti ti-arrow-right"></i></div>'
     +'</div>';
 }
 /* Petit registre des actions déjà faites (par compte) : sert aux états « Terminé / À faire ». */
@@ -2991,7 +3010,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 176';
+var IVE_VERSION='01/08 · 177';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6757,7 +6776,16 @@ var bouGrilleStore={
          Même règle que majEmpreinteDirigeant : une fonction qui ne peut pas mesurer se tait.
          Ici c'est plus grave encore — l'autre inventait une valeur, celle-ci détruisait. */
       if(!vus) return;
-      localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:n,ts:Date.now()}));
+      /* ON FUSIONNE AVEC CE QUI EST DÉJÀ ENREGISTRÉ, ON NE REMPLACE PAS.
+         Depuis que les réponses se reprennent d'une formule à l'autre (01/08), la grille Express
+         n'affiche que 40 des 200 critères : écrire seulement ce qu'elle contient effacerait en
+         silence les 160 réponses du Complet. Même faute que celle du 31/07 — enregistrer moins
+         que ce qu'on a — sous une forme plus discrète, puisque le compteur afficherait 40/40.
+         Un critère n'est donc écrasé que si le dirigeant vient de le voir à l'écran. */
+      var anc=bouGrilleStore.load();
+      var fusion=(anc&&anc.notes)?anc.notes:{};
+      for(var k in n){ if(Object.prototype.hasOwnProperty.call(n,k)) fusion[k]=n[k]; }
+      localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:fusion,ts:Date.now()}));
     }catch(e){}
   },
   clear:function(){ try{ localStorage.removeItem(bouGrilleStore.key()); }catch(e){} }
@@ -7341,26 +7369,42 @@ function boussoleParcours(){
       +'<div>'
         +'<div style="font-size:14px;font-weight:800;color:#E8541A;">Bonjour 👋</div>'
         +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;margin-top:4px;">Quel parcours<br>souhaitez-vous <span style="color:#E8541A;">choisir&nbsp;?</span></div>'
-        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">Le même référentiel. Deux niveaux d\'accompagnement pour répondre à vos besoins.</div>'
+        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">Le même référentiel. Deux niveaux de profondeur.</div>'
       +'</div>'
-      // On choisit d'abord, on lit le détail ensuite : les deux départs sont juste sous l'entreprise.
-      +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
-        +'<button type="button" onclick="boussoleDemarrer(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le parcours Express <i class="ti ti-arrow-right"></i></button>'
-        +'<button type="button" onclick="boussoleDemarrer(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#2563EB;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le parcours Complet <i class="ti ti-arrow-right"></i></button>'
-      +'</div>'
-      // Les deux parcours
+      /* LES COLONNES NE PORTENT QUE CE QUI DIFFÈRE. « 3 à 5 actions prioritaires », le plan sur
+         12 mois et l'accompagnement sont vrais des DEUX côtés : mis en vis-à-vis, ils diluaient
+         la différence au lieu de rassurer. Ils descendent dans un bandeau commun.
+         Le vrai écart n'est pas commercial, il est mécanique et vérifiable dans buildItems() :
+         l'Express prend le PREMIER critère de chaque sous-domaine, le Complet les prend TOUS —
+         5 par pilier contre 25. L'Express dit donc quel pilier est faible ; le Complet dit où,
+         à l'intérieur du pilier. C'est ça, et rien d'autre, que le second apporte de plus. */
       +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
         +carte('#E8541A','#fffaf6','#fed7aa','ti-bolt','BOUSSOLE<br>EXPRESS','Comprendre l\'essentiel rapidement',
-            ligne('ti-target-arrow','40 critères prioritaires')+ligne('ti-clock','Environ 1 h 30')+ligne('ti-star','3 à 5 actions prioritaires')+ligne('ti-chart-line','Une première vision claire de vos priorités'),
-            'Commencer le parcours Express','boussoleDemarrer(\'express\')')
-        +carte('#2563EB','#f5f8ff','#dbe7fb','ti-compass','BOUSSOLE<br>COMPLET','Construire votre feuille de route',
-            ligne('ti-checkbox','Référentiel complet')+ligne('ti-list-details','200 critères détaillés')+ligne('ti-map','Plan d\'action sur 12 mois')+ligne('ti-users-group','Accompagnement dans la durée'),
-            'Commencer le parcours Complet','boussoleDemarrer(\'complet\')')
+            ligne('ti-target-arrow','<b>40 critères prioritaires</b><br><span style="color:#9ca3af;font-size:11px;">5 par pilier</span>')
+            +ligne('ti-clock','<b>Environ 30 minutes</b>')
+            +ligne('ti-eye','Une <b>première vision claire</b> de vos priorités'),
+            'Commencer l\'Express','boussoleDemarrer(\'express\')')
+        +carte('#2563EB','#f5f8ff','#dbe7fb','ti-compass','BOUSSOLE<br>COMPLET','Situer précisément ce qui bloque',
+            ligne('ti-target-arrow','<b>Les 40 mêmes critères<br>+ 160 complémentaires</b><br><span style="color:#9ca3af;font-size:11px;">25 par pilier au lieu de 5</span>')
+            +ligne('ti-clock','<b>Environ 1 h 30</b>')
+            +ligne('ti-zoom-check','Une <b>vision détaillée</b> : le point faible situé <b>à l\'intérieur</b> de chaque pilier, pas seulement le pilier'),
+            'Commencer le Complet','boussoleDemarrer(\'complet\')')
       +'</div>'
-      // Rassurance
-      +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
+      // Ce qui est commun, dit UNE fois : ça rassure sans brouiller le choix.
+      +'<div style="border:1px solid #eef0f3;background:#fff;border-radius:14px;padding:13px 15px;margin-top:12px;">'
+        +'<div style="font-size:10.5px;font-weight:800;letter-spacing:.5px;color:#9ca3af;">DANS LES DEUX CAS, VOUS OBTENEZ</div>'
+        +'<div style="display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:8px;">'
+          +['3 à 5 actions prioritaires','Un plan d\'action sur 12 mois','Un accompagnement dans la durée'].map(function(t){
+            return '<div style="display:flex;gap:7px;align-items:center;font-size:12.5px;color:#374151;"><i class="ti ti-circle-check" style="color:#15803d;font-size:16px;"></i> '+t+'</div>';
+          }).join('')
+        +'</div>'
+      +'</div>'
+      /* Cette promesse était AFFICHÉE ET FAUSSE : jusqu'au 01/08, passer de l'Express au Complet
+         effaçait les 40 réponses déjà données. C'est startGrille() qui a été corrigé — on rend la
+         phrase vraie plutôt que de la retirer. Elle est maintenant chiffrée : « ces 40-là ». */
+      +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:12px;">'
         +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-refresh" style="font-size:19px;color:#6b7280;"></i></div>'
-        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">Vous pourrez passer de l\'Express au Complet à tout moment.</b><br>Vos données sont conservées et votre progression sauvegardée.</div>'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">Commencez par l\'Express, complétez plus tard si vous le souhaitez.</b><br>Les 40 critères déjà renseignés sont repris : vous ne les referez pas.</div>'
       +'</div>'
       +'<div id="bParcMsg" style="margin-top:12px;"></div>'
       /* Bouton Retour retiré : la navigation se fait par les bandeaux du haut. */
