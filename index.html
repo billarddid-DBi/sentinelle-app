@@ -1173,6 +1173,27 @@ function miroirCompleter(b){
   }catch(e){}
   return b;
 }
+/* L'INDICE EXTÉRIEUR VIENT DE LA FICHE SENTINELLE, et elle n'est PAS chargée à la connexion.
+   miroirCompleter() ne peut donc rien en tirer si on ouvre le MIROIR directement : la colonne
+   « ce que les autres voient » restait à « – », alors qu'un détour par SENTINELLE la
+   remplissait (signalé deux fois par Didier — ma correction d'hier ne traitait que l'indice
+   intérieur, qui lui vient du questionnaire déjà en mémoire).
+   On va donc chercher la fiche EN ARRIÈRE-PLAN et on redessine quand elle arrive, comme pour
+   les réponses des salariés. Le témoin est relâché dans la réponse, jamais avant : un témoin
+   posé d'avance bloque toute nouvelle tentative si la première échoue. */
+function miroirCompleterAsync(b){
+  if(!b || b.indiceExterieur!=null) return;
+  if(typeof iveChargerFiche!=='function' || window.__mirFicheEnVol) return;
+  window.__mirFicheEnVol=1;
+  try{
+    iveChargerFiche(function(){
+      window.__mirFicheEnVol=0;
+      var avant=b.indiceExterieur;
+      miroirCompleter(b);
+      if(b.indiceExterieur!=avant && typeof renderMiroir==='function') renderMiroir();
+    });
+  }catch(e){ window.__mirFicheEnVol=0; }
+}
 function runMiroir(forcer){
   var b=window.lastMiroir;
   // Complété AVANT les retours anticipés : un MIROIR relu doit afficher ses deux indices.
@@ -1188,6 +1209,7 @@ function runMiroir(forcer){
     window.miroirPerime=(typeof majDepuis==='function')?(majDepuis(sv.ts).length>0):false;
     window.miroirNouveau=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
     window.miroirData=sv.m; window.miroirAud='externe';
+    miroirCompleterAsync(b);   // la fiche SENTINELLE arrive apres : on redessinera
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
   if(!b){ alert('Terminez d\'abord une BOUSSOLE — le MIROIR en a besoin.'); return; }
@@ -1199,6 +1221,7 @@ function runMiroir(forcer){
     window.miroirNouveau=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
     window.miroirPerime=(window.miroirNouveau.length>0);   // une source a bougé APRÈS cette analyse
     window.miroirData=sv.m; window.miroirAud='externe';
+    miroirCompleterAsync(b);   // la fiche SENTINELLE arrive apres : on redessinera
     showView('miroir'); renderMiroir(); window.scrollTo(0,0); return;
   }
   showView('miroir');
@@ -3032,7 +3055,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 168';
+var IVE_VERSION='01/08 · 169';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
