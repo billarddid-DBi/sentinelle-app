@@ -3020,7 +3020,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 190';
+var IVE_VERSION='01/08 · 191';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5471,17 +5471,35 @@ async function santeView(){
     if(!window.sb){ h=santeLigne('inconnu','Hors ligne.','Impossible d\'interroger la base depuis cet appareil.',''); }
     else{
       var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
-      // 1. UNE SEULE ENTREPRISE PAR COMPTE. Deux, et les données se répartissent entre elles.
-      var re=await window.sb.from('entreprises').select('id,nom,cree_le');
-      var ents=(re && !re.error && re.data)?re.data:[];
-      h+=(ents.length===1)
-        ? santeLigne('ok','Une seule entreprise rattachée.', esc(ents[0].nom||'—')+'.','')
-        : (ents.length===0
-           ? santeLigne('inconnu','Aucune entreprise lisible.','Le compte n\'a peut-être pas encore été initialisé.','Ouvrez une SENTINELLE ou un questionnaire pour la créer.')
-           : santeLigne('grave', ents.length+' entreprises rattachées.',
-               'Les données se répartissent entre elles : une partie devient invisible à l\'écran. '
-               +ents.map(function(e){ return '<b>'+esc(e.nom||'—')+'</b>'; }).join(' · '),
-               'C\'est le défaut le plus sérieux de cette liste. Envoyez-moi cette page avant de continuer.'));
+      /* 1. VOTRE ENTREPRISE — CORRIGÉ LE 01/08, ET JE M'ÉTAIS TROMPÉ DE MESURE.
+         Cette ligne lisait `entreprises` SANS filtre et annonçait « N entreprises rattachées ».
+         Or la table n'a AUCUNE colonne de propriétaire : le lien va dans l'autre sens, c'est
+         profils.entreprise_id qui désigne l'entreprise du compte. Ce que je comptais, ce
+         n'était donc pas « les entreprises de ce compte » mais « toutes celles que la base
+         laisse lire » — Didier a vu mille noms, dont ceux d'autres entreprises, et j'ai qualifié
+         ça de « défaut le plus sérieux » en me trompant sur sa nature.
+         Un compte a UNE entreprise, par construction : une colonne ne contient qu'une valeur.
+         La vraie question est donc « laquelle », pas « combien ». */
+      var monEnt=null;
+      if(ent){
+        var rm=await window.sb.from('entreprises').select('id,nom,ville,cree_le').eq('id',ent).maybeSingle();
+        monEnt=(rm && !rm.error && rm.data)?rm.data:null;
+      }
+      h+=(monEnt)
+        ? santeLigne('ok','Votre entreprise est identifiée.', '<b>'+esc(monEnt.nom||'—')+'</b>'+(monEnt.ville?' · '+esc(monEnt.ville):'')+'.','')
+        : santeLigne('inconnu','Aucune entreprise rattachée à ce compte.','Le compte n\'a peut-être pas encore été initialisé.','Ouvrez une SENTINELLE ou un questionnaire pour la créer.');
+      /* 1 bis. CE QUE CE COMPTE PEUT LIRE D'AUTRE. C'est la vraie alerte, et elle ne concerne
+         pas l'affichage mais la CONFIDENTIALITÉ : si la base laisse ce compte lire les fiches
+         d'autres entreprises, un client verrait passer les noms de tous les autres. */
+      var re=await window.sb.from('entreprises').select('id',{count:'exact'}).limit(1);
+      var nLisibles=(re && !re.error && re.count!=null)?re.count:null;
+      if(nLisibles!=null && nLisibles>1){
+        h+=santeLigne('grave', 'Ce compte peut lire '+nLisibles+' fiches d\'entreprises.',
+            'Il ne devrait voir que la sienne. Les noms des autres entreprises de la base lui sont accessibles.',
+            'Cloisonnement à revoir côté base (règle de lecture sur la table des entreprises).');
+      }else if(nLisibles===1){
+        h+=santeLigne('ok','Ce compte ne lit que sa propre entreprise.','Le cloisonnement fonctionne.','');
+      }
       // 2. LES TÂCHES : doublons, et tâches d'un plan qui n'existe plus.
       if(ent){
         var rt=await window.sb.from('taches').select('norm,due_le,archivee,faite,origine').eq('entreprise_id',ent).limit(2000);
