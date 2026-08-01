@@ -1,4 +1,5 @@
 // FEUILLE DE ROUTE VIVANTE — l'IA lit l'historique réel des tâches + le cap, et produit : la répartition cap/pompier + les "constats terrain" (tâches répétitives -> outil IA à greffer au plan).
+import { REGLES_REDACTION } from "../lib/regles-redaction.js";
 const MODEL = "claude-haiku-4-5-20251001";
 
 const SYS = `Tu es l'analyste DBi360 de la « feuille de route vivante » d'une TPE/PME française. On te donne le CAP (objectifs de transformation) et l'HISTORIQUE RÉEL des tâches quotidiennes du dirigeant + ses décisions en attente. Tu produis DEUX choses :
@@ -12,7 +13,9 @@ CRISE GRAVE (garde-fou PRIORITAIRE) : si le champ "crise" est non vide (redresse
 RÈGLES : bienveillant (un constat, jamais un reproche ; process pas procès). Concret et réaliste pour une TPE (outils IA simples, peu coûteux). Vocabulaire entreprise, jamais médical. Chaque champ COURT (constat ≤ 14 mots, outil ≤ 14 mots, objectif ≤ 5 mots, lecture ≤ 20 mots).
 
 SORTIE : UNIQUEMENT un objet JSON valide, aucun texte autour, schéma exact :
-{"repartition":{"cap":N,"pompier":N},"lecture":"une phrase de synthèse","constats":[{"constat":"le motif récurrent observé","outil":"l'outil IA proposé","objectif":"étiquette courte","type":"IA|externe|humain"}]}`;
+{"repartition":{"cap":N,"pompier":N},"lecture":"une phrase de synthèse","constats":[{"constat":"le motif récurrent observé","outil":"l'outil IA proposé","objectif":"étiquette courte","type":"IA|equipe|prestataire"}]}
+${REGLES_REDACTION}
+`;
 
 function extractJSON(out) {
   out = out.replace(/```json/gi, "").replace(/```/g, "");
