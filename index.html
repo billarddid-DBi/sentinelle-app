@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 186';
+var IVE_VERSION='01/08 · 187';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5682,9 +5682,14 @@ function dirigeantSpace(){
          sur « Bientôt disponible ». On les montre grisées plutôt que de faire semblant — une
          tuile qui promet un écran inexistant coûte plus cher qu'une tuile grise. */
       +ivTuile('ti-history','Historique','',' bientôt','off',true)
-      +(iveIsAdmin()
-        ? ivTuile('ti-stethoscope','Contrôle des données','santeView()','admin','off',false)
-        : ivTuile('ti-user-circle','Mon compte','',' bientôt','off',true))
+      /* CONTRÔLE DES DONNÉES, POUR TOUT LE MONDE (01/08). Cet écran n'était accessible que par le
+         bandeau « Mode admin », et Didier ne le voyait pas : sa session n'est pas reconnue comme
+         admin — le test porte sur window.currentUser.email, côté navigateur, et il ne se
+         déclenche pas chez lui. Résultat : l'écran existait et personne ne pouvait l'ouvrir.
+         Il n'y avait aucune raison de le réserver. Il ne fait que LIRE, et ce qu'il lit
+         appartient au dirigeant : son entreprise, ses tâches, ses réponses de salariés, ses
+         analyses. Il remplace la tuile « Mon compte », qui menait à « Bientôt disponible ». */
+      +ivTuile('ti-stethoscope','Contrôle des données','santeView()','vérifier','att',false)
     +'</div>'
     /* Le prix du parcours, annoncé UNE FOIS et en entier (décision du 31/07). Il disparaît dès
        que le parcours est produit : à ce moment-là il n'annonce plus rien. */
