@@ -3016,7 +3016,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 182';
+var IVE_VERSION='01/08 · 183';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3955,7 +3955,7 @@ async function enqueteSuivi(){
   var cadre=function(inner){
     return '<div class="card" style="overflow:hidden;margin-top:10px;"><div class="sec">'
       +'<div style="display:flex;align-items:center;gap:11px;">'
-        +'<i class="ti ti-users-group" style="font-size:24px;color:#E8541A;flex:0 0 auto;"></i>'
+        +'<i class="ti ti-users-group" style="font-size:24px;color:#15803d;flex:0 0 auto;"></i>'
         +'<div style="font-size:15px;font-weight:800;color:#1C1C1C;">Suivi des réponses</div>'
       +'</div>'+inner+'</div></div>';
   };
@@ -3969,7 +3969,7 @@ async function enqueteSuivi(){
     +rep.map(function(x){
       return '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px solid #eef0f3;padding:9px 0;">'
         +'<span style="font-size:13px;color:#4b5563;min-width:0;"><b style="color:#1C1C1C;">'+esc(ahNomPropre(x.nom))+'</b>'+(x.poste?' · '+esc(x.poste):'')+'</span>'
-        +'<span style="white-space:nowrap;font-size:13px;font-weight:800;color:#E8541A;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
+        +'<span style="white-space:nowrap;font-size:13px;font-weight:800;color:#15803d;">'+(x.iat!=null?(x.iat+'/100'):'—')+'</span></div>';
     }).join('')
     +'</div>');
   // La synthèse : moyennes, écarts, fracture éventuelle. PRISE EN COMPTE d'office (cf. ahAuto).
@@ -4031,20 +4031,25 @@ function ahPartageHtml(){
      recalculé parce qu'on a changé la longueur du questionnaire. */
   return '<div id="ahPartage">'+ahPartageInner()+'</div><div id="ahSuivi"></div>';
 }
+/* TOUT CE BLOC EST VERT (Didier, 01/08) : il vit sur l'écran du questionnaire aux salariés, où
+   les deux cartes, le pictogramme et la synthèse le sont déjà. L'orange y était un accident —
+   c'est la couleur du parcours du dirigeant, pas celle du volet humain. Dans cette application
+   la couleur porte un sens : l'orange, c'est vous ; le vert, c'est vos équipes. Les nuances
+   reprises sont celles déjà présentes sur l'écran, aucune nouvelle n'est introduite. */
 function ahPartageInner(){
   var m=window.__enqMode||'express';
   var bMode=function(v,lbl,sous){
     var on=(m===v);
-    return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1 1 0;min-width:0;position:relative;border:2px solid '+(on?'#E8541A':'#e5e7eb')+';background:'+(on?'#fff7ed':'#fff')+';border-radius:14px;padding:16px 8px 12px;cursor:pointer;font-family:inherit;text-align:center;">'
-      +(on?'<span style="position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#E8541A;display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="font-size:14px;color:#fff;"></i></span>':'')
-      +'<i class="ti ti-clipboard-list" style="font-size:25px;color:'+(on?'#E8541A':'#9ca3af')+';"></i>'
-      +'<div style="font-size:14px;font-weight:800;color:'+(on?'#9a3412':'#1C1C1C')+';margin-top:6px;">'+lbl+'</div>'
-      +'<div style="font-size:11px;color:'+(on?'#c2410c':'#9ca3af')+';margin-top:2px;">'+sous+'</div></button>';
+    return '<button type="button" onclick="enqueteMode(\''+v+'\')" style="flex:1 1 0;min-width:0;position:relative;border:2px solid '+(on?'#15803d':'#e5e7eb')+';background:'+(on?'#f4fbf6':'#fff')+';border-radius:14px;padding:16px 8px 12px;cursor:pointer;font-family:inherit;text-align:center;">'
+      +(on?'<span style="position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#15803d;display:flex;align-items:center;justify-content:center;"><i class="ti ti-check" style="font-size:14px;color:#fff;"></i></span>':'')
+      +'<i class="ti ti-clipboard-list" style="font-size:25px;color:'+(on?'#15803d':'#9ca3af')+';"></i>'
+      +'<div style="font-size:14px;font-weight:800;color:'+(on?'#166534':'#1C1C1C')+';margin-top:6px;">'+lbl+'</div>'
+      +'<div style="font-size:11px;color:'+(on?'#15803d':'#9ca3af')+';margin-top:2px;">'+sous+'</div></button>';
   };
   return '<div class="card" style="overflow:visible;">'
     +'<div class="sec">'
     +'<div style="display:flex;align-items:flex-start;gap:12px;">'
-      +'<i class="ti ti-users-group" style="font-size:27px;color:#E8541A;flex:0 0 auto;margin-top:2px;"></i>'
+      +'<i class="ti ti-users-group" style="font-size:27px;color:#15803d;flex:0 0 auto;margin-top:2px;"></i>'
       +'<div style="min-width:0;">'
         +'<div style="font-size:16px;font-weight:800;color:#1C1C1C;line-height:1.25;">Inviter vos salariés</div>'
         +'<div style="font-size:12.5px;color:#6b7280;line-height:1.45;margin-top:2px;">Envoyez un lien pour recueillir leur ressenti.</div>'
@@ -4057,7 +4062,7 @@ function ahPartageInner(){
       +bMode('complet','Complet','30 questions · 15 min')
     +'</div>'
     +'<div style="font-size:11px;color:#9ca3af;margin-top:6px;line-height:1.45;">Le court favorise plus de réponses. Le complet permet une lecture plus détaillée.</div>'
-    +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:14.5px;font-weight:800;padding:14px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Partager le questionnaire</button>'
+    +'<button type="button" onclick="enqueteLienAfficher(this)" style="width:100%;border:0;border-radius:12px;background:#15803d;color:#fff;font-size:14.5px;font-weight:800;padding:14px;margin-top:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-link"></i> Partager le questionnaire</button>'
     +'<div id="ahPartMsg" style="font-size:11.5px;margin-top:10px;line-height:1.5;"></div>'
     +'</div></div>';
 }
