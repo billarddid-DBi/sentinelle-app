@@ -3082,7 +3082,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 170';
+var IVE_VERSION='01/08 · 171';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3240,7 +3240,10 @@ function sentSlides(d, targetId, cockpitHtml, banner){
     +sentExp('exp_pres','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-speakerphone" style="font-size:18px;color:#E8541A;"></i><div><div style="font-size:12.5px;font-weight:600;">Présence</div><div style="font-size:11px;color:#9ca3af;">Site &amp; réseaux</div></div></div>', esc(d.presence||'Non trouvé publiquement.'))
     +sentExp('exp_plat','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-scale" style="font-size:18px;color:#E8541A;"></i><div><div style="font-size:12.5px;font-weight:600;">Plateformes du secteur</div><div style="font-size:11px;color:#9ca3af;">Les sites d\'avis de votre métier</div></div></div>', '<div style="margin-bottom:8px;color:#6b7280;">Au-delà de Google, ce sont les sites spécialisés de votre métier (comparateurs, annuaires notés) où vos clients consultent les avis avant de choisir. Y être bien noté compte autant que sur Google.</div>'+platHtml)
     +sentExp('exp_vig','<div style="display:flex;align-items:center;gap:9px;"><i class="ti ti-target" style="font-size:18px;color:#E8541A;"></i><div><div style="font-size:12.5px;font-weight:600;">Points de vigilance</div><div style="font-size:11px;color:#9ca3af;">Des signaux à surveiller</div></div></div>', vigList+qwList)
-    +'<div style="display:flex;gap:10px;align-items:flex-start;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px 14px;margin-top:10px;"><i class="ti ti-lock" style="color:#E8541A;font-size:18px;flex:0 0 auto;"></i><div style="font-size:12px;color:#7c2d12;line-height:1.5;"><b>Vos forces et vos '+nbOpp+' opportunités majeures</b> font partie de votre <b>BOUSSOLE</b> — avec le détail, les leviers et les outils IA.</div></div>'});
+    /* Cette promesse pointait vers l'écran « Forces & opportunités » de la BOUSSOLE, supprimé le
+       01/08. Elle nomme désormais ce que la BOUSSOLE livre RÉELLEMENT : on ne vend pas une porte
+       qui n'ouvre plus. Texte validé par Didier — c'est son argumentaire, pas le mien. */
+    +'<div style="display:flex;gap:10px;align-items:flex-start;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:12px 14px;margin-top:10px;"><i class="ti ti-lock" style="color:#E8541A;font-size:18px;flex:0 0 auto;"></i><div style="font-size:12px;color:#7c2d12;line-height:1.5;">'+(nbOpp>1?('Vos <b>'+nbOpp+' opportunités de progression</b> se travaillent'):'Votre <b>opportunité de progression</b> se travaille')+' dans la <b>BOUSSOLE</b> : votre questionnaire, le regard croisé de vos équipes, puis le plan d\'action arrêté par le MIROIR.</div></div>'});
   slides.push({t:'Synthèse', s:'Premier niveau d\'analyse terminé.', last:true, html:
     sentIconCircle(122,'#fff0e8','<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">'+boussoleSVG(122)+'</span><span style="position:absolute;right:8px;bottom:8px;background:#1C1C1C;color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:2;"><i class="ti ti-lock" style="font-size:16px;"></i></span>')
     +'<div style="text-align:center;font-size:16px;font-weight:800;color:#1C1C1C;line-height:1.3;">Voilà ce que révèle l\'enquête publique.<br>Et c\'est déjà énorme.</div>'
@@ -3364,6 +3367,22 @@ function identiteHtml(d){
   }catch(e){}
   return t;
 }
+/* LES 8 PILIERS EN BARRES « aujourd'hui → possible ».
+   Cette lecture vivait dans la carte « Forces & opportunités majeures » de la BOUSSOLE,
+   supprimée le 01/08 : elle ne montrait que des chiffres déjà affichés ailleurs, et elle
+   ramenait le regard EXTÉRIEUR de SENTINELLE dans un écran qui ne doit porter que l'intérieur.
+   Les barres, elles, méritaient de rester : une toile d'araignée se regarde, des barres se
+   lisent. Elles rejoignent donc le radar, à sa place — dans SENTINELLE.
+   Une seule fonction : deux copies d'un même affichage finissent toujours par diverger. */
+function pilierBarresHtml(r){
+  r=r||{};
+  if(!(r.labels||[]).length || !(r.actuel||[]).length) return '';
+  return '<div style="margin-top:12px;">'+r.labels.map(function(lb,i){
+    var a=+r.actuel[i]||0, po=(r.potentiel&&+r.potentiel[i])||a;
+    return '<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4b5563;"><span>'+esc(lb)+'</span><span><b style="color:#2563EB;">'+a+'</b> → <b style="color:#E8541A;">'+po+'</b></span></div>'
+      +'<div style="height:8px;border-radius:4px;background:#eef0f3;margin-top:4px;position:relative;overflow:hidden;"><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,po))+'%;background:#fed7aa;"></div><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,a))+'%;background:#2563EB;"></div></div></div>';
+  }).join('')+'</div>';
+}
 function render(d,skipSave){
   window.lastNom=d.nom; window.lastVille=d.ville; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
@@ -3484,6 +3503,7 @@ function render(d,skipSave){
     <div class="sec" data-chap="forces">
       <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:4px;">Radar des 8 piliers <span style="font-weight:400;color:#6b7280;font-size:11px;">— hypothèses de pré-audit</span></div>
       <div style="max-width:430px;margin:0 auto;"><canvas id="radar" height="260"></canvas></div>
+      ${pilierBarresHtml(r)}
       <div style="font-size:11px;color:#6b7280;margin-top:6px;">L'écart <b>Actuel → Potentiel</b> = les leviers IA à prioriser.</div>
     </div>
 
@@ -7100,9 +7120,12 @@ function bouOffre(niveau){
 // 4e élément = clé de l'outil connecté (carte cliquable) ; null = pas encore branché.
 // verrouille = true : la liste est montrée à un non-abonné (aucun outil n'est ouvrable).
 function bouToolsHtml(verrouille){
-  /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut. */
+  /* « Questionnaire Dirigeant » retiré d'ici : c'est l'étape 2 du parcours, plus haut.
+     « Forces & opportunités majeures » retirée le 01/08 : ses cinq blocs venaient tous de la
+     fiche SENTINELLE et étaient déjà affichés dans SENTINELLE — dont les 8 piliers ESTIMÉS DU
+     DEHORS, qui n'ont rien à faire dans un écran consacré au regard du dedans. Les barres
+     « aujourd'hui → possible » ont été conservées et déplacées : voir pilierBarresHtml(). */
   var T=[['ti-robot','Pistes d\'outils IA','Ce que votre vitrine laisse deviner, en clair : le quoi, le comment, les gains attendus. La liste arrêtée vient du MIROIR.','outilsia'],
-    ['ti-trophy','Forces & opportunités majeures','Vos atouts, ce que vos clients reconnaissent, et ce qui peut progresser vite.','forces'],
     ['ti-route','Feuille de route + suivi','Votre plan d\'action dans le temps et le suivi de votre note, semaine après semaine.','feuille']];
   return '<div style="margin-top:10px;">'+T.map(function(f){
     var on=(!!f[3] && !verrouille);
@@ -7196,52 +7219,12 @@ function boussoleOutil(which){
     },function(){ iveOutilAttente('ti-robot','PISTES D\'OUTILS IA','Ce que votre vitrine laisse deviner'); });
     return;
   }
-  // Forces & opportunités : tout vient de la fiche (fierté, valeurs, quick wins, vigilance).
   if(which==='feuille'){ if(typeof goFeuille==='function') goFeuille(); else if(typeof frBuild==='function') frBuild(); return; }
-  if(which==='forces'){
-    iveFicheOuCharger('fo',function(f){
-      if(!f){
-        iveOutilVide('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers',
-          'Votre fiche n\'est pas encore disponible. Lancez une analyse SENTINELLE pour la construire.');
-        return;
-      }
-      var bloc=function(coul,fond,bord,ic,titre,corps){
-        return '<div style="border:1px solid '+bord+';background:'+fond+';border-radius:14px;padding:14px 15px;margin-top:11px;">'
-          +'<div style="font-size:11px;font-weight:800;letter-spacing:.6px;color:'+coul+';"><i class="ti '+ic+'"></i> '+titre+'</div>'
-          +'<div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:6px;">'+corps+'</div></div>';
-      };
-      var liste=function(arr,puce){
-        return (arr||[]).map(function(x){
-          var txt=(x&&x.texte)?x.texte:x;
-          var niv=(x&&x.niveau)?(x.niveau+' '):'';
-          return '<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,0,0,.06);">'+(niv?'<div style="font-size:13px;margin-bottom:3px;">'+niv+'</div>':'')+actionListeHtml(txt||'',puce)+'</div>';
-        }).join('');
-      };
-      var html='';
-      if(f.fierte) html+=bloc('#15803d','#f4fbf6','#bbf7d0','ti-trophy','CE QUI FAIT VOTRE FORCE',esc(f.fierte));
-      if(f.valeurs) html+=bloc('#2563EB','#f5f8ff','#dbe7fb','ti-diamond','CE QUE VOS CLIENTS RECONNAISSENT',esc(f.valeurs));
-      if((f.quickwins||[]).length) html+=bloc('#E8541A','#fffaf6','#fed7aa','ti-bolt','À GAGNER RAPIDEMENT',liste(f.quickwins,'#E8541A'));
-      if((f.vigilance||[]).length) html+=bloc('#991b1b','#fef2f2','#fecaca','ti-alert-triangle','POINTS DE VIGILANCE',liste(f.vigilance,'#991b1b'));
-      var r=f.radar||{};
-      if((r.labels||[]).length && (r.actuel||[]).length){
-        var lignes=r.labels.map(function(lb,i){
-          var a=+r.actuel[i]||0, po=(r.potentiel&&+r.potentiel[i])||a;
-          return '<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:#4b5563;"><span>'+esc(lb)+'</span><span><b style="color:#2563EB;">'+a+'</b> → <b style="color:#E8541A;">'+po+'</b></span></div>'
-            +'<div style="height:8px;border-radius:4px;background:#eef0f3;margin-top:4px;position:relative;overflow:hidden;"><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,po))+'%;background:#fed7aa;"></div><div style="position:absolute;left:0;top:0;bottom:0;width:'+Math.max(0,Math.min(100,a))+'%;background:#2563EB;"></div></div></div>';
-        }).join('');
-        html+=bloc('#1C1C1C','#fff','#eef0f3','ti-chart-radar','VOS DIMENSIONS — AUJOURD\'HUI ET POSSIBLE',lignes);
-      }
-      if(!html) html='<div style="font-size:13px;color:#4b5563;">Votre fiche ne contient pas encore ces éléments.</div>';
-      $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-        +iveEntete('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers','resultats')
-        +'<div class="card"><div class="sec">'
-          +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Ce sur quoi vous pouvez vous appuyer, et ce qui peut progresser vite.</div>'
-          +html
-        +'</div></div>';
-      showView('dirigeant'); window.scrollTo(0,0);
-    },function(){ iveOutilAttente('ti-trophy','FORCES & OPPORTUNITÉS','Vos atouts et vos leviers'); });
-    return;
-  }
+  /* L'écran « Forces & opportunités » a été supprimé le 01/08 avec sa carte : fierté, valeurs,
+     quick wins, vigilance et radar venaient TOUS de la fiche SENTINELLE et étaient déjà lisibles
+     dans SENTINELLE. Le code n'est pas commenté mais retiré — quarante lignes mortes finissent
+     toujours par être prises pour du vivant. Les barres des 8 piliers, elles, ont été gardées :
+     pilierBarresHtml(), sous le radar du rapport SENTINELLE. */
   if(which==='simulateur'){
     var f=window.__sentData||{}; var sim=(typeof simGet==='function'&&simGet())||f.simulateur||{personnes:2,heures:5,cout:40};
     window.__bouSimH=((f.chiffre&&f.chiffre.unite)==='h');
