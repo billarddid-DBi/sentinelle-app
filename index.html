@@ -1051,13 +1051,11 @@ async function ficheEnregistrer(kind, nom, contenu, html){
   try{
     await window.sbReady;
     if(!window.sb) return {ok:false, err:'hors ligne'};
-    // L'entreprise n'est pas toujours connue au moment de sauver : on la retrouve avant d'écrire.
-    if(!window.dbEnt){
-      try{
-        var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:((window.currentUser&&window.currentUser.name)||nom||null)});
-        if(!e.error && e.data) window.dbEnt=e.data;
-      }catch(x){}
-    }
+    /* L'entreprise n'est pas toujours connue au moment de sauver : on la retrouve avant d'écrire.
+       On passe par frEntreprise() — porte UNIQUE depuis le 01/08. Cet appel-ci et celui de
+       loadUser() partaient en parallèle au chargement, chacun croyant être seul : deux appels à
+       ensure_my_entreprise, donc potentiellement deux entreprises créées à chaque visite. */
+    if(!window.dbEnt){ try{ await frEntreprise(); }catch(x){} }
     if(!window.dbEnt) return {ok:false, err:'entreprise inconnue'};
     var r=await window.sb.from('fiches').insert({
       entreprise_id: window.dbEnt,
@@ -3022,7 +3020,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 189';
+var IVE_VERSION='01/08 · 190';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4587,15 +4585,31 @@ function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={
    l'un l'autre (le dernier qui ecrit gagne). La table `feuille_route` existe depuis l'origine
    pour ca et n'avait jamais ete branchee. Le navigateur y ecrit en direct : la RLS
    (`feuille_upsert`) garantit qu'on ne touche que sa propre entreprise. */
+/* UNE SEULE RÉSOLUTION D'ENTREPRISE À LA FOIS (01/08). Didier a trouvé MILLE entreprises
+   rattachées à son compte via l'écran « Contrôle des données ». La cause profonde est dans
+   ensure_my_entreprise, côté Supabase, qui crée au lieu de réutiliser — je ne peux pas la
+   corriger d'ici, la fonction n'est pas dans le dépôt.
+   Ce que le navigateur peut faire, lui : ne pas EMPILER les demandes. Trois endroits appelaient
+   la RPC, chacun protégé par `if(!window.dbEnt)` — un garde-fou qui ne vaut rien si deux appels
+   partent AVANT que le premier ait répondu, ce qui arrive à chaque chargement. Une promesse en
+   vol garantit qu'il n'y en a qu'une, comme pour la lecture des réponses salariés (ahAuto).
+   La promesse est relâchée dans le `finally` : posée d'avance et jamais libérée, un échec
+   condamnerait la session — c'est la faute déjà commise le 31/07. */
 async function frEntreprise(){
   try{
     await window.sbReady;
     if(!window.sb) return null;
-    if(!window.dbEnt){
-      var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:((window.currentUser&&window.currentUser.name)||null)});
-      if(!e.error && e.data) window.dbEnt=e.data;
-    }
-    return window.dbEnt||null;
+    if(window.dbEnt) return window.dbEnt;
+    if(window.__entEnVol) return window.__entEnVol;
+    window.__entEnVol=(async function(){
+      try{
+        var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:((window.currentUser&&window.currentUser.name)||null)});
+        if(!e.error && e.data){ window.dbEnt=e.data; return e.data; }
+        return null;
+      }catch(x){ return null; }
+      finally{ window.__entEnVol=null; }
+    })();
+    return window.__entEnVol;
   }catch(x){ return null; }
 }
 /* ===== EVENEMENTS D'USAGE =====
@@ -6681,7 +6695,8 @@ async function loadUser(){
       for(var _i=0;_i<localStorage.length;_i++){ var _k=localStorage.key(_i); if(_k && _k.indexOf('cp_fusion_')===0) _vieux.push(_k); }
       _vieux.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
     }catch(e){}
-    try{ var e=await window.sb.rpc('ensure_my_entreprise',{p_nom:window.currentUser.name||null}); if(!e.error && e.data){ window.dbEnt=e.data; } }catch(x){}
+    // Même porte que partout ailleurs : frEntreprise() (cf. 01/08, les mille entreprises).
+    try{ await frEntreprise(); }catch(x){}
     await syncPull();
     try{
       var h=await window.sb.rpc('claim_my_handoffs');
