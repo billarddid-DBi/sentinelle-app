@@ -2991,7 +2991,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 175';
+var IVE_VERSION='01/08 · 176';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7327,25 +7327,21 @@ function paywallView(){
 function boussoleParcours(){
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(!acc){ renderAuth('login'); return; }
-  var nom=window.lastNom||(acc&&acc.name)||'';
+  // `nom` a disparu avec l'encadré « Entreprise » : le bandeau noir porte déjà le nom officiel.
   var ligne=parcoursLigne, carte=parcoursCarte;
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div class="card"><div class="sec">'
-      // Accroche + boussole
-      +'<div style="display:flex;align-items:flex-start;gap:12px;">'
-        +'<div style="flex:1;min-width:0;">'
-          +'<div style="font-size:14px;font-weight:800;color:#E8541A;">Bonjour 👋</div>'
-          +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;margin-top:4px;">Quel parcours<br>souhaitez-vous <span style="color:#E8541A;">choisir&nbsp;?</span></div>'
-          +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">Le même référentiel. Deux niveaux d\'accompagnement pour répondre à vos besoins.</div>'
-        +'</div>'
-        +'<div style="width:92px;height:92px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+(typeof boussoleSVG==='function'?boussoleSVG(62):'<i class="ti ti-compass" style="font-size:44px;color:#E8541A;"></i>')+'</div>'
-      +'</div>'
-      // L'entreprise concernée
-      +'<div style="display:flex;align-items:center;gap:12px;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:16px;">'
-        +'<div style="width:44px;height:44px;border-radius:50%;background:#fff7ed;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:22px;color:#E8541A;"></i></div>'
-        +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;line-height:1.25;">'+esc(nom||'votre entreprise')+'</div></div>'
+      /* RETIRÉS LE 01/08 (demande de Didier) : la grande boussole ronde à droite et l'encadré
+         « Entreprise — <nom> ». La boussole répétait le pictogramme déjà présent dans le bandeau
+         noir juste au-dessus, et l'encadré redonnait un nom que ce même bandeau affiche
+         maintenant en gros depuis le modèle B. Sur cet écran, la seule question qui compte est
+         « Express ou Complet ? » : tout ce qui la retarde la rend moins lisible. */
+      +'<div>'
+        +'<div style="font-size:14px;font-weight:800;color:#E8541A;">Bonjour 👋</div>'
+        +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;margin-top:4px;">Quel parcours<br>souhaitez-vous <span style="color:#E8541A;">choisir&nbsp;?</span></div>'
+        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">Le même référentiel. Deux niveaux d\'accompagnement pour répondre à vos besoins.</div>'
       +'</div>'
       // On choisit d'abord, on lit le détail ensuite : les deux départs sont juste sous l'entreprise.
       +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
