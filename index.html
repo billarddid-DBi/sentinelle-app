@@ -3020,7 +3020,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 191';
+var IVE_VERSION='01/08 · 192';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5449,6 +5449,10 @@ function santeLigne(etat, titre, detail, quoiFaire){
   var c = etat==='ok' ? ['#15803d','#f4fbf6','#bbf7d0','ti-circle-check']
         : etat==='attention' ? ['#b45309','#fffbeb','#fde68a','ti-alert-triangle']
         : etat==='grave' ? ['#991b1b','#fef2f2','#fecaca','ti-alert-octagon']
+        /* « info » ajouté le 01/08 : un fait NORMAL qu'on énonce sans rien réclamer. Sans lui,
+           ces lignes tombaient dans le repli à point d'interrogation, qui signifie « on ne sait
+           pas » — deux messages très différents sous le même pictogramme. */
+        : etat==='info' ? ['#4b5563','#f8fafc','#eef0f3','ti-info-circle']
         : ['#6b7280','#f8fafc','#eef0f3','ti-help-circle'];
   return '<div style="display:flex;gap:10px;align-items:flex-start;border:1px solid '+c[2]+';background:'+c[1]+';border-radius:11px;padding:10px 12px;margin-top:8px;">'
     +'<i class="ti '+c[3]+'" style="font-size:17px;color:'+c[0]+';flex:0 0 auto;margin-top:1px;"></i>'
@@ -5491,14 +5495,25 @@ async function santeView(){
       /* 1 bis. CE QUE CE COMPTE PEUT LIRE D'AUTRE. C'est la vraie alerte, et elle ne concerne
          pas l'affichage mais la CONFIDENTIALITÉ : si la base laisse ce compte lire les fiches
          d'autres entreprises, un client verrait passer les noms de tous les autres. */
+      /* ⚠️ L'ADMIN VOIT TOUT, ET C'EST VOULU. La règle de lecture est
+         `is_admin() OR (id = my_entreprise())` : un client ne voit que la sienne, l'admin voit
+         la base entière. J'ai signalé « cloisonnement à revoir » en rouge sur l'écran de Didier,
+         qui est admin — deuxième fausse alerte sur la même ligne en une journée. Le nombre était
+         juste, l'interprétation fausse : il faut savoir QUI regarde avant de qualifier. */
       var re=await window.sb.from('entreprises').select('id',{count:'exact'}).limit(1);
       var nLisibles=(re && !re.error && re.count!=null)?re.count:null;
-      if(nLisibles!=null && nLisibles>1){
-        h+=santeLigne('grave', 'Ce compte peut lire '+nLisibles+' fiches d\'entreprises.',
-            'Il ne devrait voir que la sienne. Les noms des autres entreprises de la base lui sont accessibles.',
-            'Cloisonnement à revoir côté base (règle de lecture sur la table des entreprises).');
-      }else if(nLisibles===1){
-        h+=santeLigne('ok','Ce compte ne lit que sa propre entreprise.','Le cloisonnement fonctionne.','');
+      var estAdmin=(typeof iveIsAdmin==='function')?iveIsAdmin():false;
+      if(nLisibles!=null){
+        if(estAdmin){
+          h+=santeLigne('info','Vue administrateur : '+nLisibles+' fiche'+(nLisibles>1?'s':'')+' d\'entreprise'+(nLisibles>1?'s':'')+' lisible'+(nLisibles>1?'s':'')+'.',
+              'C\'est normal sur votre compte : la règle de lecture ouvre toute la base à l\'administrateur. Un client, lui, ne voit que la sienne.','');
+        }else if(nLisibles>1){
+          h+=santeLigne('grave', 'Ce compte peut lire '+nLisibles+' fiches d\'entreprises.',
+              'Il ne devrait voir que la sienne.',
+              'Cloisonnement à revoir côté base (règle de lecture sur la table des entreprises).');
+        }else{
+          h+=santeLigne('ok','Ce compte ne lit que sa propre entreprise.','Le cloisonnement fonctionne.','');
+        }
       }
       // 2. LES TÂCHES : doublons, et tâches d'un plan qui n'existe plus.
       if(ent){
