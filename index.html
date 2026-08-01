@@ -3020,7 +3020,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 192';
+var IVE_VERSION='01/08 · 193';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4524,7 +4524,10 @@ function ahCalc(){
 }
 function ahReco(iat){
   if(iat==null) return {key:'—',zone:'—',color:'#9ca3af',bg:'#f3f4f6',icon:'ti-help',msg:''};
-  if(iat<=40) return {key:'Blocage',zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : nommer les craintes, restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
+  /* « nommer les craintes, » retiré le 01/08 — dernier endroit où le mot subsistait. Supprimé,
+     pas remplacé : j'avais d'abord écrit « écouter » à la place, Didier a repris — « tu
+     supprimes texte uniquement ». Le conseil se tient sans lui. */
+  if(iat<=40) return {key:'Blocage',zone:'Blocage — STOP humain',color:'#dc2626',bg:'#fef2f2',icon:'ti-alert-octagon',msg:"Réparer l'humain AVANT tout projet IA : restaurer la confiance et la communication. MIROIR doit décaler les chantiers techniques."};
   if(iat<=70) return {key:'Vigilance',zone:'Vigilance',color:'#ea580c',bg:'#fff7ed',icon:'ti-alert-triangle',msg:"Sécuriser les prérequis en parallèle : rassurer sur l'emploi, impliquer des relais internes, sur-communiquer le POURQUOI, démarrer par un pilote à faible risque + une victoire rapide."};
   return {key:'Appui',zone:'Appui',color:'#16a34a',bg:'#f0fdf4',icon:'ti-rocket',msg:"L'organisation est prête, voire demandeuse : accélérer, s'appuyer sur les relais internes, viser des chantiers ambitieux, ancrer les acquis."};
 }
