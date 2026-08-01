@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 187';
+var IVE_VERSION='01/08 · 188';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5403,9 +5403,13 @@ function iveBandDroite(avecDeconnexion){
     // Les marges verticales sont dans .iveHeadR : écrites ici, en style direct, elles
     // gagneraient contre la règle d'empilement et rajouteraient des trous sur téléphone.
     +'<div style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
-    // « Mon compte » remplace Réglages : l'écran reste à construire.
-    +'<div><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-user-circle"></i> Mon compte</a>'
-    +(avecDeconnexion?' <span style="color:#4b5563;">·</span> <a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a>':'')+'</div>'
+    /* « MON COMPTE » RETIRÉ DE TOUS LES BANDEAUX (01/08). Ce lien appelait iveNav('params'),
+       une destination qui n'existe pas dans le routeur : il tombait sur l'alerte « Bientôt
+       disponible ». Même défaut que la tuile du même nom, retirée juste avant — et je n'avais
+       corrigé que la tuile, en indiquant à Didier le mauvais endroit. Quatorze bandeaux le
+       portaient. On ne laisse pas un lien qui ne mène nulle part parce que l'écran « reste à
+       construire » : le jour où il existera, le lien reviendra. */
+    +(avecDeconnexion?'<div><a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-logout"></i> Déconnexion</a></div>':'')
   +'</div>';
 }
 function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
