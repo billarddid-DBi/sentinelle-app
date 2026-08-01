@@ -3020,7 +3020,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 194';
+var IVE_VERSION='01/08 · 195';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5814,12 +5814,14 @@ function sentApercu(){
       // Relancer se joue EN HAUT À DROITE de l'encadré, au-dessus des deux pastilles.
       /* Sous le bouton, À QUELLE CONDITION relancer (demande de Didier, 31/07/2026).
          SENTINELLE ne mesure que ce qui est PUBLIC, et le public bouge lentement : relancer
-         une semaine plus tard rend presque toujours la même note, pour 4 jetons. Le dire est
-         la moindre des choses quand on facture le geste. */
+         une semaine plus tard rend presque toujours la même note, pour 4 jetons.
+         RACCOURCI LE 01/08 : les deux paragraphes « Quand cela vaut la peine / Quand c'est
+         inutile » sont ramenés à deux phrases. L'information utile — ce que SENTINELLE lit, et
+         quand la relancer — tient dans la première ; le reste expliquait ce qu'il ne fallait PAS
+         faire, en trois lignes, au-dessus de sa propre note. */
       '<div style="display:flex;justify-content:flex-end;margin:-2px 0 4px;">'+jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()')+'</div>'
       +'<div style="font-size:11px;color:#6b7280;line-height:1.5;background:#f8faf9;border:1px solid #eef0f3;border-radius:9px;padding:8px 10px;margin:0 0 10px;">'
-        +'<b style="color:#1C1C1C;">Quand cela vaut la peine.</b> SENTINELLE ne lit que ce qui est <b>public</b> : vos avis, votre fiche, votre site, vos réseaux. Relancez si l\'un d\'eux a changé — de nouveaux avis, une fiche corrigée, un site refait, une présence ouverte.'
-        +'<br><b style="color:#1C1C1C;">Quand c\'est inutile.</b> Rien n\'a bougé dehors : vous obtiendrez la même note et 4 jetons en moins. Ce que vous faites à l\'intérieur ne se voit pas ici — c\'est la BOUSSOLE qui le mesure.'
+        +'SENTINELLE ne lit que ce qui est <b>public</b> : vos avis, votre fiche, votre site, vos réseaux. Relancez si l\'un d\'eux a changé — de nouveaux avis, une fiche corrigée, un site refait…'
         +'<br><span style="color:#9ca3af;">En pratique, une fois par mois suffit.</span>'
       +'</div>'
       +'<div style="display:flex;align-items:center;justify-content:center;gap:clamp(6px,2vw,12px);flex-wrap:nowrap;margin-top:6px;">'

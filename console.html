@@ -138,7 +138,7 @@
 
   <!-- SUIVI FINANCIER DES ABONNEMENTS -->
   <div class="panel" style="margin-bottom:20px;padding:0">
-    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 2,99 € · Annuel 24,90 €</span></h3>
+    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 12,90 € · Annuel 129 €</span></h3>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
       <th>Client</th><th>Formule</th><th>Prix</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
@@ -339,7 +339,7 @@ function mapEnt(e, blob){
   return { id:e.id, nom:e.nom||'—', secteur:e.secteur||'—', ville:e.ville||'',
     iat:(iat!=null?iat:'–'), ive:(ive!=null?ive:'–'), av:av, dIat:dIat, dIve:dIve, statut:statut,
     jours:jours, derniere:(lastD||'—'), nb:snaps.length,
-    plan:'annuel', price:24.90, since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
+    plan:'annuel', price:129, since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events };
 }
 
@@ -408,10 +408,10 @@ function calcFacture(plan, from){
   var deb=new Date(d.getFullYear(),d.getMonth(),d.getDate());
   var fin, full, totalJ, restJ;
   if(plan==='mensuel'){
-    full=2.99; fin=new Date(deb.getFullYear(),deb.getMonth()+1,0);
+    full=12.90; fin=new Date(deb.getFullYear(),deb.getMonth()+1,0);
     totalJ=fin.getDate(); restJ=totalJ-deb.getDate()+1;
   } else {
-    full=24.90; fin=new Date(deb.getFullYear(),11,31);
+    full=129; fin=new Date(deb.getFullYear(),11,31);
     var jan1=new Date(deb.getFullYear(),0,1);
     totalJ=Math.round((new Date(deb.getFullYear()+1,0,1)-jan1)/864e5);
     restJ=Math.round((fin-deb)/864e5)+1;
@@ -431,7 +431,7 @@ async function factNew(entId){
   if(!e.siret){ var s=prompt('SIRET de « '+c.nom+' » (Entrée si particulier) :')||''; e.siret=s.trim(); }
   if(!e.email_facturation){ var m=prompt('Email de facturation de « '+c.nom+' » :')||''; e.email_facturation=m.trim(); }
   await SB.from('entreprises').update({adresse:e.adresse,siret:e.siret||null,email_facturation:e.email_facturation||null}).eq('id',entId);
-  var plan=confirm('Formule de « '+c.nom+' » :\n\nOK = ANNUEL (24,90 €/an)\nAnnuler = MENSUEL (2,99 €/mois)')?'annuel':'mensuel';
+  var plan=confirm('Formule de « '+c.nom+' » :\n\nOK = ANNUEL (129 €/an)\nAnnuler = MENSUEL (12,90 €/mois)')?'annuel':'mensuel';
   var k=calcFacture(plan);
   var lib='Abonnement LIVE — formule '+(plan==='annuel'?'Annuelle':'Mensuelle')+' — période du '+k.debut+' au '+k.fin+(k.type==='prorata'?' (prorata '+k.restJ+'/'+k.totalJ+' jours)':'');
   if(!confirm('Émettre la facture ?\n\n'+c.nom+'\n'+lib+'\nMontant : '+EUR(k.montant)+' (net, TVA non applicable)\n\n⚠️ Une facture émise est définitive (numérotation légale).')) return;
@@ -569,13 +569,13 @@ function enrich(c){
   if(silent) statut="silence";
   else if((dIat!=null&&dIat<0)||(dIve!=null&&dIve<0)) statut="regression";
   else if(dIat===0&&dIve===0) statut="stagnation";
-  // Abonnement : pour l'instant, tous les clients en formule Annuel 24,90 €/an (souscription = 1re mesure).
+  // Abonnement : pour l'instant, tous les clients en formule Annuel 129 €/an (souscription = 1re mesure).
   const since=c.snaps[0].d;
   const ren=new Date(since); ren.setFullYear(ren.getFullYear()+1);
   const renewalDays=Math.round((ren-TODAY)/864e5);
   const pay = renewalDays<0 ? "retard" : (renewalDays<=30 ? "proche" : "ajour");
   return {...c, iat:last.iat, ive:last.ive, av:last.av, dIat, dIve, statut, jours:daysSince(c.derniere),
-    plan:"annuel", price:24.90, since, renewal:ren.toISOString().slice(0,10), renewalDays, pay};
+    plan:"annuel", price:129, since, renewal:ren.toISOString().slice(0,10), renewalDays, pay};
 }
 const EUR=n=>n.toFixed(2).replace('.',',')+' €';
 let DATA = CLIENTS.map(enrich);
