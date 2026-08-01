@@ -3032,7 +3032,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 167';
+var IVE_VERSION='01/08 · 168';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5283,10 +5283,109 @@ function sentKey(acc){ acc=acc||currentAccount()||{};
   if(acc.sentNom){ return { texte: acc.sentNom+(acc.sentVille?', '+acc.sentVille:''), adresse: acc.sentAdr||'' }; }
   return { texte:(acc.name||'')+(acc.ville?', '+acc.ville:''), adresse:'' };
 }
+/* ===== CONTRÔLE DES DONNÉES — voir un problème avant le client =====
+   Le 31/07/2026, réparer un compte a demandé quinze requêtes SQL dans la console Supabase :
+   doublons de tâches, tâches venues d'un AUTRE compte, deux entreprises pour un seul compte,
+   fiche SENTINELLE orpheline sans adresse. Aucun de ces défauts ne se voyait dans l'écran ;
+   c'est Didier qui les a repérés, un par un, sur son propre compteur.
+   Cet écran regarde les mêmes points, en lecture seule, gratuitement. Il ne répare rien : il
+   DIT ce qu'il voit, et ce qu'il ne peut pas voir. */
+function santeLigne(etat, titre, detail, quoiFaire){
+  var c = etat==='ok' ? ['#15803d','#f4fbf6','#bbf7d0','ti-circle-check']
+        : etat==='attention' ? ['#b45309','#fffbeb','#fde68a','ti-alert-triangle']
+        : etat==='grave' ? ['#991b1b','#fef2f2','#fecaca','ti-alert-octagon']
+        : ['#6b7280','#f8fafc','#eef0f3','ti-help-circle'];
+  return '<div style="display:flex;gap:10px;align-items:flex-start;border:1px solid '+c[2]+';background:'+c[1]+';border-radius:11px;padding:10px 12px;margin-top:8px;">'
+    +'<i class="ti '+c[3]+'" style="font-size:17px;color:'+c[0]+';flex:0 0 auto;margin-top:1px;"></i>'
+    +'<div style="flex:1;min-width:0;font-size:12px;color:#4b5563;line-height:1.5;">'
+      +'<b style="color:#1C1C1C;">'+titre+'</b> '+detail
+      +(quoiFaire?('<div style="font-size:11.5px;color:'+c[0]+';margin-top:4px;">→ '+quoiFaire+'</div>'):'')
+    +'</div></div>';
+}
+async function santeView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  if(!acc){ renderAuth('login'); return; }
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-stethoscope','CONTRÔLE DES DONNÉES','Ce que la base dit de ce compte','accueil')
+    +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
+    +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture en cours…</div></div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+  var h='';
+  try{
+    await window.sbReady;
+    if(!window.sb){ h=santeLigne('inconnu','Hors ligne.','Impossible d\'interroger la base depuis cet appareil.',''); }
+    else{
+      var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+      // 1. UNE SEULE ENTREPRISE PAR COMPTE. Deux, et les données se répartissent entre elles.
+      var re=await window.sb.from('entreprises').select('id,nom,cree_le');
+      var ents=(re && !re.error && re.data)?re.data:[];
+      h+=(ents.length===1)
+        ? santeLigne('ok','Une seule entreprise rattachée.', esc(ents[0].nom||'—')+'.','')
+        : (ents.length===0
+           ? santeLigne('inconnu','Aucune entreprise lisible.','Le compte n\'a peut-être pas encore été initialisé.','Ouvrez une SENTINELLE ou un questionnaire pour la créer.')
+           : santeLigne('grave', ents.length+' entreprises rattachées.',
+               'Les données se répartissent entre elles : une partie devient invisible à l\'écran. '
+               +ents.map(function(e){ return '<b>'+esc(e.nom||'—')+'</b>'; }).join(' · '),
+               'C\'est le défaut le plus sérieux de cette liste. Envoyez-moi cette page avant de continuer.'));
+      // 2. LES TÂCHES : doublons, et tâches d'un plan qui n'existe plus.
+      if(ent){
+        var rt=await window.sb.from('taches').select('norm,due_le,archivee,faite,origine').eq('entreprise_id',ent).limit(2000);
+        var ts=(rt && !rt.error && rt.data)?rt.data:[];
+        var vives=ts.filter(function(t){ return !t.archivee && !t.faite; });
+        var vus={}, dbl=0;
+        vives.forEach(function(t){
+          var n=(t.norm||'').trim(); if(!n) return;
+          var k=n+'|'+(t.due_le||'');
+          if(vus[k]) dbl++; else vus[k]=1;
+        });
+        var plan=vives.filter(function(t){ return t.origine==='plan'; }).length;
+        h+=(dbl===0)
+          ? santeLigne('ok','Aucune tâche en double.', vives.length+' tâche'+(vives.length>1?'s':'')+' active'+(vives.length>1?'s':'')+', dont '+plan+' venue'+(plan>1?'s':'')+' du plan.','')
+          : santeLigne('attention', dbl+' tâche'+(dbl>1?'s':'')+' en double.',
+              'Même libellé et même échéance qu\'une autre — le compteur du matin est faussé d\'autant.',
+              'Le déclencheur en base les bloque à l\'écriture ; celles-ci sont antérieures.');
+        // 3. LES RÉPONSES SALARIÉS, avec le plafond.
+        var rr=await window.sb.from('reponses_salaries').select('id').eq('entreprise_id',ent);
+        var nr=(rr && !rr.error && rr.data)?rr.data.length:null;
+        if(nr!=null) h+=santeLigne(nr>=10?'attention':'ok', nr+' réponse'+(nr>1?'s':'')+' de salariés.',
+            nr>=10?'Le plafond de dix est atteint : une réponse de plus sera refusée.'
+                  :'Plafond à dix. Il reste '+(10-nr)+' place'+((10-nr)>1?'s':'')+'.',
+            nr===0?'Partagez le lien du questionnaire : le MIROIR en tiendra compte.':'');
+        // 4. CE QUI A ÉTÉ PRODUIT, ET CE QUI A BOUGÉ DEPUIS.
+        var rf=await window.sb.from('fiches').select('kind,cree_le').eq('entreprise_id',ent).order('cree_le',{ascending:false}).limit(200);
+        var fs=(rf && !rf.error && rf.data)?rf.data:[];
+        var parKind={}; fs.forEach(function(f){ parKind[f.kind]=(parKind[f.kind]||0)+1; });
+        var kinds=Object.keys(parKind);
+        h+=kinds.length
+          ? santeLigne('ok','Analyses enregistrées.', kinds.map(function(k){ return parKind[k]+' '+k; }).join(' · ')+'.','')
+          : santeLigne('inconnu','Aucune analyse enregistrée.','Ni SENTINELLE, ni BOUSSOLE, ni MIROIR pour ce compte.','');
+      }
+      // 5. LES REPÈRES DE FRAÎCHEUR, côté navigateur.
+      var sv=(typeof miroirStore!=='undefined')?miroirStore.load():null;
+      var nouv=(sv&&sv.ts&&typeof majDepuis==='function')?majDepuis(sv.ts):[];
+      h+=sv
+        ? santeLigne(nouv.length?'attention':'ok','MIROIR enregistré.',
+            nouv.length?('Du nouveau depuis : '+esc(nouv.join(', '))+'.'):'À jour, rien n\'a bougé depuis.',
+            nouv.length?'Une mise à jour du MIROIR coûterait 3 jetons.':'')
+        : santeLigne('inconnu','Aucun MIROIR sur cet appareil.','Il existe peut-être en base : il sera relu à la prochaine connexion.','');
+    }
+  }catch(e){ h+=santeLigne('inconnu','Lecture interrompue.','La base n\'a pas répondu jusqu\'au bout : ce tableau est incomplet.',''); }
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-stethoscope','CONTRÔLE DES DONNÉES','Ce que la base dit de ce compte','accueil')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:12px;color:#4b5563;line-height:1.55;">Lecture seule, gratuite. Rien n\'est modifié ici.</div>'
+      +h
+      /* On dit ce qu'on NE regarde PAS : un tableau vert qui cache un angle mort est pire
+         qu'un tableau incomplet annoncé comme tel. */
+      +'<div style="font-size:10.5px;color:#9ca3af;margin-top:12px;line-height:1.5;">Non couvert ici : les fiches SENTINELLE (table réservée au serveur) et le coût des appels d\'IA. Les tâches sans forme normalisée ne peuvent pas être comparées entre elles.</div>'
+    +'</div></div>';
+  window.scrollTo(0,0);
+}
 function adminBar(){
   if(!iveIsAdmin()) return '';
   return '<div style="background:#1C1C1C;border:1px solid #3f3f46;border-radius:12px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;">'
     +'<div style="font-size:11.5px;color:#e5e7eb;line-height:1.2;"><i class="ti ti-shield-check" style="color:#E8541A;"></i> <b>Mode admin</b> · DBi360<div style="font-size:9.5px;color:#9ca3af;margin-top:1px;">Vue consultant complète débloquée</div></div>'
+    +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-right:6px;"><i class="ti ti-stethoscope"></i> Contrôle</button>'
     +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Nouvelle analyse</button>'
     +'</div>';
 }
