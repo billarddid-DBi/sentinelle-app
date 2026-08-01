@@ -76,6 +76,21 @@
   .naBtn{font-size:10px;color:#9ca3af;border:1px solid #e6e1d8;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;flex-shrink:0;}
   .naBtn.on{color:#fff;background:#9ca3af;border-color:#9ca3af;}
   .foot{padding:11px 16px;background:#f8fafc;font-size:10.5px;color:#6b7280;line-height:1.5;}
+  /* LA GRILLE D'ACCUEIL — décision Didier (01/08/2026), sur le modèle d'une app d'atelier :
+     tout ce que l'application sait faire, visible d'un seul écran, sans fouiller cinq onglets.
+     Trois colonnes même sur un petit téléphone : c'est ce qui fait tenir douze accès sans
+     défilement. Une tuile indisponible reste AFFICHÉE et grisée — cacher ce qui manque empêche
+     de savoir que ça existe. */
+  .ivGrille{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px;}
+  .ivTuile{background:#fff;border:1px solid #eef0f3;border-radius:14px;padding:13px 5px 10px;text-align:center;position:relative;min-height:106px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;}
+  .ivTuile i.ivIc{font-size:27px;color:#E8541A;}
+  .ivTuile .ivT{font-size:10.8px;font-weight:700;color:#1C1C1C;margin-top:7px;line-height:1.22;}
+  .ivTuile .ivE{font-size:9px;font-weight:700;margin-top:auto;padding-top:5px;line-height:1.15;}
+  .ivTuile.ivOff{background:#fafafa;cursor:pointer;}
+  .ivTuile.ivOff i.ivIc,.ivTuile.ivOff .ivT{color:#c7ccd3;}
+  .ivCad{position:absolute;top:7px;right:8px;font-size:11px;color:#c7ccd3;}
+  .ivBul{position:absolute;top:6px;right:7px;background:#E8541A;color:#fff;font-size:10px;font-weight:800;border-radius:10px;min-width:19px;height:19px;display:flex;align-items:center;justify-content:center;padding:0 5px;}
+  .ivSect{font-size:10px;font-weight:800;letter-spacing:.5px;color:#9ca3af;margin-top:16px;}
   /* LA COLONNE DE DROITE DES BANDEAUX NOIRS (pastilles, date, « Mon compte »).
      Signalé par Didier le 01/08 depuis son téléphone : elle était en flex:0 0 auto avec
      white-space:nowrap, donc INCOMPRESSIBLE. Les deux pastilles font à elles seules ~330 px ;
@@ -2243,9 +2258,11 @@ function iveNav(s){
   if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
-  else if(s==='actions'){ mesActionsView(); }
-  else if(s==='resultats'){ mesResultatsView(); }
-  else if(s==='t360'){ mon360View(); }
+  /* « Mes actions », « Résultats » et « Mon 360° » n'existent plus depuis le 01/08 : leurs douze
+     accès sont sur l'accueil, en grille. On garde les trois noms comme aiguillage — du code
+     ailleurs fait encore iveNav('actions') après un enregistrement, et il doit atterrir quelque
+     part de sensé plutôt que sur une alerte. */
+  else if(s==='actions'||s==='resultats'||s==='t360'){ dirigeantSpace(); }
   // Le questionnaire : on reprend la formule déjà commencée, sinon on choisit.
   else if(s==='questionnaire'){
     if(!iveAbonne()){ offreView(); return; }
@@ -2263,58 +2280,6 @@ function iveNav(s){
 // « Mes actions » : tout le parcours au même endroit, dans l'ordre où on le vit.
 // « Résultats » : tout ce que l'application restitue, séparé de ce qu'il reste à faire.
 // « Mon 360° » : les trois regards sur l'entreprise — le dehors, le dedans, et leur confrontation.
-function mon360View(){
-  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  if(!acc){ renderAuth('login'); return; }
-  var abo=iveAbonne();
-  var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
-  var etape=function(ic,titre,sous,statut,action,verrou){
-    var cliq=verrou?'offreView()':action;
-    return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
-      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';"><i class="ti '+ic+'"></i></div>'
-      +'<div style="flex:1;min-width:0;">'
-      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'')+titre+'</div>'
-      +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
-      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':(/^(Prêt|Terminé)/.test(statut)?'#15803d':'#b45309'))+';margin-top:4px;">'+statut+'</div>':'')
-      +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
-  };
-  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-360','MON 360°','Les trois regards sur votre entreprise','t360')
-    +'<div class="card"><div class="sec">'
-      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.55;">Le regard du <b>dehors</b>, celui du <b>dedans</b>, et ce que leur confrontation révèle.</div>'
-      +etape('ti-radar-2','SENTINELLE','Le regard du dehors, mesuré automatiquement : avis, notes, visibilité, concurrence. Ce que découvre un client qui vous cherche.','Prêt',"sentApercu()",false)
-      +etape('ti-compass','BOUSSOLE','Le regard du dedans, calculé sur vos réponses : votre indice réel, votre potentiel atteignable et vos 8 piliers.',
-          (et&&et.complet)?'Prêt':('Questionnaire à compléter'+(et&&et.total?' — '+(et.total-et.fait)+' critères restants':'')),
-          "iveNav('boussole')",!abo)
-      +etape('ti-sparkles','MIROIR','Ce que révèle la confrontation entre votre image publique et votre réalité interne : la racine des écarts, et l\'ordonnance pour les combler.',
-          (et&&et.complet)?'Prêt':'Demande la BOUSSOLE terminée',"runMiroir()",!abo)
-    +'</div></div>';
-  showView('dirigeant'); window.scrollTo(0,0);
-}
-function mesResultatsView(){
-  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  if(!acc){ renderAuth('login'); return; }
-  var abo=iveAbonne();
-  var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
-  var etape=function(n,ic,titre,sous,statut,action,verrou){
-    var cliq=verrou?'offreView()':action;
-    return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
-      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';"><i class="ti '+ic+'"></i></div>'
-      +'<div style="flex:1;min-width:0;">'
-      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'')+titre+'</div>'
-      +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
-      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':(/^(Prêt|Terminé)/.test(statut)?'#15803d':'#b45309'))+';margin-top:4px;">'+statut+'</div>':'')
-      +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
-  };
-  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-chart-dots','RÉSULTATS','Vos outils d\'analyse','resultats')
-    +'<div class="card"><div class="sec">'
-      /* SENTINELLE, BOUSSOLE et MIROIR restent dans « Mes actions » : ici, les outils. */
-      +'<div style="font-size:11px;font-weight:800;color:#E8541A;letter-spacing:.4px;margin-top:18px;">ET AUSSI</div>'
-      +(typeof bouToolsHtml==='function'?bouToolsHtml(!abo):'')
-    +'</div></div>';
-  showView('dirigeant'); window.scrollTo(0,0);
-}
 /* ===== LE PARCOURS ANNONCÉ D'AVANCE (décision Didier, 31/07) =====
    Avant, le dirigeant découvrait le prix par petits bouts : 4 jetons, puis encore 4, puis 3,
    puis 1. Chaque écran devenait une négociation, et ça donnait l'impression qu'on lui soutirait
@@ -2355,59 +2320,6 @@ function parcoursHtml(){
        : '<div style="font-size:11.5px;color:#991b1b;background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:8px 10px;margin-top:8px;line-height:1.45;"><i class="ti ti-alert-triangle"></i> Il vous manque <b>'+(total-e.reste)+' jeton'+((total-e.reste)>1?'s':'')+'</b> pour finir le parcours. Mieux vaut recharger avant de commencer que de rester bloqué au milieu. <span onclick="offreView()" style="cursor:pointer;text-decoration:underline;font-weight:700;">Recharger</span></div>')
     +'<div style="font-size:11px;color:#9ca3af;margin-top:9px;line-height:1.45;">Une fois produit, <b>tout se consulte gratuitement</b> — les détails, les explications, les relectures. Vous ne repayez que si vos données changent.</div>'
     +'</div></div>';
-}
-function mesActionsView(){
-  var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-  if(!acc){ renderAuth('login'); return; }
-  var abo=iveAbonne();
-  var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
-  var etapeQ=et?(et.complet?'Terminé':(et.fait?('En cours — '+et.fait+' / '+et.total+' critères'):'À faire')):'À faire';
-  var ahOk=!!(window.lastAH && window.lastAH.iat!=null);
-  var etapeAH=ahOk?'Terminé':'À faire';
-  var concOk=(typeof concFaite==='function')&&concFaite();
-  var simOk=(typeof iveFaitGet==='function')&&iveFaitGet('simulateur');
-  var qFait=(et&&et.complet)?1:0, ahFait=ahOk?1:0;
-  // Un intertitre de section : ce qu'on y trouve, et où l'on en est.
-  var titreSec=function(ic,titre,sous,compteur){
-    return '<div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:18px;">'
-      +'<div><div style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.6px;"><i class="ti '+ic+'"></i> '+titre+'</div>'
-      +'<div style="font-size:11.5px;color:#9ca3af;margin-top:1px;">'+sous+'</div></div>'
-      +(compteur?'<div style="font-size:11.5px;font-weight:700;color:#6b7280;white-space:nowrap;">'+compteur+'</div>':'')
-      +'</div>';
-  };
-  // Une étape = un numéro, un titre, ce qu'elle apporte, et où elle en est.
-  var etape=function(n,ic,titre,sous,statut,action,verrou){
-    var cliq=verrou?'offreView()':action;
-    return '<div onclick="'+cliq+'" style="display:flex;align-items:flex-start;gap:12px;border:1px solid #eef0f3;border-radius:14px;background:#fff;padding:13px 14px;margin-top:9px;cursor:pointer;">'
-      +'<div style="flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:'+(verrou?'#f1f2f4':'#FBE7DC')+';display:flex;align-items:center;justify-content:center;font-size:'+(n?'13px':'15px')+';font-weight:800;color:'+(verrou?'#9ca3af':'#E8541A')+';">'+(n||'<i class="ti '+ic+'"></i>')+'</div>'
-      +'<div style="flex:1;min-width:0;">'
-      +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">'+(verrou?'<i class="ti ti-lock" style="font-size:12px;color:#9ca3af;"></i> ':'<i class="ti '+ic+'" style="font-size:13px;color:#E8541A;"></i> ')+titre+'</div>'
-      +'<div style="font-size:12px;color:#6b7280;line-height:1.45;margin-top:2px;">'+sous+'</div>'
-      // Vert quand c'est fait ou disponible, ambre quand il reste quelque chose à faire.
-      +(statut?'<div style="font-size:11px;font-weight:700;color:'+(verrou?'#9ca3af':(/^(Prêt|Terminé)/.test(statut)?'#15803d':'#b45309'))+';margin-top:4px;">'+statut+'</div>':'')
-      +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
-  };
-  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
-    +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
-    // Le prix du parcours, annoncé UNE FOIS et en entier, avant toute dépense.
-    +(abo?parcoursHtml():'')
-    +'<div class="card"><div class="sec">'
-      // Partie 1 : ce qui attend une réponse du dirigeant ou de ses équipes.
-      +titreSec('ti-pencil','À COMPLÉTER','Ce qui demande votre temps',(qFait+ahFait)+' sur 2 questionnaires')
-      +etape(1,'ti-clipboard-list','Questionnaire Dirigeant','40 ou 200 critères notés par vous : comment l\'entreprise fonctionne vraiment, pilier par pilier. C\'est la matière première de la BOUSSOLE.',etapeQ,"iveNav('questionnaire')",!abo)
-      +etape(2,'ti-users-group','Questionnaire aux salariés','12 critères remplis par vos équipes : confiance, communication, craintes. Mesure si votre entreprise est prête à changer.',etapeAH,"ahChoice()",!abo)
-      // HORS PARCOURS, et on le dit : la carte se paie à part, et sa valeur dépend du métier.
-      +etape(3,'ti-map-2','Carte de la concurrence',
-             'Qui vous entoure et où vous vous situez face à eux — sur la carte et en tableau.'
-             +'<div style="margin-top:5px;font-size:11.5px;color:'+(concConseil().fort?'#15803d':'#6b7280')+';">'
-               +'<i class="ti '+(concConseil().fort?'ti-thumb-up':'ti-info-circle')+'"></i> '+concConseil().txt+'</div>'
-             +(concOk?'':'<div style="margin-top:4px;font-size:11.5px;color:#9a3412;"><i class="ti ti-coins"></i> En dehors du parcours — <b>'+JETONS_COUT.concurrence+' jetons</b> à part.</div>'),
-             (concOk?'Terminé':'À faire'),"boussoleOutil('concurrence')",!abo)
-      +etape(4,'ti-calculator','Simulateur de gain','Le temps et l\'argent récupérables grâce à l\'IA, à partir de votre réalité : effectif, heures, coût horaire.',(simOk?'Terminé':'À faire'),"boussoleOutil('simulateur')",!abo)
-      /* SENTINELLE, BOUSSOLE et MIROIR ont leur propre onglet : voir mon360View(). */
-    +'</div></div>';
-  showView('dirigeant'); window.scrollTo(0,0);
 }
 // Les résultats : on rejoue la grille enregistrée puis on lance le calcul, sans rien ressaisir.
 function boussoleResultats(mode){
@@ -2946,19 +2858,16 @@ function iveEntete(icone,surtitre,titre,actif){
     +(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar(actif||'actions'):'');
 }
+/* CE QUI ÉTAIT LA BARRE À CINQ ONGLETS EST DEVENU UN RETOUR. Décision Didier (01/08/2026) :
+   tous les accès sont désormais sur l'écran d'accueil, en grille. Garder en plus une barre
+   d'onglets donnerait DEUX chemins vers chaque écran — et c'est précisément la dispersion qu'on
+   supprime. La fonction garde son nom et sa signature : elle est appelée à dix-sept endroits,
+   et aucun n'a besoin d'être touché. Le paramètre `active` n'est plus utilisé, on le garde
+   pour ne pas casser les appels existants. */
 function iveNavBar(active){
-  // Les cadenas ne concernent que les non-abonnés : une fois la formule prise, ils disparaissent.
-  var verrouOff=(typeof iveAbonne==='function')?iveAbonne():false;
-  // Toutes les pages du parcours allument le même onglet.
-  if(['sentinelle','boussole','plan','miroir','t360'].indexOf(active)>=0) active='t360';
-  else if(active==='resultats') active='resultats';
-  else if(['questionnaire','actions'].indexOf(active)>=0) active='actions';
-  // Le questionnaire a son propre onglet : BOUSSOLE n'affiche plus que les résultats.
-  // Trois onglets seulement : sur un téléphone, six libellés se chevauchaient.
-  // Tout le parcours (Sentinelle, Questionnaire, Boussole, outils) vit sous « Mes actions ».
-  var items=[['accueil','ti-home','Accueil',0],['actions','ti-layout-grid','Mes actions',0],['t360','ti-360','Mon 360°',0],['resultats','ti-chart-dots','Résultats',0],['historique','ti-history','Historique',0]];
-  return '<div class="ivenav" style="display:flex;flex-direction:row;gap:4px;background:#1C1C1C;border-radius:12px;padding:6px 5px;width:100%;box-sizing:border-box;">'
-    +items.map(function(x){ var on=(x[0]===active); return '<button type="button" onclick="iveNav(\''+x[0]+'\')" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;background:'+(on?'#E8541A':'transparent')+';border:none;border-radius:9px;padding:8px 2px;cursor:pointer;font-family:inherit;color:'+(on?'#fff':'#cbd5e1')+';line-height:1.1;"><i class="ti '+x[1]+'" style="font-size:18px;"></i><span style="font-size:8px;font-weight:600;text-align:center;white-space:nowrap;">'+x[2]+((x[3]&&!verrouOff)?' <i class="ti ti-lock" style="font-size:7.5px;opacity:.8;"></i>':'')+'</span></button>'; }).join('')
+  return '<div class="ivenav" style="display:flex;align-items:center;gap:8px;background:#1C1C1C;border-radius:12px;padding:7px 9px;width:100%;box-sizing:border-box;">'
+    +'<button type="button" onclick="iveNav(\'accueil\')" style="display:flex;align-items:center;gap:7px;background:transparent;border:none;border-radius:9px;padding:5px 4px;cursor:pointer;font-family:inherit;color:#cbd5e1;font-size:12px;font-weight:600;">'
+      +'<i class="ti ti-arrow-left" style="font-size:17px;color:#E8541A;"></i> Accueil</button>'
     +'</div>';
 }
 // Rose des vents (compas nautique) — étoile 8 branches facettées + double cercle gradué + lettres N-E-S-O
@@ -3082,7 +2991,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 171';
+var IVE_VERSION='01/08 · 172';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5467,6 +5376,71 @@ function adminBar(){
    Rien n'est accessible sans compte. Une fois connecté, le dirigeant a exactement deux choix :
    dicter ses tâches, ou voir sa couleur et son objectif. Tout le reste est payant.
    La vue complète d'avant est CONSERVÉE sous dirigeantSpaceComplet() (accès admin). */
+/* UNE TUILE DE LA GRILLE D'ACCUEIL.
+   `action` vide = fonction qui n'existe pas encore : pas d'onclick du tout, tuile grise. On ne
+   fabrique pas un bouton qui mène à « Bientôt disponible ». */
+function ivTuile(ic,titre,action,etat,ton,verrou){
+  var bientot=!action;
+  var cliq=bientot?'':(verrou?'offreView()':action);
+  var coul=(ton==='ok')?'#15803d':(ton==='att'?'#b45309':'#9ca3af');
+  return '<div class="ivTuile'+((verrou||bientot)?' ivOff':'')+'"'+(cliq?(' onclick="'+cliq+'"'):' style="cursor:default;"')+'>'
+    +(verrou&&!bientot?'<i class="ti ti-lock ivCad"></i>':'')
+    +'<i class="ti '+ic+' ivIc"></i>'
+    +'<div class="ivT">'+titre+'</div>'
+    +'<div class="ivE" style="color:'+(verrou?'#9ca3af':coul)+';">'+(verrou&&!bientot?'Abonnés':etat)+'</div>'
+  +'</div>';
+}
+/* L'ÉTAT DE CHAQUE TUILE, lu sur les mêmes sources que les écrans eux-mêmes — jamais recalculé
+   autrement, sinon l'accueil finirait par annoncer autre chose que ce qu'on trouve en ouvrant.
+   Chaque clé a une valeur PAR DÉFAUT avant toute lecture : si une source manque, la tuile reste
+   muette mais l'écran s'affiche. Un accueil blanc serait la pire des pannes. */
+function iveGrilleEtats(){
+  var d={txt:'',ton:'off'};
+  var o={sent:d,quest:d,sal:d,bou:d,mir:d,conc:d,feuille:d,outils:d,sim:d,jet:d,parcoursFini:false};
+  try{
+    var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
+    var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
+
+    var ex=(f.indice&&f.indice.estime!=null)?+f.indice.estime:null;
+    o.sent = (ex!=null)?{txt:'Fait · '+ex+'/100',ton:'ok'}:{txt:'À lancer',ton:'att'};
+
+    o.quest = (et&&et.complet)?{txt:'Terminé',ton:'ok'}
+            : (et&&et.fait)?{txt:et.fait+' / '+et.total,ton:'att'}
+            : {txt:'À faire',ton:'att'};
+
+    var ah=(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null;
+    o.sal = ah?{txt:ah.n+' réponse'+(ah.n>1?'s':''),ton:'ok'}:{txt:'À partager',ton:'att'};
+
+    var din=(typeof iveIndiceEnregistre==='function')?iveIndiceEnregistre():'';
+    o.bou = (et&&et.complet)?{txt:(din!==''?('Prête · '+din+'/100'):'Prête'),ton:'ok'}
+                            :{txt:'Questionnaire à finir',ton:'att'};
+
+    var sv=(typeof miroirStore!=='undefined')?miroirStore.load():null;
+    if(sv&&sv.m){
+      var neuf=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
+      o.mir = neuf.length?{txt:'À rafraîchir',ton:'att'}:{txt:'Prêt',ton:'ok'};
+      o.parcoursFini=true;
+    }else{
+      o.mir = (et&&et.complet)?{txt:'À lancer',ton:'att'}:{txt:'Après la BOUSSOLE',ton:'off'};
+    }
+
+    var cok=(typeof concFaite==='function')&&concFaite();
+    o.conc = cok?{txt:'Faite',ton:'ok'}
+                :{txt:((typeof JETONS_COUT!=='undefined'&&JETONS_COUT.concurrence)?(JETONS_COUT.concurrence+' jetons'):'À faire'),ton:'off'};
+
+    o.feuille = (et&&et.complet)?{txt:'Disponible',ton:'ok'}:{txt:'Après la BOUSSOLE',ton:'off'};
+
+    var nb=(f.agents&&f.agents.length)?f.agents.length:0;
+    o.outils = nb?{txt:nb+' piste'+(nb>1?'s':''),ton:'ok'}:{txt:'Après SENTINELLE',ton:'off'};
+
+    var sok=(typeof iveFaitGet==='function')&&iveFaitGet('simulateur');
+    o.sim = sok?{txt:'Fait',ton:'ok'}:{txt:'À essayer',ton:'off'};
+
+    var je=(typeof jetEtat==='function')?jetEtat():null;
+    if(je) o.jet={txt:je.reste+' restants',ton:(je.reste<=5?'att':'ok')};
+  }catch(e){}
+  return o;
+}
 function dirigeantSpace(){
   window.currentSpace='dirigeant';
   if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
@@ -5494,28 +5468,61 @@ function dirigeantSpace(){
   };
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
   var _verrou=!iveAbonne();
+  var G=iveGrilleEtats();
   $('dirigeant').innerHTML=adminBar()
     +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(true)+'</div></div>'
-    +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
-    // Deux gestes, deux formes : le cercle pour dicter, la barre pour consulter.
-    +'<div style="display:flex;justify-content:center;margin-top:26px;">'
-      +'<div onclick="'+(_verrou?'offreView()':'dicteeEnregistrerView()')+'" style="width:clamp(200px,58vw,260px);height:clamp(200px,58vw,260px);border-radius:50%;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#E8541A,#c2410c)')+';box-shadow:0 14px 38px rgba(232,84,26,.28);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;padding:0 18px;box-sizing:border-box;position:relative;">'
-        +(_verrou?'<span style="position:absolute;top:16px;right:18px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:14px;color:#fff;"></i></span>':'')
-        +'<i class="ti ti-microphone" style="font-size:clamp(44px,12vw,58px);color:#fff;"></i>'
-        +'<div style="font-size:clamp(15px,4.2vw,17px);font-weight:800;color:#fff;margin-top:14px;line-height:1.25;">Enregistrer une tâche</div>'
-        +'<div style="font-size:clamp(11.5px,3.2vw,12.5px);color:rgba(255,255,255,.85);margin-top:4px;">'+(_verrou?'Réservé aux abonnés':'Dictez-la ou écrivez-la')+'</div>'
+    /* PAS DE BARRE DE RETOUR ICI : on y est déjà. iveNavBar() est devenue un « ← Accueil » et
+       l'afficher sur l'accueil donnait un bouton qui ne mène nulle part. */
+    /* LES DEUX GESTES DU JOUR, CÔTE À CÔTE ET COMPACTS. Le grand cercle orange occupait à lui
+       seul 260 px de haut : la grille commençait sous la ligne de flottaison, ce qui annulait
+       tout l'intérêt de l'écran unique. Ils restent les plus gros éléments de la page — ce sont
+       les deux gestes du quotidien — mais ils tiennent maintenant sur une bande. */
+    +'<div style="display:flex;gap:9px;margin-top:12px;">'
+      +'<div onclick="'+(_verrou?'offreView()':'dicteeEnregistrerView()')+'" style="flex:1 1 0;min-width:0;border-radius:16px;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#E8541A,#c2410c)')+';box-shadow:0 8px 22px rgba(232,84,26,.24);text-align:center;cursor:pointer;padding:14px 8px;position:relative;">'
+        +(_verrou?'<span style="position:absolute;top:9px;right:11px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:12px;color:#fff;"></i></span>':'')
+        +'<i class="ti ti-microphone" style="font-size:27px;color:#fff;"></i>'
+        +'<div style="font-size:13.5px;font-weight:800;color:#fff;margin-top:6px;line-height:1.2;">Enregistrer une tâche</div>'
+        +'<div style="font-size:10.5px;color:rgba(255,255,255,.85);margin-top:2px;">'+(_verrou?'Réservé aux abonnés':'Dictez-la ou écrivez-la')+'</div>'
+      +'</div>'
+      +'<div onclick="'+(_verrou?'offreView()':'dicteeView()')+'" style="flex:1 1 0;min-width:0;border-radius:16px;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#c2410c,#9a3412)')+';box-shadow:0 8px 22px rgba(154,52,18,.22);text-align:center;cursor:pointer;padding:14px 8px;position:relative;">'
+        +((!_verrou&&_att)?'<span style="position:absolute;top:9px;right:11px;background:#fff;color:#c2410c;font-size:11px;font-weight:800;border-radius:12px;min-width:23px;height:23px;display:flex;align-items:center;justify-content:center;padding:0 6px;">'+_att+'</span>':'')
+        +(_verrou?'<span style="position:absolute;top:9px;right:11px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:12px;color:#fff;"></i></span>':'')
+        +'<i class="ti ti-list-check" style="font-size:27px;color:#fff;"></i>'
+        +'<div style="font-size:13.5px;font-weight:800;color:#fff;margin-top:6px;line-height:1.2;">Mes tâches en cours</div>'
+        +'<div style="font-size:10.5px;color:rgba(255,255,255,.85);margin-top:2px;">'+(_verrou?'Réservé aux abonnés':'Priorités, délais')+'</div>'
       +'</div>'
     +'</div>'
-    +'<div onclick="'+(_verrou?'offreView()':'dicteeView()')+'" style="margin-top:26px;background:'+(_verrou?'linear-gradient(135deg,#c7ccd3,#9ca3af)':'linear-gradient(135deg,#c2410c,#9a3412)')+';border-radius:18px;padding:18px 20px;cursor:pointer;box-shadow:0 8px 22px rgba(154,52,18,.22);position:relative;">'
-      +((!_verrou&&_att)?'<span style="position:absolute;top:12px;right:14px;background:#fff;color:#c2410c;font-size:12px;font-weight:800;border-radius:13px;min-width:26px;height:26px;display:flex;align-items:center;justify-content:center;padding:0 7px;">'+_att+'</span>':'')
-      +(_verrou?'<span style="position:absolute;top:12px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;"><i class="ti ti-lock" style="font-size:14px;color:#fff;"></i></span>':'')
-      +'<div style="display:flex;align-items:center;justify-content:center;gap:12px;">'
-        +'<i class="ti ti-list-check" style="font-size:26px;color:#fff;flex:0 0 auto;"></i>'
-        +'<div style="font-size:clamp(15px,4.2vw,17.5px);font-weight:800;color:#fff;line-height:1.25;">Consulter les tâches en cours</div>'
-      +'</div>'
-      +'<div style="font-size:clamp(11.5px,3.2vw,12.5px);color:rgba(255,255,255,.85);text-align:center;margin-top:5px;">'+(_verrou?'Réservé aux abonnés':'Priorités, délais, rappels')+'</div>'
+    /* TOUT LE RESTE DE L'APPLICATION, EN GRILLE. Les cinq onglets ont disparu : ce qui était
+       « Mes actions », « Mon 360° » et « Résultats » tient ici, en douze tuiles. Chaque tuile
+       porte son ÉTAT — c'est ce qui manque à une grille d'app d'atelier, où toutes les fonctions
+       sont indépendantes. Ici il y a un ordre : sans état, on tape MIROIR en premier et on
+       reçoit « il vous manque l'une des deux ». */
+    +'<div class="ivSect">VOTRE DIAGNOSTIC</div>'
+    +'<div class="ivGrille">'
+      +ivTuile('ti-radar-2','SENTINELLE','sentApercu()',G.sent.txt,G.sent.ton,false)
+      +ivTuile('ti-clipboard-list','Questionnaire dirigeant','iveNav(\'questionnaire\')',G.quest.txt,G.quest.ton,_verrou)
+      +ivTuile('ti-users-group','Questionnaire salariés','ahChoice()',G.sal.txt,G.sal.ton,_verrou)
+      +ivTuile('ti-compass','BOUSSOLE','iveNav(\'boussole\')',G.bou.txt,G.bou.ton,_verrou)
+      +ivTuile('ti-sparkles','MIROIR','runMiroir()',G.mir.txt,G.mir.ton,_verrou)
+      +ivTuile('ti-map-2','Carte de la concurrence','boussoleOutil(\'concurrence\')',G.conc.txt,G.conc.ton,_verrou)
     +'</div>'
-    /* Le bouton bleu a rejoint « Mes actions » : l'accueil ne garde que les deux gestes du jour. */
+    +'<div class="ivSect">VOTRE PLAN &amp; VOTRE COMPTE</div>'
+    +'<div class="ivGrille">'
+      +ivTuile('ti-route','Feuille de route','boussoleOutil(\'feuille\')',G.feuille.txt,G.feuille.ton,_verrou)
+      +ivTuile('ti-robot','Pistes d\'outils IA','boussoleOutil(\'outilsia\')',G.outils.txt,G.outils.ton,_verrou)
+      +ivTuile('ti-calculator','Simulateur de gain','boussoleOutil(\'simulateur\')',G.sim.txt,G.sim.ton,_verrou)
+      +ivTuile('ti-coins','Jetons &amp; formule','offreView()',G.jet.txt,G.jet.ton,false)
+      /* Ces deux-là n'existent pas encore : iveNav('historique') et iveNav('params') tombent
+         sur « Bientôt disponible ». On les montre grisées plutôt que de faire semblant — une
+         tuile qui promet un écran inexistant coûte plus cher qu'une tuile grise. */
+      +ivTuile('ti-history','Historique','',' bientôt','off',true)
+      +(iveIsAdmin()
+        ? ivTuile('ti-stethoscope','Contrôle des données','santeView()','admin','off',false)
+        : ivTuile('ti-user-circle','Mon compte','',' bientôt','off',true))
+    +'</div>'
+    /* Le prix du parcours, annoncé UNE FOIS et en entier (décision du 31/07). Il disparaît dès
+       que le parcours est produit : à ce moment-là il n'annonce plus rien. */
+    +((!_verrou && !G.parcoursFini)?('<div style="margin-top:14px;">'+parcoursHtml()+'</div>'):'')
     +(iveIsAdmin()?'<div style="text-align:center;margin-top:16px;"><a href="#" onclick="dirigeantSpaceComplet();return false;" style="font-size:11.5px;color:#9ca3af;"><i class="ti ti-lock-open"></i> Vue complète (admin)</a></div>':'')
     +'<div class="foot" style="margin-top:14px;"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+'</div>';
   showView('dirigeant'); window.scrollTo(0,0);
