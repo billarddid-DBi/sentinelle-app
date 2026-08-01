@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 196';
+var IVE_VERSION='01/08 · 197';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5524,8 +5524,65 @@ function monCompteView(){
       +'</div>'
       +'<button type="button" onclick="offreView()" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:13.5px;font-weight:800;padding:13px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-coins"></i> Formules et jetons</button>'
       +'<button type="button" onclick="authLogout()" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;background:#fff;color:#6b7280;font-size:13px;font-weight:700;padding:12px;margin-top:8px;cursor:pointer;font-family:inherit;"><i class="ti ti-logout"></i> Déconnexion</button>'
-    +'</div></div>';
+    +'</div></div>'
+    /* SUPPRIMER SON COMPTE — ajouté le 01/08 avec la fonction serveur supprimer_mon_compte().
+       Isolé dans sa propre carte, tout en bas : un geste irréversible ne se place pas au milieu
+       d'informations qu'on vient consulter. Il n'est pas replié derrière un menu non plus — ce
+       serait cacher un droit.
+       LE VERROU EST LA SAISIE DE L'ADRESSE, pas une fenêtre de confirmation : on ne peut pas
+       cliquer dessus par réflexe. Le bouton reste inerte tant que le texte ne correspond pas. */
+    +'<div class="card" style="border:1.5px solid #fecaca;overflow:hidden;margin-top:14px;">'
+      +'<div style="background:#fef2f2;padding:12px 15px;"><div style="font-size:13px;font-weight:800;color:#991b1b;"><i class="ti ti-alert-triangle"></i> Supprimer mon compte</div>'
+      +'<div style="font-size:11.5px;color:#7f1d1d;line-height:1.5;margin-top:4px;">Définitif. Il n\'y a pas de retour en arrière et nous ne pourrons rien restaurer.</div></div>'
+      +'<div class="sec">'
+        +'<div style="font-size:12.5px;color:#4b5563;line-height:1.6;">Sont effacés : vos tâches, les réponses de vos salariés, vos analyses SENTINELLE, BOUSSOLE et MIROIR, votre feuille de route et votre historique. Votre adresse e-mail est libérée — vous pourrez vous réinscrire, mais tout repartira de zéro.</div>'
+        +'<div style="font-size:12px;color:#1C1C1C;font-weight:700;margin-top:12px;">Pour confirmer, retapez votre adresse :</div>'
+        +'<input type="text" id="delMail" autocomplete="off" oninput="monCompteDelEtat()" placeholder="'+esc(acc.email||'')+'" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;margin-top:6px;">'
+        +'<button type="button" id="delBtn" disabled onclick="monCompteSupprimer()" style="width:100%;border:0;border-radius:12px;background:#e5e7eb;color:#9ca3af;font-size:13.5px;font-weight:800;padding:13px;margin-top:10px;cursor:not-allowed;font-family:inherit;"><i class="ti ti-trash"></i> Supprimer définitivement</button>'
+        +'<div id="delMsg" style="font-size:12px;margin-top:9px;line-height:1.5;"></div>'
+      +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+}
+/* Le bouton ne s'allume que si l'adresse tapée est EXACTEMENT celle du compte. Comparaison
+   insensible à la casse et aux espaces — on vérifie une intention, pas une dictée. */
+function monCompteDelEtat(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  var e=$('delMail'), b=$('delBtn'); if(!e||!b||!acc) return;
+  var ok=((e.value||'').trim().toLowerCase()===String(acc.email||'').trim().toLowerCase());
+  b.disabled=!ok;
+  b.style.background=ok?'#dc2626':'#e5e7eb';
+  b.style.color=ok?'#fff':'#9ca3af';
+  b.style.cursor=ok?'pointer':'not-allowed';
+}
+async function monCompteSupprimer(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  var m=$('delMsg'), b=$('delBtn');
+  var dire=function(t,c){ if(m){ m.style.color=c||'#6b7280'; m.innerHTML=t; } };
+  if(!acc) return;
+  // Deuxième garde-fou, côté code : on ne fait pas confiance à l'état visuel du bouton.
+  var saisie=(($('delMail')&&$('delMail').value)||'').trim().toLowerCase();
+  if(saisie!==String(acc.email||'').trim().toLowerCase()){ dire('L\'adresse ne correspond pas.','#991b1b'); return; }
+  if(!confirm('Supprimer définitivement le compte '+acc.email+' et toutes ses données ?\n\nCette action est irréversible.')) return;
+  if(b){ b.disabled=true; b.style.background='#e5e7eb'; b.style.color='#9ca3af'; }
+  dire('<span class="spin" style="width:12px;height:12px;border-width:2px;display:inline-block;vertical-align:-2px;margin-right:6px;"></span>Suppression en cours…');
+  try{
+    await window.sbReady;
+    if(!window.sb){ dire('Service indisponible. Réessayez quand la connexion revient.','#991b1b'); return; }
+    var r=await window.sb.rpc('supprimer_mon_compte');
+    if(r.error){ dire('Échec : '+esc(r.error.message||''),'#991b1b'); if(b){ b.disabled=false; } monCompteDelEtat(); return; }
+    var d=r.data||{};
+    if(!d.ok){ dire('Échec : '+esc(d.error||'suppression refusée'),'#991b1b'); if(b){ b.disabled=false; } monCompteDelEtat(); return; }
+    /* Le compte n'existe plus : la session en mémoire ne vaut plus rien. On efface tout ce qui
+       reste sur l'appareil avant de recharger, sinon les écrans se rouvriraient sur les données
+       d'un compte supprimé. */
+    dire('<b style="color:#15803d;">Compte supprimé.</b> Vous allez être déconnecté.','#15803d');
+    try{ localStorage.clear(); }catch(e){}
+    try{ if(window.sb&&window.sb.auth) await window.sb.auth.signOut(); }catch(e){}
+    setTimeout(function(){ location.href=location.origin+location.pathname; }, 1500);
+  }catch(e){
+    dire('Échec : '+esc((e&&e.message)||'erreur inattendue'),'#991b1b');
+    if(b){ b.disabled=false; } monCompteDelEtat();
+  }
 }
 async function santeView(){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
