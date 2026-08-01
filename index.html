@@ -2399,7 +2399,12 @@ function parcoursLigne(ic,txt){
    `display:flex;flex-direction:column` + `flex:1` sur les lignes : les deux cartes gardent la
    même hauteur et leurs deux bandes s'alignent, même si l'une a un texte plus long. */
 function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
-    return '<div onclick="'+action+'" style="flex:1 1 250px;min-width:0;background:'+fond+';border:2px solid '+bord+';border-radius:16px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column;">'
+    /* GARDE-FOU. Le 01/08, en rendant la bande de départ, j'ai cassé l'écran du questionnaire
+       salariés : il appelait cette fonction SANS libellé ni action, et les deux cartes se sont
+       affichées « undefined → », inertes. Une carte sans départ ne doit donc ni porter de bande,
+       ni se prétendre cliquable — mieux vaut une carte muette qu'un bouton qui ment. */
+    var actif=!!(libBouton && action);
+    return '<div'+(actif?(' onclick="'+action+'"'):'')+' style="flex:1 1 250px;min-width:0;background:'+fond+';border:2px solid '+bord+';border-radius:16px;overflow:hidden;'+(actif?'cursor:pointer;':'')+'display:flex;flex-direction:column;">'
       +'<div style="padding:18px 15px 0;">'
       +'<div style="width:52px;height:52px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti '+icone+'" style="font-size:25px;color:'+coul+';"></i></div>'
       +'<div style="text-align:center;font-size:17px;font-weight:800;color:'+coul+';line-height:1.2;margin-top:10px;letter-spacing:.3px;">'+titre+'</div>'
@@ -2407,7 +2412,7 @@ function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
       +'<div style="text-align:center;font-size:13px;font-weight:700;color:#1C1C1C;line-height:1.35;">'+sous+'</div>'
       +'</div>'
       +'<div style="padding:10px 13px 14px;flex:1;">'+lignes+'</div>'
-      +'<div style="background:'+coul+';color:#fff;text-align:center;padding:13px;font-size:13.5px;font-weight:800;">'+libBouton+' <i class="ti ti-arrow-right"></i></div>'
+      +(actif?('<div style="background:'+coul+';color:#fff;text-align:center;padding:13px;font-size:13.5px;font-weight:800;">'+libBouton+' <i class="ti ti-arrow-right"></i></div>'):'')
     +'</div>';
 }
 /* Petit registre des actions déjà faites (par compte) : sert aux états « Terminé / À faire ». */
@@ -3010,7 +3015,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 177';
+var IVE_VERSION='01/08 · 178';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4142,16 +4147,12 @@ function ahChoice(){
   showView('ahView');
   $("ahView").innerHTML = iveEntete("ti-users-group","QUESTIONNAIRE AUX SALARIÉS","Ce que vos équipes vivent","actions")
    +'<div class="card"><div class="sec">'
-    +'<div style="display:flex;align-items:flex-start;gap:12px;">'
-      +'<div style="flex:1;min-width:0;">'
-        +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;">Questionnaire<br>aux salariés</div>'
-        +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">La capacité de votre organisation à accepter le changement. <b style="color:#1C1C1C;">On note le système, jamais les personnes.</b></div>'
-      +'</div>'
-      +'<div style="width:92px;height:92px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-users-group" style="font-size:42px;color:#15803d;"></i></div>'
-    +'</div>'
-    +'<div style="display:flex;align-items:center;gap:12px;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
-      +'<div style="width:44px;height:44px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-building-store" style="font-size:21px;color:#15803d;"></i></div>'
-      +'<div style="min-width:0;"><div style="font-size:11.5px;color:#9ca3af;">Entreprise</div><div style="font-size:15px;font-weight:800;color:#1C1C1C;">'+esc(nom)+'</div></div>'
+    /* Même nettoyage que l'écran du choix BOUSSOLE (01/08) : la grosse pastille ronde et
+       l'encadré « Entreprise — <nom> » sont retirés. Le bandeau noir juste au-dessus porte déjà
+       le pictogramme et le nom officiel de l'établissement. */
+    +'<div>'
+      +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;">Questionnaire<br>aux salariés</div>'
+      +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">La capacité de votre organisation à accepter le changement. <b style="color:#1C1C1C;">On note le système, jamais les personnes.</b></div>'
     +'</div>'
     /* QUI RÉPOND ? — question posée par Didier le 31/07/2026 : « si je veux remplir un
        questionnaire avec un ou plusieurs salariés depuis mon téléphone ou mon PC, comment je
@@ -4162,15 +4163,44 @@ function ahChoice(){
        rejoint l'agrégat au lieu d'écraser quoi que ce soit. Cohérent avec la règle posée le
        matin même — nominatif et assumé. */
     +ahQuiHtml()
-    +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
-      +'<button type="button" onclick="if(ahQuiPret())ahStart(\'express\')" style="flex:1 1 200px;min-width:0;border:none;background:#15803d;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer l\'Express <i class="ti ti-arrow-right"></i></button>'
-      +'<button type="button" onclick="if(ahQuiPret())ahStart(\'complet\')" style="flex:1 1 200px;min-width:0;border:none;background:#166534;color:#fff;border-radius:12px;padding:14px 10px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;">Commencer le Complet <i class="ti ti-arrow-right"></i></button>'
-    +'</div>'
+    /* MÊME TRAITEMENT QUE LA BOUSSOLE (01/08). Les deux boutons verts du haut sont retirés :
+       c'est la carte qui démarre. Et les quatre lignes de chaque colonne ont été refaites, car
+       elles ne se répondaient pas et deux d'entre elles étaient fausses :
+       — « Anonyme » : FAUX depuis le questionnaire nominatif. L'écran demandait le nom et la
+         fonction du salarié trois lignes plus bas, avec une case de consentement. La carte
+         promettait donc le contraire de ce que l'application fait.
+       — « Indice définitif » : rien dans le code ne rend l'indice du Complet plus « définitif ».
+         Le calcul est le MÊME, sur davantage de critères. Dire « définitif » laissait entendre
+         que celui de l'Express ne compterait pas.
+       — « IAT / IMH » : deux sigles que le dirigeant ne peut pas comprendre. Ils descendent dans
+         le bandeau commun, en français.
+       — « Idéal sous 5 salariés » : le plafond réel est de DIX réponses, vérifié côté serveur.
+       — « Cartographie des craintes » : retirée à la demande de Didier — le mot angoisse plus
+         qu'il n'informe.
+       L'ÉCART RÉEL, compté dans AH_CRITERES : 12 critères (2 par domaine) contre 30 (5 par
+       domaine), sur 6 domaines, et les 12 sont inclus dans les 30. */
     +'<div style="display:flex;flex-wrap:wrap;gap:11px;margin-top:14px;">'
       +parcoursCarte('#15803d','#f4fbf6','#bbf7d0','ti-bolt','SALARIÉS<br>EXPRESS','Prendre la température humaine',
-          parcoursLigne('ti-target-arrow','12 critères')+parcoursLigne('ti-clock','5 à 7 minutes')+parcoursLigne('ti-user-check','Anonyme')+parcoursLigne('ti-users','Idéal sous 5 salariés'))
-      +parcoursCarte('#166534','#f2f9f4','#a7e3bd','ti-users-group','SALARIÉS<br>COMPLET','Approfondir la maturité humaine',
-          parcoursLigne('ti-list-details','30 critères détaillés')+parcoursLigne('ti-shield-check','Indice définitif')+parcoursLigne('ti-chart-bar','IAT / IMH')+parcoursLigne('ti-map','Cartographie des craintes'))
+          parcoursLigne('ti-target-arrow','<b>12 critères prioritaires</b><br><span style="color:#9ca3af;font-size:11px;">2 par domaine</span>')
+          +parcoursLigne('ti-clock','<b>5 à 7 minutes</b> par personne')
+          +parcoursLigne('ti-eye','Une <b>première lecture</b> du climat de votre équipe'),
+          'Commencer l\'Express','if(ahQuiPret())ahStart(\'express\')')
+      +parcoursCarte('#166534','#f2f9f4','#a7e3bd','ti-users-group','SALARIÉS<br>COMPLET','Situer précisément ce qui coince',
+          parcoursLigne('ti-target-arrow','<b>Les 12 mêmes critères<br>+ 18 complémentaires</b><br><span style="color:#9ca3af;font-size:11px;">5 par domaine au lieu de 2</span>')
+          +parcoursLigne('ti-clock','<b>Environ 15 minutes</b> par personne')
+          +parcoursLigne('ti-zoom-check','Le point fragile situé <b>à l\'intérieur</b> de chaque domaine, pas seulement le domaine'),
+          'Commencer le Complet','if(ahQuiPret())ahStart(\'complet\')')
+    +'</div>'
+    // Ce qui est vrai des deux côtés, dit UNE fois et sans sigle.
+    +'<div style="border:1px solid #eef0f3;background:#fff;border-radius:14px;padding:13px 15px;margin-top:12px;">'
+      +'<div style="font-size:10.5px;font-weight:800;letter-spacing:.5px;color:#9ca3af;">DANS LES DEUX CAS, VOUS OBTENEZ</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:8px;">'
+        +['Un indice d\'acceptabilité du changement, sur 100',
+          'Les 6 domaines mesurés : direction, communication, confiance, coopération, climat, changement',
+          'Jusqu\'à 10 salariés peuvent répondre'].map(function(t){
+          return '<div style="display:flex;gap:7px;align-items:flex-start;font-size:12.5px;color:#374151;line-height:1.4;"><i class="ti ti-circle-check" style="color:#15803d;font-size:16px;flex:0 0 auto;"></i> '+t+'</div>';
+        }).join('')
+      +'</div>'
     +'</div>'
     /* CORRIGÉ le 31/07 : cet encadré promettait l'anonymat. Depuis le questionnaire partagé,
        les réponses sont NOMINATIVES — laisser cette promesse aurait fait mentir l'application
