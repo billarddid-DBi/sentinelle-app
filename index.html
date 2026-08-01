@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 185';
+var IVE_VERSION='01/08 · 186';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5529,11 +5529,21 @@ function adminBar(){
 /* UNE TUILE DE LA GRILLE D'ACCUEIL.
    `action` vide = fonction qui n'existe pas encore : pas d'onclick du tout, tuile grise. On ne
    fabrique pas un bouton qui mène à « Bientôt disponible ». */
+/* TOUT CE QUI N'EST PAS FAIT EST GRISÉ (Didier, 01/08). Avant, seules les tuiles verrouillées
+   ou inexistantes l'étaient : les douze autres se ressemblaient toutes, et il fallait lire les
+   douze lignes d'état pour savoir où l'on en était. Désormais la couleur seule répond : coloré
+   = c'est fait, grisé = ça reste à faire.
+   LE GRIS NE VEUT PAS DIRE « INTERDIT ». Trois situations le portent, et la LIGNE D'ÉTAT les
+   distingue — c'est elle qui garde sa couleur : ambre « À faire » pour ce qui vous attend,
+   gris « Abonnés » pour ce qui demande la formule, gris « bientôt » pour ce qui n'existe pas
+   encore. Sans cette nuance, une tuile grise cliquable et une tuile grise morte se
+   confondraient. */
 function ivTuile(ic,titre,action,etat,ton,verrou){
   var bientot=!action;
   var cliq=bientot?'':(verrou?'offreView()':action);
   var coul=(ton==='ok')?'#15803d':(ton==='att'?'#b45309':'#9ca3af');
-  return '<div class="ivTuile'+((verrou||bientot)?' ivOff':'')+'"'+(cliq?(' onclick="'+cliq+'"'):' style="cursor:default;"')+'>'
+  var pale=(verrou||bientot||ton!=='ok');
+  return '<div class="ivTuile'+(pale?' ivOff':'')+'"'+(cliq?(' onclick="'+cliq+'"'):' style="cursor:default;"')+'>'
     +(verrou&&!bientot?'<i class="ti ti-lock ivCad"></i>':'')
     +'<i class="ti '+ic+' ivIc"></i>'
     +'<div class="ivT">'+titre+'</div>'
