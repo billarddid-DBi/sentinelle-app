@@ -3016,7 +3016,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 183';
+var IVE_VERSION='01/08 · 184';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3616,32 +3616,27 @@ var concStore={
 /* Source UNIQUE des actions de l'écran concurrence : cet écran existe en DEUX exemplaires
    (vue consultant et vue dirigeant). Deux copies de boutons finiraient par diverger — c'est
    exactement ce qui est arrivé au classificateur d'étiquettes ce matin. */
+/* UN SEUL BOUTON (Didier, 01/08). Il y en avait deux : « Chercher » et « Sauvegarder ». Le
+   second n'enregistrait que le mot-clé, gratuitement — mais deux boutons obligent à comprendre
+   la différence avant d'agir, et il fallait trois lignes d'explication pour la dire. Chercher
+   ENREGISTRE désormais le mot-clé au passage : c'est de toute façon ce qu'on veut quand on
+   lance une recherche. concKwSauver(), qui n'était que le gestionnaire du bouton disparu, est
+   remplacée par concKwGarder() — silencieuse, appelée depuis runConcurrence. */
 function concActionsHtml(){
   var q=concQuand();
-  /* Les DEUX boutons portent la classe .btn de l'application — icône ronde au-dessus, libellé
-     dessous, l'un sous l'autre. Ma première version les mettait côte à côte avec des styles
-     écrits à la main : .btn empile en colonne, le résultat était une grande boîte vide.
-     On n'invente pas un style local quand la maison en a un. */
   return '<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
-    +'<button class="btn btn-ghost" onclick="concKwSauver(this)"><i class="ti ti-device-floppy"></i> Sauvegarder</button>'
     +'<div id="cKwMsg" style="font-size:11.5px;margin-top:7px;"></div>'
-    /* La mention manquait : rien ne disait au dirigeant qu'une sauvegarde existait sur cet
-       écran (remarque de Didier). Le questionnaire affiche « Enregistré automatiquement » ;
-       ici on dit ce qui est enregistré, et ce qui ne l'est pas. */
-    +'<div style="font-size:11px;color:#6b7280;margin-top:6px;line-height:1.45;">'
-    +'<i class="ti ti-device-floppy" style="color:#15803d;"></i> <b>Sauvegarder</b> garde votre mot-clé pour la prochaine fois — gratuit, et sans relancer la recherche.'
-    +(q?(' La carte, elle, est enregistrée depuis le <b>'+q+'</b> et ne change qu\'en relançant.')
-       :' La carte, elle, s\'enregistre toute seule dès que vous lancez la recherche.')
-    +'</div>';
+    // Une date, rien de plus : ce qui est enregistré et depuis quand se lit en un coup d'œil.
+    +(q?('<div style="font-size:11px;color:#6b7280;margin-top:6px;"><i class="ti ti-device-floppy" style="color:#15803d;"></i> Date de la sauvegarde : <b>'+q+'</b></div>'):'');
 }
 function concKwCle(){ return 'ive_conc_kw_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function concKwGarde(){ try{ return localStorage.getItem(concKwCle())||''; }catch(e){ return ''; } }
-function concKwSauver(btn){
-  var e=document.getElementById('cKw'), m=document.getElementById('cKwMsg');
-  var v=(e&&e.value||'').trim();
-  if(!v){ if(m) m.innerHTML='<span style="color:#991b1b;">Écrivez d\'abord un mot-clé.</span>'; return; }
+/* Enregistre le mot-clé sans rien afficher. Une fonction qui n'a rien à mesurer n'écrit rien :
+   sans mot-clé, on ne remplace pas celui qui était gardé par du vide. */
+function concKwGarder(v){
+  v=(v||'').trim();
+  if(!v) return;
   try{ localStorage.setItem(concKwCle(), v); }catch(x){}
-  if(m) m.innerHTML='<span style="color:#15803d;"><i class="ti ti-circle-check"></i> Mot-clé gardé. La carte, elle, ne change pas tant que vous ne relancez pas la recherche.</span>';
 }
 function concQuand(){ var s=concStore.load(); if(!s||!s.ts) return ''; return new Date(s.ts).toLocaleDateString('fr-FR'); }
 function concFaite(){ var s=concStore.load(); return !!(s&&s.d); }
@@ -3649,6 +3644,10 @@ function runConcurrence(){
   var kw=(document.getElementById('cKw')&&document.getElementById('cKw').value.trim())||'';
   var out=document.getElementById('cOut');
   if(!kw){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Entrez un mot-clé métier (ex : pizzeria, pare-brise, plombier).</div>'; return; }
+  /* La recherche GARDE le mot-clé : le bouton « Sauvegarder » a disparu le 01/08 et personne ne
+     doit avoir à y penser. On l'enregistre ici, après le contrôle du mot vide — jamais avant,
+     sinon un clic sur un champ vide effacerait ce qui était gardé. */
+  concKwGarder(kw);
   out.innerHTML='<div style="text-align:center;padding:22px;color:#4b5563;font-size:13px;"><div class="spin"></div>Recherche des concurrents + analyse des avis…</div>';
   // Le nom de l'entreprise vient de la fiche du compte : le dirigeant n'a pas à le retaper.
   // Ouvert directement depuis « Mes actions », la fiche n'est pas encore chargée — on la va chercher.
@@ -3693,11 +3692,17 @@ function renderConcu(d){
     _dots+='<div style="position:absolute;top:10px;left:'+_P(_p)+'%;width:16px;height:16px;border-radius:50%;background:#E8541A;box-shadow:0 0 0 4px rgba(124,58,237,.2);transform:translateX(-50%);"></div><div style="position:absolute;top:-8px;left:'+_P(_p)+'%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#E8541A;background:#FCEBE3;padding:1px 6px;border-radius:7px;white-space:nowrap;">VOUS</div>';
     posHTML='<div class="sec"><div style="display:flex;justify-content:space-between;align-items:baseline;"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-map-pin"></i> Votre position</div><div style="font-size:12px;font-weight:600;color:#E8541A;">'+_zone+'</div></div><div style="position:relative;height:32px;margin-top:16px;"><div style="position:absolute;top:17px;left:0;right:0;height:6px;border-radius:3px;background:linear-gradient(90deg,#e9e7f2,#d9d6ea);"></div>'+_dots+'<div style="position:absolute;bottom:-7px;left:0;font-size:9px;color:#9ca3af;">− réputation</div><div style="position:absolute;bottom:-7px;right:0;font-size:9px;color:#9ca3af;">+ réputation</div></div><div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 16px;margin-top:16px;"><div style="font-size:15px;font-weight:800;color:#c2410c;"><i class="ti '+_ic+'"></i> '+_head+'</div><div style="font-size:13px;color:#7c2d12;line-height:1.55;margin-top:6px;">'+_msg+'</div></div></div>';
   }
-  var _srch=document.getElementById('cSearch'); if(_srch) _srch.style.display='none';
+  /* LE CHAMP DE RECHERCHE RESTE VISIBLE. Il était masqué après une recherche, dans le tunnel
+     SENTINELLE uniquement, et le lien « Nouvelle recherche » du bas était la SEULE façon de le
+     retrouver. En retirant ce lien (demande de Didier), le masquer aurait enfermé le dirigeant :
+     une recherche faite, plus moyen de changer de mot-clé. L'écran de la BOUSSOLE, lui, n'a
+     jamais masqué ce champ — les deux se comportent maintenant pareil. */
   var mapSec='<div class="sec" style="padding-top:0;"><div id="cMap" style="position:relative;z-index:0;isolation:isolate;height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div><div style="font-size:10.5px;color:#9ca3af;margin-top:6px;text-align:center;"><span style="color:#E8541A;font-size:12px;">●</span> vous · <span style="color:#EAB308;font-size:12px;">●</span> concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' — 8 plus proches</div></div>';
-  var tableSec='<div class="sec" style="overflow-x:auto;"><div style="font-size:11.5px;color:#6b7280;font-weight:600;margin-bottom:8px;"><i class="ti ti-map-pin" style="color:#E8541A;"></i> Votre prospect en 1re ligne, puis les concurrents <b>du plus proche au plus loin</b> (par distance).</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table><div class="hint"><b>IVE</b> = indice objectif (note + nombre d\'avis Google + site web), calculé à l\'identique pour vous et les concurrents → directement comparable.</div></div>';
-  var reBtn='<div style="text-align:center;margin-top:6px;"><button type="button" onclick="var s=document.getElementById(\'cSearch\');if(s)s.style.display=\'block\';var o=document.getElementById(\'cOut\');if(o)o.innerHTML=\'\';" style="border:none;background:none;color:#9ca3af;font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;"><i class="ti ti-refresh"></i> Nouvelle recherche</button></div>';
-  out.innerHTML=mapSec+posHTML+tableSec+reBtn;
+  var tableSec='<div class="sec" style="overflow-x:auto;"><div style="font-size:11.5px;color:#6b7280;font-weight:600;margin-bottom:8px;"><i class="ti ti-map-pin" style="color:#E8541A;"></i> Votre entreprise en 1re ligne, puis les concurrents <b>du plus proche au plus loin</b> (par distance).</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table><div class="hint"><b>IVE</b> = indices calculés sur les mêmes bases (note + nombre d\'avis Google + site web).</div></div>';
+  /* Le lien « Nouvelle recherche » du bas est retiré (Didier, 01/08) : le bouton « Relancer ·
+     4 jetons », en haut de l'encadré, fait déjà repartir une recherche — et lui, il annonce ce
+     que ça coûte. Celui du bas rouvrait le champ sans rien dire du prix. */
+  out.innerHTML=mapSec+posHTML+tableSec;
   try{
     if(window.cMapObj){ window.cMapObj.remove(); window.cMapObj=null; }
     var map=L.map('cMap').setView([d.prospect.lat,d.prospect.long],11); window.cMapObj=map;
@@ -7344,8 +7349,13 @@ function boussoleOutil(which){
       // Le bouton de relance vit dans l'encadré, en haut à droite — comme partout ailleurs.
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;">'
         +'<label style="margin:0;">Métier / mot-clé <span style="color:#ef4444;">(obligatoire)</span></label>'
-        // En haut à droite : le coût, annoncé AVANT le clic. Et la relance quand une recherche existe déjà.
-        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+jetCoutChip('concurrence')+(concFaite()?jetBouton('Relancer','concurrence','runConcurrence()'):'')+'</div>'
+        /* UNE SEULE PASTILLE (Didier, 01/08). « coût : 4 jetons » et « Relancer · 4 jetons » se
+           tenaient côte à côte et disaient le même prix deux fois. Quand la relance existe, elle
+           suffit : elle porte le coût dans son propre libellé.
+           MAIS on garde le coût seul tant qu'aucune recherche n'a été faite — sans lui, un
+           dirigeant qui vient pour la première fois cliquerait sans savoir ce qu'il dépense, et
+           c'est la règle qu'il a lui-même posée : le prix s'annonce AVANT le clic. */
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+(concFaite()?jetBouton('Relancer','concurrence','runConcurrence()'):jetCoutChip('concurrence'))+'</div>'
       +'</div>'
       +'<input type="text" id="cKw" value="'+kwDef+'" placeholder="ex : pizzeria, pare-brise, plombier" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;">'
       +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de vous.</div>'
