@@ -3015,7 +3015,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 178';
+var IVE_VERSION='01/08 · 179';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4127,8 +4127,10 @@ function ahQuiHtml(){
     +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;"><i class="ti ti-user-check" style="color:#15803d;"></i> Qui répond ?</div>'
     /* Le questionnaire est TOUJOURS celui d'un salarié (décision Didier, 31/07/2026) : plus de
        choix « dirigeant ou salarié ». Sa réponse part dans la même table que le lien partagé —
-       elle porte un nom, compte dans le plafond de dix, et n'écrase personne. */
-    +'<div style="font-size:11.5px;color:#166534;line-height:1.5;margin-top:5px;">Ces réponses sont celles d\'un <b>salarié</b>. Elles rejoignent celles reçues par le lien, sous son nom.</div>'
+       elle porte un nom, compte dans le plafond de dix, et n'écrase personne.
+       La phrase qui l'expliquait ici a été retirée le 01/08 : elle disait la même chose que la
+       case de consentement, deux lignes plus bas, qui reste seule à le dire — et qui, elle,
+       engage le dirigeant au lieu de simplement l'informer. */
     +'<input type="text" id="ahQuiNom" value="'+esc(p.nom||'')+'" oninput="ahQuiChamps()" placeholder="Nom et prénom" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:9px;margin-top:9px;">'
     +'<input type="text" id="ahQuiPoste" value="'+esc(p.poste||'')+'" oninput="ahQuiChamps()" placeholder="Fonction (atelier, accueil, ventes…)" autocomplete="off" style="width:100%;font-size:16px;padding:10px 12px;border:1px solid #d1d5db;border-radius:9px;margin-top:7px;">'
     /* CONSENTEMENT — même exigence que par le lien. Le salarié doit savoir MOT POUR MOT ce qui
@@ -4152,7 +4154,7 @@ function ahChoice(){
        le pictogramme et le nom officiel de l'établissement. */
     +'<div>'
       +'<div style="font-size:22px;font-weight:800;color:#1C1C1C;line-height:1.2;">Questionnaire<br>aux salariés</div>'
-      +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">La capacité de votre organisation à accepter le changement. <b style="color:#1C1C1C;">On note le système, jamais les personnes.</b></div>'
+      +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;margin-top:8px;">L\'avis de vos collaborateurs est important.</div>'
     +'</div>'
     /* QUI RÉPOND ? — question posée par Didier le 31/07/2026 : « si je veux remplir un
        questionnaire avec un ou plusieurs salariés depuis mon téléphone ou mon PC, comment je
@@ -4188,7 +4190,7 @@ function ahChoice(){
       +parcoursCarte('#166534','#f2f9f4','#a7e3bd','ti-users-group','SALARIÉS<br>COMPLET','Situer précisément ce qui coince',
           parcoursLigne('ti-target-arrow','<b>Les 12 mêmes critères<br>+ 18 complémentaires</b><br><span style="color:#9ca3af;font-size:11px;">5 par domaine au lieu de 2</span>')
           +parcoursLigne('ti-clock','<b>Environ 15 minutes</b> par personne')
-          +parcoursLigne('ti-zoom-check','Le point fragile situé <b>à l\'intérieur</b> de chaque domaine, pas seulement le domaine'),
+          +parcoursLigne('ti-zoom-check','Une <b>lecture détaillée</b> du climat par le regard de vos salariés'),
           'Commencer le Complet','if(ahQuiPret())ahStart(\'complet\')')
     +'</div>'
     // Ce qui est vrai des deux côtés, dit UNE fois et sans sigle.
@@ -4202,13 +4204,11 @@ function ahChoice(){
         }).join('')
       +'</div>'
     +'</div>'
-    /* CORRIGÉ le 31/07 : cet encadré promettait l'anonymat. Depuis le questionnaire partagé,
-       les réponses sont NOMINATIVES — laisser cette promesse aurait fait mentir l'application
-       à des salariés qui donnent leur nom. On dit ce qui est vrai, et pourquoi. */
-    +'<div style="display:flex;align-items:flex-start;gap:12px;background:#f8fafc;border:1px solid #eef0f3;border-radius:14px;padding:13px 15px;margin-top:14px;">'
-      +'<div style="width:38px;height:38px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><i class="ti ti-user-check" style="font-size:18px;color:#15803d;"></i></div>'
-      +'<div style="font-size:12.5px;color:#4b5563;line-height:1.5;"><b style="color:#1C1C1C;">On note le système, jamais les personnes.</b> Quand un salarié répond par le lien partagé, il donne son nom et son poste — il en est informé avant de commencer et reste libre de refuser.</div>'
-    +'</div>'
+    /* L'encadré « On note le système, jamais les personnes » est retiré le 01/08, à la demande
+       de Didier. Ce qu'il portait de juridiquement utile — le salarié est informé que son nom,
+       sa fonction et ses réponses seront lus par la direction, et reste libre de refuser — est
+       TOUJOURS à l'écran : c'est le texte de la case à cocher, plus haut, qu'il faut valider
+       pour démarrer. On retire une redite, pas la protection. */
     // Le partage aux salariés : le lien, le message, et le suivi des réponses reçues.
     +'</div></div>'+ahPartageHtml();
   window.scrollTo(0,0);
