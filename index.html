@@ -76,6 +76,23 @@
   .naBtn{font-size:10px;color:#9ca3af;border:1px solid #e6e1d8;background:#fff;border-radius:8px;padding:2px 8px;white-space:nowrap;cursor:pointer;font-family:inherit;flex-shrink:0;}
   .naBtn.on{color:#fff;background:#9ca3af;border-color:#9ca3af;}
   .foot{padding:11px 16px;background:#f8fafc;font-size:10.5px;color:#6b7280;line-height:1.5;}
+  /* LA COLONNE DE DROITE DES BANDEAUX NOIRS (pastilles, date, « Mon compte »).
+     Signalé par Didier le 01/08 depuis son téléphone : elle était en flex:0 0 auto avec
+     white-space:nowrap, donc INCOMPRESSIBLE. Les deux pastilles font à elles seules ~330 px ;
+     sur un écran de 375 px il ne restait presque rien à gauche, le nom de l'entreprise sortait
+     à un mot par ligne et « BIENVENUE », qui ne peut pas se couper, débordait SOUS les
+     pastilles. Sous 560 px on empile : le bandeau reprend toute la largeur pour chaque partie.
+     Les bandeaux ont aussi reçu flex-wrap:wrap — c'est lui qui fait descendre cette colonne. */
+  .iveHeadR{text-align:right;flex:0 0 auto;white-space:nowrap;}
+  .iveHeadR>div{margin-top:6px;}
+  .iveHeadR>div~div{margin-top:3px;}
+  @media(max-width:560px){
+    .iveHeadR{text-align:left;white-space:normal;flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px;margin-top:9px;}
+    /* Chaque partie garde sa largeur naturelle : les deux pastilles remplissent la 1re ligne, la
+       date et les liens tiennent ensemble sur la 2e. Les forcer en pleine largeur ajoutait une
+       3e ligne pour rien — on empile pour lire, pas pour occuper l'écran. */
+    .iveHeadR>div{margin-top:0;}
+  }
   @media print{ body{background:#fff;} .btn,.cpNoPrint{display:none!important;} #cockpit{display:block!important;} *{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
   #tabbar{position:fixed;left:0;right:0;bottom:0;max-width:720px;margin:0 auto;background:#fff;border-top:1px solid #ece6dc;display:none;z-index:60;box-shadow:0 -4px 16px rgba(40,30,10,.06);}
   #tabbar.show{display:flex;}
@@ -1331,7 +1348,7 @@ function startGrille(mode){
   var label = (mode==='express') ? 'Express' : 'Complet';
   // Les deux bandeaux noirs, comme sur toutes les pages : on peut repartir vers SENTINELLE
   // ou l'accueil à tout moment — les réponses sont enregistrées à chaque geste.
-  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div id="bSauveChip" style="font-size:11.5px;color:#16a34a;font-weight:600;margin:2px 2px 6px;"></div>'
     +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
@@ -1745,6 +1762,14 @@ function bFinish(retourMenu){
    +'<div style="font-size:12.5px;color:#9ca3af;">Chaque point se justifie par une note /5 traçable.</div>'
    +_sep
    +'<div style="font-size:12.5px;color:#8fa6d8;">· '+date+'</div></div>';
+  /* LA SIGNATURE « IVE <couleur> ». Définie AVANT le bloc qui l'accueille : depuis le 01/08 elle
+     n'est plus une bande posée dessous mais la colonne de droite de la même rangée.
+     Plus de margin-top — c'est le `gap` de la rangée qui espace, en colonne comme en pile —, et
+     justify-content:center pour qu'elle reste alignée sur la pastille quelle que soit sa hauteur. */
+  var blocSens='<div style="flex:1 1 200px;min-width:0;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:12px 14px;text-align:center;display:flex;flex-direction:column;justify-content:center;">'
+   +'<div style="font-size:clamp(14px,3.6vw,17px);font-weight:700;color:#fff;line-height:1.3;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:7px;"></i>IVE '+aura+' — '+ad.s+'</div>'
+   +'<div style="width:min(200px,70%);height:1px;margin:8px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
+   +'<div style="font-size:12px;color:#cbd5e1;line-height:1.45;">'+ad.d+'</div></div>';
   var blocAuras='<div style="width:100%;">'
    +'<div style="display:flex;align-items:center;gap:12px;">'+_trait
    +'<div style="font-size:11.5px;letter-spacing:2.2px;color:#E8954F;font-weight:700;white-space:nowrap;"><i class="ti ti-sparkles"></i> AURA INTÉRIEURE</div>'+_traitD+'</div>'
@@ -1757,8 +1782,13 @@ function bFinish(retourMenu){
    /* DISPOSITION (décision Didier, 31/07) : pastille à GAUCHE, texte à DROITE. Empilé et
       centré, ce bloc occupait presque tout l'écran — il fallait faire défiler avant
       d'atteindre la moindre information utile. Côte à côte, la même chose tient en une
-      bande. Le pavé « IVE <couleur> » reste dessous, inchangé : c'est la signature. */
-   +'<div style="display:flex;align-items:center;gap:clamp(13px,4vw,20px);margin-top:13px;">'
+      bande.
+      01/08 : la signature « IVE <couleur> » passe à DROITE, dans le vide laissé par la
+      pastille, au lieu d'ajouter une bande sous le bloc. Toujours la même raison : la hauteur.
+      flex-wrap la fait retomber SOUS le reste dès que la largeur ne suffit plus — sur
+      téléphone on retrouve exactement la disposition d'avant, sans rien écraser. */
+   +'<div style="display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin-top:13px;">'
+   +'<div style="flex:1 1 235px;min-width:0;display:flex;align-items:center;gap:clamp(13px,4vw,20px);">'
    +_cercle(r.idx,au.h,starsHTML(r.idx))
    +'<div style="flex:1;min-width:0;">'
      +'<div style="font-size:11px;color:#E8954F;letter-spacing:1.6px;font-weight:700;">INTÉRIEURE</div>'
@@ -1772,15 +1802,12 @@ function bFinish(retourMenu){
      +'<div id="bAvecSal">'+bAvecSalHtml()+'</div>'
    +'</div>'
    +'</div>'
+   +blocSens
+   +'</div>'
    +'</div>';
-  // Marges resserrées avec la mise côte à côte : même contenu, une bande au lieu d'un écran.
-  var blocSens='<div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.025);padding:13px 14px;margin-top:14px;text-align:center;">'
-   +'<div style="font-size:clamp(15px,4.2vw,18px);font-weight:700;color:#fff;"><i class="ti ti-shield-check" style="color:#E8954F;margin-right:8px;"></i>IVE '+aura+' — '+ad.s+'</div>'
-   +'<div style="width:min(240px,60%);height:1px;margin:9px auto;background:linear-gradient(90deg,rgba(232,149,79,0),rgba(232,149,79,.75),rgba(232,149,79,0));"></div>'
-   +'<div style="font-size:12.5px;color:#cbd5e1;line-height:1.5;">'+ad.d+'</div></div>';
   var auraBand='<div style="background:#0d0d0f;color:#fff;padding:4px 16px 14px;">'
    /* Ligne « note · étoiles · date » retirée (décision Didier) — blocNote est conservé plus haut. */
-   +blocAuras+blocSens+'</div>';
+   +blocAuras+'</div>';
   // ===== Trajectoire : Indice de Cohérence (écart image↔réalité) + Potentiel de Progression (la montée) =====
   // ext, pot, verite et progression sont calculés plus haut (source unique, partagée avec les pastilles).
   var trajSec='';
@@ -1841,7 +1868,7 @@ function bFinish(retourMenu){
   var card='<div class="card">'
    /* En-tête épuré : la note, les étoiles et la date sont désormais dans l'encadré de gauche. */
    /* Même bandeau que partout : la ligne BOUSSOLE, le nom, la ville, et le bloc de droite. */
-   +'<div style="background:#0d0d0f;color:#fff;padding:18px 18px 4px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+   +'<div style="background:#0d0d0f;color:#fff;padding:18px 18px 4px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">'
    +'<div style="min-width:0;"><div style="font-size:12.5px;color:#9ca3af;"><i class="ti ti-compass" style="color:#E8954F;"></i> BOUSSOLE '+mode+' · diagnostic JUSTIFIÉ ('+r.n+' critères notés /5)</div>'
    +'<div style="font-size:clamp(21px,5.5vw,26px);font-weight:700;margin-top:6px;letter-spacing:-.3px;">'+esc(nom)+'</div>'
    +(window.lastVille?'<div style="font-size:11.5px;color:#9ca3af;margin-top:3px;"><i class="ti ti-map-pin"></i> '+esc(window.lastVille)+'</div>':'')+'</div>'
@@ -2361,7 +2388,7 @@ function mesActionsView(){
       +'</div><i class="ti ti-chevron-right" style="font-size:18px;color:#c7ccd3;flex:0 0 auto;margin-top:6px;"></i></div>';
   };
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-layout-grid"></i> MES ACTIONS</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre parcours, étape par étape</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('actions'):'')
     // Le prix du parcours, annoncé UNE FOIS et en entier, avant toute dépense.
     +(abo?parcoursHtml():'')
@@ -2398,7 +2425,7 @@ function boussoleACompleter(et){
   var fait=et?et.fait:0, total=et?et.total:0, reste=total-fait;
   var pct=total?Math.round(fait/total*100):0;
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">Votre questionnaire est à compléter.</div>'
@@ -2913,7 +2940,7 @@ function iveOutilVide(icone,surtitre,titre,message){
   showView('dirigeant'); window.scrollTo(0,0);
 }
 function iveEntete(icone,surtitre,titre,actif){
-  return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">'
+  return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">'
     +'<div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+icone+'"></i> '+surtitre+'</div>'
     +'<div style="font-size:16px;font-weight:600;margin-top:3px;">'+titre+'</div>'+iveIdentLigne()+'</div>'
     +(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
@@ -3055,7 +3082,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 169';
+var IVE_VERSION='01/08 · 170';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5290,11 +5317,15 @@ function iveIdentLigne(){
   return '<div style="font-size:11.5px;color:#9ca3af;margin-top:4px;white-space:normal;line-height:1.35;"><i class="ti ti-building-store"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>';
 }
 function iveBandDroite(avecDeconnexion){
-  return '<div style="text-align:right;flex:0 0 auto;white-space:nowrap;">'
+  // La mise en forme est passée en CSS (.iveHeadR) : c'est le seul moyen d'avoir une règle
+  // qui change avec la largeur de l'écran — un style écrit ici ne sait pas où il s'affiche.
+  return '<div class="iveHeadR">'
     +iveAbonnementChip()+jetChip()
-    +'<div style="font-size:10.5px;color:#9ca3af;margin-top:6px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
+    // Les marges verticales sont dans .iveHeadR : écrites ici, en style direct, elles
+    // gagneraient contre la règle d'empilement et rajouteraient des trous sur téléphone.
+    +'<div style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'</div>'
     // « Mon compte » remplace Réglages : l'écran reste à construire.
-    +'<div style="margin-top:3px;"><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-user-circle"></i> Mon compte</a>'
+    +'<div><a href="#" onclick="iveNav(\'params\');return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-user-circle"></i> Mon compte</a>'
     +(avecDeconnexion?' <span style="color:#4b5563;">·</span> <a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;">Déconnexion</a>':'')+'</div>'
   +'</div>';
 }
@@ -5444,7 +5475,7 @@ function dirigeantSpace(){
   var _o=pmLoad(), _att=(_o.tasks||[]).filter(function(t){ return !t.done && !t.archive; }).length;
   var _verrou=!iveAbonne();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(true)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(true)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
     // Deux gestes, deux formes : le cercle pour dicter, la barre pour consulter.
     +'<div style="display:flex;justify-content:center;margin-top:26px;">'
@@ -5475,7 +5506,7 @@ function sentApercu(){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
   var cadre=function(inner){
     return adminBar()
-      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
       +(typeof iveNavBar==='function'?iveNavBar('sentinelle'):'')
       +'<div class="card"><div class="sec">'+inner+'</div></div>';
   };
@@ -5610,7 +5641,7 @@ function sentComplet(){
     window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
     window.lastSite=f.site||'';
-    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
+    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
       +iveBandDroite(false)
       +'</div></div>';
     $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>'
@@ -6164,7 +6195,7 @@ function dirigeantSpaceComplet(){
   var b=window.lastMiroir||{}, ah=window.lastAH, fr=window.frData, nom=b.nom||acc.name||'';
   // Pas encore de diagnostic → pas de Point du matin : on l'invite à lancer SA SENTINELLE gratuite
   if(b.indiceInterieur==null && !ah && !fr && !pmSnaps().length){
-    $('dirigeant').innerHTML=adminBar()+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
+    $('dirigeant').innerHTML=adminBar()+'<div class="card"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+esc(nom)+'</div></div><div style="font-size:11px;color:#9ca3af;text-align:right;white-space:nowrap;margin-top:2px;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+'</div></div>'
       +'<div class="sec">'
       +'<div style="text-align:center;margin-top:2px;">'
         +'<button id="iveBtn" class="ivePastille" onclick="lancerMaSentinelle()" aria-label="Découvrir mon IVE">'
@@ -6223,7 +6254,7 @@ function dirigeantSpaceComplet(){
           window.lastSite=_f.site||'';
           var meaning='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;flex:1;min-width:158px;font-size:11.5px;color:#7c2d12;line-height:1.5;"><b><i class="ti ti-palette"></i> Ce que dit votre note</b><div style="margin-top:2px;">IVE '+esc(coul)+(_adef&&_adef.s?' — '+esc(_adef.s):'')+'.'+(_adef&&_adef.d?' '+esc(_adef.d):'')+'</div>'+(_f.valeurs?'<div style="margin-top:6px;"><b>Vos valeurs :</b> '+esc(_f.valeurs)+'</div>':'')+(_f.imagePercue?'<div style="margin-top:4px;"><b>Votre image :</b> '+esc(_f.imagePercue)+'</div>':'')+'</div>';
           var cockpit='<div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">'+band+'<div style="flex:0 0 auto;text-align:center;">'+pastille+'<div style="font-size:10px;color:#9ca3af;margin-top:7px;font-weight:600;letter-spacing:.3px;">'+(diff>0?'Prochain scan : J-'+diff:'Re-mesure disponible')+'</div></div>'+meaning+'</div>'+evo+infHtml;
-          var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
+          var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;"><div><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(dg.nom||acc.name||'')+'</div></div><div style="font-size:10.5px;color:#9ca3af;text-align:right;white-space:nowrap;"><i class="ti ti-calendar"></i> '+new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})+'<div style="margin-top:3px;"><a href="#" onclick="authLogout();return false;" style="color:#9ca3af;">Déconnexion</a></div></div></div></div>';
           $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>';
           if(typeof sentSlides==='function') sentSlides(dg.fiche,'homeSlides',cockpit,header);
       };
@@ -6718,7 +6749,7 @@ function bouCadre(inner, etape, titre){
   var prog='';
   if(etape){ prog='<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.5px;">'+etape+'/5</span><span style="font-size:11px;color:#9ca3af;">environ 90 secondes</span></div><div style="height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(etape/5*100)+'%;height:100%;background:#E8541A;border-radius:4px;"></div></div></div>'; }
   return '<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'+prog+inner+'</div></div></div>';
 }
@@ -7086,7 +7117,7 @@ function boussoleOutil(which){
   var nom=window.lastNom||(acc&&acc.name)||'';
   if(which==='questionnaire'){ return boussoleParcours(); }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
-  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
+  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
   if(which==='concurrence'){
     // Le mot-cle garde reprend la main sur l'activite par defaut : c'est une saisie voulue.
     var kwDef=esc(concKwGarde()||window.lastActivite||'').replace(/"/g,'&quot;');
@@ -7252,7 +7283,7 @@ function boussoleParcours(){
   var nom=window.lastNom||(acc&&acc.name)||'';
   var ligne=parcoursLigne, carte=parcoursCarte;
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div class="card"><div class="sec">'
       // Accroche + boussole
@@ -7373,7 +7404,7 @@ function boussoleView(){
   if(bouEtape()<6) return bouIntro();
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;color:#374151;line-height:1.55;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
