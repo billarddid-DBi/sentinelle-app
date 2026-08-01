@@ -98,6 +98,12 @@
      à un mot par ligne et « BIENVENUE », qui ne peut pas se couper, débordait SOUS les
      pastilles. Sous 560 px on empile : le bandeau reprend toute la largeur pour chaque partie.
      Les bandeaux ont aussi reçu flex-wrap:wrap — c'est lui qui fait descendre cette colonne. */
+  /* Le bloc de GAUCHE des bandeaux noirs porte `flex:1 1 240px` (01/08, signalé par Didier sur
+     la carte de la concurrence). Sans base de flex, il réclamait la largeur naturelle de son
+     texte : un sous-titre long — « Les entreprises du même métier près de Feu Vert Metz Marly.
+     Repère public, à aujourd'hui. » — dépassait la place disponible et poussait la colonne de
+     droite sous lui, même sur un grand écran. Le bandeau ne ressemblait alors plus aux autres.
+     Avec une base, le texte se coupe au lieu de pousser, et la colonne reste à droite. */
   .iveHeadR{text-align:right;flex:0 0 auto;white-space:nowrap;}
   .iveHeadR>div{margin-top:6px;}
   .iveHeadR>div~div{margin-top:3px;}
@@ -1364,7 +1370,7 @@ function startGrille(mode){
   var label = (mode==='express') ? 'Express' : 'Complet';
   // Les deux bandeaux noirs, comme sur toutes les pages : on peut repartir vers SENTINELLE
   // ou l'accueil à tout moment — les réponses sont enregistrées à chaque geste.
-  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+  var html='<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE '+label+'</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre questionnaire</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div id="bSauveChip" style="font-size:11.5px;color:#16a34a;font-weight:600;margin:2px 2px 6px;"></div>'
     +'<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
@@ -2347,7 +2353,7 @@ function boussoleACompleter(et){
   var fait=et?et.fait:0, total=et?et.total:0, reste=total-fait;
   var pct=total?Math.round(fait/total*100):0;
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Vos résultats vous attendent</div>'+iveIdentLigne()+'</div>'+(typeof iveBandDroite==='function'?iveBandDroite(false):'')+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;">Votre questionnaire est à compléter.</div>'
@@ -3016,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 184';
+var IVE_VERSION='01/08 · 185';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5614,7 +5620,7 @@ function dirigeantSpace(){
   var _verrou=!iveAbonne();
   var G=iveGrilleEtats();
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div>'+iveIdentTitre(nom)+'</div>'+iveBandDroite(true)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> BIENVENUE</div>'+iveIdentTitre(nom)+'</div>'+iveBandDroite(true)+'</div></div>'
     /* PAS DE BARRE DE RETOUR ICI : on y est déjà. iveNavBar() est devenue un « ← Accueil » et
        l'afficher sur l'accueil donnait un bouton qui ne mène nulle part. */
     /* LES DEUX GESTES DU JOUR, CÔTE À CÔTE ET COMPACTS. Le grand cercle orange occupait à lui
@@ -5709,7 +5715,7 @@ function sentApercu(){
   var acc=currentAccount(); if(!acc){ renderAuth('login'); return; }
   var cadre=function(inner){
     return adminBar()
-      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+      +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Voilà ce que les autres voient</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
       +(typeof iveNavBar==='function'?iveNavBar('sentinelle'):'')
       +'<div class="card"><div class="sec">'+inner+'</div></div>';
   };
@@ -5844,7 +5850,7 @@ function sentComplet(){
     window.lastAura=(f.aura&&f.indice&&f.indice.estime!=null)?{note:f.indice.estime,couleur:f.aura.couleur,eclat:f.aura.eclat}:null;
     window.lastAvis=(f._auraCalc&&f._auraCalc.note_google!=null)?{note:f._auraCalc.note_google,nombre:f._auraCalc.nb_avis||null}:null;
     window.lastSite=f.site||'';
-    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
+    var header='<div class="card" style="overflow:hidden;margin-bottom:12px;"><div style="background:#1C1C1C;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-radar-2"></i> SENTINELLE</div><div style="font-size:16px;font-weight:600;margin-top:2px;">'+esc(f.nom||dg.nom||acc.name||'')+'</div></div>'
       +iveBandDroite(false)
       +'</div></div>';
     $('dirigeant').innerHTML=adminBar()+'<div id="homeSlides"></div>'
@@ -6968,7 +6974,7 @@ function bouCadre(inner, etape, titre){
   var prog='';
   if(etape){ prog='<div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><span style="font-size:11.5px;font-weight:800;color:#E8541A;letter-spacing:.5px;">'+etape+'/5</span><span style="font-size:11px;color:#9ca3af;">environ 90 secondes</span></div><div style="height:6px;background:#eef0f3;border-radius:4px;overflow:hidden;"><div style="width:'+Math.round(etape/5*100)+'%;height:100%;background:#E8541A;border-radius:4px;"></div></div></div>'; }
   return '<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+(titre||'Ce que vous vivez au quotidien')+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'+prog+inner+'</div></div></div>';
 }
@@ -7339,7 +7345,7 @@ function boussoleOutil(which){
   var nom=window.lastNom||(acc&&acc.name)||'';
   if(which==='questionnaire'){ return boussoleParcours(); }
   var back='<button class="btn btn-ghost" style="margin-top:12px;" onclick="boussoleView()"><i class="ti ti-arrow-left"></i> Retour à la BOUSSOLE</button>';
-  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
+  var head=function(ic,t,s){ return '<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti '+ic+'"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">'+t+'</div><div style="font-size:11.5px;color:#9ca3af;margin-top:3px;">'+s+'</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'+(typeof iveNavBar==='function'?iveNavBar('actions'):''); };
   if(which==='concurrence'){
     // Le mot-cle garde reprend la main sur l'activite par defaut : c'est une saisie voulue.
     var kwDef=esc(concKwGarde()||window.lastActivite||'').replace(/"/g,'&quot;');
@@ -7470,7 +7476,7 @@ function boussoleParcours(){
   // `nom` a disparu avec l'encadré « Entreprise » : le bandeau noir porte déjà le nom officiel.
   var ligne=parcoursLigne, carte=parcoursCarte;
   $('dirigeant').innerHTML=adminBar()
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Le diagnostic en entretien avec vous</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('questionnaire'):'')
     +'<div class="card"><div class="sec">'
       /* RETIRÉS LE 01/08 (demande de Didier) : la grande boussole ronde à droite et l'encadré
@@ -7603,7 +7609,7 @@ function boussoleView(){
   if(bouEtape()<6) return bouIntro();
   var acc=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var html='<div style="display:flex;flex-direction:column;gap:8px;">'
-    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
+    +'<div class="card" style="overflow:hidden;"><div style="background:#1C1C1C;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;"><div style="flex:1 1 240px;min-width:0;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-compass"></i> BOUSSOLE</div><div style="font-size:16px;font-weight:600;margin-top:3px;">Votre plan complet</div>'+iveIdentLigne()+'</div>'+iveBandDroite(false)+'</div></div>'
     +(typeof iveNavBar==='function'?iveNavBar('boussole'):'')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;color:#374151;line-height:1.55;">Voici ce que la BOUSSOLE déploie pour <b>'+esc((acc&&acc.name)||'votre entreprise')+'</b> :</div>'
