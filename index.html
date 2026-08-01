@@ -2288,6 +2288,8 @@ function iveNav(s){
     var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
     if(et&&et.complet) boussoleResultats(et.mode); else boussoleACompleter(et);
   }
+  // « Mon compte » existe depuis le 01/08 : la destination ne tombe plus dans le repli.
+  else if(s==='params'){ monCompteView(); }
   else if(s==='deco'){ authLogout(); }
   else { alert('Bientôt disponible — cette section arrive dans une prochaine version.'); }
 }
@@ -3020,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 195';
+var IVE_VERSION='01/08 · 196';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5347,7 +5349,21 @@ function ivePlanSet(p){
   // Écrit aussi sur le compte : la formule doit suivre le dirigeant d'un appareil à l'autre.
   try{ if(window.sb&&window.sb.auth&&window.sb.auth.updateUser) window.sb.auth.updateUser({data:{ive_plan:p}}); }catch(e){}
 }
-function iveAbonnementTxt(){ var p=ivePlanGet(); if(!p) return ''; return (p==='annuel')?'129 €/an':'12,90 €/mois'; }
+/* REPLI SUR LE COMPTE (01/08). Cette fonction ne lisait que la formule mémorisée dans le
+   navigateur. Sur « Mon compte », un client qui paie mais dont l'appareil n'a pas encore reçu
+   cette mémoire lisait « Formule : aucune » — la pire chose à montrer à quelqu'un qui vient de
+   payer. On retombe donc sur ce que porte le compte lui-même : sa formule, sinon son prix.
+   Volontairement limité à l'AFFICHAGE : jetInclus(), qui décide du nombre de jetons, n'est pas
+   touché — on ne change pas l'économie du produit pour corriger un libellé. */
+function iveAbonnementTxt(){
+  var p=ivePlanGet();
+  if(!p){
+    var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+    if(a){ if(a.plan==='annuel'||a.plan==='mensuel') p=a.plan; else if(+a.price>=100) p='annuel'; else if(+a.price>0) p='mensuel'; }
+  }
+  if(!p) return '';
+  return (p==='annuel')?'129 €/an':'12,90 €/mois';
+}
 // Pastille verte « abonnement actif » pour les bandeaux noirs — le dirigeant voit qu'il est bien pris en compte.
 function iveAbonnementChip(){
   if(!boussoleActif()) return '';
@@ -5413,8 +5429,13 @@ function iveIdentTitre(nomCompte){
   var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var n=window.lastNom||'', v=window.lastVille||(a&&a.ville)||'';
   var st='font-size:16px;font-weight:600;margin-top:3px;line-height:1.3;';
-  if(!n) return '<div style="'+st+'">'+esc(nomCompte||(a&&a.name)||'')+'</div>';
-  return '<div style="'+st+'"><i class="ti ti-building-store" style="color:#E8A07E;"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>';
+  /* « MON COMPTE » SOUS LE NOM (demande de Didier, 01/08). Le lien avait été retiré des
+     bandeaux le matin même parce qu'il ne menait nulle part — iveNav('params') tombait sur
+     « Bientôt disponible ». Il revient parce que l'écran existe maintenant : on remet un bouton
+     quand il y a quelque chose derrière, pas avant. */
+  var bouton='<div style="margin-top:8px;"><button type="button" onclick="iveNav(\'params\')" style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e5e7eb;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-user-circle"></i> Mon compte</button></div>';
+  if(!n) return '<div style="'+st+'">'+esc(nomCompte||(a&&a.name)||'')+'</div>'+bouton;
+  return '<div style="'+st+'"><i class="ti ti-building-store" style="color:#E8A07E;"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>'+bouton;
 }
 function iveBandDroite(avecDeconnexion){
   // La mise en forme est passée en CSS (.iveHeadR) : c'est le seul moyen d'avoir une règle
@@ -5463,6 +5484,48 @@ function santeLigne(etat, titre, detail, quoiFaire){
       +'<b style="color:#1C1C1C;">'+titre+'</b> '+detail
       +(quoiFaire?('<div style="font-size:11.5px;color:'+c[0]+';margin-top:4px;">→ '+quoiFaire+'</div>'):'')
     +'</div></div>';
+}
+/* ===== MON COMPTE — créé le 01/08/2026 =====
+   L'écran manquait depuis toujours : iveNav('params') tombait sur « Bientôt disponible », et
+   le lien qui y menait a fini par être retiré des quatorze bandeaux. Didier a demandé un bouton
+   sous le nom de l'entreprise ; il fallait donc d'abord qu'il y ait quelque chose derrière.
+   IL NE MONTRE QUE CE QUE L'APPLICATION SAIT DÉJÀ — aucun champ inventé, aucune promesse : le
+   compte, l'entreprise, la formule, les jetons. La suppression du compte n'y est PAS : elle
+   demande une fonction serveur qui n'existe pas (seule la console admin sait supprimer, et
+   seulement pour un autre compte que le sien). Un bouton qui échouerait vaudrait moins que
+   pas de bouton — c'est la leçon de « Mon compte » lui-même. */
+function monCompteLigne(label, valeur, aide){
+  if(valeur===''||valeur==null) return '';
+  return '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-top:1px solid #eef0f3;padding:10px 0;">'
+    +'<span style="font-size:12.5px;color:#6b7280;flex:0 0 auto;">'+label+'</span>'
+    +'<span style="font-size:13px;font-weight:700;color:#1C1C1C;text-align:right;min-width:0;">'+valeur
+    +(aide?('<div style="font-size:11px;font-weight:400;color:#9ca3af;margin-top:2px;">'+aide+'</div>'):'')+'</span></div>';
+}
+function monCompteView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  if(!acc){ renderAuth('login'); return; }
+  var je=(typeof jetEtat==='function')?jetEtat():null;
+  var formule=(typeof iveAbonnementTxt==='function')?iveAbonnementTxt():'';
+  var dte=function(s){ if(!s) return ''; try{ return new Date(s).toLocaleDateString('fr-FR'); }catch(e){ return ''; } };
+  var ent=(window.lastNom||'')+((window.lastVille)?(' · '+window.lastVille):'');
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-user-circle','MON COMPTE','Vos informations','accueil')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:12.5px;color:#6b7280;line-height:1.5;">Ce que l\'application sait de vous. Rien n\'est modifiable ici pour l\'instant.</div>'
+      +'<div style="margin-top:10px;">'
+        +monCompteLigne('Entreprise', ent?esc(ent):'<span style="color:#9ca3af;font-weight:400;">pas encore identifiée</span>','')
+        +monCompteLigne('Adresse e-mail', esc(acc.email||''),'')
+        +monCompteLigne('Formule', formule?esc(formule):'<span style="color:#9ca3af;font-weight:400;">aucune</span>','')
+        +(je?monCompteLigne('Jetons', je.reste+' sur '+je.total, (je.packs?(je.packs+' rachetés en plus'):''))
+            :'')
+        +monCompteLigne('Client depuis', dte(acc.since),'')
+        +monCompteLigne('Prochaine échéance', dte(acc.renewal),'')
+        +monCompteLigne('Version de l\'application', esc(IVE_VERSION), 'à indiquer en cas de souci')
+      +'</div>'
+      +'<button type="button" onclick="offreView()" style="width:100%;border:0;border-radius:12px;background:#E8541A;color:#fff;font-size:13.5px;font-weight:800;padding:13px;margin-top:14px;cursor:pointer;font-family:inherit;"><i class="ti ti-coins"></i> Formules et jetons</button>'
+      +'<button type="button" onclick="authLogout()" style="width:100%;border:1px solid #e5e7eb;border-radius:12px;background:#fff;color:#6b7280;font-size:13px;font-weight:700;padding:12px;margin-top:8px;cursor:pointer;font-family:inherit;"><i class="ti ti-logout"></i> Déconnexion</button>'
+    +'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
 }
 async function santeView(){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
