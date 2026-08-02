@@ -1031,11 +1031,19 @@ function renderMiroir(){
   var ahSec='';
   var ah=window.lastAH;
   if(ah && ah.iat!=null){
+    /* ═══ LE VOLET HUMAIN EST VERT (Didier, 02/08/2026) ════════════════════════════════════
+       Sa couleur suivait la zone IAT : rouge en Blocage, orange en Vigilance. Un bloc rouge
+       sur un écran qui parle de son équipe se lit comme une alerte SUR LES GENS — l'inverse de
+       la règle qu'il a posée lui-même : « tu n'es pas là pour être critique ». Le vert devient
+       la couleur d'IDENTITÉ de ce volet, comme le violet l'est pour le quotidien.
+       ⚠️ LA MESURE, ELLE, GARDE SA COULEUR. L'IAT et le nom de la zone restent en rouge, orange
+       ou vert selon le résultat : verdir le CHIFFRE reviendrait à masquer ce qu'il dit. On
+       apaise le cadre, on ne maquille pas la donnée. */
     var bandCol=ah.band==='Blocage'?'#dc2626':ah.band==='Appui'?'#16a34a':'#ea580c';
-    var bandBg=ah.band==='Blocage'?'#fef2f2':ah.band==='Appui'?'#f0fdf4':'#fff7ed';
+    var humCol='#15803d', humBg='#f0fdf4', humBord='#bbf7d0';
     var hum=m.humain;
     var craintesH=(ah.craintes&&ah.craintes.length)?ah.craintes.slice(0,6).map(function(p){return '<span style="display:inline-block;background:#fff;border:1px solid '+bandCol+'44;color:#7c2d12;border-radius:12px;padding:2px 9px;font-size:11px;margin:2px 3px 0 0;">'+esc(p.txt||p.code)+'</span>';}).join(''):'<span style="font-size:11.5px;color:#16a34a;">Aucune crainte majeure détectée</span>';
-    ahSec='<div class="sec" style="background:'+bandBg+';"><div class="ktitle" style="color:'+bandCol+';"><i class="ti ti-users-group"></i> Volet humain — AURA (le pouls de l\'organisation)</div>'
+    ahSec='<div class="sec" style="background:'+humBg+';"><div class="ktitle" style="color:'+humCol+';"><i class="ti ti-users-group"></i> Volet humain — AURA (le pouls de l\'organisation)</div>'
       +'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;">'
         +'<div style="text-align:center;min-width:78px;"><div style="font-size:28px;font-weight:700;color:'+bandCol+';line-height:1;">'+ah.iat+'</div><div style="font-size:9.5px;color:#6b7280;">IAT · acceptabilité</div><div style="font-size:11px;font-weight:700;color:'+bandCol+';margin-top:3px;">'+esc(ah.band)+'</div></div>'
         /* Un indice non calculable s'écrit « – », jamais « undefined ». La résistance se déduit
@@ -1059,7 +1067,7 @@ function renderMiroir(){
         var t=(hum&&hum.titreStrategie)?hum.titreStrategie:'Dosage adapté';
         var niv=(hum&&hum.niveau)?('<div style="font-size:11px;color:#6b7280;margin-bottom:3px;">Niveau de vigilance : <b style="color:'+bandCol+';">'+esc(hum.niveau)+'</b></div>'):'';
         return '<div style="margin-top:8px;font-size:12px;background:#fff;border-radius:8px;padding:10px 12px;line-height:1.6;">'
-          +niv+'<b style="color:'+bandCol+';"><i class="ti ti-adjustments-alt"></i> '+esc(t)+'</b>'
+          +niv+'<b style="color:'+humCol+';"><i class="ti ti-adjustments-alt"></i> '+esc(t)+'</b>'
           +'<div style="color:#334155;margin-top:4px;">'+esc(s)+'</div></div>';
       })()
       // Même mot retiré ici que dans l'écran de résultats : une seule façon de le dire partout.
@@ -1079,13 +1087,16 @@ function renderMiroir(){
     }else if(hum&&Array.isArray(hum.craintes)&&hum.craintes.length){
       ahSec+='<div style="margin-top:10px;">'+hum.craintes.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.crainte||'')+'</div>'+(p.traduction?'<div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction)+'</i></div>':'')+'<div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
     }
-    // « Ma vision » — la synthèse personnalisée, qui clôt le volet humain sur la prochaine étape.
-    if(hum&&hum.vision&&hum.vision.texte){
-      ahSec+='<div style="margin-top:12px;background:#fff;border-left:3px solid '+bandCol+';border-radius:0 8px 8px 0;padding:10px 12px;font-size:12px;line-height:1.65;">'
-        +'<b style="color:'+bandCol+';"><i class="ti ti-eye"></i> '+esc(hum.vision.titre||'Ma vision')+'</b>'
-        +'<div style="color:#334155;margin-top:4px;">'+esc(hum.vision.texte)+'</div></div>';
-    }
     ahSec+='<div style="margin-top:8px;font-size:10px;color:#9ca3af;">On analyse le SYSTÈME, jamais les personnes.</div></div>';
+    /* « Ma vision » SORT de la carte (Didier, 02/08/2026) : « le "ma vision" en dernier doit
+       être séparé mais rester dans la même couleur ». C'est une synthèse, pas un point de
+       diagnostic de plus — noyée en bas du volet, elle se lisait comme un paragraphe parmi
+       d'autres. Bloc à part, même vert, juste après. */
+    if(hum&&hum.vision&&hum.vision.texte){
+      ahSec+='<div class="sec" style="background:'+humBg+';border-top:1px solid '+humBord+';">'
+        +'<div class="ktitle" style="color:'+humCol+';"><i class="ti ti-eye"></i> '+esc(hum.vision.titre||'Ma vision')+'</div>'
+        +'<div style="font-size:12.5px;color:#334155;line-height:1.65;margin-top:4px;">'+esc(hum.vision.texte)+'</div></div>';
+    }
   }
   var au=AURAS[(b.aura||'').split(' — ')[0]]||AURAS['Bleu'];
   var tog=function(a,lbl){return '<button class="btn '+(aud===a?'btn-primary':'btn-ghost')+'" style="margin-top:0;font-size:13px;padding:8px;" onclick="setMiroirAudience(\''+a+'\')">'+lbl+'</button>';};
@@ -3402,7 +3413,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 218';
+var IVE_VERSION='02/08 · 219';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
