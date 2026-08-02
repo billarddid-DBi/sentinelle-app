@@ -18,13 +18,24 @@
 -- SECURITY DEFINER doit néanmoins SE GARDER ELLE-MÊME : les droits sont une serrure sur la
 -- porte, la garde interne est le verrou. Les deux, séparément — c'est la leçon de l'audit.
 --
--- ═══ CE QUE CE FICHIER NE FERME PAS ════════════════════════════════════════════════════════
--- Tant que c'est le NAVIGATEUR qui envoie la fiche, un client déterminé peut en envoyer une
--- fausse. Le vrai verrou serait que la fonction Vercel écrive la fiche elle-même, en
--- service_role. Mais `p_html` est fabriqué depuis l'écran (le radar est converti en image
--- depuis le canvas) : cela ne peut pas déménager côté serveur sans réécrire la production.
--- C'est un chantier, pas une rustine. En attendant, on TRACE — pour qu'un abus soit
--- attribuable, à défaut d'être impossible.
+-- ═══ CE QUE CE FICHIER NE FERMAIT PAS — ET QUI A ÉTÉ FERMÉ LE JOUR MÊME ════════════════════
+-- ✅ RÉGLÉ le 02/08/2026 par `docs/sentinelle-poser.sql`. Ce paragraphe est conservé parce
+--    qu'il dit pourquoi on s'était trompé.
+--
+-- On écrivait ici : « tant que c'est le NAVIGATEUR qui envoie la fiche, un client déterminé peut
+-- en envoyer une fausse ; le vrai verrou serait que la fonction Vercel écrive la fiche
+-- elle-même, mais `p_html` est fabriqué depuis l'écran (radar converti en image depuis le
+-- canvas) et ne peut pas déménager côté serveur sans réécrire la production ».
+--
+-- L'ERREUR ÉTAIT DANS LA PRÉMISSE, pas dans le raisonnement. Personne ne lit la colonne `html` :
+-- ni sentinelle_get, ni sentinelle_check, ni aucune fonction Vercel, ni la console. C'était un
+-- PDF jamais construit. En cessant de la stocker, le navigateur n'a plus rien à écrire, et le
+-- verrou tenait en deux lignes de droits.
+-- ⚠️ LA LEÇON : avant de déclarer un chantier hors de portée, vérifier que la contrainte qui le
+--    bloque sert encore à quelque chose. Ici elle ne servait à rien depuis le début.
+--
+-- `sentinelle_save` n'est donc plus exécutable par `authenticated`. Elle reste en place pour
+-- pouvoir rouvrir en une ligne, et les gardes ci-dessus restent utiles à ce titre.
 -- ═══════════════════════════════════════════════════════════════════════════════════════════
 
 
