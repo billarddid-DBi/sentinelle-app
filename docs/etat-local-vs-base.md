@@ -1,4 +1,9 @@
 # Ce qui vit encore dans le navigateur — inventaire du 01/08/2026
+#
+# ⚠️ MIS À JOUR LE 02/08/2026 : les trois chantiers A, B et C de la section 4 sont FAITS.
+#    L'état à jour est en fin de fichier, section 6. Les sections 3 et 4 décrivent la
+#    situation d'avant — gardées parce qu'elles disent POURQUOI chaque chantier a été fait
+#    dans cet ordre, mais elles ne décrivent plus la réalité.
 
 Établi après la question de Didier : « je ne veux rien en local ; déjà, si mon PC a un problème,
 on perd tout. Il faut que l'ensemble de l'app soit en ligne. »
@@ -94,3 +99,36 @@ Deux pièges déjà payés le 31/07, notés pour ne pas les refaire sur ces tabl
 Et celui du 01/08, qui vient d'être payé sur le questionnaire :
 3. **Un ensemble vide n'écrase jamais un ensemble rempli.** Une grille reconstruite sans avoir
    retrouvé les réponses s'enregistrait par-dessus.
+
+---
+
+## 6. OÙ ON EN EST — 02/08/2026, version 203
+
+Les trois chantiers sont faits. **Plus aucune donnée de travail ne meurt avec l'appareil.**
+
+| Chantier | Fait le | Comment |
+|---|---|---|
+| A. Questionnaire dirigeant | 01/08 | table `reponses_dirigeant`, une ligne par critère (`docs/reponses-dirigeant.sql`) |
+| B. Jetons | 02/08 | tables `jetons` + `jetons_mouvements`, décompte par RPC atomique (`docs/jetons.sql`) |
+| C. Les onze autres magasins | 02/08 | table unique `espace_donnees` (`docs/espace-donnees.sql`) |
+
+### Ce qui reste dans le navigateur, et c'est voulu
+
+| Clé | Pourquoi elle y reste |
+|---|---|
+| `ive_jetons_v1_` | **Cache d'affichage seulement.** La base fait autorité ; renvoyer le local rouvrirait le trou fermé le 02/08. |
+| `ive_plan_` | Écrite par le navigateur, donc falsifiable. La formule vit dans `jetons.formule`, modifiable par l'admin seul. |
+| `ive_miroir_v1_` | Cache : la fiche est en base (`fiches`). |
+| `ive_grille_v2_` | Cache : les réponses sont dans `reponses_dirigeant`. |
+| `ive_sync_v1_` | Horodatage LOCAL de chaque magasin — c'est lui qui arbitre entre navigateur et base. N'a de sens que sur cet appareil. |
+| `dbi_accounts`, `dbi_last_mail`, `intro_vu` | Préférences d'appareil. |
+
+### Le patron à réutiliser
+
+Pour tout NOUVEAU magasin de type « un bloc JSON par entreprise » : ajouter son préfixe à
+`ESPACE_CLES` dans `index.html`. **Aucun SQL, aucune autre modification.** L'interception de
+`localStorage.setItem` fait le reste.
+
+⚠️ **Ne PAS utiliser ce patron** pour une donnée que deux appareils modifient en même temps
+(tâches, réponses au questionnaire) : il faut alors une ligne par élément, sinon le dernier
+appareil qui écrit efface le travail de l'autre. Le bloc JSON n'arbitre qu'à l'horodatage.
