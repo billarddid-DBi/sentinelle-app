@@ -3236,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 210';
+var IVE_VERSION='02/08 · 211';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3254,18 +3254,67 @@ function iveCarteIdentite(d){
     +'</div>';
 }
 // Bas de page : évolution, méthodologie, à propos — SOURCE UNIQUE.
-/* ⚠️ « Notre méthodologie » et « À propos » ont DÉMÉNAGÉ dans Mon compte (Didier, 02/08/2026).
-   Ils ne disent rien de l'entreprise analysée : ce sont des informations sur l'OUTIL. En bas de
-   chaque SENTINELLE, ils allongeaient l'écran de résultat avec ce qu'on ne lit qu'une fois.
-   Seule « Évolution de ma note » reste ici — elle, elle parle bien de cette entreprise.
+/* ⚠️ LE BAS DE L'ÉCRAN SENTINELLE A ÉTÉ VIDÉ (Didier, 02/08/2026), en deux temps.
+   · « Notre méthodologie » et « À propos » → Mon compte. Ils parlent de l'OUTIL, pas de
+     l'entreprise analysée, et se lisent une fois — pas sous chaque résultat payé.
+   · « Évolution de ma note » → l'écran Historique (historiqueView), ouvert par sa tuile
+     d'accueil. Repliée au bas d'une fiche, la courbe ne se regardait jamais ; elle est
+     pourtant le retour des 4 jetons d'une relance. Elle a maintenant un écran à elle.
    Chaque bloc n'est écrit QU'À UN endroit : deux copies finiraient par diverger, comme les deux
    boutons de l'écran concurrence en juillet. */
-function iveAccordeonsBas(d){
-  d=d||{};
-  var evoInner=(typeof evoCardHtml==='function'&&window.__lastGet)?evoCardHtml(window.__lastGet.serie):'';
-  var evoBody=evoInner?'<div id="evoCard">'+evoInner+'</div>':'<div style="font-size:12px;color:#475569;line-height:1.5;"><i class="ti ti-device-floppy" style="color:#2563EB;"></i> Première mesure enregistrée. Dès la prochaine mesure (1 par semaine), votre courbe d\'évolution apparaîtra ici.</div>';
-  var evoCard='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 16px;margin-top:12px;"><div onclick="var b=document.getElementById(\'synthEvoBody\'),c=document.getElementById(\'synthEvoChev\');if(b){var h=(b.style.display===\'none\');b.style.display=h?\'block\':\'none\';if(c)c.style.transform=h?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:10px;"><div style="flex:1;"><i class="ti ti-chart-line" style="color:#2563EB;"></i> <b style="font-size:12.5px;color:#1C1C1C;">Évolution de ma note</b></div><i id="synthEvoChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:20px;transition:transform .2s;"></i></div><div id="synthEvoBody" style="display:none;margin-top:12px;">'+evoBody+'</div></div>';
-  return evoCard;
+/* ═══ L'ÉCRAN HISTORIQUE (02/08/2026) ═══════════════════════════════════════════════════════
+   La tuile d'accueil annonçait « bientôt » — elle mène désormais ici.
+   Elle réunit ce qui raconte le TEMPS : la courbe de la note, et la liste des mesures passées.
+   Les deux viennent de la même source, `serie`, que sentinelle_get reconstruit depuis
+   l'historique de la fiche : rien de local, rien à calculer deux fois.
+   La courbe est OUVERTE, pas repliée. Repliée au bas d'une fiche, elle ne se regardait jamais —
+   or elle est le retour des 4 jetons d'une relance : c'est elle qui dit si le chiffre a bougé. */
+function iveSerie(){
+  var g=window.__lastGet;
+  var s=(g&&g.serie)?g.serie:[];
+  return s.filter(function(x){ return x && x.date && x.ive!=null; })
+          .sort(function(a,b){ return a.date<b.date?-1:1; });
+}
+function historiqueView(){
+  var acc=(typeof currentAccount==='function')?currentAccount():null;
+  if(!acc){ renderAuth('login'); return; }
+  var s=iveSerie(), n=s.length;
+  var corps;
+  if(!n){
+    corps='<div style="font-size:13px;color:#4b5563;line-height:1.6;"><i class="ti ti-device-floppy" style="color:#2563EB;"></i> Aucune mesure enregistrée pour l\'instant. Lancez une SENTINELLE : elle deviendra le premier point de votre courbe.</div>';
+  }else if(n===1){
+    /* On ne dessine pas une « courbe » d'un seul point : ce serait promettre une lecture qu'on
+       ne peut pas faire. On dit ce qu'il manque, et quand. */
+    corps='<div style="font-size:13px;color:#4b5563;line-height:1.6;"><i class="ti ti-chart-line" style="color:#2563EB;"></i> Une seule mesure pour l\'instant, le <b>'+esc(new Date(s[0].date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}))+'</b> — note <b>'+esc(String(s[0].ive))+'/100</b>.<br>Une courbe demande deux points : elle apparaîtra à votre prochaine mesure.</div>';
+  }else{
+    var courbe=(typeof evoCardHtml==='function')?evoCardHtml(s):'';
+    var prem=s[0], der=s[n-1], ecart=(+der.ive)-(+prem.ive);
+    var coul=ecart>0?'#15803d':(ecart<0?'#b91c1c':'#6b7280');
+    var fleche=ecart>0?'▲ +':(ecart<0?'▼ ':'');
+    corps='<div style="font-size:13px;color:#4b5563;line-height:1.6;">Depuis votre première mesure, votre note est passée de <b>'+esc(String(prem.ive))+'</b> à <b>'+esc(String(der.ive))+'</b> — <b style="color:'+coul+';">'+fleche+(ecart===0?'stable':esc(String(ecart)))+'</b>.</div>'
+      +(courbe?('<div id="evoCard" style="margin-top:12px;">'+courbe+'</div>'):'');
+  }
+  var liste='';
+  if(n){
+    liste='<div class="card" style="margin-top:14px;"><div class="sec">'
+      +'<div style="font-size:12.5px;font-weight:800;color:#1C1C1C;margin-bottom:8px;"><i class="ti ti-list-details" style="color:#2563EB;"></i> Vos mesures, de la plus récente à la plus ancienne</div>'
+      +s.slice().reverse().map(function(x,i){
+        var prec=s[s.length-2-i];
+        var dd=(prec&&prec.ive!=null)?((+x.ive)-(+prec.ive)):null;
+        var chip=(dd===null)?'<span style="font-size:11px;color:#9ca3af;">1ʳᵉ mesure</span>'
+          :'<span style="font-size:11px;font-weight:700;color:'+(dd>0?'#15803d':(dd<0?'#b91c1c':'#6b7280'))+';">'+(dd>0?'+':'')+dd+'</span>';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid #eef2f5;">'
+          +'<span style="flex:1;font-size:13px;color:#1f2937;">'+esc(new Date(x.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}))+'</span>'
+          +'<span style="font-size:13px;font-weight:800;color:#1C1C1C;">'+esc(String(x.ive))+'/100</span>'+chip+'</div>';
+      }).join('')
+      +'<div style="font-size:11px;color:#9ca3af;margin-top:10px;line-height:1.5;">Une mesure est enregistrée à chaque analyse SENTINELLE. Une par semaine suffit : en dessous, rien n\'a le temps de bouger.</div>'
+      +'</div></div>';
+  }
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +iveEntete('ti-history','HISTORIQUE','Comment votre note a bougé dans le temps','accueil')
+    +'<div class="card"><div class="sec">'+corps+'</div></div>'
+    +liste;
+  showView('dirigeant'); window.scrollTo(0,0);
 }
 /* Les deux volets d'INFORMATION SUR L'OUTIL, désormais dans Mon compte. */
 function iveAccordeonsInfos(d){
@@ -3330,8 +3379,7 @@ function synthHtml(d){
   return head
     +'<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">'+idCard+potBox+'</div>'
     +vueAcc
-    +'<div style="margin-top:12px;">'+meaningBox+'</div>'
-    +iveAccordeonsBas(d);
+    +'<div style="margin-top:12px;">'+meaningBox+'</div>';
 }
 function sentSlides(d, targetId, cockpitHtml, banner){
   var res=targetId?document.getElementById(targetId):$('result'); if(!res) return;
@@ -6069,7 +6117,7 @@ function iveCout(cle){
 }
 function iveGrilleEtats(){
   var d={txt:'',ton:'off'};
-  var o={sent:d,quest:d,sal:d,bou:d,mir:d,conc:d,feuille:d,outils:d,sim:d,jet:d,parcoursFini:false};
+  var o={sent:d,quest:d,sal:d,bou:d,mir:d,conc:d,feuille:d,outils:d,sim:d,jet:d,hist:d,parcoursFini:false};
   try{
     var et=(typeof bouGrilleEtat==='function')?bouGrilleEtat():null;
     var f=(typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{};
@@ -6111,6 +6159,13 @@ function iveGrilleEtats(){
 
     var sok=(typeof iveFaitGet==='function')&&iveFaitGet('simulateur');
     o.sim = sok?{txt:'Fait',ton:'ok'}:{txt:'À essayer',ton:'off'};
+
+    /* L'HISTORIQUE dit combien de mesures existent. Une seule ne fait pas une courbe : on
+       l'annonce plutôt que de laisser croire qu'il y a quelque chose à lire. */
+    var nh=(typeof iveSerie==='function')?iveSerie().length:0;
+    o.hist = (nh>=2)?{txt:nh+' mesures',ton:'ok'}
+           : (nh===1)?{txt:'1 mesure',ton:'att'}
+           : {txt:'Après la 1ʳᵉ analyse',ton:'off'};
 
     var je=(typeof jetEtat==='function')?jetEtat():null;
     if(je) o.jet={txt:je.reste+' restants',ton:(je.reste<=5?'att':'ok')};
@@ -6198,7 +6253,8 @@ function dirigeantSpace(){
       /* Ces deux-là n'existent pas encore : iveNav('historique') et iveNav('params') tombent
          sur « Bientôt disponible ». On les montre grisées plutôt que de faire semblant — une
          tuile qui promet un écran inexistant coûte plus cher qu'une tuile grise. */
-      +ivTuile('ti-history','Historique','',' bientôt','off',true)
+      // La tuile annonçait « bientôt » depuis toujours : elle mène désormais à l'écran Historique.
+      +ivTuile('ti-history','Historique','historiqueView()',G.hist.txt,G.hist.ton,_verrou)
       /* CONTRÔLE DES DONNÉES, POUR TOUT LE MONDE (01/08). Cet écran n'était accessible que par le
          bandeau « Mode admin », et Didier ne le voyait pas : sa session n'est pas reconnue comme
          admin — le test porte sur window.currentUser.email, côté navigateur, et il ne se
@@ -6311,7 +6367,8 @@ function sentApercu(){
       +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
       // Non abonné : l'offre. Abonné : rien à vendre, on enchaîne sur les menus déroulants.
       +(iveAbonne()?'':(typeof iveBlocOffre==='function'?iveBlocOffre():''))
-      +'<div style="margin-top:16px;">'+(typeof iveAccordeonsBas==='function'?iveAccordeonsBas(f):'<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:11.5px;color:#991b1b;">Version ancienne en cache — rechargez la page.</div>')+'</div>'
+      /* Le bas de cet écran a été vidé le 02/08 : méthodologie et « à propos » sont dans Mon
+         compte, la courbe d'évolution a son propre écran (tuile Historique). */
       /* Bouton Retour retiré : la navigation se fait par les bandeaux du haut. */
       +'<div style="text-align:center;font-size:10px;color:#c7ccd3;margin-top:10px;">version '+IVE_VERSION+'</div>');
     showView('dirigeant'); window.scrollTo(0,0);
