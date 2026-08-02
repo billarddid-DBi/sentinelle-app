@@ -1,10 +1,13 @@
 // MIROIR — l'ordonnance finale DBi360 : synthèse LIVE + BOUSSOLE -> plan d'action + ROI (2 narrations : externe / interne).
+/* Le cadre de rédaction du volet humain vit dans lib/ : il est trop lourd et trop réutilisable
+   pour être recopié ici, et un fichier de lib/ n'ajoute AUCUNE fonction Vercel (on est à 12/12). */
+import { AURA_REDACTION } from "../lib/aura-redaction.js";
 const MODEL = "claude-haiku-4-5-20251001";
 /* MARQUEUR DE DÉPLOIEMENT — à incrémenter à CHAQUE modification de ce fichier.
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-01-01";
+const MIROIR_VERSION = "2026-08-02-01";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -52,7 +55,7 @@ SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balis
  "economie_an": <entier : gain/économie annuel estimé en euros>,
  "cadre": {"externe": "1-2 phrases de cadrage pour le dirigeant", "interne": "1-2 phrases de cadrage pour le prescripteur"},
  "verite": {"externe": "la racine de la situation, dite au dirigeant SANS LE METTRE EN DÉFENSE : on nomme le nœud, puis ce qu'il ouvre une fois desserré. Jamais un verdict, jamais une prédiction d'échec — sur l'humain/l'équipe : au conditionnel, jamais un jugement", "interne": "la même vérité, ton prescripteur, plus direct — mais sur les FAITS et l'ORGANISATION, jamais un procès des personnes ; hypothèses managériales au conditionnel"},
- "humain": {"posologie": "rythme/dose adaptés à la zone IAT (réparer d'abord / en parallèle / accélérer), 15 mots max", "craintes": [ {"crainte": "la crainte (libellé court)", "traitement": "acte concret de conduite du changement, 12 mots max"} ]},
+ "humain": {"niveau": "le niveau de vigilance constaté, 3 à 6 mots, neutre et non alarmiste", "titreStrategie": "titre du conseil de déploiement, 3 à 6 mots", "strategie": "le conseil stratégique RÉDIGÉ (3 à 5 phrases) — cf. le cadre AURA, champ strategie", "freins": [ {"titre": "titre neutre et constructif, ce qu'on va FACILITER", "explication": "2 à 4 phrases complètes", "action": "ce qu'il faut faire, avec qui, dans quel ordre, dans quel objectif", "benefice": "le résultat concret recherché, une phrase"} ], "vision": {"titre": "Ma vision", "texte": "la synthèse personnalisée, 4 à 6 phrases — cf. le cadre AURA, champ vision"}},
  "quotidien": {"accord": "confirme|contredit|complete (ce que les journées font au diagnostic tiré de l'image et du questionnaire)", "journees": "ce que ses journées montrent, en une phrase, 15 mots max", "lecture": {"externe": "1-2 phrases pour le dirigeant", "interne": "1-2 phrases pour le prescripteur"}, "liens": [ {"sujet": "le sujet récurrent, repris mot pour mot", "eclaire": "le pilier ou le critère qu'il explique, avec sa note, 15 mots max"} ]},
  "regards": {"exterieur": "sous la note SENTINELLE, 12 mots max", "interieur": "sous la note BOUSSOLE, 12 mots max", "quotidien": "sous le nombre de sujets récurrents, 12 mots max", "humain": "sous l'IAT, 12 mots max — UNIQUEMENT si le volet humain est fourni"},
  "plan": [ {"palier": 1, "frein": "...", "levier": "...", "type": "IA", "origine": "quotidien", "mise_en_oeuvre": "...", "indicateur": "..."} ],
@@ -103,7 +106,9 @@ QUI A RÉPONDU : ${ah.n} salarié(s), questionnaire **NOMINATIF** — chacun a d
 DISPERSION : du plus bas ${ah.mini}/100 au plus haut ${ah.maxi}/100, soit ${ah.ecart} points d'écart.${ah.ecart >= 25 ? ` C'est une FRACTURE : les équipes ne vivent pas la même entreprise. La moyenne ${ah.iat} ne décrit personne. Traite l'écart AVANT le niveau — un plan bâti sur la moyenne échouera sur ceux d'en bas.` : ` Écart modéré : l'équipe est relativement homogène.`}` : ''}${(Array.isArray(ah.parPoste) && ah.parPoste.length > 1) ? `
 PAR POSTE : ${ah.parPoste.map(p => `${p.poste} ${p.iat}/100${p.n > 1 ? ` (${p.n} pers.)` : ''}`).join(' · ')} — utilise-le : un plan ne se dose pas pareil pour l'atelier et pour le bureau.` : ''}${ah.n < 3 ? `
 PRUDENCE : ${ah.n} réponse(s) seulement. Ce n'est pas la maturité de l'entreprise, c'est l'avis de ${ah.n === 1 ? 'une personne' : 'deux personnes'}. Formule tes conclusions humaines au conditionnel et recommande d'élargir la consultation.` : ''}` : ''}
-=> ADAPTE le plan à cette zone IAT (dosage) et RÉPONDS à ces craintes au palier 1. Renseigne le champ "humain".`;
+=> ADAPTE le plan à cette zone IAT (dosage) et RÉPONDS à ces craintes au palier 1. Renseigne le champ "humain".
+
+${AURA_REDACTION}`;
     }
     // LE QUOTIDIEN — 3e source. Ni l'image, ni le déclaratif : ce que les journées du dirigeant montrent.
     // Elle n'arrive que si la détection des sujets récurrents a déjà tourné (elle est payée à part).
