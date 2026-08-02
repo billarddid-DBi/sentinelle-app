@@ -228,6 +228,42 @@ export default async function handler(req, res) {
       }
     } catch (_) {}
 
+    /* ═══ C'EST ICI QUE LA FICHE EST RANGÉE (02/08/2026) ═══════════════════════════════════
+       Avant, le navigateur recevait la fiche puis la renvoyait à Supabase. Il pouvait donc en
+       renvoyer une AUTRE : la garde posée le matin même vérifiait la forme et la taille, jamais
+       la sincérité du contenu. Tant que le navigateur écrivait, une fiche forgée restait
+       possible — improbable, mais possible.
+
+       On écrit donc au moment où on produit, avec la clé service_role qui ne quitte jamais le
+       serveur. `sentinelle_poser` n'est exécutable QUE par ce rôle : les comptes clients ne
+       peuvent plus écrire dans `sentinelles` du tout.
+
+       ⚠️ UN ÉCHEC D'ENREGISTREMENT NE DOIT PAS PERDRE L'ANALYSE. Elle a coûté un appel IA et,
+       côté client, des jetons. On renvoie donc la fiche dans tous les cas, et l'échec voyage
+       avec elle (`_saveErr`) au lieu de faire échouer la requête. */
+    try {
+      const URL = process.env.SUPABASE_URL, SR = process.env.SUPABASE_SERVICE_ROLE;
+      if (URL && SR && fiche && fiche.nom) {
+        const rp = await fetch(`${URL}/rest/v1/rpc/sentinelle_poser`, {
+          method: "POST",
+          headers: { "content-type": "application/json", apikey: SR, Authorization: `Bearer ${SR}` },
+          body: JSON.stringify({
+            p_nom: fiche.nom,
+            p_ville: fiche.ville || "",
+            p_adresse: (req.body && req.body.adresse) || "",
+            p_fiche: fiche
+          })
+        });
+        if (!rp.ok) fiche._saveErr = `HTTP ${rp.status}`;
+        else {
+          const rj = await rp.json().catch(() => null);
+          if (rj && rj.ok === false) fiche._saveErr = rj.error || "refus";
+        }
+      } else if (!URL || !SR) {
+        fiche._saveErr = "Supabase non configuré côté serveur";
+      }
+    } catch (e) { fiche._saveErr = String(e).slice(0, 120); }
+
     res.status(200).json(fiche);
   } catch (e) {
     res.status(500).json({ error: "Erreur serveur", detail: String(e).slice(0, 500) });

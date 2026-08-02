@@ -2196,6 +2196,12 @@ async function run(payload){
   const msgs=['Enquête publique en cours…','Lecture des sources officielles…','Analyse des avis et de la concurrence…','Choix de l\'archétype et de la posture…','Montage de la carte…'];
   let i=0; const t=setInterval(()=>{ $('loadmsg').textContent=msgs[i%msgs.length]; i++; },2200);
   try{
+    /* L'ADRESSE PART AVEC LA DEMANDE (02/08/2026). C'est le serveur qui range désormais la fiche,
+       et la clé de rangement est (nom, ville, ADRESSE). Le choix de l'établissement se fait ici,
+       dans le navigateur (etabChooser) : sans ce passage, le serveur écrirait une fiche sans
+       adresse — l'orpheline qu'on a passé la matinée à éliminer. */
+    payload.adresse = window.__scanAdresse || '';
+    window.__saveSuiteFait=false;   // sinon la 2e analyse d'une même session ne basculerait plus
     const r = await fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     clearInterval(t); $('loading').style.display='none';
     if(r.status===504||r.status===408){ scanFail('L\'analyse a pris trop de temps', 'La recherche web est parfois lente. Ça repasse presque toujours au 2e essai.'); return; }
@@ -3227,7 +3233,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 203';
+var IVE_VERSION='02/08 · 204';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3755,32 +3761,48 @@ function saveFiche(d){
     var sim='<scr'+'ipt>(function(){function e(n){return n.toLocaleString("fr-FR");}var u="'+uu+'";function s(){var P=document.getElementById("sP"),H=document.getElementById("sH"),C=document.getElementById("sC");if(!P||!H||!C)return;var p=+P.value,h=+H.value,c=+C.value;document.getElementById("sPv").textContent=p;document.getElementById("sHv").textContent=h+" h";document.getElementById("sCv").textContent=c+" €";var hrs=p*h*45,eur=Math.round(hrs*c/100)*100,soir=Math.round(hrs/8);var V=document.getElementById("heroV"),S=document.getElementById("heroSub");if(!V)return;if(u==="h"){V.textContent=e(hrs);if(S)S.textContent="≈ "+soir+" soirées rendues — soit ≈ "+e(eur)+" €";}else{V.textContent=e(eur);if(S)S.textContent="≈ "+e(hrs)+" h ("+soir+" soirées) rendues";}}["sP","sH","sC"].forEach(function(id){var x=document.getElementById(id);if(x)x.addEventListener("input",s);});s();})();</scr'+'ipt>';
     const html='<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>'+css+'</style></head><body style="background:#eef1f3;padding:16px;"><div class="wrap">'+card.outerHTML+'</div>'+sim+'</body></html>';
     ficheEnregistrer('sentinelle', d.nom, d, html).then(function(res){ ficheMsg(st, res, 'Enregistré'); });
-    // Base prospects Supabase (verrou anti-doublon + historique hebdo + futur PDF/relances)
-    try{
-      window.sbReady.then(function(){
-        if(!window.sb) return;
-        window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html,p_adresse:(window.__scanAdresse||'')})
-          .then(function(r){
-            if(r&&r.error){ console.warn('sentinelle_save', r.error.message); if(window.selfServe) dirigeantSpace(); return; }
-            /* La fonction a désormais une garde interne (02/08) : elle peut REFUSER en répondant
-               {ok:false}, sans la moindre erreur réseau. Ne regarder que r.error ferait passer un
-               refus pour un enregistrement réussi — précisément le genre de succès non constaté
-               qu'on ne veut plus. */
-            if(r&&r.data&&r.data.ok===false){ console.warn('sentinelle_save refusé :', r.data.error); if(window.selfServe) dirigeantSpace(); return; }
-            // Scan enregistré → le dirigeant bascule sur SON espace (cockpit), qui charge la fiche fraîche.
-            if(window.selfServe){
-              // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace
-              // dirigeant ne retrouve jamais la fiche (nom tapé ≠ nom officiel, ville différente) → boucle.
-              var _md={sent_nom:d.nom||'', sent_ville:d.ville||'', sent_adresse:(window.__scanAdresse||'')};
-              window.sb.auth.updateUser({data:_md}).then(function(){
-                if(window.currentUser){ window.currentUser.sentNom=_md.sent_nom; window.currentUser.sentVille=_md.sent_ville; window.currentUser.sentAdr=_md.sent_adresse; }
-                setTimeout(function(){ dirigeantSpace(); }, 200);
-              }).catch(function(){ setTimeout(function(){ dirigeantSpace(); }, 200); });
-            }
-          });
-      });
-    }catch(e){}
-  }catch(e){ if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré'; }
+    /* ═══ LE NAVIGATEUR N'ÉCRIT PLUS DANS `sentinelles` (02/08/2026) ═══════════════════════
+       C'est `/api/sentinelle` qui pose la fiche, avec la clé serveur, au moment même où il la
+       produit. Le navigateur ne fait plus que l'AFFICHER.
+
+       POURQUOI. Tant que la fiche transitait par ici, un client connecté pouvait en envoyer une
+       forgée — la garde du 02/08 vérifiait la forme et la taille, jamais la SINCÉRITÉ. On croyait
+       le verrou impossible parce que `p_html` était fabriqué depuis l'écran (le radar converti en
+       image depuis le canvas) et ne pouvait pas déménager côté serveur. Vérification faite :
+       PERSONNE ne lit la colonne `html` — ni sentinelle_get, ni sentinelle_check, ni aucune
+       fonction Vercel, ni la console. C'était un PDF jamais construit. En cessant de la stocker,
+       le navigateur n'a plus rien à écrire du tout, et `sentinelle_save` a pu lui être retirée.
+       (Le HTML reste fabriqué juste au-dessus : la fiche GitHub, elle, s'en sert.)
+
+       Ce qui suit — la bascule du dirigeant vers son espace — vivait DANS la réponse de
+       l'enregistrement. Il fallait l'en sortir sans la perdre. */
+    saveFicheSuite(d);
+  }catch(e){
+    if(st) st.textContent='<i class="ti ti-alert-triangle"></i> Non enregistré';
+    /* ⚠️ MÊME EN CAS D'ÉCHEC. Tout ce bloc fabrique un HTML à partir de l'écran — un `.card`
+       absent, un canvas illisible, et on tombe ici. La bascule du dirigeant vivait DANS ce
+       `try` : il restait alors sur un écran d'attente sans issue, alors que son analyse, elle,
+       est enregistrée depuis longtemps — c'est le serveur qui l'a posée. */
+    saveFicheSuite(d);
+  }
+}
+/* La suite du parcours, séparée de l'enregistrement : le dirigeant bascule sur SON espace,
+   qui recharge la fiche fraîche depuis la base. */
+function saveFicheSuite(d){
+  try{
+    if(!window.selfServe || window.__saveSuiteFait) return;
+    window.__saveSuiteFait=true;              // saveFiche peut l'appeler deux fois (try ET catch)
+    window.sbReady.then(function(){
+      if(!window.sb){ dirigeantSpace(); return; }
+      // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace
+      // dirigeant ne retrouve jamais la fiche (nom tapé ≠ nom officiel, ville différente) → boucle.
+      var _md={sent_nom:(d&&d.nom)||'', sent_ville:(d&&d.ville)||'', sent_adresse:(window.__scanAdresse||'')};
+      window.sb.auth.updateUser({data:_md}).then(function(){
+        if(window.currentUser){ window.currentUser.sentNom=_md.sent_nom; window.currentUser.sentVille=_md.sent_ville; window.currentUser.sentAdr=_md.sent_adresse; }
+        setTimeout(function(){ dirigeantSpace(); }, 200);
+      }).catch(function(){ setTimeout(function(){ dirigeantSpace(); }, 200); });
+    });
+  }catch(e){ try{ dirigeantSpace(); }catch(e2){} }
 }
 
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
