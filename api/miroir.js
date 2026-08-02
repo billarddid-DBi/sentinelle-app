@@ -7,7 +7,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-02-02";
+const MIROIR_VERSION = "2026-08-02-04";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -56,7 +56,7 @@ SORTIE : UNIQUEMENT un objet JSON valide, aucun texte avant/après, aucune balis
  "cadre": {"externe": "1-2 phrases de cadrage pour le dirigeant", "interne": "1-2 phrases de cadrage pour le prescripteur"},
  "verite": {"externe": "la racine de la situation, dite au dirigeant SANS LE METTRE EN DÉFENSE : on nomme le nœud, puis ce qu'il ouvre une fois desserré. Jamais un verdict, jamais une prédiction d'échec — sur l'humain/l'équipe : au conditionnel, jamais un jugement", "interne": "la même vérité, ton prescripteur, plus direct — mais sur les FAITS et l'ORGANISATION, jamais un procès des personnes ; hypothèses managériales au conditionnel"},
  "humain": {"niveau": "le niveau de vigilance constaté, 3 à 6 mots, neutre et non alarmiste", "titreStrategie": "titre du conseil de déploiement, 3 à 6 mots", "strategie": "le conseil stratégique RÉDIGÉ (3 à 5 phrases) — cf. le cadre AURA, champ strategie", "freins": [ {"titre": "titre neutre et constructif, ce qu'on va FACILITER", "explication": "2 à 4 phrases complètes", "action": "ce qu'il faut faire, avec qui, dans quel ordre, dans quel objectif", "benefice": "le résultat concret recherché, une phrase"} ], "vision": {"titre": "Ma vision", "texte": "la synthèse personnalisée, 4 à 6 phrases — cf. le cadre AURA, champ vision"}},
- "quotidien": {"accord": "confirme|contredit|complete (ce que les journées font au diagnostic tiré de l'image et du questionnaire)", "journees": "ce que ses journées montrent, en une phrase, 15 mots max", "lecture": {"externe": "1-2 phrases pour le dirigeant", "interne": "1-2 phrases pour le prescripteur"}, "liens": [ {"sujet": "le sujet récurrent, repris mot pour mot", "eclaire": "le pilier ou le critère qu'il explique, avec sa note, 15 mots max"} ]},
+ "quotidien": {"accord": "confirme|contredit|complete (ce que les journées font au diagnostic tiré de l'image et du questionnaire)", "journees": "ce que ses journées montrent — NOMME CHAQUE SUJET SÉPARÉMENT avec SON propre nombre (« les devis reviennent 5 fois, les appels 8 fois »). N'ADDITIONNE JAMAIS des sujets de domaines différents en un seul total : 40 mots max", "lecture": {"externe": "1-2 phrases pour le dirigeant", "interne": "1-2 phrases pour le prescripteur"}, "liens": [ {"sujet": "le sujet récurrent, repris mot pour mot", "eclaire": "le pilier ou le critère qu'il explique, avec sa note, 15 mots max"} ]},
  "regards": {"exterieur": "sous la note SENTINELLE, 12 mots max", "interieur": "sous la note BOUSSOLE, 12 mots max", "quotidien": "sous le nombre de sujets récurrents, 12 mots max", "humain": "sous l'IAT, 12 mots max — UNIQUEMENT si le volet humain est fourni"},
  "plan": [ {"palier": 1, "frein": "...", "levier": "...", "type": "IA", "origine": "quotidien", "mise_en_oeuvre": "...", "indicateur": "..."} ],
  "outils": [ {"nom": "le type d'outil, 6 mots max, sans marque", "role": "ce qu'il fait concrètement, 12 mots max", "frein": "le frein qu'il lève, repris du plan", "source": "piste|nouveau"} ],
@@ -129,15 +129,27 @@ ${AURA_REDACTION}`;
       /* ⚠️ ON DONNE LE TOTAL, ON NE LE FAIT PLUS CALCULER. Le MIROIR écrivait « 30 tâches sur
          49 » : le 49 était fourni, le 30 était une addition faite par le modèle à partir des
          comptes par sujet. Une addition faite par un modèle de langage n'est pas garantie, et
-         une erreur y reste parfaitement crédible — c'est celle qu'on ne voit jamais. */
+         une erreur y reste parfaitement crédible — c'est celle qu'on ne voit jamais.
+         ⚠️ ET SURTOUT : le ratio se calcule DANS LE MÊME PÉRIMÈTRE. Les sujets sont comptés sur
+         tout ce qui existe (terminé compris), pas sur les seules tâches ouvertes — rapporter
+         l'un à l'autre produirait des phrases du genre « 30 tâches sur 12 ». */
       const totalSujets = qt.sujets.reduce(function (a, s) { return a + (+s.nb > 0 ? +s.nb : 0); }, 0);
-      const couv = (totalSujets > 0 && qt.nbTaches > 0)
-        ? `\nCes sujets représentent ${totalSujets} de ces ${qt.nbTaches} tâches — reprends ces deux nombres tels quels, ne les recalcule pas.`
+      const base = (qt.nbAnalysees != null) ? qt.nbAnalysees : qt.nbTaches;
+      const couv = (totalSujets > 0 && base > 0)
+        ? `\nCes sujets représentent ${totalSujets} de ces ${base} tâches examinées — reprends ces deux nombres tels quels, ne les recalcule pas.`
         : "";
+      /* ⚠️ UN SUJET = UN DOMAINE = UN OUTIL (Didier, 02/08/2026). Le MIROIR écrivait « Devis,
+         avis, factures occupent vos journées : 30 tâches » — trois métiers différents fondus en
+         un seul total. Un dirigeant ne peut rien en faire : on n'installe pas « un outil pour
+         devis-avis-factures ». Cinq tâches de devis et huit d'appels appellent DEUX outils
+         distincts, chacun avec son propre compte. */
+      const sepa = `\n⚠️ CES SUJETS SONT DE DOMAINES DIFFÉRENTS. Traite-les SÉPARÉMENT : chacun garde SON nombre, et chacun qui justifie un outil obtient SON entrée dans "outils". N'écris jamais une phrase qui les regroupe sous un total commun — on n'installe pas un outil unique pour des métiers différents.`;
       qtBlock = `LE QUOTIDIEN (tâches que le dirigeant a DICTÉES LUI-MÊME sur 30 jours) — la seule donnée FACTUELLE :
-Volume : ${qt.nbTaches != null ? qt.nbTaches + " tâches dictées sur 30 jours" : "n.c."}${qt.nbEnCours != null ? `, dont ${qt.nbEnCours} encore ouvertes` : ""}${qt.plusVieille ? `, la plus ancienne en attente depuis ${qt.plusVieille} jours` : ""}.
+Ce que le dirigeant VOIT à son écran : ${qt.nbTaches != null ? qt.nbTaches + " tâches encore ouvertes" : "n.c."}${qt.plusVieille ? `, la plus ancienne en attente depuis ${qt.plusVieille} jours` : ""}.
+Base d'analyse des répétitions : ${qt.nbAnalysees != null ? qt.nbAnalysees : (qt.nbTaches != null ? qt.nbTaches : "n.c.")} tâches des 30 derniers jours, terminées et archivées comprises.
+⚠️ RÈGLE DE CITATION (décision du dirigeant) : dans TOUTE phrase que tu lui adresses, le nombre de tâches que tu cites est celui qu'il VOIT — les tâches encore ouvertes. La base d'analyse sert à repérer ce qui se répète et à justifier les OUTILS proposés ; ne l'annonce jamais comme « ses tâches » et ne mélange jamais les deux dans un même rapport.
 Sujets qui REVIENNENT${qt.date ? ` (détection du ${qt.date})` : ""} :
-${sj}${couv}
+${sj}${couv}${sepa}
 => CONFRONTE ces faits à l'image (SENTINELLE) et au déclaratif (BOUSSOLE) : confirment-ils, contredisent-ils, ou complètent-ils le diagnostic ?
 ⚠️ N'INVENTE ET NE RECALCULE AUCUN NOMBRE dans ce bloc. Les seuls chiffres que tu as le droit d'écrire sont ceux listés ci-dessus, repris tels quels. Si un nombre te manque, écris la phrase sans nombre.
 

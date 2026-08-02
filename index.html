@@ -1012,8 +1012,19 @@ function renderMiroir(){
             +'<div style="font-weight:800;color:#5b21b6;">'+esc(l.sujet||'')+'</div>'
             +'<div style="color:#6b7280;margin-top:2px;"><i class="ti ti-arrow-narrow-right"></i> '+esc(sansHypothese(l.eclaire||''))+'</div></div>';
         }).join('')+'</div>'):'')
-      +'<div style="margin-top:9px;font-size:10.5px;color:#9ca3af;line-height:1.45;">Relevé sur '+qd.nbTaches+' tâche'+(qd.nbTaches>1?'s':'')+' que vous avez dictée'+(qd.nbTaches>1?'s':'')+' ces 30 derniers jours'
-        +((qd.nbEnCours>0)?(' · '+qd.nbEnCours+' encore ouverte'+(qd.nbEnCours>1?'s':'')+(qd.plusVieille>0?(', la plus ancienne depuis '+qd.plusVieille+' jour'+(qd.plusVieille>1?'s':'')):'')):'')
+      /* CE QU'ON ÉCRIT EST CE QU'IL PEUT RECOMPTER. Le chiffre annoncé ne porte plus que sur les
+         tâches ENCORE OUVERTES — celles qui sont à l'écran. Le nombre de tâches réellement
+         examinées pour repérer les répétitions est plus grand (faites et archivées comprises) :
+         on le dit à part, sans le mélanger, plutôt que d'annoncer un total invérifiable. */
+      /* Le chiffre annoncé est EXACTEMENT celui de la liste de tâches — « on doit juste voir
+         apparaître le nombre de tâches en cours » (Didier). Même mot que l'écran des tâches :
+         « en cours ». Il doit pouvoir le recompter à la main en dix secondes.
+         La base d'analyse est mentionnée après, en second, parce que la taire recréerait
+         exactement l'opacité qu'on vient de corriger — mais elle ne se lit plus comme « ses »
+         tâches. */
+      +'<div style="margin-top:9px;font-size:10.5px;color:#9ca3af;line-height:1.45;">'+qd.nbTaches+' tâche'+(qd.nbTaches>1?'s':'')+' en cours'
+        +(qd.plusVieille>0?(', la plus ancienne depuis '+qd.plusVieille+' jour'+(qd.plusVieille>1?'s':'')):'')
+        +((qd.nbAnalysees>qd.nbTaches)?(' · répétitions cherchées sur '+qd.nbAnalysees+' tâches des 30 derniers jours, terminées comprises'):'')
         +(qd.date?(' · détection du '+qd.date):'')+'.</div>'
     +'</div>';
   }
@@ -1204,8 +1215,11 @@ var miroirStore={
       pas dictées par le dirigeant. L'écran annonce pourtant « tâches que vous avez dictées ».
       Elles sortent du compte.
 
-   3. Rien d'autre n'est exclu : une tâche supprimée a déjà disparu de la liste ET de la base
-      (cf. la synchro), elle n'est comptée nulle part. Vérifié avant d'écrire ceci.
+   3. LES TÂCHES SUPPRIMÉES ne sont comptées nulle part — vérifié : la suppression retire la
+      tâche de la liste ET de la base. Et c'est juste, pour la raison qu'en donne Didier : « si
+      les tâches ont été supprimées par le gérant, c'est que le problème est certainement
+      résolu ; sinon il reviendra. » Une difficulté qui dure se redit d'elle-même dans une
+      nouvelle tâche — la répétition n'a pas besoin qu'on garde les traces effacées.
 
    SOURCE UNIQUE : miroirQuotidien ET la détection des récurrences passent par ici. Deux
    comptages séparés finiraient par donner deux chiffres différents du même quotidien. */
@@ -1216,12 +1230,26 @@ function pmTacheDate(t){
   if(e){ var de=new Date(e+'T00:00:00'); if(!isNaN(de) && de<=new Date()) return de; }
   return null;                                     // ni date de saisie, ni échéance passée
 }
-function pmTaches30(){
+/* ⚠️ DEUX PÉRIMÈTRES, ET C'EST VOULU (décision de Didier, 02/08/2026) :
+   « ne compter que les tâches actives dans la formulation sur MIROIR, mais les prendre en
+   compte dans les propositions d'outil d'amélioration. »
+
+   · CHIFFRER (tout=false) → les tâches ACTIVES seulement. Ce sont les seules que le dirigeant
+     voit à l'écran, donc les seules qu'il peut vérifier. Un nombre qu'on ne peut pas recompter
+     soi-même n'a aucune valeur dans un document payé.
+   · DÉTECTER (tout=true) → tout ce qui existe encore : actives, faites et archivées. La
+     répétition ne se voit QUE dans le travail accompli — ne regarder que l'ouvert reviendrait
+     à chercher ce qui revient en ayant effacé la moitié des passages.
+
+   Un seul paramètre, une seule fonction : deux fonctions séparées finiraient par diverger sur
+   les exclusions (plan, date future), et l'écart ne se verrait que des semaines plus tard. */
+function pmTaches30(tout){
   var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
   var lim=new Date(); lim.setDate(lim.getDate()-30);
   return (o.tasks||[]).filter(function(t){
     if(!t) return false;
     if(String(t.origine||'')==='plan') return false;   // générée par le plan, pas dictée
+    if(!tout && (t.done || t.archive)) return false;   // invisible à l'écran : on ne la chiffre pas
     var d=pmTacheDate(t);
     return !!d && d>=lim;
   });
@@ -1229,23 +1257,25 @@ function pmTaches30(){
 function miroirQuotidien(){
   var sv=(typeof recurGet==='function')?recurGet():null;
   var sujets=(sv&&Array.isArray(sv.sujets))?sv.sujets:[];
-  var maintenant=new Date(), n30=0, enCours=0, vieille=0;
-  pmTaches30().forEach(function(t){
+  var maintenant=new Date(), vieille=0;
+  var actives=pmTaches30(), n30=actives.length;      // CE QU'ON CHIFFRE : ce qui est à l'écran
+  var analysees=pmTaches30(true).length;             // CE QU'ON ANALYSE : faites et archivées comprises
+  actives.forEach(function(t){
     var d=pmTacheDate(t);
-    n30++;                                           // faites et archivées comprises
-    if(!t.done && !t.archive){
-      enCours++;
-      var age=Math.round((maintenant-d)/864e5);
-      if(!isNaN(age) && age>vieille) vieille=age;      // ce qui traîne, et depuis quand
-    }
+    var age=Math.round((maintenant-d)/864e5);
+    if(!isNaN(age) && age>vieille) vieille=age;        // ce qui traîne, et depuis quand
   });
-  if(!sujets.length && n30<5) return null;             // trop peu dicté : rien à confronter
+  /* Le seuil porte sur ce qu'on ANALYSE, pas sur ce qui reste ouvert : un dirigeant qui a
+     bouclé toutes ses tâches n'a pas « trop peu dicté », il a bien travaillé. */
+  if(!sujets.length && analysees<5) return null;
   return {
     sujets:sujets.slice(0,6).map(function(s){
       return { sujet:String(s.sujet||s.outil||''), nb:(+s.nb||0), consequence:String(s.consequence||''),
                qui:String(s.qui||''), priorite:String(s.priorite||''), outil:String(s.outil||'') };
     }),
-    nbTaches:n30, nbEnCours:enCours, plusVieille:vieille,
+    nbTaches:n30,           // À CITER : les tâches actives, celles que le dirigeant voit
+    nbAnalysees:analysees,  // BASE D'ANALYSE : faites et archivées comprises, jamais citée telle quelle
+    plusVieille:vieille,
     date:(typeof recurQuand==='function')?recurQuand():''
   };
 }
@@ -3053,7 +3083,10 @@ function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); 
    finiraient par annoncer deux nombres différents, et c'est le genre d'écart qu'on ne voit que
    des semaines plus tard, dans un document payé. */
 function recurTaches30(){
-  return pmTaches30()
+  /* `true` : on cherche ce qui SE RÉPÈTE, et la répétition ne se voit que dans le travail
+     accompli. Ne regarder que les tâches ouvertes reviendrait à compter les passages après
+     avoir effacé la moitié des traces — c'est ici, et seulement ici, qu'on prend tout. */
+  return pmTaches30(true)
     .map(function(x){ var d=pmTacheDate(x); return (d?d.toISOString().slice(0,10):'')+' | '+(x.t||''); })
     .map(function(s){ return s.trim(); }).filter(function(s){ return s.length>2; });
 }
@@ -3341,7 +3374,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 214';
+var IVE_VERSION='02/08 · 215';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
