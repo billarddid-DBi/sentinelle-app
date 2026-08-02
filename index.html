@@ -3236,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 208';
+var IVE_VERSION='02/08 · 209';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5611,19 +5611,25 @@ function ivePlanSet(p){
    Deux replis pour une même question, c'est une contradiction qui n'attend que de s'afficher.
    Tout passe désormais par ici, dans cet ordre d'autorité :
      1. la BASE (window.__jetFormule, posé par jetons_solde) — elle seule fait foi ;
-     2. la formule mémorisée sur l'appareil ;
-     3. le prix du compte, en dernier recours.
-   ⚠️ Ne JAMAIS rajouter un repli local ailleurs : c'est exactement ce qui a produit le défaut. */
+     2. ce qui est FACTURÉ au compte (a.plan, puis a.price) ;
+     3. `ive_plan`, en tout dernier recours.
+   ⚠️ POURQUOI `ive_plan` EST PASSÉ EN DERNIER (02/08/2026, 2ᵉ correction). C'est le sélecteur de
+   formule qui l'écrit — boussoleChoisir(), « confirmation SANS paiement ». Depuis ce matin ce
+   champ n'a plus AUCUNE autorité sur le quota réel, qui vit dans la table `jetons` et que seul
+   l'administrateur écrit. Le laisser devant le prix facturé donnait un écran qui obéit à un champ
+   qu'on a délibérément déclassé : Didier a vu « 12,90 €/mois · 2/30 » sur un compte annuel à
+   129 €, simplement parce qu'il avait cliqué sur une formule dans l'application.
+   ⚠️ Ne JAMAIS rajouter un repli local ailleurs : c'est ce qui a produit le défaut d'origine. */
 function ivePlanReel(){
   if(window.__jetFormule==='annuel'||window.__jetFormule==='mensuel') return window.__jetFormule;
-  var p=ivePlanGet();
-  if(p==='annuel'||p==='mensuel') return p;
   var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   if(a){
     if(a.plan==='annuel'||a.plan==='mensuel') return a.plan;
     if(+a.price>=100) return 'annuel';
     if(+a.price>0) return 'mensuel';
   }
+  var p=ivePlanGet();               // simple intention, jamais une preuve
+  if(p==='annuel'||p==='mensuel') return p;
   return '';
 }
 function iveAbonnementTxt(){
@@ -5937,6 +5943,35 @@ async function santeView(){
         h+=kinds.length
           ? santeLigne('ok','Analyses enregistrées.', kinds.map(function(k){ return parKind[k]+' '+k; }).join(' · ')+'.','')
           : santeLigne('inconnu','Aucune analyse enregistrée.','Ni SENTINELLE, ni BOUSSOLE, ni MIROIR pour ce compte.','');
+
+        /* 4bis. LE SOLDE DE JETONS, TEL QUE LA BASE LE DONNE (02/08/2026).
+           Didier a passé une heure avec « 2 / 30 » à l'écran quand sa ligne en base portait
+           390 : l'appel qui rapporte le solde échouait, et il échouait EN SILENCE. Une valeur
+           d'argent qui se trompe sans le dire est le pire des défauts — celui qu'on ne peut
+           pas voir. Cette ligne interroge la base ICI, sous ses yeux, et affiche telle quelle
+           la réponse ou l'erreur. Plus besoin de console ni de requête SQL. */
+        try{
+          var rj=await window.sb.rpc('jetons_solde');
+          if(rj && rj.error){
+            h+=santeLigne('grave','Le solde de jetons ne peut pas être lu.',
+              'La base a refusé la lecture : <b>'+esc(rj.error.message||'erreur inconnue')+'</b>.',
+              'Le compteur affiché à l\'écran n\'est alors qu\'une estimation — ne vous y fiez pas.');
+          }else if(rj && rj.data && rj.data.ok){
+            var jd=rj.data, jr=Math.max(0,(+jd.inclus||0)-(+jd.utilises||0))+(+jd.packs||0);
+            var ecran=(typeof jetEtat==='function')?jetEtat().reste:null;
+            h+=santeLigne(ecran===jr?'ok':'attention',
+              'Solde en base : '+jr+' jeton'+(jr>1?'s':'')+'.',
+              'Formule <b>'+esc(jd.formule||'—')+'</b> · '+(+jd.inclus||0)+' inclus · '+(+jd.utilises||0)+' utilisés · '+(+jd.packs||0)+' en packs.'
+              +(ecran===jr?'' : ' <b>L\'écran affiche '+ecran+'</b> — les deux ne concordent pas.'),
+              ecran===jr?'' : 'Rechargez la page (Ctrl+Maj+R). Si l\'écart persiste, signalez-le.');
+          }else{
+            h+=santeLigne('grave','Le solde de jetons n\'a pas été rendu.',
+              'La base a répondu : <b>'+esc((rj&&rj.data&&rj.data.error)||'aucune réponse exploitable')+'</b>.',
+              'Le compteur affiché n\'est alors qu\'une estimation.');
+          }
+        }catch(ej){
+          h+=santeLigne('grave','Le solde de jetons est injoignable.', esc(String(ej&&ej.message||ej)),'');
+        }
       }
       // 5. LES REPÈRES DE FRAÎCHEUR, côté navigateur.
       var sv=(typeof miroirStore!=='undefined')?miroirStore.load():null;
