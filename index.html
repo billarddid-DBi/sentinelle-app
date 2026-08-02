@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 198';
+var IVE_VERSION='01/08 · 199';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6923,6 +6923,10 @@ async function syncPull(){
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
     if(typeof pmCharger==='function') await pmCharger();        // le quotidien : la base fait foi, on fusionne
+    // Le questionnaire dirigeant, désormais en base lui aussi (01/08) : c'est ce qui survit à
+    // la perte de l'appareil. Lu AVANT tout écran qui l'affiche, sinon la grille se rebâtirait
+    // sur le seul cache local.
+    if(typeof grilleCharger==='function') await grilleCharger();
     // Les réponses des salariés comptent d'office, dès l'ouverture (lecture gratuite, cf. ahAuto).
     if(typeof ahAuto==='function') await ahAuto();
     if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
@@ -7117,10 +7121,85 @@ var bouGrilleStore={
       if(neufs===0 && anciens>0) return;
       for(var k in n){ if(Object.prototype.hasOwnProperty.call(n,k)) fusion[k]=n[k]; }
       localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:fusion,ts:Date.now()}));
+      // La base fait foi désormais : le navigateur n'est plus qu'un cache. Envoi différé.
+      if(typeof grilleSyncBase==='function') grilleSyncBase();
     }catch(e){}
   },
   clear:function(){ try{ localStorage.removeItem(bouGrilleStore.key()); }catch(e){} }
 };
+/* ═══ LE QUESTIONNAIRE PART EN BASE (01/08/2026) ══════════════════════════════════════════
+   Décision de Didier : « je ne veux rien en local ; déjà, si mon PC a un problème, on perd
+   tout. » Le questionnaire — 40 à 200 réponses, une à deux heures de travail — ne vivait que
+   dans le navigateur. Table `reponses_dirigeant`, UNE LIGNE PAR CRITÈRE : deux appareils qui
+   répondent ne s'écrasent plus, chacun met à jour ce qu'il a touché. Un bloc JSON aurait donné
+   le contraire — le dernier qui enregistre gagne.
+   On suit le patron éprouvé des tâches (pmCharger / pmEnvoyer), pièges compris. */
+var GRILLE_PRETE=false;   // vrai UNIQUEMENT quand la base a été lue une fois avec succès
+var __grT=null, __grEnVol=false, __grRedem=false;
+/* ENVOI DIFFÉRÉ ET SÉRIALISÉ. bcalc() sauve à chaque geste : sans temporisation, déplacer un
+   curseur d'un bout à l'autre enverrait quarante requêtes. Et sans sérialisation, deux envois
+   concurrents se marchent dessus — piège payé le 31/07 sur les tâches. */
+function grilleSyncBase(){
+  clearTimeout(__grT);
+  __grT=setTimeout(function(){ grilleSyncMaintenant(); }, 700);
+}
+async function grilleSyncMaintenant(){
+  if(__grEnVol){ __grRedem=true; return; }
+  __grEnVol=true;
+  try{ await grilleEnvoyer(); }catch(e){}
+  __grEnVol=false;
+  if(__grRedem){ __grRedem=false; grilleSyncMaintenant(); }
+}
+async function grilleEnvoyer(){
+  try{
+    var sv=bouGrilleStore.load();
+    if(!sv || !sv.notes) return;
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var lignes=[];
+    for(var k in sv.notes){
+      if(!Object.prototype.hasOwnProperty.call(sv.notes,k)) continue;
+      var o=sv.notes[k]; if(!o) continue;
+      lignes.push({ entreprise_id:ent, critere:k,
+                    note:(o.v==null?null:+o.v), vu:!!o.vu, mode:(sv.mode||null) });
+    }
+    /* On n'envoie RIEN si rien n'a été répondu : même règle qu'en local. Une grille
+       reconstruite à vide ne doit pas plus vider la base qu'elle ne vide le navigateur. */
+    var repondus=lignes.filter(function(l){ return l.vu; }).length;
+    if(!lignes.length || !repondus) return;
+    await window.sb.from('reponses_dirigeant').upsert(lignes,{onConflict:'entreprise_id,critere'});
+    /* AUCUNE SUPPRESSION, volontairement. Un critère ne disparaît jamais du référentiel ; s'il
+       n'est pas dans l'envoi, c'est que la grille ouverte est l'Express et qu'il appartient au
+       Complet. L'effacer serait perdre 160 réponses à chaque ouverture de l'Express. */
+  }catch(e){}
+}
+/* LECTURE AU DÉMARRAGE. On FUSIONNE au lieu d'écraser : une réponse donnée hors ligne ne doit
+   pas disparaître au retour du réseau, et la base ne doit pas être vidée par un appareil neuf.
+   La base gagne sur les critères qu'elle porte — c'est elle la vérité. */
+async function grilleCharger(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var r=await window.sb.from('reponses_dirigeant').select('critere,note,vu,mode').eq('entreprise_id',ent).limit(400);
+    if(r.error) return;                       // dans le doute, on ne touche à rien
+    var rows=r.data||[];
+    var sv=bouGrilleStore.load();
+    if(!rows.length){
+      // Base vide : première fois sur ce compte. On l'ENSEMENCE depuis le navigateur.
+      GRILLE_PRETE=true;
+      if(sv && sv.notes) await grilleEnvoyer();
+      return;
+    }
+    var notes={}, mode=null;
+    rows.forEach(function(x){ notes[x.critere]={v:(x.note==null?null:+x.note), vu:x.vu?1:0}; if(x.mode) mode=x.mode; });
+    // Ce que le navigateur est SEUL à avoir (saisi hors ligne) est conservé.
+    var seulLocal=0;
+    if(sv && sv.notes){ for(var k in sv.notes){ if(!notes[k]){ notes[k]=sv.notes[k]; seulLocal++; } } }
+    try{ localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:(mode||(sv&&sv.mode)||'express'), notes:notes, ts:Date.now()})); }catch(e){}
+    GRILLE_PRETE=true;
+    if(seulLocal) await grilleEnvoyer();       // on renvoie ce que le local avait en propre
+  }catch(e){}
+}
 // Où en est le questionnaire : combien de critères sur combien ont été réellement renseignés.
 function bouGrilleEtat(sv){
   sv=sv||bouGrilleStore.load();
