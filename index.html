@@ -2498,10 +2498,9 @@ var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:0,detection:1};
 function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function jetPeriode(){
   var d=new Date();
-  // La formule vient de la base dès qu'elle a répondu (window.__jetFormule) : sinon un compte
-  // annuel dont le navigateur croit être mensuel verrait son compteur remis à zéro à l'écran.
-  var f=(window.__jetFormule!=null)?window.__jetFormule:ivePlanGet();
-  return (f==='annuel') ? ('A'+d.getFullYear()) : (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2));
+  // Même source unique que partout ailleurs (cf. ivePlanReel) : sinon un compte annuel dont le
+  // navigateur croit être mensuel verrait son compteur remis à zéro à l'écran.
+  return (ivePlanReel()==='annuel') ? ('A'+d.getFullYear()) : (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2));
 }
 /* Le quota inclus vient de la BASE dès qu'elle a répondu. Le repli sur la formule mémorisée
    dans le navigateur ne sert qu'à l'affichage avant la première réponse : cette formule est
@@ -2510,7 +2509,8 @@ function jetPeriode(){
    modifiable que par l'administrateur. */
 function jetInclus(){
   if(window.__jetInclus!=null) return +window.__jetInclus;
-  return (ivePlanGet()==='annuel') ? 390 : 30;
+  // Même source que la pastille d'abonnement : les deux ne peuvent plus se contredire.
+  return (ivePlanReel()==='annuel') ? 390 : 30;
 }
 function jetLire(){
   var o={periode:jetPeriode(),util:0,packs:0};
@@ -3236,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 207';
+var IVE_VERSION='02/08 · 208';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5602,12 +5602,32 @@ function ivePlanSet(p){
    payer. On retombe donc sur ce que porte le compte lui-même : sa formule, sinon son prix.
    Volontairement limité à l'AFFICHAGE : jetInclus(), qui décide du nombre de jetons, n'est pas
    touché — on ne change pas l'économie du produit pour corriger un libellé. */
-function iveAbonnementTxt(){
+/* ═══ SOURCE UNIQUE DE LA FORMULE (02/08/2026) ═══════════════════════════════════════════
+   Didier a vu « Abonnement 129 €/an » et « 2 / 30 jetons » côte à côte. Les deux pastilles ne
+   peuvent pas avoir raison en même temps.
+   CAUSE : elles se rabattaient différemment. iveAbonnementTxt() savait déduire la formule du
+   PRIX du compte (129 € → annuel) ; jetInclus() interrogeait ivePlanGet(), qui rend une chaîne
+   VIDE quand rien n'est mémorisé — donc « pas annuel », donc 30.
+   Deux replis pour une même question, c'est une contradiction qui n'attend que de s'afficher.
+   Tout passe désormais par ici, dans cet ordre d'autorité :
+     1. la BASE (window.__jetFormule, posé par jetons_solde) — elle seule fait foi ;
+     2. la formule mémorisée sur l'appareil ;
+     3. le prix du compte, en dernier recours.
+   ⚠️ Ne JAMAIS rajouter un repli local ailleurs : c'est exactement ce qui a produit le défaut. */
+function ivePlanReel(){
+  if(window.__jetFormule==='annuel'||window.__jetFormule==='mensuel') return window.__jetFormule;
   var p=ivePlanGet();
-  if(!p){
-    var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
-    if(a){ if(a.plan==='annuel'||a.plan==='mensuel') p=a.plan; else if(+a.price>=100) p='annuel'; else if(+a.price>0) p='mensuel'; }
+  if(p==='annuel'||p==='mensuel') return p;
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  if(a){
+    if(a.plan==='annuel'||a.plan==='mensuel') return a.plan;
+    if(+a.price>=100) return 'annuel';
+    if(+a.price>0) return 'mensuel';
   }
+  return '';
+}
+function iveAbonnementTxt(){
+  var p=ivePlanReel();
   if(!p) return '';
   return (p==='annuel')?'129 €/an':'12,90 €/mois';
 }
