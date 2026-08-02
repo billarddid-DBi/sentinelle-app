@@ -3102,7 +3102,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 201';
+var IVE_VERSION='02/08 · 202';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3637,6 +3637,11 @@ function saveFiche(d){
         window.sb.rpc('sentinelle_save',{p_nom:d.nom,p_ville:d.ville||'',p_fiche:d,p_html:html,p_adresse:(window.__scanAdresse||'')})
           .then(function(r){
             if(r&&r.error){ console.warn('sentinelle_save', r.error.message); if(window.selfServe) dirigeantSpace(); return; }
+            /* La fonction a désormais une garde interne (02/08) : elle peut REFUSER en répondant
+               {ok:false}, sans la moindre erreur réseau. Ne regarder que r.error ferait passer un
+               refus pour un enregistrement réussi — précisément le genre de succès non constaté
+               qu'on ne veut plus. */
+            if(r&&r.data&&r.data.ok===false){ console.warn('sentinelle_save refusé :', r.data.error); if(window.selfServe) dirigeantSpace(); return; }
             // Scan enregistré → le dirigeant bascule sur SON espace (cockpit), qui charge la fiche fraîche.
             if(window.selfServe){
               // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace

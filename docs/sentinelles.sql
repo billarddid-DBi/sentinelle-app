@@ -2,6 +2,23 @@
 -- BASE SENTINELLE (fichier prospects) + VERROU ANTI-DOUBLON — idempotent
 -- Règle : UNE entreprise = UNE SENTINELLE gratuite, à vie. Admin = passe-droit.
 -- =============================================================================
+--
+-- ⛔ NE PLUS EXÉCUTER CE FICHIER — 02/08/2026. ARCHIVE HISTORIQUE UNIQUEMENT.
+--
+-- Il est dépassé sur DEUX points, et le rejouer ferait reculer la base :
+--
+--   1. Les `grant … to anon` qu'il contient rouvriraient sentinelle_check et
+--      sentinelle_save à N'IMPORTE QUI sur Internet — exactement ce que
+--      docs/fermer-acces-anonyme.sql a fermé le 01/08. (Ils sont désormais
+--      neutralisés en commentaire plus bas, mais le reste du fichier suffit
+--      à faire des dégâts.)
+--   2. Son `sentinelle_save` est ANTÉRIEUR à l'historique hebdomadaire : il
+--      écraserait la version en production et ferait perdre l'archivage de la
+--      fiche de la veille à chaque nouvelle analyse.
+--
+-- ➜ La version qui fait foi est docs/sentinelle-verrou.sql (garde interne,
+--   contrôle de forme et de taille, traçabilité cree_par / maj_par).
+-- =============================================================================
 
 -- 0. Normalisation : minuscules + SANS accents (é→e, à→a…) + alphanumérique seulement.
 --    (accents pliés pour que "Référence" et "reference" matchent — sinon boucle à la connexion)
@@ -56,7 +73,8 @@ begin
   if v.nom is null then return jsonb_build_object('found', false); end if;
   return jsonb_build_object('found', true, 'nom', v.nom, 'ville', v.ville, 'date', v.d);
 end $$;
-grant execute on function public.sentinelle_check(text) to anon, authenticated;
+-- ⛔ DÉSAMORCÉ le 02/08/2026 (ancienne signature à un paramètre, supprimée plus bas).
+-- grant execute on function public.sentinelle_check(text) to anon, authenticated;
 
 -- 3. SAUVEGARDE en fin de scan (upsert : refaire = mise à jour + compteur scans)
 create or replace function public.sentinelle_save(p_nom text, p_ville text, p_fiche jsonb, p_html text default null)
@@ -73,7 +91,8 @@ begin
   returning id, scans into v_id, v_scans;
   return jsonb_build_object('ok', true, 'id', v_id, 'scans', v_scans);
 end $$;
-grant execute on function public.sentinelle_save(text, text, jsonb, text) to anon, authenticated;
+-- ⛔ DÉSAMORCÉ le 02/08/2026 (ancienne signature à quatre paramètres, supprimée plus bas).
+-- grant execute on function public.sentinelle_save(text, text, jsonb, text) to anon, authenticated;
 
 -- =============================================================================
 -- PATCH V2 — ADRESSE (établissements multiples : « 2 Feu Vert à Chartres »)
@@ -117,7 +136,8 @@ begin
   if v.nom is null then return jsonb_build_object('found', false); end if;
   return jsonb_build_object('found', true, 'nom', v.nom, 'ville', v.ville, 'adresse', v.adresse, 'date', v.d);
 end $$;
-grant execute on function public.sentinelle_check(text, text) to anon, authenticated;
+-- ⛔ DÉSAMORCÉ le 02/08/2026 : rouvrait la fonction aux visiteurs sans compte.
+-- grant execute on function public.sentinelle_check(text, text) to anon, authenticated;
 
 create or replace function public.sentinelle_save(p_nom text, p_ville text, p_fiche jsonb, p_html text default null, p_adresse text default '')
 returns jsonb language plpgsql security definer set search_path = public
@@ -137,4 +157,5 @@ begin
   returning id, scans into v_id, v_scans;
   return jsonb_build_object('ok', true, 'id', v_id, 'scans', v_scans);
 end $$;
-grant execute on function public.sentinelle_save(text, text, jsonb, text, text) to anon, authenticated;
+-- ⛔ DÉSAMORCÉ le 02/08/2026 : rouvrait l'ÉCRITURE aux visiteurs sans compte.
+-- grant execute on function public.sentinelle_save(text, text, jsonb, text, text) to anon, authenticated;
