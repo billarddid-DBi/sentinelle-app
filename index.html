@@ -3236,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 206';
+var IVE_VERSION='02/08 · 207';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6145,6 +6145,29 @@ function dirigeantSpace(){
     +'<div class="foot" style="margin-top:14px;"><i class="ti ti-shield-lock"></i> '+esc(acc.email)+'</div>';
   showView('dirigeant'); window.scrollTo(0,0);
   iveGrilleFicheAsync();
+  iveGrilleSoldeAsync();
+}
+/* LE SOLDE SE RELIT À CHAQUE PASSAGE PAR L'ACCUEIL (02/08/2026).
+   Il n'était lu qu'à la connexion. Une seule lecture ratée et l'écran gardait un chiffre faux
+   jusqu'à la prochaine session : Didier a vu « 2 restants » alors que sa ligne en base en portait
+   390 — le repli sur une formule mensuelle à 30, faute d'avoir reçu la vraie. Une valeur d'argent
+   ne doit jamais dépendre d'un unique appel au démarrage.
+   On ne redessine QUE si le chiffre a changé : sinon on repeindrait l'écran à chaque retour. */
+function iveGrilleSoldeAsync(){
+  try{
+    if(typeof jetCharger!=='function' || typeof jetEtat!=='function') return;
+    if(window.__soldeEnVol) return;          // une seule lecture à la fois
+    window.__soldeEnVol=true;
+    var avant=jetEtat().reste;
+    jetCharger().then(function(d){
+      window.__soldeEnVol=false;
+      if(!d || !d.ok) return;
+      if(jetEtat().reste===avant) return;    // rien de neuf : on ne repeint pas
+      /* Le redessin rappelle cette fonction. Elle relira le solde, le trouvera identique, et
+         s'arrêtera là : deux rendus au maximum, jamais une boucle. */
+      if(window.currentSpace==='dirigeant' && typeof dirigeantSpace==='function') dirigeantSpace();
+    }).catch(function(){ window.__soldeEnVol=false; });
+  }catch(e){ window.__soldeEnVol=false; }
 }
 /* LA TUILE SENTINELLE MENTAIT À LA CONNEXION. Signalé par la capture de Didier le 01/08 : elle
    affichait « À lancer » alors que son analyse était faite et payée. Sa note vient de la fiche
@@ -7182,20 +7205,24 @@ async function syncPull(){
     } else {
       syncPush(true); // cloud vide -> on y pousse ce qu'il y a en local (1re migration)
     }
-    if(typeof pmCharger==='function') await pmCharger();        // le quotidien : la base fait foi, on fusionne
-    // Le questionnaire dirigeant, désormais en base lui aussi (01/08) : c'est ce qui survit à
-    // la perte de l'appareil. Lu AVANT tout écran qui l'affiche, sinon la grille se rebâtirait
-    // sur le seul cache local.
-    if(typeof grilleCharger==='function') await grilleCharger();
-    // Le solde de jetons vient de la base depuis le 01/08 : le cache local n'est plus qu'un
-    // affichage. Lu ici pour que la pastille du bandeau ne montre jamais un solde inventé.
-    if(typeof jetCharger==='function') await jetCharger();
-    // L'espace de travail (concurrence payée, coffre, simulateur, repères…). Lu AVANT tout écran
-    // qui l'affiche, et c'est aussi cette lecture qui autorise les envois (verrou ESPACE_PRET).
-    if(typeof espaceCharger==='function') await espaceCharger();
-    // Les réponses des salariés comptent d'office, dès l'ouverture (lecture gratuite, cf. ahAuto).
-    if(typeof ahAuto==='function') await ahAuto();
-    if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
+  }catch(e){ console.warn('syncPull · pm_data', e && e.message); }
+  /* ⚠️ CHAQUE LECTURE EST ISOLÉE, ET AUCUNE NE DÉPEND DU BLOC CI-DESSUS (02/08/2026).
+     Tout syncPull tenait dans UN SEUL `try` : la première chose qui échouait — y compris la
+     lecture de `pm_data`, tout en haut — emportait silencieusement toutes les suivantes.
+     Didier l'a payé le jour même : son écran affichait « 2 restants » quand sa ligne en base
+     en portait 390, parce que jetCharger() n'était jamais atteinte.
+     Une lecture qui échoue ne doit priver que d'elle-même. */
+  try{
+    var _lire=async function(nom, fn){
+      try{ if(typeof fn==='function') await fn(); }
+      catch(e){ console.warn('syncPull · '+nom, e && e.message); }
+    };
+    await _lire('quotidien',      window.pmCharger);      // la base fait foi, on fusionne
+    await _lire('questionnaire',  window.grilleCharger);  // ce qui survit à la perte de l'appareil
+    await _lire('jetons',         window.jetCharger);     // le solde vient de la base, jamais inventé
+    await _lire('espace',         window.espaceCharger);  // concurrence payée, coffre, simulateur…
+    await _lire('salaries',       window.ahAuto);         // lecture gratuite, comptée d'office
+    await _lire('instantanes',    window.cpSnapsCharger);
     if(typeof evt==='function') evt('login');
   }catch(e){ console.warn('syncPull', e && e.message); }
 }
