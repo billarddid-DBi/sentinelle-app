@@ -2558,6 +2558,131 @@ async function jetCharger(){
     return r.data;
   }catch(e){ return null; }
 }
+/* ═══ L'ESPACE DE TRAVAIL PASSE EN BASE (02/08/2026) ═══════════════════════════════════════
+   Onze jeux de données ne vivaient que dans le navigateur — dont la carte de la concurrence,
+   PAYÉE 4 JETONS, et le coffre, qui est justement ce qui évite de repayer une analyse déjà
+   faite. Un ordinateur en panne et tout partait.
+
+   POURQUOI UN SEUL POINT DE PASSAGE, ET PAS ONZE. Chaque magasin a ses propres chemins
+   d'écriture ; en modifier onze, c'est en oublier un. La leçon des fiches orphelines a été
+   payée ce matin : un filet posé sur les appelants ne vaut rien s'il en reste un qui l'ignore.
+   On intercepte donc l'écriture DANS LE NAVIGATEUR elle-même — le seul geste que tous ont en
+   commun. Aucun magasin n'a besoin d'être modifié, et un magasin ajouté demain est couvert
+   d'office en ajoutant son préfixe à la liste.
+
+   CE QUI N'EST VOLONTAIREMENT PAS SYNCHRONISÉ :
+   · ive_jetons_v1_ — c'est la BASE qui fait autorité ; renvoyer le cache local rouvrirait le
+     trou qu'on vient de fermer ce matin.
+   · ive_grille_v2_ — a déjà sa table (reponses_dirigeant), une ligne par critère.
+   · ive_plan_      — écrit par le navigateur, donc falsifiable ; la formule vit dans `jetons`.
+   · ive_miroir_v1_ — simple cache d'affichage : la fiche est en base (table `fiches`).
+   · dbi_accounts, dbi_last_mail, intro_vu — préférences d'APPAREIL, elles n'ont rien à faire
+     ailleurs. */
+var ESPACE_CLES=['ive_conc_v1_','ive_conc_kw_','ive_maj_v1_','ive_simu_v1_','ive_faits_v1_',
+                 'ive_detail_v1_','ive_recur_v1_','ive_recurdec_v1_','ive_ident_v1_',
+                 'ive_coffre_v1_','ive_rep_v1_'];
+function espaceSuffixe(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return (((a&&a.email)||'anon')+'').toLowerCase(); }
+function espacePrefixe(k){
+  var s=espaceSuffixe();
+  for(var i=0;i<ESPACE_CLES.length;i++){ if(k===ESPACE_CLES[i]+s) return ESPACE_CLES[i]; }
+  return null;
+}
+/* Un ensemble vide n'écrase JAMAIS un ensemble rempli — des deux côtés. Piège payé le 01/08 sur
+   le questionnaire : une grille reconstruite à vide s'enregistrait par-dessus les réponses. */
+function espaceVide(v){
+  if(v==null) return true;
+  if(typeof v==='string') return v.trim()==='';
+  if(Array.isArray(v)) return v.length===0;
+  if(typeof v==='object') return Object.keys(v).length===0;
+  return false;
+}
+/* Horodatage LOCAL de chaque magasin. C'est lui qui tranche entre le navigateur et la base :
+   sans lui, on ne saurait pas si l'appareil a travaillé hors ligne ou s'il est simplement neuf. */
+function espaceTsCle(){ return 'ive_sync_v1_'+espaceSuffixe(); }
+function espaceTsLire(){ try{ return JSON.parse(localStorage.getItem(espaceTsCle())||'{}')||{}; }catch(e){ return {}; } }
+function espaceTsPoser(p,quand){ try{ var o=espaceTsLire(); o[p]=quand||Date.now(); localStorage.setItem(espaceTsCle(), JSON.stringify(o)); }catch(e){} }
+var __espSale={}, __espT=null, __espResto=false, __espEnVol=false;
+function espaceMarquer(p){
+  __espSale[p]=1;
+  if(__espT) clearTimeout(__espT);
+  __espT=setTimeout(espacePousser, 900);   // groupé : un curseur bougé dix fois = un seul envoi
+}
+/* L'INTERCEPTION. `ive_sync_v1_` n'étant pas dans ESPACE_CLES, espacePrefixe() le rejette : pas
+   de rappel en boucle quand on écrit l'horodatage lui-même. */
+(function(){
+  try{
+    var brut=localStorage.setItem.bind(localStorage);
+    localStorage.setItem=function(k,v){
+      brut(k,v);
+      if(__espResto) return;               // pendant la restauration, on ne renvoie pas l'écho
+      try{ var p=espacePrefixe(k); if(p){ espaceTsPoser(p); espaceMarquer(p); } }catch(e){}
+    };
+  }catch(e){}
+})();
+async function espacePousser(){
+  __espT=null;
+  /* Rien ne part AVANT la première lecture de la base. Sur un appareil neuf, le navigateur est
+     vide : sans ce verrou, il effacerait le travail fait ailleurs. */
+  if(!window.ESPACE_PRET || __espEnVol) return;
+  var cles=Object.keys(__espSale); if(!cles.length) return;
+  __espSale={}; __espEnVol=true;
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb) return;
+    var s=espaceSuffixe(), lignes=[];
+    for(var i=0;i<cles.length;i++){
+      var p=cles[i], brut=null, v=null;
+      try{ brut=localStorage.getItem(p+s); }catch(e){}
+      if(brut==null) continue;
+      try{ v=JSON.parse(brut); }catch(e){ continue; }
+      if(espaceVide(v)) continue;
+      lignes.push({entreprise_id:ent, cle:p, valeur:v, maj_le:new Date().toISOString()});
+    }
+    if(lignes.length) await window.sb.from('espace_donnees').upsert(lignes,{onConflict:'entreprise_id,cle'});
+  }catch(e){}
+  finally{
+    __espEnVol=false;
+    if(Object.keys(__espSale).length) espaceMarquer(Object.keys(__espSale)[0]);
+  }
+}
+/* LECTURE AU DÉMARRAGE. On ne remplace pas aveuglément : pour chaque magasin, le plus RÉCENT
+   des deux gagne, et un vide ne gagne jamais. Un appareil neuf retrouve donc tout, et un
+   appareil qui a travaillé hors ligne ne perd rien. */
+async function espaceCharger(){
+  try{
+    var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
+    if(!ent || !window.sb){ window.ESPACE_PRET=true; return; }
+    var r=await window.sb.from('espace_donnees').select('cle,valeur,maj_le').eq('entreprise_id',ent).limit(50);
+    if(r.error){ window.ESPACE_PRET=true; return; }
+    var base={}; (r.data||[]).forEach(function(l){ base[l.cle]=l; });
+    var ts=espaceTsLire(), s=espaceSuffixe();
+    for(var i=0;i<ESPACE_CLES.length;i++){
+      var p=ESPACE_CLES[i], b=base[p], loc=null, locV=null;
+      try{ loc=localStorage.getItem(p+s); }catch(e){}
+      try{ locV=loc?JSON.parse(loc):null; }catch(e){}
+      var locPlein=!espaceVide(locV), basePlein=!!(b && !espaceVide(b.valeur));
+      if(!basePlein && !locPlein) continue;
+      if(basePlein && !locPlein){ espaceRestaurer(p, b); continue; }
+      if(!basePlein && locPlein){ espaceMarquer(p); continue; }   // la base est ensemencée
+      var tl=+ts[p]||0, tb=b.maj_le?new Date(b.maj_le).getTime():0;
+      if(tb>tl) espaceRestaurer(p, b); else espaceMarquer(p);
+    }
+    window.ESPACE_PRET=true;
+    if(Object.keys(__espSale).length) espacePousser();
+  }catch(e){ window.ESPACE_PRET=true; }
+}
+function espaceRestaurer(p, b){
+  __espResto=true;
+  try{ localStorage.setItem(p+espaceSuffixe(), JSON.stringify(b.valeur)); }catch(e){}
+  __espResto=false;
+  /* Restaurer, c'est reconnaître que la BASE a gagné : il n'y a plus rien à lui renvoyer. Sans
+     cette ligne, un magasin écrit avant la lecture (le verrou ESPACE_PRET retient l'envoi, mais
+     garde la marque) repartait juste après — un aller-retour pour rien, qui rajeunissait
+     l'horodatage de la base sans qu'aucun contenu n'ait changé. */
+  delete __espSale[p];
+  // L'horodatage suit la valeur : sinon la prochaine comparaison croirait le local plus frais.
+  espaceTsPoser(p, b.maj_le?new Date(b.maj_le).getTime():Date.now());
+}
 /* Le seul chemin pour dépenser. Rend la main sans rien faire si la base refuse — et on le DIT,
    au lieu de laisser un bouton sans effet. */
 async function jetLancer(cout, action, motif){
@@ -3102,7 +3227,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 202';
+var IVE_VERSION='02/08 · 203';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7015,6 +7140,9 @@ async function syncPull(){
     // Le solde de jetons vient de la base depuis le 01/08 : le cache local n'est plus qu'un
     // affichage. Lu ici pour que la pastille du bandeau ne montre jamais un solde inventé.
     if(typeof jetCharger==='function') await jetCharger();
+    // L'espace de travail (concurrence payée, coffre, simulateur, repères…). Lu AVANT tout écran
+    // qui l'affiche, et c'est aussi cette lecture qui autorise les envois (verrou ESPACE_PRET).
+    if(typeof espaceCharger==='function') await espaceCharger();
     // Les réponses des salariés comptent d'office, dès l'ouverture (lecture gratuite, cf. ahAuto).
     if(typeof ahAuto==='function') await ahAuto();
     if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
