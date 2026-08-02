@@ -2140,6 +2140,9 @@ async function run(payload){
   // VERROU + CHOIX D'ÉTABLISSEMENT : si l'enseigne a plusieurs établissements dans la ville, la liste
   // complète s'affiche (les étudiés surlignés). 1er scan offert ; re-mesure hebdo (flag __remesure) = on saute les verrous.
   var remesure=!!window.__remesure; window.__remesure=false;
+  /* On GARDE la trace de la re-mesure : le drapeau est consommé ici, or c'est tout à la fin,
+     une fois la fiche produite et rangée, qu'on saura s'il faut ramener à l'accueil. */
+  window.__etaitRemesure=remesure;
   if(!remesure) window.__scanAdresse=null;
   /* FILET : une re-mesure SANS adresse crée une fiche orpheline que plus personne ne lit
      (cf. sentRelancer). Plutôt que de compter sur chaque appelant pour y penser, on va la
@@ -3233,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 204';
+var IVE_VERSION='02/08 · 205';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3786,12 +3789,28 @@ function saveFiche(d){
     saveFicheSuite(d);
   }
 }
-/* La suite du parcours, séparée de l'enregistrement : le dirigeant bascule sur SON espace,
-   qui recharge la fiche fraîche depuis la base. */
+/* L'ACCUEIL, selon l'endroit d'où l'on vient. Depuis l'espace dirigeant, « l'accueil » est la
+   grille de tuiles ; depuis l'espace consultant, c'est l'écran d'accueil consultant. */
+function accueilRetour(){
+  try{
+    if((window.currentSpace==='dirigeant' || window.selfServe) && typeof dirigeantSpace==='function') dirigeantSpace();
+    else if(typeof goHome==='function') goHome();
+  }catch(e){}
+}
+/* La suite du parcours, séparée de l'enregistrement.
+   ⚠️ DEUX CHEMINS DE RE-MESURE, un seul ramenait quelque part (Didier, 02/08/2026) :
+   `sentRelancer()` pose selfServe et bascule vers l'espace dirigeant, mais `remesurer()` ne le
+   pose pas — on restait alors sur la fiche, sans rien qui dise que c'était fini. Désormais TOUTE
+   re-mesure ramène à l'accueil. Un PREMIER scan de prospect, lui, laisse la fiche à l'écran :
+   c'est le résultat qu'on est venu chercher. */
 function saveFicheSuite(d){
   try{
-    if(!window.selfServe || window.__saveSuiteFait) return;
+    if(window.__saveSuiteFait) return;
     window.__saveSuiteFait=true;              // saveFiche peut l'appeler deux fois (try ET catch)
+    if(!window.selfServe){
+      if(window.__etaitRemesure) setTimeout(accueilRetour, 200);
+      return;
+    }
     window.sbReady.then(function(){
       if(!window.sb){ dirigeantSpace(); return; }
       // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace
@@ -3802,7 +3821,7 @@ function saveFicheSuite(d){
         setTimeout(function(){ dirigeantSpace(); }, 200);
       }).catch(function(){ setTimeout(function(){ dirigeantSpace(); }, 200); });
     });
-  }catch(e){ try{ dirigeantSpace(); }catch(e2){} }
+  }catch(e){ try{ accueilRetour(); }catch(e2){} }
 }
 
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
