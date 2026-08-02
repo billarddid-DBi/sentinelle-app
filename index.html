@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 199';
+var IVE_VERSION='01/08 · 200';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7167,7 +7167,22 @@ async function grilleEnvoyer(){
        reconstruite à vide ne doit pas plus vider la base qu'elle ne vide le navigateur. */
     var repondus=lignes.filter(function(l){ return l.vu; }).length;
     if(!lignes.length || !repondus) return;
-    await window.sb.from('reponses_dirigeant').upsert(lignes,{onConflict:'entreprise_id,critere'});
+    /* ⚠️ DEUX ENVOIS, ET C'EST TOUTE LA DIFFÉRENCE.
+       Les critères RÉPONDUS écrasent ce qu'il y a en base : c'est le geste du dirigeant, il fait
+       foi. Les critères NON répondus sont seulement CRÉÉS S'ILS MANQUENT (ignoreDuplicates) —
+       jamais écrits par-dessus.
+       Sans cette distinction : le dirigeant répond à 40 critères sur son PC, ouvre le
+       questionnaire sur son téléphone, touche 5 curseurs — et les 35 autres, encore au repos sur
+       ce nouvel appareil, repartaient en base avec « non répondu ». Trente-cinq réponses
+       effacées à distance par un appareil qui ne les avait jamais vues. C'est la faute
+       d'aujourd'hui — un ensemble vide qui écrase un ensemble rempli — transposée d'un appareil
+       à l'autre, et le garde-fou global (« au moins un répondu ») ne l'attrape pas.
+       Les lignes au repos ont quand même leur place en base : ce sont elles qui donnent le
+       dénominateur, « 5 / 40 ». */
+    var pleins=lignes.filter(function(l){ return l.vu; });
+    var vides =lignes.filter(function(l){ return !l.vu; });
+    if(pleins.length) await window.sb.from('reponses_dirigeant').upsert(pleins,{onConflict:'entreprise_id,critere'});
+    if(vides.length)  await window.sb.from('reponses_dirigeant').upsert(vides,{onConflict:'entreprise_id,critere',ignoreDuplicates:true});
     /* AUCUNE SUPPRESSION, volontairement. Un critère ne disparaît jamais du référentiel ; s'il
        n'est pas dans l'envoi, c'est que la grille ouverte est l'Express et qu'il appartient au
        Complet. L'effacer serait perdre 160 réponses à chaque ouverture de l'Express. */
