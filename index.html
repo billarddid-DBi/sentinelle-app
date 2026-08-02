@@ -1230,26 +1230,25 @@ function pmTacheDate(t){
   if(e){ var de=new Date(e+'T00:00:00'); if(!isNaN(de) && de<=new Date()) return de; }
   return null;                                     // ni date de saisie, ni échéance passée
 }
-/* ⚠️ DEUX PÉRIMÈTRES, ET C'EST VOULU (décision de Didier, 02/08/2026) :
-   « ne compter que les tâches actives dans la formulation sur MIROIR, mais les prendre en
-   compte dans les propositions d'outil d'amélioration. »
-
-   · CHIFFRER (tout=false) → les tâches ACTIVES seulement. Ce sont les seules que le dirigeant
-     voit à l'écran, donc les seules qu'il peut vérifier. Un nombre qu'on ne peut pas recompter
-     soi-même n'a aucune valeur dans un document payé.
-   · DÉTECTER (tout=true) → tout ce qui existe encore : actives, faites et archivées. La
-     répétition ne se voit QUE dans le travail accompli — ne regarder que l'ouvert reviendrait
-     à chercher ce qui revient en ayant effacé la moitié des passages.
-
-   Un seul paramètre, une seule fonction : deux fonctions séparées finiraient par diverger sur
-   les exclusions (plan, date future), et l'écart ne se verrait que des semaines plus tard. */
-function pmTaches30(tout){
+/* ⚠️ UN SEUL PÉRIMÈTRE : LES TÂCHES EN COURS. Rien d'autre, nulle part.
+   « Considère uniquement ce qui est saisi dans les tâches en cours, je peux pas faire plus
+   simple. » (Didier, 02/08/2026, après trois rappels — les trois de ma faute.)
+   Ce qui est exclu, et pourquoi :
+   · terminées et archivées → invisibles à l'écran. Les inclure faisait annoncer 4 sujets là où
+     sa liste n'en contient qu'un ;
+   · générées par la feuille de route (origine 'plan') → pas dictées par lui ;
+   · sans date de saisie ni échéance passée → rien ne permet de les rattacher aux 30 jours ;
+   · supprimées → déjà hors de la liste ET de la base ; et s'il les a supprimées, c'est que le
+     sujet est réglé — sinon il reviendra de lui-même.
+   Un diagnostic qui ne se recoupe pas avec ce que le dirigeant a sous les yeux ne vaut rien,
+   même s'il est plus « complet ». */
+function pmTaches30(){
   var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
   var lim=new Date(); lim.setDate(lim.getDate()-30);
   return (o.tasks||[]).filter(function(t){
     if(!t) return false;
+    if(t.done || t.archive) return false;              // invisible à l'écran : on l'ignore
     if(String(t.origine||'')==='plan') return false;   // générée par le plan, pas dictée
-    if(!tout && (t.done || t.archive)) return false;   // invisible à l'écran : on ne la chiffre pas
     var d=pmTacheDate(t);
     return !!d && d>=lim;
   });
@@ -1258,37 +1257,33 @@ function miroirQuotidien(){
   var sv=(typeof recurGet==='function')?recurGet():null;
   var sujets=(sv&&Array.isArray(sv.sujets))?sv.sujets:[];
   var maintenant=new Date(), vieille=0;
-  var actives=pmTaches30(), n30=actives.length;      // CE QU'ON CHIFFRE : ce qui est à l'écran
-  var analysees=pmTaches30(true).length;             // CE QU'ON ANALYSE : faites et archivées comprises
+  var actives=pmTaches30(), n30=actives.length;
   actives.forEach(function(t){
     var d=pmTacheDate(t);
     var age=Math.round((maintenant-d)/864e5);
     if(!isNaN(age) && age>vieille) vieille=age;        // ce qui traîne, et depuis quand
   });
-  /* Le seuil porte sur ce qu'on ANALYSE, pas sur ce qui reste ouvert : un dirigeant qui a
-     bouclé toutes ses tâches n'a pas « trop peu dicté », il a bien travaillé. */
-  if(!sujets.length && analysees<5) return null;
-  /* ⚠️ CHAQUE SUJET EST RECOMPTÉ SUR LA LISTE VISIBLE (Didier, 02/08/2026).
-     Sa règle, et son exemple : « si un sujet revient, c'est celui des devis, les cinq sur cinq.
-     S'il y avait huit tâches décrites, on en aurait cinq qui parlent de devis et trois d'autre
-     chose : deux sujets différents. »
-     La détection, elle, travaille sur tout (terminé compris) pour REPÉRER les sujets — mais le
-     nombre annoncé doit se retrouver dans sa liste, sinon il ne peut pas le vérifier.
-     On recoupe donc les tâches que la détection a regroupées avec celles encore en cours.
-     Sans cette liste (analyse d'avant aujourd'hui), on ne montre AUCUN nombre pour ce sujet :
-     mieux vaut pas de chiffre qu'un chiffre invérifiable. */
+  if(!sujets.length && n30<5) return null;             // trop peu en cours : rien à confronter
+  /* ⚠️ UN SUJET QUI N'EST PLUS DANS LA LISTE N'EST PLUS UN SUJET.
+     La détection est enregistrée : elle peut dater de plusieurs jours, pendant lesquels le
+     dirigeant a coché ou supprimé des tâches. L'écran annonçait alors « 4 sujets » quand sa
+     liste n'en contenait plus qu'un — celui des devis. On recoupe donc chaque sujet avec les
+     tâches encore en cours, et on écarte ceux qui n'y ont plus aucune trace.
+     Un sujet non recoupable (détection d'avant aujourd'hui, sans le détail des tâches) est
+     GARDÉ mais sans nombre : on ne le supprime pas sur un doute, on ne l'affirme pas non plus. */
   var normTxt=function(x){ return String(x||'').toLowerCase().replace(/[^a-z0-9à-ÿ]+/g,' ').trim(); };
   var visibles={}; actives.forEach(function(t){ visibles[normTxt(t.t)]=1; });
+  var lisibles=sujets.map(function(s){
+    var lst=Array.isArray(s.taches)?s.taches:null;
+    var vus=lst?lst.filter(function(x){ return visibles[normTxt(String(x).split('|').pop())]; }).length:null;
+    return { sujet:String(s.sujet||s.outil||''), nb:(+s.nb||0), nbVisible:vus,
+             consequence:String(s.consequence||''),
+             qui:String(s.qui||''), priorite:String(s.priorite||''), outil:String(s.outil||'') };
+  }).filter(function(s){ return s.nbVisible===null || s.nbVisible>0; });
+  if(!lisibles.length && n30<5) return null;
   return {
-    sujets:sujets.slice(0,6).map(function(s){
-      var lst=Array.isArray(s.taches)?s.taches:null;
-      var vus=lst?lst.filter(function(x){ return visibles[normTxt(String(x).split('|').pop())]; }).length:null;
-      return { sujet:String(s.sujet||s.outil||''), nb:(+s.nb||0), nbVisible:vus,
-               consequence:String(s.consequence||''),
-               qui:String(s.qui||''), priorite:String(s.priorite||''), outil:String(s.outil||'') };
-    }),
-    nbTaches:n30,           // À CITER : les tâches actives, celles que le dirigeant voit
-    nbAnalysees:analysees,  // BASE D'ANALYSE : faites et archivées comprises, jamais citée telle quelle
+    sujets:lisibles.slice(0,6),
+    nbTaches:n30,           // le seul nombre cité : ses tâches en cours
     plusVieille:vieille,
     date:(typeof recurQuand==='function')?recurQuand():''
   };
@@ -3096,11 +3091,15 @@ function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); 
 /* MÊME SOURCE que miroirQuotidien (cf. pmTaches30) : deux comptages séparés du même quotidien
    finiraient par annoncer deux nombres différents, et c'est le genre d'écart qu'on ne voit que
    des semaines plus tard, dans un document payé. */
+/* ⚠️ UN SEUL PÉRIMÈTRE : LES TÂCHES EN COURS (Didier, 02/08/2026, après trois rappels).
+   « Considère uniquement ce qui est saisi dans les tâches en cours, je peux pas faire plus
+   simple. » J'avais gardé une base d'analyse plus large — terminées et archivées comprises —
+   en pensant mieux repérer les répétitions. Résultat : l'écran annonçait 4 sujets là où sa
+   liste n'en contient qu'un, celui des devis. Un diagnostic qui ne se recoupe pas avec ce que
+   le dirigeant a sous les yeux ne vaut rien, même s'il est plus « complet ».
+   La détection travaille donc sur exactement ce qu'il voit. */
 function recurTaches30(){
-  /* `true` : on cherche ce qui SE RÉPÈTE, et la répétition ne se voit que dans le travail
-     accompli. Ne regarder que les tâches ouvertes reviendrait à compter les passages après
-     avoir effacé la moitié des traces — c'est ici, et seulement ici, qu'on prend tout. */
-  return pmTaches30(true)
+  return pmTaches30()
     .map(function(x){ var d=pmTacheDate(x); return (d?d.toISOString().slice(0,10):'')+' | '+(x.t||''); })
     .map(function(s){ return s.trim(); }).filter(function(s){ return s.length>2; });
 }
@@ -3388,7 +3387,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 216';
+var IVE_VERSION='02/08 · 217';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
