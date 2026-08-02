@@ -69,6 +69,10 @@ Chaque tâche t'est donnée sous la forme "AAAA-MM-JJ | texte".
 Pour chaque sujet retenu, produis :
 - "sujet" : le besoin en 3-6 mots, dans les mots du dirigeant
 - "nb" : le nombre de tâches regroupées
+- "taches" : la liste EXACTE des tâches regroupées, recopiées MOT POUR MOT depuis la liste
+  fournie (le texte seul, sans la date). N'en invente aucune, n'en reformule aucune : ces
+  lignes servent à retrouver les tâches une par une dans la liste du dirigeant, et une
+  reformulation les rendrait introuvables. "nb" doit valoir exactement la longueur de "taches".
 - "outil" : le nom de l'outil ou du dispositif qui réglerait ce sujet une bonne fois (5-9 mots)
 - "consequence" : ce que cette répétition COÛTE réellement (temps perdu, client qui attend,
   risque qui grandit, argent). Concret, factuel, jamais alarmiste.
@@ -79,7 +83,7 @@ Pour chaque sujet retenu, produis :
 INTERDITS : ne JAMAIS écrire le mot "Hypothèse". Ne juge JAMAIS le dirigeant ni ses équipes.
 N'invente aucune tâche qui ne figure pas dans la liste fournie.
 
-Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"outil":"…","consequence":"…","priorite":"haute","qui":"IA","etapes":["…","…"]}]}
+Réponds UNIQUEMENT en JSON : {"sujets":[{"sujet":"…","nb":7,"taches":["…","…"],"outil":"…","consequence":"…","priorite":"haute","qui":"IA","etapes":["…","…"]}]}
 Si aucun sujet n'atteint 5 tâches : {"sujets":[]}`;
     // ---- Branche : sujets récurrents dans les tâches dictées (30 derniers jours) ----
     /* ---- Branche : detail justifie d'une action (pourquoi, d'ou vient l'info, comment faire) ---- */

@@ -7,7 +7,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-02-04";
+const MIROIR_VERSION = "2026-08-02-05";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -120,7 +120,14 @@ ${AURA_REDACTION}`;
            était annoncé « revenu 5 fois » — un chiffre sorti de nulle part, glissé dans le bloc
            que ce prompt présente à l'IA comme « la seule donnée FACTUELLE », celle sur laquelle
            elle a le droit d'affirmer au lieu de rester au conditionnel. Sans compte, on le dit. */
-        const fois = (+s.nb > 0) ? `revenu ${+s.nb} fois en 30 jours` : `revient régulièrement (nombre non mesuré)`;
+        /* ⚠️ LE NOMBRE CITÉ EST CELUI QU'IL PEUT RECOMPTER. Son exemple : « c'est celui des
+           devis, les cinq sur cinq ». Le dénominateur est donc SA liste de tâches en cours, et
+           le numérateur ce que ce sujet y occupe. Si on ne sait pas recouper (analyse d'avant
+           aujourd'hui), on n'écrit AUCUN nombre : mieux vaut pas de chiffre qu'un invérifiable. */
+        const tot = (qt.nbTaches != null) ? qt.nbTaches : null;
+        const fois = (s.nbVisible != null && s.nbVisible > 0 && tot)
+          ? `${s.nbVisible} de ses ${tot} tâches en cours`
+          : `revient régulièrement — AUCUN nombre vérifiable pour ce sujet, n'en écris pas`;
         return `« ${String(s.sujet || s.outil || "").slice(0, 140)} » — ${fois}`
           + (s.consequence ? ` · ce que la répétition coûte : ${String(s.consequence).slice(0, 240)}` : "")
           + (s.qui ? ` · traitable par ${s.qui}` : "")
@@ -133,11 +140,14 @@ ${AURA_REDACTION}`;
          ⚠️ ET SURTOUT : le ratio se calcule DANS LE MÊME PÉRIMÈTRE. Les sujets sont comptés sur
          tout ce qui existe (terminé compris), pas sur les seules tâches ouvertes — rapporter
          l'un à l'autre produirait des phrases du genre « 30 tâches sur 12 ». */
-      const totalSujets = qt.sujets.reduce(function (a, s) { return a + (+s.nb > 0 ? +s.nb : 0); }, 0);
-      const base = (qt.nbAnalysees != null) ? qt.nbAnalysees : qt.nbTaches;
-      const couv = (totalSujets > 0 && base > 0)
-        ? `\nCes sujets représentent ${totalSujets} de ces ${base} tâches examinées — reprends ces deux nombres tels quels, ne les recalcule pas.`
-        : "";
+      /* ⚠️ PLUS AUCUN RATIO. On envoyait « ces sujets représentent 30 de ces 33 tâches
+         examinées », et le MIROIR écrivait « 30 tâches sur 33 ». Didier : « cela ne veut
+         toujours rien dire ». Il a raison — ce rapport n'a de sens que pour qui connaît le
+         périmètre d'analyse, et le lecteur, lui, ne peut retrouver aucun des deux nombres dans
+         ses tâches. Un chiffre invérifiable ne renseigne pas, il fait douter du reste.
+         Il ne reste donc que des nombres qu'il peut recompter : ses tâches en cours, et le
+         nombre de fois où CHAQUE sujet revient. */
+      const couv = "";
       /* ⚠️ UN SUJET = UN DOMAINE = UN OUTIL (Didier, 02/08/2026). Le MIROIR écrivait « Devis,
          avis, factures occupent vos journées : 30 tâches » — trois métiers différents fondus en
          un seul total. Un dirigeant ne peut rien en faire : on n'installe pas « un outil pour
@@ -146,8 +156,9 @@ ${AURA_REDACTION}`;
       const sepa = `\n⚠️ CES SUJETS SONT DE DOMAINES DIFFÉRENTS. Traite-les SÉPARÉMENT : chacun garde SON nombre, et chacun qui justifie un outil obtient SON entrée dans "outils". N'écris jamais une phrase qui les regroupe sous un total commun — on n'installe pas un outil unique pour des métiers différents.`;
       qtBlock = `LE QUOTIDIEN (tâches que le dirigeant a DICTÉES LUI-MÊME sur 30 jours) — la seule donnée FACTUELLE :
 Ce que le dirigeant VOIT à son écran : ${qt.nbTaches != null ? qt.nbTaches + " tâches encore ouvertes" : "n.c."}${qt.plusVieille ? `, la plus ancienne en attente depuis ${qt.plusVieille} jours` : ""}.
-Base d'analyse des répétitions : ${qt.nbAnalysees != null ? qt.nbAnalysees : (qt.nbTaches != null ? qt.nbTaches : "n.c.")} tâches des 30 derniers jours, terminées et archivées comprises.
-⚠️ RÈGLE DE CITATION (décision du dirigeant) : dans TOUTE phrase que tu lui adresses, le nombre de tâches que tu cites est celui qu'il VOIT — les tâches encore ouvertes. La base d'analyse sert à repérer ce qui se répète et à justifier les OUTILS proposés ; ne l'annonce jamais comme « ses tâches » et ne mélange jamais les deux dans un même rapport.
+⚠️ RÈGLE DE CITATION, ABSOLUE (décision du dirigeant, 02/08/2026). Sa règle, mot pour mot : « on se concentre uniquement sur les chiffres qui sont visibles dans les tâches ».
+Les SEULS nombres que tu peux écrire sont ceux listés ci-dessus, tels quels : son nombre de tâches en cours, et pour CHAQUE sujet la part qu'il y occupe (« 5 de ses 5 tâches en cours »).
+INTERDIT : additionner plusieurs sujets, écrire un total d'ensemble, un pourcentage, ou un nombre « sur 30 jours » qu'il ne retrouverait pas dans sa liste. Son exemple : cinq tâches, toutes sur les devis → « les devis, 5 de vos 5 tâches en cours ». S'il y en avait huit dont trois sur autre chose, ce serait DEUX sujets : « devis, 5 sur 8 » et « l'autre sujet, 3 sur 8 ». Jamais « 8 tâches concentrées sur 2 sujets ».
 Sujets qui REVIENNENT${qt.date ? ` (détection du ${qt.date})` : ""} :
 ${sj}${couv}${sepa}
 => CONFRONTE ces faits à l'image (SENTINELLE) et au déclaratif (BOUSSOLE) : confirment-ils, contredisent-ils, ou complètent-ils le diagnostic ?
