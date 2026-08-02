@@ -141,7 +141,7 @@
     <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 12,90 € · Annuel 129 €</span></h3>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
-      <th>Client</th><th>Formule</th><th>Prix</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
+      <th>Client</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
     </tr></thead><tbody id="financeRows"></tbody></table></div>
   </div>
 
@@ -289,7 +289,12 @@ async function loadClients(){
   var ents=er.data||[];
   var pr=await SB.from('pm_data').select('entreprise_id,data,maj_le');
   var blobs={}; (pr.data||[]).forEach(function(x){ blobs[x.entreprise_id]={data:x.data||{},maj:x.maj_le}; });
-  DATA = ents.map(function(e){ return mapEnt(e, blobs[e.id]); });
+  /* LA FORMULE VIENT DE LA BASE (02/08/2026). Jusqu'ici cette console écrivait « annuel · 129 € »
+     en dur pour TOUT LE MONDE — le suivi des abonnements, le MRR et l'ARR étaient donc fictifs.
+     La table `jetons` porte la vérité depuis ce matin, et l'administrateur seul peut l'écrire. */
+  var jr=await SB.from('jetons').select('entreprise_id,formule,inclus,utilises,packs,periode');
+  var jets={}; (jr.data||[]).forEach(function(x){ jets[x.entreprise_id]=x; });
+  DATA = ents.map(function(e){ return mapEnt(e, blobs[e.id], jets[e.id]); });
   var sel=document.getElementById('secteur');
   if(sel){ sel.innerHTML='<option value="">Tous secteurs</option>';
     Array.from(new Set(ents.map(function(x){return x.secteur;}).filter(Boolean))).sort().forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); }
@@ -304,7 +309,7 @@ async function loadClients(){
   loadFacturation();
 }
 function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
-function mapEnt(e, blob){
+function mapEnt(e, blob, jet){
   var data=(blob&&blob.data)||{};
   var maj=(blob&&blob.maj)||null;
   var snaps=(Array.isArray(data.snaps)?data.snaps:[]).map(function(s){
@@ -328,9 +333,19 @@ function mapEnt(e, blob){
   if(!snaps.length || jours>45) statut='silence';
   else if((dIat!=null&&dIat<0)||(dIve!=null&&dIve<0)) statut='regression';
   else if(prev&&dIat===0&&dIve===0) statut='stagnation';
-  // Abonnement (défaut annuel — la vraie formule est dans user_metadata, à brancher plus tard)
+  /* ABONNEMENT — désormais lu dans la table `jetons`, plus écrit en dur.
+     `jet` est absent tant que le client ne s'est pas connecté une première fois : c'est ce cas
+     précis qui faisait échouer l'update manuel en silence. On l'affiche donc explicitement
+     (« pas encore ouvert ») au lieu de le confondre avec un abonnement mensuel réel. */
+  var jetOuvert=!!jet;
+  var plan=(jet&&jet.formule==='annuel')?'annuel':'mensuel';
+  var prix=(plan==='annuel')?129:12.90;
+  var jInclus=jet?(+jet.inclus||0):0, jUtil=jet?(+jet.utilises||0):0, jPacks=jet?(+jet.packs||0):0;
+  var jReste=Math.max(0,jInclus-jUtil)+jPacks;
   var since=(snaps.length?snaps[0].d:lastD)||new Date().toISOString().slice(0,10);
-  var ren=new Date(since); ren.setFullYear(ren.getFullYear()+1);
+  // L'échéance suit la formule réelle : un mensuel ne se renouvelle pas dans un an.
+  var ren=new Date(since);
+  if(plan==='annuel') ren.setFullYear(ren.getFullYear()+1); else ren.setMonth(ren.getMonth()+1);
   var renewalDays=Math.round((ren-TODAY)/864e5);
   var steps=(data.fr&&Array.isArray(data.fr.steps))?data.fr.steps.map(function(s){
     return { t:(s.titre||s.t||s.texte||'—'), s:(s.status||s.statut||s.s||'todo'), ech:(s.echeance||s.ech||s.palier||''), d:(s.detail||s.note||'') };
@@ -339,7 +354,8 @@ function mapEnt(e, blob){
   return { id:e.id, nom:e.nom||'—', secteur:e.secteur||'—', ville:e.ville||'',
     iat:(iat!=null?iat:'–'), ive:(ive!=null?ive:'–'), av:av, dIat:dIat, dIve:dIve, statut:statut,
     jours:jours, derniere:(lastD||'—'), nb:snaps.length,
-    plan:'annuel', price:129, since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
+    plan:plan, price:prix, jetOuvert:jetOuvert, jReste:jReste, jInclus:jInclus, jPacks:jPacks,
+    since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events };
 }
 
@@ -608,13 +624,17 @@ function fmtDays(j){return j===0?"aujourd'hui":j===1?"hier":"il y a "+j+" j";}
 
 /* ============ SUIVI FINANCIER ============ */
 function renderFinance(){
-  const actifs=DATA.length;
-  const arr=DATA.reduce((s,d)=>s+(d.plan==="annuel"?d.price:d.price*12),0);
+  /* On ne compte comme abonné que celui dont la ligne de jetons existe — elle naît à sa première
+     connexion. Sinon les comptes d'essai, qui ne se connecteront jamais, gonflaient un MRR
+     imaginaire. Mieux vaut un chiffre plus petit et vrai. */
+  const payants=DATA.filter(d=>d.jetOuvert);
+  const actifs=payants.length;
+  const arr=payants.reduce((s,d)=>s+(d.plan==="annuel"?d.price:d.price*12),0);
   const mrr=arr/12;
   const proche=DATA.filter(d=>d.pay==="proche").length;
   const retard=DATA.filter(d=>d.pay==="retard").length;
   document.getElementById("financeKpis").innerHTML=[
-    [actifs,"Abonnés actifs"],
+    [actifs,"Abonnés ouverts"],
     [EUR(mrr),"MRR (revenu mensuel)"],
     [EUR(arr),"ARR (revenu annuel)"],
     [proche,"Échéances < 30 j"],
@@ -623,8 +643,31 @@ function renderFinance(){
   const payPill={ajour:['p-ok','À jour'],proche:['p-stag','Échéance proche'],retard:['p-reg','En retard']};
   document.getElementById("financeRows").innerHTML=DATA.slice().sort((a,b)=>a.renewalDays-b.renewalDays).map(d=>{
     const p=payPill[d.pay];
-    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+'</td><td>'+EUR(d.price)+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td>'+(SB?'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button>':'')+'</td></tr>';
+    var vise=(d.plan==="annuel")?"mensuel":"annuel";
+    /* Le bouton dit ce qu'il va FAIRE, pas l'état actuel : « passer en annuel » ne peut pas se
+       lire comme « ce client est annuel ». C'est la confusion classique des bascules. */
+    var bascule=SB?'<div style="margin-top:3px;"><button onclick="jetonsFormule(\''+d.id+'\',\''+vise+'\',this)" style="padding:2px 8px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap;color:var(--muted)">→ passer en '+vise+'</button></div>':'';
+    var jcell = d.jetOuvert
+      ? '<b>'+d.jReste+'</b> <span class="sec">/ '+d.jInclus+(d.jPacks?(' + '+d.jPacks+' packs'):'')+'</span>'
+      : '<span class="sec" title="La ligne de jetons naît à la première connexion du client">pas encore ouvert</span>';
+    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td>'+(SB?'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button>':'')+'</td></tr>';
   }).join("");
+}
+/* Le geste qui remplace l'`update jetons` à la main — celui qui ratait en silence quand le
+   client ne s'était pas encore connecté. La fonction serveur crée la ligne si besoin. */
+async function jetonsFormule(entId, formule, btn){
+  if(!SB) return;
+  var c=DATA.find(function(x){ return x.id===entId; });
+  if(!confirm('Passer « '+((c&&c.nom)||'ce client')+' » en '+formule+' ?\n\n'
+    +(formule==='annuel'?'390 jetons pour l\'année, 129 €.':'30 jetons par mois, 12,90 €.')
+    +'\n\nLe compteur de jetons utilisés repart à zéro. Les packs déjà rachetés sont conservés.')) return;
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  var r=await SB.rpc('jetons_formule',{p_entreprise_id:entId, p_formule:formule});
+  /* On regarde le VERDICT de la fonction, pas seulement l'erreur réseau : elle peut refuser
+     proprement (pas administrateur, entreprise inconnue) sans la moindre erreur HTTP. */
+  if(r.error){ alert('Échec : '+r.error.message); if(btn){ btn.disabled=false; btn.textContent='→ passer en '+formule; } return; }
+  if(!r.data || r.data.ok!==true){ alert('Refusé : '+((r.data&&r.data.error)||'raison inconnue')); if(btn){ btn.disabled=false; btn.textContent='→ passer en '+formule; } return; }
+  await loadClients();          // on relit la base : jamais d'affichage deviné
 }
 
 /* ============ RENDER ============ */
