@@ -3236,7 +3236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 205';
+var IVE_VERSION='02/08 · 206';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3789,39 +3789,35 @@ function saveFiche(d){
     saveFicheSuite(d);
   }
 }
-/* L'ACCUEIL, selon l'endroit d'où l'on vient. Depuis l'espace dirigeant, « l'accueil » est la
-   grille de tuiles ; depuis l'espace consultant, c'est l'écran d'accueil consultant. */
-function accueilRetour(){
+/* OÙ ON ATTERRIT UNE FOIS L'ANALYSE FINIE (Didier, 02/08/2026 — « quand tu fais une mise à jour
+   sur SENTINELLE, tu restes sur SENTINELLE »).
+   · MISE À JOUR → l'écran SENTINELLE, celui qu'on vient justement de rafraîchir. Renvoyer sur la
+     grille de tuiles obligeait à rouvrir soi-même ce qu'on venait de payer pour voir.
+   · PREMIER SCAN d'un dirigeant → son espace : c'est la découverte de son tableau de bord.
+   · CONSULTANT → nulle part, la fiche du prospect reste à l'écran. C'est le résultat qu'on est
+     venu chercher ; l'en chasser serait une régression. */
+function saveFicheRetour(){
   try{
-    if((window.currentSpace==='dirigeant' || window.selfServe) && typeof dirigeantSpace==='function') dirigeantSpace();
-    else if(typeof goHome==='function') goHome();
-  }catch(e){}
+    if(window.__etaitRemesure && typeof sentApercu==='function') sentApercu();
+    else if(typeof dirigeantSpace==='function') dirigeantSpace();
+  }catch(e){ try{ dirigeantSpace(); }catch(e2){} }
 }
-/* La suite du parcours, séparée de l'enregistrement.
-   ⚠️ DEUX CHEMINS DE RE-MESURE, un seul ramenait quelque part (Didier, 02/08/2026) :
-   `sentRelancer()` pose selfServe et bascule vers l'espace dirigeant, mais `remesurer()` ne le
-   pose pas — on restait alors sur la fiche, sans rien qui dise que c'était fini. Désormais TOUTE
-   re-mesure ramène à l'accueil. Un PREMIER scan de prospect, lui, laisse la fiche à l'écran :
-   c'est le résultat qu'on est venu chercher. */
 function saveFicheSuite(d){
   try{
     if(window.__saveSuiteFait) return;
     window.__saveSuiteFait=true;              // saveFiche peut l'appeler deux fois (try ET catch)
-    if(!window.selfServe){
-      if(window.__etaitRemesure) setTimeout(accueilRetour, 200);
-      return;
-    }
+    if(!window.selfServe) return;             // consultant : on ne bouge pas
     window.sbReady.then(function(){
-      if(!window.sb){ dirigeantSpace(); return; }
+      if(!window.sb){ saveFicheRetour(); return; }
       // On mémorise la clé EXACTE (nom/ville officiels du scan) sur le compte : sinon l'espace
       // dirigeant ne retrouve jamais la fiche (nom tapé ≠ nom officiel, ville différente) → boucle.
       var _md={sent_nom:(d&&d.nom)||'', sent_ville:(d&&d.ville)||'', sent_adresse:(window.__scanAdresse||'')};
       window.sb.auth.updateUser({data:_md}).then(function(){
         if(window.currentUser){ window.currentUser.sentNom=_md.sent_nom; window.currentUser.sentVille=_md.sent_ville; window.currentUser.sentAdr=_md.sent_adresse; }
-        setTimeout(function(){ dirigeantSpace(); }, 200);
-      }).catch(function(){ setTimeout(function(){ dirigeantSpace(); }, 200); });
+        setTimeout(saveFicheRetour, 200);
+      }).catch(function(){ setTimeout(saveFicheRetour, 200); });
     });
-  }catch(e){ try{ accueilRetour(); }catch(e2){} }
+  }catch(e){ if(window.selfServe){ try{ saveFicheRetour(); }catch(e2){} } }
 }
 
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
@@ -5992,6 +5988,15 @@ function ivTuile(ic,titre,action,etat,ton,verrou){
    autrement, sinon l'accueil finirait par annoncer autre chose que ce qu'on trouve en ouvrant.
    Chaque clé a une valeur PAR DÉFAUT avant toute lecture : si une source manque, la tuile reste
    muette mais l'écran s'affiche. Un accueil blanc serait la pire des pannes. */
+/* Le coût, annoncé DANS la tuile — demande de Didier (02/08/2026) : « sinon quand on lance un
+   MIROIR par exemple, tu ne le sais qu'après ». Le nombre vient de JETONS_COUT, jamais écrit en
+   dur : sinon il ment le jour où le tarif bouge.
+   ⚠️ À n'ajouter QUE sur un état dont le clic dépense vraiment. Une tuile qui se contente
+   d'ouvrir un résultat déjà produit ne coûte rien — y afficher un prix ferait hésiter pour rien. */
+function iveCout(cle){
+  var c=(typeof JETONS_COUT!=='undefined')?JETONS_COUT[cle]:0;
+  return c?(' · '+c+' jeton'+(c>1?'s':'')):'';
+}
 function iveGrilleEtats(){
   var d={txt:'',ton:'off'};
   var o={sent:d,quest:d,sal:d,bou:d,mir:d,conc:d,feuille:d,outils:d,sim:d,jet:d,parcoursFini:false};
@@ -6016,15 +6021,18 @@ function iveGrilleEtats(){
     var sv=(typeof miroirStore!=='undefined')?miroirStore.load():null;
     if(sv&&sv.m){
       var neuf=(typeof majDepuis==='function')?majDepuis(sv.ts):[];
+      /* Ces deux états OUVRENT le MIROIR déjà produit — c'est gratuit. Le bouton de mise à jour,
+         lui, annonce son coût à l'intérieur. On n'écrit donc pas de prix ici : afficher un tarif
+         sur un geste gratuit est aussi trompeur que le taire sur un geste payant. */
       o.mir = neuf.length?{txt:'À rafraîchir',ton:'att'}:{txt:'Prêt',ton:'ok'};
       o.parcoursFini=true;
     }else{
-      o.mir = (et&&et.complet)?{txt:'À lancer',ton:'att'}:{txt:'Après la BOUSSOLE',ton:'off'};
+      // Là, en revanche, le clic PRODUIT le MIROIR : il dépense. Ça se dit avant, pas après.
+      o.mir = (et&&et.complet)?{txt:'À lancer'+iveCout('miroir'),ton:'att'}:{txt:'Après la BOUSSOLE',ton:'off'};
     }
 
     var cok=(typeof concFaite==='function')&&concFaite();
-    o.conc = cok?{txt:'Faite',ton:'ok'}
-                :{txt:((typeof JETONS_COUT!=='undefined'&&JETONS_COUT.concurrence)?(JETONS_COUT.concurrence+' jetons'):'À faire'),ton:'off'};
+    o.conc = cok?{txt:'Faite',ton:'ok'}:{txt:'À faire'+iveCout('concurrence'),ton:'off'};
 
     o.feuille = (et&&et.complet)?{txt:'Disponible',ton:'ok'}:{txt:'Après la BOUSSOLE',ton:'off'};
 
@@ -6112,8 +6120,9 @@ function dirigeantSpace(){
     +'</div>'
     +'<div class="ivSect">VOTRE PLAN &amp; VOTRE COMPTE</div>'
     +'<div class="ivGrille">'
-      +ivTuile('ti-route','Feuille de route','boussoleOutil(\'feuille\')',G.feuille.txt,G.feuille.ton,_verrou)
+      // Ordre voulu par Didier (02/08) : les pistes d'abord, la feuille de route ensuite.
       +ivTuile('ti-robot','Pistes d\'outils IA','boussoleOutil(\'outilsia\')',G.outils.txt,G.outils.ton,_verrou)
+      +ivTuile('ti-route','Feuille de route','boussoleOutil(\'feuille\')',G.feuille.txt,G.feuille.ton,_verrou)
       +ivTuile('ti-calculator','Simulateur de gain','boussoleOutil(\'simulateur\')',G.sim.txt,G.sim.ton,_verrou)
       +ivTuile('ti-coins','Jetons &amp; formule','offreView()',G.jet.txt,G.jet.ton,false)
       /* Ces deux-là n'existent pas encore : iveNav('historique') et iveNav('params') tombent
