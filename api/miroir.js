@@ -7,7 +7,7 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-02-01";
+const MIROIR_VERSION = "2026-08-02-02";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
@@ -116,16 +116,30 @@ ${AURA_REDACTION}`;
     let qtBlock = "LE QUOTIDIEN : NON MESURÉ — omets le champ \"quotidien\", n'ajoute \"origine\" à aucun levier et ne déduis RIEN des journées du dirigeant.";
     if (qt) {
       const sj = qt.sujets.slice(0, 6).map(function (s) {
-        return `« ${String(s.sujet || s.outil || "").slice(0, 140)} » — revenu ${+s.nb || 5} fois en 30 jours`
+        /* ⚠️ PLUS DE NOMBRE INVENTÉ. On écrivait `${+s.nb || 5}` : un sujet arrivant sans compte
+           était annoncé « revenu 5 fois » — un chiffre sorti de nulle part, glissé dans le bloc
+           que ce prompt présente à l'IA comme « la seule donnée FACTUELLE », celle sur laquelle
+           elle a le droit d'affirmer au lieu de rester au conditionnel. Sans compte, on le dit. */
+        const fois = (+s.nb > 0) ? `revenu ${+s.nb} fois en 30 jours` : `revient régulièrement (nombre non mesuré)`;
+        return `« ${String(s.sujet || s.outil || "").slice(0, 140)} » — ${fois}`
           + (s.consequence ? ` · ce que la répétition coûte : ${String(s.consequence).slice(0, 240)}` : "")
           + (s.qui ? ` · traitable par ${s.qui}` : "")
           + (s.priorite ? ` · priorité ${s.priorite}` : "");
       }).join("\n");
+      /* ⚠️ ON DONNE LE TOTAL, ON NE LE FAIT PLUS CALCULER. Le MIROIR écrivait « 30 tâches sur
+         49 » : le 49 était fourni, le 30 était une addition faite par le modèle à partir des
+         comptes par sujet. Une addition faite par un modèle de langage n'est pas garantie, et
+         une erreur y reste parfaitement crédible — c'est celle qu'on ne voit jamais. */
+      const totalSujets = qt.sujets.reduce(function (a, s) { return a + (+s.nb > 0 ? +s.nb : 0); }, 0);
+      const couv = (totalSujets > 0 && qt.nbTaches > 0)
+        ? `\nCes sujets représentent ${totalSujets} de ces ${qt.nbTaches} tâches — reprends ces deux nombres tels quels, ne les recalcule pas.`
+        : "";
       qtBlock = `LE QUOTIDIEN (tâches que le dirigeant a DICTÉES LUI-MÊME sur 30 jours) — la seule donnée FACTUELLE :
 Volume : ${qt.nbTaches != null ? qt.nbTaches + " tâches dictées sur 30 jours" : "n.c."}${qt.nbEnCours != null ? `, dont ${qt.nbEnCours} encore ouvertes` : ""}${qt.plusVieille ? `, la plus ancienne en attente depuis ${qt.plusVieille} jours` : ""}.
 Sujets qui REVIENNENT${qt.date ? ` (détection du ${qt.date})` : ""} :
-${sj}
+${sj}${couv}
 => CONFRONTE ces faits à l'image (SENTINELLE) et au déclaratif (BOUSSOLE) : confirment-ils, contredisent-ils, ou complètent-ils le diagnostic ?
+⚠️ N'INVENTE ET NE RECALCULE AUCUN NOMBRE dans ce bloc. Les seuls chiffres que tu as le droit d'écrire sont ceux listés ci-dessus, repris tels quels. Si un nombre te manque, écris la phrase sans nombre.
 
 OBLIGATION ABSOLUE, VÉRIFIE-LA AVANT DE RÉPONDRE : puisque LE QUOTIDIEN t'est fourni ci-dessus, le champ "quotidien" de ta réponse DOIT être rempli — "accord", "journees", "lecture.externe", "lecture.interne" et "liens". Il ne vaut JAMAIS null et n'est JAMAIS absent. Cette obligation est INDÉPENDANTE du champ "humain" : que le volet humain soit mesuré ou non ne change RIEN ici. Cite les sujets mot pour mot, et marque "origine":"quotidien" sur AU MOINS UN levier du plan.`;
     }

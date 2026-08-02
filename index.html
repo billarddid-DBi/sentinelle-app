@@ -1191,16 +1191,48 @@ var miroirStore={
    dirigeant déclare, LE QUOTIDIEN montre ce que ses journées font. On ne rappelle JAMAIS l'IA
    ici : on relit la détection des sujets récurrents déjà payée (recurGet) et on compte les
    tâches. Gratuit. Renvoie null quand il n'y a rien de solide à confronter. */
+/* ═══ CE QU'ON A LE DROIT DE COMPTER (règle de Didier, 02/08/2026) ═════════════════════════
+   « On ne peut pas faire des calculs sur des tâches qui n'apparaissent plus dans l'application. »
+   Il a raison, et le comptage en gonflait le résultat de trois façons :
+
+   1. LA DATE DE REPLI. On lisait `t.created || t.due`. Une tâche sans date de création prenait
+      son ÉCHÉANCE — qui peut être dans le FUTUR. Une tâche prévue dans trois semaines était donc
+      comptée parmi « les tâches dictées ces 30 derniers jours ». Désormais une échéance ne sert
+      de repère que si elle est PASSÉE : une date future ne peut pas être une date de saisie.
+
+   2. LES TÂCHES DE LA FEUILLE DE ROUTE. `origine === 'plan'` : elles sont générées par le plan,
+      pas dictées par le dirigeant. L'écran annonce pourtant « tâches que vous avez dictées ».
+      Elles sortent du compte.
+
+   3. Rien d'autre n'est exclu : une tâche supprimée a déjà disparu de la liste ET de la base
+      (cf. la synchro), elle n'est comptée nulle part. Vérifié avant d'écrire ceci.
+
+   SOURCE UNIQUE : miroirQuotidien ET la détection des récurrences passent par ici. Deux
+   comptages séparés finiraient par donner deux chiffres différents du même quotidien. */
+function pmTacheDate(t){
+  var c=String((t&&t.created)||'').slice(0,10);
+  if(c){ var dc=new Date(c+'T00:00:00'); if(!isNaN(dc)) return dc; }
+  var e=String((t&&t.due)||'').slice(0,10);
+  if(e){ var de=new Date(e+'T00:00:00'); if(!isNaN(de) && de<=new Date()) return de; }
+  return null;                                     // ni date de saisie, ni échéance passée
+}
+function pmTaches30(){
+  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
+  var lim=new Date(); lim.setDate(lim.getDate()-30);
+  return (o.tasks||[]).filter(function(t){
+    if(!t) return false;
+    if(String(t.origine||'')==='plan') return false;   // générée par le plan, pas dictée
+    var d=pmTacheDate(t);
+    return !!d && d>=lim;
+  });
+}
 function miroirQuotidien(){
   var sv=(typeof recurGet==='function')?recurGet():null;
   var sujets=(sv&&Array.isArray(sv.sujets))?sv.sujets:[];
-  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
-  var lim=new Date(); lim.setDate(lim.getDate()-30);
   var maintenant=new Date(), n30=0, enCours=0, vieille=0;
-  (o.tasks||[]).forEach(function(t){
-    var d=new Date(((t.created||t.due||'')+'T00:00:00'));
-    if(isNaN(d)) return;
-    if(d>=lim) n30++;                                  // archivées comprises : une tâche refaite compte
+  pmTaches30().forEach(function(t){
+    var d=pmTacheDate(t);
+    n30++;                                           // faites et archivées comprises
     if(!t.done && !t.archive){
       enCours++;
       var age=Math.round((maintenant-d)/864e5);
@@ -3017,13 +3049,13 @@ function recurDecider(sujet,etat){
 function recurKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recur_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function recurGet(){ try{ var s=localStorage.getItem(recurKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
 function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); }catch(e){} }
+/* MÊME SOURCE que miroirQuotidien (cf. pmTaches30) : deux comptages séparés du même quotidien
+   finiraient par annoncer deux nombres différents, et c'est le genre d'écart qu'on ne voit que
+   des semaines plus tard, dans un document payé. */
 function recurTaches30(){
-  var o=(typeof pmLoad==='function')?pmLoad():{tasks:[]};
-  var lim=new Date(); lim.setDate(lim.getDate()-30);
-  return (o.tasks||[]).filter(function(x){
-    var d=new Date((x.created||x.due||'')+'T00:00:00');
-    return !isNaN(d) && d>=lim;           // archivées comprises : une tâche refaite est une tâche cochée
-  }).map(function(x){ return ((x.created||x.due||'')+' | '+(x.t||'')).trim(); }).filter(function(s){ return s.length>2; });
+  return pmTaches30()
+    .map(function(x){ var d=pmTacheDate(x); return (d?d.toISOString().slice(0,10):'')+' | '+(x.t||''); })
+    .map(function(s){ return s.trim(); }).filter(function(s){ return s.length>2; });
 }
 // Rappelle cb(sujets). Relance l'IA seulement si la sauvegarde a plus de 7 jours (ou si on force).
 function recurCharger(cb,forcer){
@@ -3309,7 +3341,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 213';
+var IVE_VERSION='02/08 · 214';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
