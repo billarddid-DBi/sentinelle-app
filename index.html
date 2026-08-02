@@ -807,7 +807,7 @@ function mRoi(m){
    pas de la repayer. Un lien gris, discret, suffit pour celui qui veut quand même relancer. */
 function _mRelance(){
   var c=JETONS_COUT.miroir, assez=(jetEtat().reste>=c);
-  var clic = assez ? ('if(jetConsommer('+c+')){runMiroir(true)}') : 'offreView()';
+  var clic = assez ? ('jetLancer('+c+',function(){runMiroir(true)},\'miroir\')') : 'offreView()';
   /* DISCRET N'EST PAS INVISIBLE. Ce lien était en #c7ccd3 — un gris si pâle sur fond blanc
      que Didier l'a cherché pendant trois échanges, sur un écran où il l'avait sous les yeux.
      L'intention reste la même : ne pas pousser à repayer une analyse à jour, donc un lien et
@@ -2489,9 +2489,20 @@ var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:0,detection:1};
 function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function jetPeriode(){
   var d=new Date();
-  return (ivePlanGet()==='annuel') ? ('A'+d.getFullYear()) : (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2));
+  // La formule vient de la base dès qu'elle a répondu (window.__jetFormule) : sinon un compte
+  // annuel dont le navigateur croit être mensuel verrait son compteur remis à zéro à l'écran.
+  var f=(window.__jetFormule!=null)?window.__jetFormule:ivePlanGet();
+  return (f==='annuel') ? ('A'+d.getFullYear()) : (d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2));
 }
-function jetInclus(){ return (ivePlanGet()==='annuel') ? 390 : 30; }
+/* Le quota inclus vient de la BASE dès qu'elle a répondu. Le repli sur la formule mémorisée
+   dans le navigateur ne sert qu'à l'affichage avant la première réponse : cette formule est
+   écrite par le navigateur lui-même (updateUser), donc elle ne peut pas faire autorité — un
+   client pourrait s'attribuer 390 jetons au lieu de 30. Côté base, la colonne `inclus` n'est
+   modifiable que par l'administrateur. */
+function jetInclus(){
+  if(window.__jetInclus!=null) return +window.__jetInclus;
+  return (ivePlanGet()==='annuel') ? 390 : 30;
+}
 function jetLire(){
   var o={periode:jetPeriode(),util:0,packs:0};
   try{ var s=localStorage.getItem(jetKey()); if(s) o=JSON.parse(s); }catch(e){}
@@ -2504,7 +2515,8 @@ function jetEtat(){
   var resteInclus=Math.max(0,total-(o.util||0));
   return {util:(o.util||0), total:total, resteInclus:resteInclus, packs:(o.packs||0), reste:resteInclus+(o.packs||0)};
 }
-/* Décompte réel. Renvoie false si le solde est insuffisant — l'appel IA ne doit alors PAS partir. */
+/* Mise à jour du cache local APRÈS que la base a tranché. Ce n'est plus une décision, c'est un
+   report : la vérité est en base depuis le 01/08. */
 function jetConsommer(n){
   n=+n||0; if(n<=0) return true;
   var o=jetLire(), total=jetInclus();
@@ -2513,6 +2525,60 @@ function jetConsommer(n){
   var pris=Math.min(resteInclus,n); o.util=(o.util||0)+pris;
   var reste=n-pris; if(reste>0) o.packs=(o.packs||0)-reste;
   jetEcrire(o); return true;
+}
+/* ═══ LE DÉCOMPTE PASSE EN BASE (01/08/2026) ═══════════════════════════════════════════════
+   Le solde vivait dans le navigateur : modifiable en trente secondes depuis la console, remis à
+   neuf par un simple nettoyage. C'est de l'argent — c'était le dernier gros trou.
+   C'est désormais la RPC `jetons_consommer` qui décide, dans un seul update conditionnel : deux
+   clics rapprochés ne peuvent pas passer tous les deux.
+   CONSÉQUENCE : le décompte devient ASYNCHRONE. Les boutons ne peuvent plus tester le solde
+   dans leur onclick — le résultat n'est pas encore connu au moment du test. Ils passent tous
+   par jetLancer(coût, action, motif), qui n'exécute l'action QUE si la base a accepté.
+   ⚠️ Ne PAS réécrire l'ancienne forme dans un commentaire : le banc _check-jetons la cherche
+   dans la page rendue, et un commentaire la ferait passer pour un bouton resté à l'ancienne. */
+function jetPoser(d){
+  // Report du solde renvoyé par la base dans le cache d'affichage. Aucune décision ici.
+  try{
+    if(!d || !d.ok) return;
+    if(d.formule) window.__jetFormule=d.formule;
+    var o=jetLire();
+    o.util=+d.utilises||0; o.packs=+d.packs||0; o.periode=d.periode||o.periode;
+    jetEcrire(o);
+    if(d.inclus!=null) window.__jetInclus=+d.inclus;
+  }catch(e){}
+}
+/* Appelé à la connexion : le solde affiché vient de la base, plus du navigateur. */
+async function jetCharger(){
+  try{
+    await window.sbReady;
+    if(!window.sb) return null;
+    var r=await window.sb.rpc('jetons_solde');
+    if(r.error || !r.data || !r.data.ok) return null;
+    jetPoser(r.data);
+    return r.data;
+  }catch(e){ return null; }
+}
+/* Le seul chemin pour dépenser. Rend la main sans rien faire si la base refuse — et on le DIT,
+   au lieu de laisser un bouton sans effet. */
+async function jetLancer(cout, action, motif){
+  cout=+cout||0;
+  if(cout<=0){ if(typeof action==='function') action(); return; }
+  try{
+    await window.sbReady;
+    if(!window.sb){ jetLibere(); alert('Connexion indisponible — réessayez quand le réseau revient.'); return; }
+    var r=await window.sb.rpc('jetons_consommer',{p_cout:cout,p_motif:(motif||'')});
+    if(r.error){ jetLibere(); alert('Décompte indisponible. Rien n\'a été lancé ni débité.'); return; }
+    var d=r.data||{};
+    if(!d.ok){
+      /* Refus de la base : solde insuffisant, ou compte non identifié. On ne lance RIEN — c'est
+         tout l'intérêt : avant, le navigateur pouvait dire oui à sa place. */
+      jetPoser(d); jetLibere();
+      if(typeof offreView==='function') offreView(); else alert(d.error||'Solde insuffisant.');
+      return;
+    }
+    jetPoser(d);
+    if(typeof action==='function') action();
+  }catch(e){ jetLibere(); alert('Décompte indisponible. Rien n\'a été lancé ni débité.'); }
 }
 /* Pastille du bandeau noir, à côté de l'abonnement. */
 function jetChip(){
@@ -2548,6 +2614,20 @@ function jetOccupe(btn){
     },90000);
   }catch(e){}
 }
+/* Le pendant de jetOccupe, devenu indispensable le 02/08 : le décompte étant passé côté serveur,
+   un clic peut désormais se terminer SANS que rien ne parte (solde insuffisant, base injoignable).
+   Sans cela le bouton resterait « en cours… » pendant les 90 secondes du filet de sécurité —
+   une attente pour rien, sur un écran où l'utilisateur est toujours là. */
+function jetLibere(){
+  try{
+    var l=document.querySelectorAll('[data-occupe="1"]');
+    for(var i=0;i<l.length;i++){
+      var b=l[i];
+      b.dataset.occupe=''; b.style.pointerEvents=''; b.style.opacity='';
+      if(b.dataset.libelle) b.innerHTML=b.dataset.libelle;
+    }
+  }catch(e){}
+}
 function jetBoutonBrut(libelle,cout,clic,etat){
   var c = (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
@@ -2568,7 +2648,7 @@ function jetCoutChip(cle){
 }
 function jetBouton(libelle,cle,action){
   var c=JETONS_COUT[cle]||1, assez=(jetEtat().reste>=c);
-  var clic = assez ? ('if(jetConsommer('+c+')){'+action+'}') : 'offreView()';
+  var clic = assez ? ('jetLancer('+c+',function(){'+action+'},\''+cle+'\')') : 'offreView()';
   return jetBoutonBrut(libelle,c,clic,'payant');
 }
 function iveCoffreKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_coffre_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
@@ -2784,7 +2864,7 @@ function recurPiedHtml(){
   var q=recurQuand(), n=(window.__recurSujets||[]).length, nv=recurNouvelles();
   var sv=recurGet(), jamais=!(sv && sv.ts);
   var c=JETONS_COUT.detection, assez=(jetEtat().reste>=c);
-  var clic = assez ? ('if(jetConsommer('+c+')){recurRelancer()}') : 'offreView()';
+  var clic = assez ? ('jetLancer('+c+',function(){recurRelancer()},\'detection\')') : 'offreView()';
   var cadre=function(info,action){
     return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #eef0f3;">'
       +'<span style="font-size:11.5px;color:#9ca3af;">'+info+'</span>'+(action||'')+'</div>';
@@ -3022,7 +3102,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 200';
+var IVE_VERSION='02/08 · 201';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3630,7 +3710,7 @@ var concStore={
    remplacée par concKwGarder() — silencieuse, appelée depuis runConcurrence. */
 function concActionsHtml(){
   var q=concQuand();
-  return '<button class="btn btn-primary" onclick="if(jetConsommer(JETONS_COUT.concurrence)){runConcurrence()}else{offreView()}"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+  return '<button class="btn btn-primary" onclick="jetLancer(JETONS_COUT.concurrence,function(){runConcurrence()},\'concurrence\')"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
     +'<div id="cKwMsg" style="font-size:11.5px;margin-top:7px;"></div>'
     // Une date, rien de plus : ce qui est enregistré et depuis quand se lit en un coup d'œil.
     +(q?('<div style="font-size:11px;color:#6b7280;margin-top:6px;"><i class="ti ti-device-floppy" style="color:#15803d;"></i> Date de la sauvegarde : <b>'+q+'</b></div>'):'');
@@ -6927,6 +7007,9 @@ async function syncPull(){
     // la perte de l'appareil. Lu AVANT tout écran qui l'affiche, sinon la grille se rebâtirait
     // sur le seul cache local.
     if(typeof grilleCharger==='function') await grilleCharger();
+    // Le solde de jetons vient de la base depuis le 01/08 : le cache local n'est plus qu'un
+    // affichage. Lu ici pour que la pastille du bandeau ne montre jamais un solde inventé.
+    if(typeof jetCharger==='function') await jetCharger();
     // Les réponses des salariés comptent d'office, dès l'ouverture (lecture gratuite, cf. ahAuto).
     if(typeof ahAuto==='function') await ahAuto();
     if(typeof cpSnapsCharger==='function') cpSnapsCharger();   // la base rafraichit le cache d'affichage
