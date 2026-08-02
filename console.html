@@ -650,6 +650,9 @@ function renderFinance(){
     var jcell = d.jetOuvert
       ? '<b>'+d.jReste+'</b> <span class="sec">/ '+d.jInclus+(d.jPacks?(' + '+d.jPacks+' packs'):'')+'</span>'
       : '<span class="sec" title="La ligne de jetons naît à la première connexion du client">pas encore ouvert</span>';
+    // Créditer un pack racheté (30 / 100 / 300). La fonction serveur crée la ligne si besoin,
+    // donc le bouton s'affiche même pour un client qui ne s'est jamais connecté.
+    if(SB) jcell += '<div style="margin-top:3px;"><button onclick="jetonsPack(\''+d.id+'\',this)" style="padding:2px 8px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap;color:var(--muted)">+ pack</button></div>';
     return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td>'+(SB?'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button>':'')+'</td></tr>';
   }).join("");
 }
@@ -668,6 +671,24 @@ async function jetonsFormule(entId, formule, btn){
   if(r.error){ alert('Échec : '+r.error.message); if(btn){ btn.disabled=false; btn.textContent='→ passer en '+formule; } return; }
   if(!r.data || r.data.ok!==true){ alert('Refusé : '+((r.data&&r.data.error)||'raison inconnue')); if(btn){ btn.disabled=false; btn.textContent='→ passer en '+formule; } return; }
   await loadClients();          // on relit la base : jamais d'affichage deviné
+}
+/* Créditer un pack racheté. Même patron que jetonsFormule : la base décide, la console relit. */
+async function jetonsPack(entId, btn){
+  if(!SB) return;
+  var c=DATA.find(function(x){ return x.id===entId; });
+  var saisie=prompt('Combien de jetons créditer à « '+((c&&c.nom)||'ce client')+' » ?\n\n'
+    +'Packs vendus : 30 (7,50 €) · 100 (20 €) · 300 (50 €)\n'
+    +'Un nombre négatif retire des packs (correction d\'erreur).', '30');
+  if(saisie===null) return;                       // annulé
+  var nb=parseInt(String(saisie).replace(/\s/g,''),10);
+  /* On refuse ici ce qui n'a pas de sens, pour ne pas envoyer un NaN au serveur — mais le
+     vrai contrôle reste côté base : c'est elle qui borne, pas cette page. */
+  if(!nb || isNaN(nb)){ alert('Nombre invalide.'); return; }
+  if(btn){ btn.disabled=true; btn.textContent='…'; }
+  var r=await SB.rpc('jetons_packs',{p_entreprise_id:entId, p_nb:nb});
+  if(r.error){ alert('Échec : '+r.error.message); if(btn){ btn.disabled=false; btn.textContent='+ pack'; } return; }
+  if(!r.data || r.data.ok!==true){ alert('Refusé : '+((r.data&&r.data.error)||'raison inconnue')); if(btn){ btn.disabled=false; btn.textContent='+ pack'; } return; }
+  await loadClients();
 }
 
 /* ============ RENDER ============ */
