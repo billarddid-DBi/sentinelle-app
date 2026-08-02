@@ -3022,7 +3022,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='01/08 · 197';
+var IVE_VERSION='01/08 · 198';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7102,6 +7102,19 @@ var bouGrilleStore={
          Un critère n'est donc écrasé que si le dirigeant vient de le voir à l'écran. */
       var anc=bouGrilleStore.load();
       var fusion=(anc&&anc.notes)?anc.notes:{};
+      /* ⚠️ UNE GRILLE VIERGE N'ÉCRASE JAMAIS DES RÉPONSES. Signalé par Didier le 01/08 : après
+         avoir changé une valeur puis relancé le MIROIR, TOUTES ses tuiles sont repassées en
+         grisé — questionnaire « À faire », BOUSSOLE « à finir ». Le mécanisme : bcalc() sauve à
+         chaque geste, et startGrille() l'appelle à la fin de CHAQUE reconstruction. Si la
+         restauration n'a rien trouvé — quelle qu'en soit la raison — la grille neuve, tous
+         curseurs au repos, s'enregistre par-dessus les vraies réponses.
+         Un ensemble où PERSONNE n'a répondu ne peut pas venir d'un dirigeant qui travaille : il
+         vient d'une grille reconstruite à vide. On ne l'écrit pas. C'est la règle du 31/07 —
+         « une fonction qui ne peut pas mesurer n'écrit rien » — un cran plus loin : ici elle
+         mesure, mais elle mesure le vide. */
+      var neufs=0; for(var k1 in n){ if(n[k1]&&n[k1].vu) neufs++; }
+      var anciens=0; for(var k2 in fusion){ if(fusion[k2]&&fusion[k2].vu) anciens++; }
+      if(neufs===0 && anciens>0) return;
       for(var k in n){ if(Object.prototype.hasOwnProperty.call(n,k)) fusion[k]=n[k]; }
       localStorage.setItem(bouGrilleStore.key(), JSON.stringify({mode:window.bMode,notes:fusion,ts:Date.now()}));
     }catch(e){}
