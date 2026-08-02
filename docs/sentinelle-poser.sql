@@ -72,7 +72,8 @@ begin
          set historique = case when maj_le::date < current_date
                then coalesce(historique,'[]'::jsonb) || jsonb_build_array(jsonb_build_object('date', maj_le::date, 'fiche', fiche))
                else coalesce(historique,'[]'::jsonb) end,
-             fiche = p_fiche, scans = scans + 1, maj_le = now()
+             fiche = p_fiche, scans = scans + 1, maj_le = now(),
+             maj_par = null          -- null = écrit par le SERVEUR (cf. note en bas de fichier)
        where id = v_cible
       returning id, scans into v_id, v_scans;
       return jsonb_build_object('ok', true, 'id', v_id, 'scans', v_scans, 'absorbe', true);
@@ -87,7 +88,8 @@ begin
           when public.sentinelles.maj_le::date < current_date
           then public.sentinelles.historique || jsonb_build_array(jsonb_build_object('date', public.sentinelles.maj_le::date, 'fiche', public.sentinelles.fiche))
           else public.sentinelles.historique end,
-        fiche = excluded.fiche, scans = public.sentinelles.scans + 1, maj_le = now()
+        fiche = excluded.fiche, scans = public.sentinelles.scans + 1, maj_le = now(),
+        maj_par = null               -- null = écrit par le SERVEUR (cf. note en bas de fichier)
   returning id, scans into v_id, v_scans;
   return jsonb_build_object('ok', true, 'id', v_id, 'scans', v_scans);
 end $function$;
@@ -109,6 +111,17 @@ grant execute on function public.sentinelle_poser(text, text, text, jsonb) to se
 --    apparaît bien dans la table.
 
 revoke execute on function public.sentinelle_save(text, text, jsonb, text, text) from authenticated;
+
+
+-- ═══ POURQUOI `maj_par = null` EST ÉCRIT EXPLICITEMENT ═════════════════════════════════════
+-- Première version : la fonction ne touchait pas à `maj_par`. Sur une fiche DÉJÀ existante,
+-- l'ancienne valeur (l'identifiant du client, posé par sentinelle_save) restait donc en place —
+-- et une écriture serveur ressemblait exactement à une écriture navigateur. La trace ne
+-- distinguait rien, alors qu'on comptait dessus pour vérifier la bascule.
+-- Le remettre à null à chaque écriture serveur rend la lecture sans ambiguïté :
+--   maj_par renseigné = un compte client a écrit · maj_par vide = le serveur a écrit.
+-- ⚠️ Les fiches d'avant le 02/08 ont aussi `maj_par` vide : ce sont les colonnes qui n'existaient
+--    pas encore. Se fier à `maj_le` pour trancher, pas à la seule colonne.
 
 
 -- ═══ VÉRIFICATION ══════════════════════════════════════════════════════════════════════════
