@@ -1170,7 +1170,10 @@ function renderMiroir(){
         +'<div style="font-size:12.5px;color:#334155;line-height:1.65;margin-top:4px;">'+esc(hum.vision.texte)+'</div></div>';
     }
   }
-  var au=AURAS[(b.aura||'').split(' — ')[0]]||AURAS['Bleu'];
+  /* `var au` (la couleur de l'aura) a disparu le 02/08/2026 : son seul usage ici était le fond
+     du « prochain pas », désormais fusionné avec la Cadence dans un encadré de couleur fixe.
+     Du code mort dans un fichier de 8 000 lignes, c'est ce qu'on redécouvre dans six mois sans
+     savoir s'il marche encore. */
   var tog=function(a,lbl){return '<button class="btn '+(aud===a?'btn-primary':'btn-ghost')+'" style="margin-top:0;font-size:13px;padding:8px;" onclick="setMiroirAudience(\''+a+'\')">'+lbl+'</button>';};
   var html='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-sparkles"></i> MIROIR · L\'ORDONNANCE</div>'
@@ -1202,8 +1205,23 @@ function renderMiroir(){
        et qui perdraient tout sinon. */
     +((m&&Array.isArray(m.outils)&&m.outils.length)?'':mCouverture(m))
     +mRoi(m)
-    +'<div class="sec" style="background:#f7fbff;"><div class="ktitle" style="color:#1d4ed8;"><i class="ti ti-calendar"></i> Cadence</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;">'+esc(m.cadence||'')+'</div></div>'
-    +'<div class="sec" style="background:'+au.b+';"><div class="ktitle" style="color:'+au.t+';"><i class="ti ti-arrow-right"></i> Le prochain pas</div><div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div></div>'
+    /* ═══ CADENCE ET PROCHAIN PAS FUSIONNÉS (Didier, 02/08/2026) ═══════════════════════════════
+       Deux encadrés séparés pour une seule idée : ce qu'on fait maintenant, et à quel rythme on
+       y revient. Séparés, ils se lisaient comme deux conclusions concurrentes.
+       ⚠️ LA COULEUR EST CHOISIE PAR ÉLIMINATION, pas au hasard. Sont déjà prises : le vert pour
+       ce que disent les salariés, l'orange pour « ce qui se joue vraiment », l'ambre pour
+       l'avertissement du ROI, le bleu ardoise pour le ROI lui-même, le violet pour tout ce qui
+       vient du quotidien. Reste le cyan — et l'ancien fond de la Cadence (#f7fbff) était devenu
+       trop proche de celui du ROI depuis ce matin.
+       ⚠️ Le fond du « prochain pas » suivait la couleur de l'AURA (au.b) : il changeait donc d'un
+       client à l'autre, ce qui empêchait précisément d'en faire un repère. */
+    +'<div class="sec" style="background:#ecfeff;border-top:2px solid #a5f3fc;">'
+      +'<div class="ktitle" style="color:#0e7490;"><i class="ti ti-calendar"></i> Cadence</div>'
+      +'<div style="font-size:12px;color:#4b5563;line-height:1.55;margin-top:4px;">'+esc(m.cadence||'')+'</div>'
+      +'<div style="border-top:1px solid #a5f3fc;margin:11px 0 0;padding-top:10px;">'
+        +'<div class="ktitle" style="color:#0e7490;"><i class="ti ti-arrow-right"></i> Le prochain pas</div>'
+        +'<div style="font-size:12.5px;color:#334155;line-height:1.6;margin-top:4px;">'+esc(pick(m.synthese))+'</div>'
+      +'</div></div>'
     +'<div class="foot">Le MIROIR confronte trois regards : ce que les autres voient (SENTINELLE), ce que vous décrivez (BOUSSOLE), et ce que vos journées montrent (votre quotidien). La décision reste la vôtre.</div>'
   +'</div>'
   +'<div id="mSave" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"></div>';
@@ -3504,7 +3522,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 228';
+var IVE_VERSION='02/08 · 229';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
