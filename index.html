@@ -1079,6 +1079,15 @@ function renderMiroir(){
         +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Dynamique collective (IDC) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b>'
           +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
       +'</div>'
+      /* LES DÉFINITIONS JUSTE SOUS LES CHIFFRES (Didier, 02/08/2026). Elles étaient en bas de
+         section : on tombait dessus après avoir lu tout le volet, donc bien après s'être demandé
+         ce que « IAT » et « IDC » voulaient dire. Une explication se place là où la question se
+         pose. Repliée par défaut — elle ne se lit qu'une fois, mais elle doit être à portée. */
+      +'<div style="margin-top:6px;">'
+        +'<div onclick="var b=document.getElementById(\'ahDefsBody\'),c=document.getElementById(\'ahDefsChev\');if(b){var h=(b.style.display===\'none\');b.style.display=h?\'block\':\'none\';if(c)c.style.transform=h?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11.5px;color:'+humCol+';font-weight:700;">'
+          +'<i class="ti ti-help-circle"></i><span style="flex:1;">Que veulent dire ces chiffres ?</span>'
+          +'<i id="ahDefsChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:17px;transition:transform .2s;"></i></div>'
+        +'<div id="ahDefsBody" style="display:none;">'+ahDefs()+'</div></div>'
       /* ═══ LE VOLET HUMAIN PASSE EN TEXTE RÉDIGÉ (Didier, 02/08/2026) ═══════════════════════
          Il tenait en deux champs télégraphiques : une « posologie » de 15 mots et des craintes
          de 12. C'était court, mais ça n'aidait pas à décider quoi faire. Le nouveau cadre
@@ -1114,16 +1123,10 @@ function renderMiroir(){
     }else if(hum&&Array.isArray(hum.craintes)&&hum.craintes.length){
       ahSec+='<div style="margin-top:10px;">'+hum.craintes.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.crainte||'')+'</div>'+(p.traduction?'<div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction)+'</i></div>':'')+'<div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
     }
-    /* LES DÉFINITIONS, À PORTÉE DE CLIC. Didier a dû demander ce que voulaient dire IAT, IMH et
-       « résistance estimée » — trois sigles posés sans explication au-dessus d'un texte qui,
-       lui, est écrit en français clair. Repliées par défaut : elles ne se lisent qu'une fois,
-       mais elles doivent être là quand on en a besoin. Même texte que l'écran du questionnaire
-       (ahDefs), pour qu'aucune des deux formulations ne dérive. */
-    ahSec+='<div style="margin-top:10px;border-top:1px solid '+humBord+';padding-top:8px;">'
-      +'<div onclick="var b=document.getElementById(\'ahDefsBody\'),c=document.getElementById(\'ahDefsChev\');if(b){var h=(b.style.display===\'none\');b.style.display=h?\'block\':\'none\';if(c)c.style.transform=h?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11.5px;color:'+humCol+';font-weight:700;">'
-        +'<i class="ti ti-help-circle"></i><span style="flex:1;">Que veulent dire ces chiffres ?</span>'
-        +'<i id="ahDefsChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:17px;transition:transform .2s;"></i></div>'
-      +'<div id="ahDefsBody" style="display:none;">'+ahDefs()+'</div></div>';
+    /* ⚠️ L'accordéon des définitions était ICI, en bas de section. Il est REMONTÉ juste sous les
+       chiffres (cf. plus haut) : c'est là que la question se pose. Ne pas en remettre un second
+       ici — deux blocs partageraient l'identifiant `ahDefsBody`, et le clic n'ouvrirait jamais
+       que le premier trouvé dans la page. */
     ahSec+='<div style="margin-top:8px;font-size:10px;color:#9ca3af;">On analyse le SYSTÈME, jamais les personnes.</div></div>';
     /* « Ma vision » SORT de la carte (Didier, 02/08/2026) : « le "ma vision" en dernier doit
        être séparé mais rester dans la même couleur ». C'est une synthèse, pas un point de
@@ -3459,7 +3462,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 224';
+var IVE_VERSION='02/08 · 225';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
