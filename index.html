@@ -2075,8 +2075,11 @@ function bFinish(retourMenu){
    +auraBand
    +trajSec
    /* Encart « Les 8 piliers /100 » retiré (décision Didier) — le code des barres est conservé. */
-   /* La carte d'énergie est remplacée par le radar (décision Didier) — son code reste plus haut. */
-   +bRadarHtml(r)
+   /* La carte d'énergie avait été remplacée par le radar (décision Didier), puis LE RADAR
+      LUI-MÊME A ÉTÉ RETIRÉ de la BOUSSOLE le 02/08/2026, à sa demande.
+      ⚠️ Ne PAS supprimer bRadarHtml() ni le calcul de `pilPot` qui l'alimente : le potentiel
+      par pilier sert désormais aux barres du MIROIR (prolongement pâle + marge chiffrée).
+      Retirer le calcul avec l'affichage casserait un écran qui n'a rien demandé. */
    /* L'encart n'apparaît que s'il y a vraiment des critères faibles : sinon il n'apprend rien. */
    /* REPLIÉ PAR DÉFAUT (décision Didier, 31/07) : sur 200 critères la liste faisait vingt lignes
       rouges d'affilée — illisible et décourageant. Le nombre suffit à l'écran ; le détail
@@ -3419,7 +3422,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 220';
+var IVE_VERSION='02/08 · 221';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
