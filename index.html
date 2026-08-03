@@ -506,6 +506,25 @@ const AH_CRITERES = [
   {c:'M4',d:'Maturité du changement',x:0,t:"Capacité à apprendre (l'organisation sait se former, monter en compétence)."},
   {c:'M5',d:'Maturité du changement',x:0,t:"Les changements tiennent dans la durée (soutenus, ancrés)."}
 ];
+/* ═══ LES DÉFINITIONS DES INDICES — SOURCE UNIQUE (Didier, 02/08/2026) ═════════════════════
+   Écrites une fois, affichées partout : écran du questionnaire salariés ET MIROIR. Recopiées
+   à deux endroits, elles divergeraient — et on demande justement au dirigeant d'adopter ce
+   vocabulaire, donc il doit être identique partout.
+   ⚠️ « IMH » est devenu « IDC ». Seul le LIBELLÉ change : la clé de donnée reste `imh`, parce
+   qu'elle vit dans la table `reponses_salaries` et dans les paramètres de la fonction serveur.
+   Renommer la clé imposerait de réécrire la base et les réponses déjà enregistrées, pour un
+   gain nul — le dirigeant lit le libellé, pas la clé. */
+function ahDefs(){
+  return '<div style="font-size:11px;color:#6b7280;line-height:1.65;margin-top:5px;">'
+    +'<b style="color:#1C1C1C;">IAT</b> — Indice d\'Acceptabilité de la Transformation. Il répond à une seule question : votre équipe est-elle en état d\'accueillir un changement maintenant ?<br>'
+    +'<b style="color:#1C1C1C;">IDC</b> — Indice de Dynamique Collective. Il mesure la qualité des conditions humaines et relationnelles qui permettent à une organisation de fonctionner, de coopérer et d\'évoluer efficacement.<br>'
+    /* La définition de la résistance est DÉDUITE DU CALCUL, pas rédigée à côté : c'est
+       littéralement 100 − « Ouverture au changement ». On le dit, plutôt que de laisser croire
+       à une mesure indépendante — et on précise que ce sont des conditions, pas des attitudes,
+       parce que le mot « résistance » désigne autrement les personnes. */
+    +'<b style="color:#1C1C1C;">Résistance estimée</b> — ce qui retient l\'organisation devant un changement : crainte pour l\'emploi, méfiance envers l\'outil, absence d\'envie, souvenir des changements passés, doute sur sa capacité à apprendre. C\'est l\'inverse exact de l\'ouverture au changement (100 − ouverture), et non une opposition des personnes.<br>'
+    +'<b style="color:#1C1C1C;">IVE</b> — Indice de Valeur d\'Entreprise : la note globale mesurée par SENTINELLE et la BOUSSOLE (l\'entreprise vue de l\'extérieur et de l\'intérieur).</div>';
+}
 const AH_INDICES = {
   'Leadership':['L1','L2','L3','L4','L5'],
   'Communication':['C1','C3','C5'],
@@ -1054,7 +1073,12 @@ function renderMiroir(){
         /* Un indice non calculable s'écrit « – », jamais « undefined ». La résistance se déduit
            de l'ouverture au changement : si personne n'a répondu à ces critères, elle n'existe
            pas — et l'écran doit le dire, pas afficher un mot d'informaticien. */
-        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Maturité humaine (IMH) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b> · Résistance estimée <b>'+(ah.resistance!=null?ah.resistance:'–')+'/100</b>'
+        /* « IMH — maturité humaine » devient « IDC — Indice de Dynamique Collective » (Didier,
+           02/08/2026). Le nom interne de la donnée (`imh`) ne change PAS : il vit dans la table
+           `reponses_salaries` et dans les paramètres de la fonction serveur. Renommer la clé
+           obligerait à réécrire la base et les réponses déjà enregistrées, pour un gain nul —
+           c'est le LIBELLÉ que le dirigeant lit, pas la clé. */
+        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Dynamique collective (IDC) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b> · Résistance estimée <b>'+(ah.resistance!=null?ah.resistance:'–')+'/100</b>'
           +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
       +'</div>'
       /* ═══ LE VOLET HUMAIN PASSE EN TEXTE RÉDIGÉ (Didier, 02/08/2026) ═══════════════════════
@@ -1092,6 +1116,16 @@ function renderMiroir(){
     }else if(hum&&Array.isArray(hum.craintes)&&hum.craintes.length){
       ahSec+='<div style="margin-top:10px;">'+hum.craintes.map(function(p){return '<div style="background:#fff;border-radius:8px;padding:8px 10px;margin-top:6px;font-size:11.5px;line-height:1.5;"><div style="font-weight:700;color:#7c2d12;">'+esc(p.crainte||'')+'</div>'+(p.traduction?'<div style="color:#6b7280;"><i class="ti ti-arrow-narrow-right"></i> <i>'+esc(p.traduction)+'</i></div>':'')+'<div style="color:#334155;margin-top:2px;"><b>Traitement :</b> '+esc(p.traitement||'')+'</div></div>';}).join('')+'</div>';
     }
+    /* LES DÉFINITIONS, À PORTÉE DE CLIC. Didier a dû demander ce que voulaient dire IAT, IMH et
+       « résistance estimée » — trois sigles posés sans explication au-dessus d'un texte qui,
+       lui, est écrit en français clair. Repliées par défaut : elles ne se lisent qu'une fois,
+       mais elles doivent être là quand on en a besoin. Même texte que l'écran du questionnaire
+       (ahDefs), pour qu'aucune des deux formulations ne dérive. */
+    ahSec+='<div style="margin-top:10px;border-top:1px solid '+humBord+';padding-top:8px;">'
+      +'<div onclick="var b=document.getElementById(\'ahDefsBody\'),c=document.getElementById(\'ahDefsChev\');if(b){var h=(b.style.display===\'none\');b.style.display=h?\'block\':\'none\';if(c)c.style.transform=h?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:8px;font-size:11.5px;color:'+humCol+';font-weight:700;">'
+        +'<i class="ti ti-help-circle"></i><span style="flex:1;">Que veulent dire ces chiffres ?</span>'
+        +'<i id="ahDefsChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:17px;transition:transform .2s;"></i></div>'
+      +'<div id="ahDefsBody" style="display:none;">'+ahDefs()+'</div></div>';
     ahSec+='<div style="margin-top:8px;font-size:10px;color:#9ca3af;">On analyse le SYSTÈME, jamais les personnes.</div></div>';
     /* « Ma vision » SORT de la carte (Didier, 02/08/2026) : « le "ma vision" en dernier doit
        être séparé mais rester dans la même couleur ». C'est une synthèse, pas un point de
@@ -3427,7 +3461,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 222';
+var IVE_VERSION='02/08 · 223';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4979,7 +5013,7 @@ function ahStart(mode){
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;">'+titre+'</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
-    +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 solide · 5 ancré · <span id="ahImh">–</span> IMH</div></div>'
+    +'<div style="font-size:10px;color:#8891b5;">0 absent · 1 fragile · 2 partiel · 3 installé · 4 solide · 5 ancré · <span id="ahImh">–</span> IDC</div></div>'
     +'<div class="panel" style="margin-bottom:10px;">'+ahActions()+'</div>';   // la même sortie en HAUT
   var curD=null, open=false;
   window.ahItems.forEach(function(it){
@@ -5045,8 +5079,12 @@ function ahFinish(){
     +'<div class="sec" style="background:'+reco.bg+';"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'
       +'<div style="text-align:center;min-width:88px;"><div style="font-size:40px;font-weight:800;color:'+reco.color+';line-height:1;">'+(r.iat!=null?r.iat:'–')+'<span style="font-size:14px;font-weight:400;opacity:.7;">/100</span></div><div style="font-size:10px;letter-spacing:1px;color:#6b7280;">IAT · ACCEPTABILITÉ</div></div>'
       +'<div style="flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:'+reco.color+';"><i class="ti '+reco.icon+'"></i> '+reco.zone+'</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:3px;">'+reco.msg+'</div></div></div>'
-      +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">IMH (maturité humaine large) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b>'+(resist!=null?' · Résistance au changement estimée : <b>'+resist+'/100</b>':'')+'</div></div>'
-    +'<div class="sec" style="background:#f8fafc;"><div class="ktitle" style="color:#475569;font-size:12px;"><i class="ti ti-help-circle"></i> Que veulent dire ces indices ?</div><div style="font-size:11px;color:#6b7280;line-height:1.65;margin-top:5px;"><b style="color:#1C1C1C;">IAT</b> — Indice d\'Acceptabilité de la Transformation : la capacité de l\'entreprise à accepter le changement. C\'est le score phare (feu vert / vigilance / blocage).<br><b style="color:#1C1C1C;">IMH</b> — Indice de Maturité Humaine : la santé humaine globale, moyenne des 6 domaines.<br><b style="color:#1C1C1C;">IVE</b> — Indice de Valeur d\'Entreprise : la note globale mesurée par le LIVE et la BOUSSOLE (l\'entreprise vue de l\'extérieur et de l\'intérieur).</div></div>'
+      +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">Dynamique collective (IDC) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b>'+(resist!=null?' · Résistance au changement estimée : <b>'+resist+'/100</b>':'')+'</div></div>'
+    /* LES DÉFINITIONS SONT CELLES DE DIDIER, mot pour mot (02/08/2026). Elles sont la SOURCE
+       UNIQUE : le même texte est repris dans le MIROIR (cf. ahDefs). Deux formulations d'un
+       même indice finiraient par diverger, et c'est précisément ce qu'on ne peut pas se
+       permettre sur un vocabulaire qu'on demande au dirigeant d'adopter. */
+    +'<div class="sec" style="background:#f8fafc;"><div class="ktitle" style="color:#475569;font-size:12px;"><i class="ti ti-help-circle"></i> Que veulent dire ces indices ?</div>'+ahDefs()+'</div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-radar"></i> Radar des 8 indices humains</div><div style="position:relative;height:280px;margin-top:8px;"><canvas id="ahRadar"></canvas></div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-chart-bar"></i> Les 8 indices</div><div style="margin-top:8px;">'+idxBars+'</div></div>'
     +'<div class="sec"><div class="ktitle" style="color:#1C1C1C;"><i class="ti ti-layout-grid"></i> Les 6 domaines</div><div style="margin-top:8px;">'+domBars+'</div></div>'
@@ -5608,7 +5646,7 @@ function cockpitCompare(){
     var tot=(vi!=null&&vc!=null)?vc-vi:null, col=(tot==null||tot===0)?'#6b7280':(tot>0?'#16a34a':'#dc2626');
     var seq=(vi!=null?vi:'–')+' <i class="ti ti-arrow-right" style="font-size:10px;color:#cbd5e1;"></i> '+(prev?((vp!=null?vp:'–')+' <i class="ti ti-arrow-right" style="font-size:10px;color:#cbd5e1;"></i> '):'')+'<b style="font-size:17px;">'+(vc!=null?vc:'–')+'</b>';
     return '<div style="flex:1;text-align:center;background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 6px;"><div style="font-size:10px;color:#6b7280;">'+lab+'</div><div style="font-size:12px;margin-top:3px;color:#334155;">'+seq+'</div><div style="font-size:15px;font-weight:700;color:'+col+';margin-top:2px;">'+(tot!=null?(tot>0?'+':'')+tot:'–')+'</div>'+((prev&&vp!=null&&vc!=null)?'<div style="font-size:9px;color:#9ca3af;">dernier '+((vc-vp)>0?'+':'')+(vc-vp)+'</div>':'')+'</div>'; };
-  var heads='<div style="display:flex;gap:8px;padding:12px 14px 0;">'+head('IAT · humain',function(s){return s.iat;})+head('IMH · maturité',function(s){return s.imh;})+head('Plan · avancé',function(s){return s.av;})+'</div>';
+  var heads='<div style="display:flex;gap:8px;padding:12px 14px 0;">'+head('IAT · humain',function(s){return s.iat;})+head('IDC · dynamique',function(s){return s.imh;})+head('Plan · avancé',function(s){return s.av;})+'</div>';
   var colHdr='<div style="display:flex;font-size:9.5px;color:#9ca3af;padding-bottom:2px;"><div style="flex:1;"></div><div style="width:34px;text-align:right;">Init.</div>'+(prev?'<div style="width:34px;text-align:right;">Préc.</div>':'')+'<div style="width:34px;text-align:right;">Actu.</div></div>';
   var triRow=function(lab,vi,vp,vc,hb){ var ref=(prev&&vp!=null)?vp:vi; var col=(ref!=null&&vc!=null)?((hb?(vc-ref>=0):(vc-ref<=0))?'#16a34a':'#dc2626'):'#334155';
     return '<div style="display:flex;align-items:center;font-size:11.5px;padding:5px 0;border-top:1px solid #f1f5f9;"><div style="flex:1;color:#4b5563;">'+esc(lab)+'</div><div style="width:34px;text-align:right;color:#9ca3af;">'+(vi!=null?vi:'–')+'</div>'+(prev?'<div style="width:34px;text-align:right;color:#9ca3af;">'+(vp!=null?vp:'–')+'</div>':'')+'<div style="width:34px;text-align:right;font-weight:700;color:'+col+';">'+(vc!=null?vc:'–')+'</div></div>'; };
