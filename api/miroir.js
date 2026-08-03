@@ -7,11 +7,11 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-02-06";
+const MIROIR_VERSION = "2026-08-02-07";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
-DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité. Parfois s'ajoute le VOLET HUMAIN (Questionnaire aux salariés) : l'IAT — Indice d'Acceptabilité de la Transformation /100 et sa zone (Blocage/Vigilance/Appui), l'IMH (maturité humaine), la résistance estimée, 8 indices humains et les craintes détectées. C'est la « tension & le pouls » humain de l'organisation. Parfois s'ajoute enfin LE QUOTIDIEN : les sujets qui REVIENNENT dans les tâches que le dirigeant a dictées lui-même sur 30 jours (un sujet = au moins 5 tâches semblables), avec ce que la répétition lui coûte.
+DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité. Parfois s'ajoute le VOLET HUMAIN (Questionnaire aux salariés) : l'IAT — Indice d'Acceptabilité de la Transformation /100 et sa zone (Blocage/Vigilance/Appui), l'IDC (Indice de Dynamique Collective), 8 indices humains et les craintes détectées. C'est la « tension & le pouls » humain de l'organisation. Parfois s'ajoute enfin LE QUOTIDIEN : les sujets qui REVIENNENT dans les tâches que le dirigeant a dictées lui-même sur 30 jours (un sujet = au moins 5 tâches semblables), avec ce que la répétition lui coûte.
 
 PRINCIPES IMPÉRATIFS :
 - CONSTRUCTIF, JAMAIS CRITIQUE — RÈGLE DU DIRIGEANT LUI-MÊME, elle prime sur le style de tout le document : « tu n'es pas là pour être critique, tu dois être là pour être constructif. » Chaque texte que tu écris — "cadre", "verite", "frein", "regards", "synthese" — se termine sur ce qui est POSSIBLE, jamais sur ce qui manque. Un point faible n'est pas un défaut à pointer, c'est L'ENDROIT OÙ L'EFFORT PAIE LE PLUS ; un frein n'est pas un reproche, c'est ce qui se desserre en premier. Reste juste et factuel : on n'invente aucune force. Mais on ne rend PAS de verdict et on ne prédit PAS d'échec — un dirigeant mis sur la défensive n'agit pas, et ce document n'a qu'un but : qu'il agisse. Le champ "frein" nomme la situation, pas une faute : « les devis se rédigent à la main » et non « vous perdez votre temps ».
@@ -98,7 +98,7 @@ export default async function handler(req, res) {
       const craintes = (Array.isArray(ah.craintes) && ah.craintes.length) ? ah.craintes.map(p => `${p.txt || p.code} (intensité ${p.intensite})`).join(" · ") : "aucune crainte sous le seuil";
       ahBlock = `VOLET HUMAIN (Questionnaire aux salariés, vue dirigeant) — la « tension & le pouls » de l'organisation :
 IAT (Acceptabilité de la Transformation) : ${ah.iat}/100 → zone ${ah.band}
-IMH (maturité humaine) : ${ah.imh}/100 · Résistance estimée : ${ah.resistance}/100
+IDC — Indice de Dynamique Collective (qualité des conditions humaines et relationnelles qui permettent de fonctionner, coopérer et évoluer) : ${ah.imh}/100
 8 indices humains : ${idx}
 Craintes / résistances détectées (à traduire et traiter) : ${craintes}${ah.n ? `
 QUI A RÉPONDU : ${ah.n} salarié(s), questionnaire **NOMINATIF** — chacun a donné son nom et son poste, et sait que le dirigeant lit ses réponses.

@@ -518,11 +518,9 @@ function ahDefs(){
   return '<div style="font-size:11px;color:#6b7280;line-height:1.65;margin-top:5px;">'
     +'<b style="color:#1C1C1C;">IAT</b> — Indice d\'Acceptabilité de la Transformation. Il répond à une seule question : votre équipe est-elle en état d\'accueillir un changement maintenant ?<br>'
     +'<b style="color:#1C1C1C;">IDC</b> — Indice de Dynamique Collective. Il mesure la qualité des conditions humaines et relationnelles qui permettent à une organisation de fonctionner, de coopérer et d\'évoluer efficacement.<br>'
-    /* La définition de la résistance est DÉDUITE DU CALCUL, pas rédigée à côté : c'est
-       littéralement 100 − « Ouverture au changement ». On le dit, plutôt que de laisser croire
-       à une mesure indépendante — et on précise que ce sont des conditions, pas des attitudes,
-       parce que le mot « résistance » désigne autrement les personnes. */
-    +'<b style="color:#1C1C1C;">Résistance estimée</b> — ce qui retient l\'organisation devant un changement : crainte pour l\'emploi, méfiance envers l\'outil, absence d\'envie, souvenir des changements passés, doute sur sa capacité à apprendre. C\'est l\'inverse exact de l\'ouverture au changement (100 − ouverture), et non une opposition des personnes.<br>'
+    /* « Résistance estimée » retirée le 02/08/2026 : elle valait 100 − « Ouverture au
+       changement », un indice qui pèse déjà 25 % de l'IAT. Elle redisait l'IAT à l'envers, avec
+       un mot qui désigne les personnes. Sa définition n'a donc plus lieu d'être ici. */
     +'<b style="color:#1C1C1C;">IVE</b> — Indice de Valeur d\'Entreprise : la note globale mesurée par SENTINELLE et la BOUSSOLE (l\'entreprise vue de l\'extérieur et de l\'intérieur).</div>';
 }
 const AH_INDICES = {
@@ -1078,7 +1076,7 @@ function renderMiroir(){
            `reponses_salaries` et dans les paramètres de la fonction serveur. Renommer la clé
            obligerait à réécrire la base et les réponses déjà enregistrées, pour un gain nul —
            c'est le LIBELLÉ que le dirigeant lit, pas la clé. */
-        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Dynamique collective (IDC) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b> · Résistance estimée <b>'+(ah.resistance!=null?ah.resistance:'–')+'/100</b>'
+        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Dynamique collective (IDC) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b>'
           +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
       +'</div>'
       /* ═══ LE VOLET HUMAIN PASSE EN TEXTE RÉDIGÉ (Didier, 02/08/2026) ═══════════════════════
@@ -3461,7 +3459,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 223';
+var IVE_VERSION='02/08 · 224';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5079,7 +5077,13 @@ function ahFinish(){
     +'<div class="sec" style="background:'+reco.bg+';"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'
       +'<div style="text-align:center;min-width:88px;"><div style="font-size:40px;font-weight:800;color:'+reco.color+';line-height:1;">'+(r.iat!=null?r.iat:'–')+'<span style="font-size:14px;font-weight:400;opacity:.7;">/100</span></div><div style="font-size:10px;letter-spacing:1px;color:#6b7280;">IAT · ACCEPTABILITÉ</div></div>'
       +'<div style="flex:1;min-width:180px;"><div style="font-size:14px;font-weight:700;color:'+reco.color+';"><i class="ti '+reco.icon+'"></i> '+reco.zone+'</div><div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:3px;">'+reco.msg+'</div></div></div>'
-      +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">Dynamique collective (IDC) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b>'+(resist!=null?' · Résistance au changement estimée : <b>'+resist+'/100</b>':'')+'</div></div>'
+      /* « Résistance estimée » SUPPRIMÉE (Didier, 02/08/2026). Elle n'était pas une mesure :
+         littéralement 100 − « Ouverture au changement », un indice qui pèse déjà 25 % de l'IAT.
+         Elle ne disait donc rien de neuf — elle redisait l'IAT à l'envers — et elle le disait
+         avec un mot qui désigne les personnes plutôt que les conditions. Deux raisons de la
+         retirer, et aucune de la garder. L'ouverture au changement reste lisible telle quelle
+         dans les 8 indices, sous son vrai nom et dans le bon sens. */
+      +'<div style="font-size:11px;color:#6b7280;margin-top:8px;">Dynamique collective (IDC) : <b>'+(r.imh!=null?r.imh:'–')+'/100</b></div></div>'
     /* LES DÉFINITIONS SONT CELLES DE DIDIER, mot pour mot (02/08/2026). Elles sont la SOURCE
        UNIQUE : le même texte est repris dans le MIROIR (cf. ahDefs). Deux formulations d'un
        même indice finiraient par diverger, et c'est précisément ce qu'on ne peut pas se
