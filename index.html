@@ -1066,19 +1066,37 @@ function renderMiroir(){
        nouveau dit ce que le lecteur va trouver, et d'où ça vient. */
     ahSec='<div class="sec" style="background:'+humBg+';"><div class="ktitle" style="color:'+humCol+';">'
       +'<i class="ti ti-users-group"></i> Ce que disent vos salariés</div>'
-      +'<div style="display:flex;gap:12px;align-items:center;margin-top:8px;">'
-        +'<div style="text-align:center;min-width:78px;"><div style="font-size:28px;font-weight:700;color:'+bandCol+';line-height:1;">'+ah.iat+'</div><div style="font-size:9.5px;color:#6b7280;">IAT · acceptabilité</div><div style="font-size:11px;font-weight:700;color:'+bandCol+';margin-top:3px;">'+esc(ah.band)+'</div></div>'
-        /* Un indice non calculable s'écrit « – », jamais « undefined ». La résistance se déduit
-           de l'ouverture au changement : si personne n'a répondu à ces critères, elle n'existe
-           pas — et l'écran doit le dire, pas afficher un mot d'informaticien. */
-        /* « IMH — maturité humaine » devient « IDC — Indice de Dynamique Collective » (Didier,
-           02/08/2026). Le nom interne de la donnée (`imh`) ne change PAS : il vit dans la table
-           `reponses_salaries` et dans les paramètres de la fonction serveur. Renommer la clé
-           obligerait à réécrire la base et les réponses déjà enregistrées, pour un gain nul —
-           c'est le LIBELLÉ que le dirigeant lit, pas la clé. */
-        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.5;">Dynamique collective (IDC) <b>'+(ah.imh!=null?ah.imh:'–')+'/100</b>'
-          +((hum&&pick(hum.lecture))?'<div style="margin-top:5px;color:#334155;">'+esc(pick(hum.lecture))+'</div>':'')+'</div>'
-      +'</div>'
+      /* ═══ DEUX BLOCS JUMEAUX (Didier, 02/08/2026) ══════════════════════════════════════════
+         « La même présentation pour l'indice de dynamique collective que pour l'indice
+         d'acceptabilité — tu prends comme référence l'IAT. »
+         L'IDC était une phrase posée à côté d'un grand chiffre : deux mesures de même nature
+         affichées de deux façons, donc l'une des deux paraissait secondaire. Même gabarit pour
+         les deux, l'IAT servant de modèle.
+         · LE « /100 » EST ÉCRIT. « Il faut que tu montres que toutes les notes sont sur cent. »
+           Un 49 seul se lit comme un pourcentage, un rang, ou rien du tout.
+         · LA COULEUR DIFFÈRE, ET C'EST VOULU : l'IAT porte une zone (Blocage/Vigilance/Appui),
+           sa couleur DIT quelque chose. L'IDC n'a aucun seuil défini dans le code — le mettre
+           en orange laisserait croire à une alerte qui n'est pas calculée. Il prend donc le vert
+           du volet. ⚠️ Ne pas lui inventer de zone sans définir les seuils : ce serait une
+           décision de méthode, pas un choix de mise en forme.
+         · Un indice non calculable s'écrit « – », jamais « undefined ». */
+      +(function(){
+        var bloc=function(val,coul,lib,dessous){
+          return '<div style="text-align:center;min-width:96px;">'
+            +'<div style="font-size:28px;font-weight:700;color:'+coul+';line-height:1;">'+(val!=null?val:'–')
+              +'<span style="font-size:13px;font-weight:600;color:#9ca3af;">/100</span></div>'
+            +'<div style="font-size:9.5px;color:#6b7280;margin-top:2px;">'+lib+'</div>'
+            +'<div style="font-size:11px;font-weight:700;color:'+coul+';margin-top:3px;min-height:14px;">'+(dessous||'')+'</div>'
+          +'</div>';
+        };
+        return '<div style="display:flex;gap:18px;align-items:flex-start;margin-top:8px;">'
+          +bloc(ah.iat, bandCol, 'IAT · acceptabilité', esc(ah.band))
+          +bloc((ah.imh!=null?ah.imh:null), humCol, 'IDC · dynamique collective', '')
+        +'</div>';
+      })()
+      /* La phrase de lecture passe SOUS les deux blocs : elle occupait la place que l'IDC prend
+         désormais, et sur toute la largeur elle se lit mieux. */
+      +((hum&&pick(hum.lecture))?'<div style="margin-top:8px;font-size:11.5px;color:#334155;line-height:1.5;">'+esc(pick(hum.lecture))+'</div>':'')
       /* LES DÉFINITIONS JUSTE SOUS LES CHIFFRES (Didier, 02/08/2026). Elles étaient en bas de
          section : on tombait dessus après avoir lu tout le volet, donc bien après s'être demandé
          ce que « IAT » et « IDC » voulaient dire. Une explication se place là où la question se
@@ -3462,7 +3480,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 225';
+var IVE_VERSION='02/08 · 226';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
