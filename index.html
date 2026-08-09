@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 269';
+var IVE_VERSION='09/08 · 270';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6911,7 +6911,17 @@ function ivTuile(ic,titre,action,etat,ton,verrou){
   var bientot=!action;
   var cliq=bientot?'':(verrou?'offreView()':action);
   var coul=(ton==='ok')?'#15803d':(ton==='att'?'#b45309':'#9ca3af');
-  var pale=(verrou||bientot||ton!=='ok');
+  /* ⚠️ GRISÉ VEUT DIRE « PAS DISPONIBLE », PAS « PAS ENCORE FAIT ». Didier, 09/08/2026 : « ok
+     mais la case reste grisée » — le MIROIR annonçait « À lancer » et restait éteint.
+
+     La règle du 01/08 disait : coloré = c'est fait, grisé = ça reste à faire. Elle répondait à
+     une autre question (où en suis-je ?) et elle a fini par en brouiller une plus importante :
+     est-ce que je peux cliquer ? Sa règle à lui, posée ce matin sur les cases du dossier, est
+     plus sûre — grisé = fermé, et rien d'autre.
+
+     Trois états, trois apparences : FAIT (vert, vif) · À LANCER (ambre, vif) · FERMÉ (gris,
+     éteint). L'état écrit sous le titre continue de dire lequel des deux premiers. */
+  var pale=(verrou||bientot||ton==='off');
   return '<div class="ivTuile'+(pale?' ivOff':'')+'"'+(cliq?(' onclick="'+cliq+'"'):' style="cursor:default;"')+'>'
     +(verrou&&!bientot?'<i class="ti ti-lock ivCad"></i>':'')
     +'<i class="ti '+ic+' ivIc"></i>'
@@ -6967,7 +6977,9 @@ function iveGrilleEtats(){
     }
 
     var cok=(typeof concFaite==='function')&&concFaite();
-    o.conc = cok?{txt:'Faite',ton:'ok'}:{txt:'À faire'+iveCout('concurrence'),ton:'off'};
+    /* ⚠️ « off » VEUT DIRE FERMÉ, PAS « PAS ENCORE FAIT ». La carte se lance à tout moment — elle
+       ne dépend d'aucune étape. La marquer éteinte la faisait passer pour indisponible. */
+    o.conc = cok?{txt:'Faite',ton:'ok'}:{txt:'À faire'+iveCout('concurrence'),ton:'att'};
 
     o.feuille = (et&&et.complet)?{txt:'Disponible',ton:'ok'}:{txt:'Après la BOUSSOLE',ton:'off'};
 
@@ -7003,7 +7015,8 @@ function iveGrilleEtats(){
                 : (fd.miroir     ? {txt:'À bâtir',  ton:'att'} : {txt:'Après le MIROIR',   ton:'off'});
     }
     var sok=(typeof iveFaitGet==='function')&&iveFaitGet('simulateur');
-    o.sim = sok?{txt:'Fait',ton:'ok'}:{txt:'À essayer',ton:'off'};
+    // Même raison : le simulateur est ouvert dès le départ, il n'attend rien.
+    o.sim = sok?{txt:'Fait',ton:'ok'}:{txt:'À essayer',ton:'att'};
 
     /* L'HISTORIQUE dit combien de mesures existent. Une seule ne fait pas une courbe : on
        l'annonce plutôt que de laisser croire qu'il y a quelque chose à lire. */
