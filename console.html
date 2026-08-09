@@ -138,7 +138,18 @@
 
   <!-- SUIVI FINANCIER DES ABONNEMENTS -->
   <div class="panel" style="margin-bottom:20px;padding:0">
-    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 12,90 € · Annuel 129 €</span></h3>
+    <h3 style="margin:0;padding:14px 16px;border-bottom:1px solid var(--line);font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">💳 Suivi des abonnements <span style="font-weight:400;color:var(--muted);font-size:12px;">— formules : Mensuel 12,90 € · Annuel 129 €</span>
+      <span style="flex:1"></span>
+      <!-- ⚠️ DEUX ONGLETS, PAS UNE CASE A COCHER. Didier, 09/08/2026 : « tu ajoutes un bouton
+           supprimer, mais tu crees un onglet pour les comptes supprimes ». Un onglet dit qu il
+           y a un AILLEURS ou les retires vivent encore ; une case a cocher laisserait croire
+           qu ils ont disparu. -->
+      <div class="seg" id="vueSeg" style="font-weight:400;">
+        <button data-v="actifs" class="active" onclick="setVue(this)">Abonnés</button>
+        <button data-v="supprimes" onclick="setVue(this)">Supprimés</button>
+      </div>
+    </h3>
+    <div id="archAvis" style="display:none;padding:10px 16px;background:#fffbeb;border-bottom:1px solid var(--line);font-size:12px;color:#b45309;"></div>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
       <th>Client</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
@@ -284,7 +295,14 @@ async function resetTestAccount(){
 async function loadClients(){
   if(!SB) return;
   // Les données du dirigeant vivent dans le blob pm_data ; on lit entreprises + pm_data (RLS : admin voit tout).
-  var er=await SB.from('entreprises').select('id,nom,secteur,ville,taille');
+  /* ⚠️ ON LIT AUSSI L'ARCHIVAGE, ET UNE COLONNE ABSENTE NE DOIT PAS VIDER LA CONSOLE. Le 07/08,
+     sur l'autre application, un champ pas encore migré a fait disparaître toute une liste d'un
+     coup. Ici on réessaie sans la colonne, et l'onglet le dira. */
+  var er=await SB.from('entreprises').select('id,nom,secteur,ville,taille,supprime_le');
+  if(er.error && /supprime_le/i.test(String(er.error.message||''))){
+    MANQUE_ARCHIVE=true;
+    er=await SB.from('entreprises').select('id,nom,secteur,ville,taille');
+  }
   if(er.error){ showLogin('Accès refusé : '+er.error.message); return; }
   var ents=er.data||[];
   var pr=await SB.from('pm_data').select('entreprise_id,data,maj_le');
@@ -310,6 +328,7 @@ async function loadClients(){
 }
 function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
 function mapEnt(e, blob, jet){
+  var supprime=e.supprime_le||null;   // null = dossier vivant ; une date = retiré de la liste
   var data=(blob&&blob.data)||{};
   var maj=(blob&&blob.maj)||null;
   var snaps=(Array.isArray(data.snaps)?data.snaps:[]).map(function(s){
@@ -356,7 +375,8 @@ function mapEnt(e, blob, jet){
     jours:jours, derniere:(lastD||'—'), nb:snaps.length,
     plan:plan, price:prix, jetOuvert:jetOuvert, jReste:jReste, jInclus:jInclus, jPacks:jPacks,
     since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
-    pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events };
+    pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events,
+    supprime:supprime };
 }
 
 /* ============ FACTURATION LIVE (DBi360 micro-entreprise) ============ */
@@ -597,6 +617,9 @@ const EUR=n=>n.toFixed(2).replace('.',',')+' €';
 let DATA = CLIENTS.map(enrich);
 
 /* ============ ÉTAT UI ============ */
+/* La vue du panneau des abonnements : 'actifs' ou 'supprimes'. Elle ne touche QUE ce panneau —
+   le tableau de suivi, lui, ne montre jamais les dossiers retirés. */
+let VUE='actifs', MANQUE_ARCHIVE=false;
 let statutFilter="", sortKey="statut", sortDir=1;
 const STAT_ORDER={regression:0,silence:1,stagnation:2,ok:3};
 const STAT_LABEL={ok:"OK",stagnation:"Stagnation",regression:"Régression",silence:"Silence"};
@@ -627,12 +650,15 @@ function renderFinance(){
   /* On ne compte comme abonné que celui dont la ligne de jetons existe — elle naît à sa première
      connexion. Sinon les comptes d'essai, qui ne se connecteront jamais, gonflaient un MRR
      imaginaire. Mieux vaut un chiffre plus petit et vrai. */
-  const payants=DATA.filter(d=>d.jetOuvert);
+  /* ⚠️ UN DOSSIER RETIRÉ NE PAIE PLUS. Le laisser dans le MRR gonflerait un revenu qui
+     n'existe pas — et c'est le chiffre sur lequel il décide. */
+  const vivants=DATA.filter(d=>!d.supprime);
+  const payants=vivants.filter(d=>d.jetOuvert);
   const actifs=payants.length;
   const arr=payants.reduce((s,d)=>s+(d.plan==="annuel"?d.price:d.price*12),0);
   const mrr=arr/12;
-  const proche=DATA.filter(d=>d.pay==="proche").length;
-  const retard=DATA.filter(d=>d.pay==="retard").length;
+  const proche=vivants.filter(d=>d.pay==="proche").length;
+  const retard=vivants.filter(d=>d.pay==="retard").length;
   document.getElementById("financeKpis").innerHTML=[
     [actifs,"Abonnés ouverts"],
     [EUR(mrr),"MRR (revenu mensuel)"],
@@ -641,7 +667,26 @@ function renderFinance(){
     [retard,"En retard"]
   ].map(k=>'<div class="kpi"><div class="n" style="font-size:22px">'+k[0]+'</div><div class="l">'+k[1]+'</div></div>').join("");
   const payPill={ajour:['p-ok','À jour'],proche:['p-stag','Échéance proche'],retard:['p-reg','En retard']};
-  document.getElementById("financeRows").innerHTML=DATA.slice().sort((a,b)=>a.renewalDays-b.renewalDays).map(d=>{
+  /* ⚠️ LA VUE DECIDE DE LA LISTE ET DU BOUTON. Melanger les retires aux abonnes rendrait le
+     compteur d abonnes faux, et « Supprimer » a cote de « Restaurer » sur la meme ligne serait
+     illisible. Une vue, une action. */
+  var vus=DATA.filter(function(d){ return VUE==='supprimes' ? !!d.supprime : !d.supprime; });
+  var segS=document.querySelector('#vueSeg [data-v="supprimes"]');
+  var nSupp=DATA.filter(function(d){ return !!d.supprime; }).length;
+  if(segS) segS.textContent='Supprimés'+(nSupp?(' ('+nSupp+')'):'');
+  var avis=document.getElementById('archAvis');
+  if(avis){
+    if(MANQUE_ARCHIVE){
+      avis.style.display='block';
+      avis.innerHTML='⚠️ La base n\'a pas encore la colonne d\'archivage : le bouton « Supprimer » '
+        +'ne pourra rien enregistrer. Exécutez <b>docs/entreprises-archivage.sql</b>.';
+    } else if(VUE==='supprimes'){
+      avis.style.display='block';
+      avis.innerHTML='Ces dossiers sont <b>retirés des listes</b>, rien n\'a été détruit : '
+        +'analyses, tâches, feuille de route et jetons sont intacts. « Restaurer » les remet en place.';
+    } else { avis.style.display='none'; }
+  }
+  document.getElementById("financeRows").innerHTML=vus.slice().sort((a,b)=>a.renewalDays-b.renewalDays).map(d=>{
     const p=payPill[d.pay];
     var vise=(d.plan==="annuel")?"mensuel":"annuel";
     /* Le bouton dit ce qu'il va FAIRE, pas l'état actuel : « passer en annuel » ne peut pas se
@@ -653,8 +698,43 @@ function renderFinance(){
     // Créditer un pack racheté (30 / 100 / 300). La fonction serveur crée la ligne si besoin,
     // donc le bouton s'affiche même pour un client qui ne s'est jamais connecté.
     if(SB) jcell += '<div style="margin-top:3px;"><button onclick="jetonsPack(\''+d.id+'\',this)" style="padding:2px 8px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap;color:var(--muted)">+ pack</button></div>';
-    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td>'+(SB?'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button>':'')+'</td></tr>';
-  }).join("");
+    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td style="white-space:nowrap">'+(SB?(d.supprime?'<button onclick="entRestaurer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">Restaurer</button>':'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button> <button onclick="entSupprimer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;color:#b91c1c">Supprimer</button>'):'')+'</td></tr>';
+  }).join("") || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">'
+    +(VUE==='supprimes'?'Aucun dossier supprimé.':'Aucun abonné.')+'</td></tr>';
+}
+/* ═══ RETIRER / REMETTRE UN DOSSIER ═════════════════════════════════════════════════════════
+   Didier, 09/08/2026 : « tu ajoutes un bouton supprimer, mais tu crees un onglet pour les
+   comptes supprimes ».
+
+   ⚠️ « SUPPRIMER » VEUT DIRE SORTIR DE LA LISTE, ET RIEN D AUTRE. Une vraie suppression de la
+   ligne `entreprises` emporte DOUZE tables en cascade — analyses, feuille de route, taches,
+   decisions, journees, instantanes, evenements, quotidien, reponses du dirigeant, espace de
+   donnees, mouvements et SOLDE DE JETONS — et detache le compte du dirigeant, qui se reveille
+   sans entreprise et sans historique. On pose une date, on ne detruit rien.
+
+   ⚠️ ET LE MEME MOT FAIT LA MEME CHOSE DANS L APPLICATION : « Mes entreprises » archive aussi.
+   Deux verbes identiques aux effets differents seraient pires que pas de bouton du tout. */
+function setVue(btn){
+  VUE=btn.getAttribute('data-v')||'actifs';
+  document.querySelectorAll('#vueSeg button').forEach(function(b){ b.classList.toggle('active', b===btn); });
+  renderFinance();
+}
+async function entSupprimer(id){
+  if(!SB) return;
+  var c=DATA.find(function(x){ return x.id===id; }); if(!c) return;
+  if(!confirm('Retirer « '+c.nom+' » des listes ?\n\nRien n\'est detruit : ses analyses, ses taches, sa feuille de route et ses jetons restent en place. Le dossier passe dans l\'onglet « Supprimes » et se restaure d\'un clic.')) return;
+  var r=await SB.from('entreprises').update({supprime_le:new Date().toISOString()}).eq('id',id);
+  if(r.error){ alert('Refuse par la base : '+r.error.message); return; }
+  c.supprime=new Date().toISOString();
+  render();
+}
+async function entRestaurer(id){
+  if(!SB) return;
+  var c=DATA.find(function(x){ return x.id===id; }); if(!c) return;
+  var r=await SB.from('entreprises').update({supprime_le:null}).eq('id',id);
+  if(r.error){ alert('Refuse par la base : '+r.error.message); return; }
+  c.supprime=null;
+  render();
 }
 /* Le geste qui remplace l'`update jetons` à la main — celui qui ratait en silence quand le
    client ne s'était pas encore connecté. La fonction serveur crée la ligne si besoin. */
@@ -694,12 +774,16 @@ async function jetonsPack(entId, btn){
 /* ============ RENDER ============ */
 function render(){
   renderFinance();
+  /* ⚠️ LES DOSSIERS RETIRÉS NE COMPTENT PLUS NULLE PART. Les laisser dans « Clients actifs »,
+     dans « Silencieux » ou dans le tableau de suivi ferait mentir tous les chiffres — et un
+     dossier retiré est silencieux par construction : il gonflerait l'alerte pour rien. */
+  const VIVANTS=DATA.filter(d=>!d.supprime);
   // KPIs
-  const reg=DATA.filter(d=>d.statut==="regression").length;
-  const sil=DATA.filter(d=>d.statut==="silence").length;
-  const stag=DATA.filter(d=>d.statut==="stagnation").length;
+  const reg=VIVANTS.filter(d=>d.statut==="regression").length;
+  const sil=VIVANTS.filter(d=>d.statut==="silence").length;
+  const stag=VIVANTS.filter(d=>d.statut==="stagnation").length;
   kpis.innerHTML=[
-    ["n",DATA.length,"Clients actifs"],
+    ["n",VIVANTS.length,"Clients actifs"],
     ["alert",reg,"En régression"],
     ["alert",sil,"Silencieux (>45 j)"],
     ["n",stag,"En stagnation"]
@@ -708,7 +792,7 @@ function render(){
   // filtres
   const q=document.getElementById("q").value.toLowerCase();
   const sec=document.getElementById("secteur").value;
-  let list=DATA.filter(d=>
+  let list=VIVANTS.filter(d=>
     (!q||d.nom.toLowerCase().includes(q)) &&
     (!sec||d.secteur===sec) &&
     (!statutFilter||d.statut===statutFilter)

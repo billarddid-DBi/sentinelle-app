@@ -3544,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 236';
+var IVE_VERSION='09/08 · 237';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8907,9 +8907,46 @@ function entCarte(e, courante){
     +(courante
       ? '<button type="button" onclick="entTravailQuitter()" style="border:1px solid #d7dbe3;background:#fff;color:#4b5563;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Fermer</button>'
       : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
+    /* ⚠️ « RETIRER », PAS « DÉTRUIRE ». Le dossier sort de la liste et se restaure depuis la
+       console. Le libellé dit ce que le geste fait vraiment — promettre une destruction qu'on
+       ne fait pas serait pire que de ne rien promettre. */
+    +'<button type="button" title="Retirer de la liste" onclick="entArchiver(\''+e.id+'\',\''+escJs(e.nom||'')+'\')" style="border:1px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:9px;padding:8px 10px;font-size:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-archive"></i></button>'
   +'</div>';
 }
-/* Une valeur qui repart dans un attribut onclick : les apostrophes et les barres obliques y
+/* ═══ ARCHIVER UN DOSSIER ═══════════════════════════════════════════════════════════════════
+   Didier, 09/08/2026 : d'abord « supprimer sans laisser de traces », puis — après avoir vu ce
+   que ça emportait — « tu ajoutes un bouton supprimer, mais tu crées un onglet pour les comptes
+   supprimés ». Un onglet « supprimés » veut dire que rien n'est détruit : c'est un archivage.
+
+   ⚠️ ET C'EST HEUREUX. Une vraie suppression de `entreprises` emporte DOUZE tables en cascade —
+   analyses, feuille de route, tâches, décisions, journées, instantanés, événements, quotidien,
+   réponses du dirigeant, espace de données, mouvements et SOLDE DE JETONS — et détache le compte
+   du dirigeant (`profils.entreprise_id` en `set null`), qui se réveille sans entreprise, sans
+   jetons et sans historique. Le mot « supprimer » veut donc dire ici : SORTIR DE MA LISTE.
+
+   ⚠️ UN SEUL SENS DES DEUX CÔTÉS. La console fait exactement le même geste, avec son onglet
+   « Supprimés ». Deux verbes identiques qui ne feraient pas la même chose seraient pires que
+   pas de bouton du tout. */
+async function entArchiver(id, nom){
+  if(!confirm('Retirer « '+(nom||'')+' » de la liste ?\n\nRien n\'est détruit : le dossier part dans l\'onglet « Supprimés » de la console, et se restaure d\'un clic.')) return;
+  var courant=(typeof entTravail==='function' && entTravail() && entTravail().id===id);
+  try{
+    await window.sbReady;
+    var r=await window.sb.from('entreprises').update({supprime_le:new Date().toISOString()}).eq('id',id);
+    if(r && r.error){
+      var m=String(r.error.message||'');
+      MSG_ENT=/column .*supprime_le/i.test(m)
+        ? 'La base n\'a pas encore la colonne d\'archivage — exécutez docs/entreprises-archivage.sql.'
+        : 'Refusé par la base : '+m;
+      entreprisesView(); return;
+    }
+    /* Le dossier archivé était celui ouvert : `dbEnt` pointerait sur un dossier retiré de la
+       liste. On repart proprement plutôt que de laisser l'application écrire dessus. */
+    if(courant){ try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){} location.reload(); return; }
+    MSG_ENT='« '+(nom||'')+' » est retiré de la liste. Rien n\'est perdu : il se restaure depuis « Mes abonnés », onglet « Supprimés ».';
+    entreprisesView();
+  }catch(e){ MSG_ENT='La base n\'a pas répondu. Rien n\'a été retiré.'; entreprisesView(); }
+}/* Une valeur qui repart dans un attribut onclick : les apostrophes et les barres obliques y
    casseraient le code, et « L'Atelier du Bois » est un nom d'entreprise parfaitement normal. */
 function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/[\r\n]+/g,' '); }
 /* ⚠️ UN MESSAGE QUI NE VIT QU'UN SEUL AFFICHAGE. Posé une fois, lu une fois, effacé : une
@@ -8925,11 +8962,22 @@ async function entreprisesView(){
     +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture en cours…</div></div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
 
-  var lignes='', erreur='';
+  var lignes='', erreur='', manqueArchive=false;
   try{
     await window.sbReady;
+    /* ⚠️ LES DOSSIERS RETIRÉS NE REVIENNENT PAS DANS LA LISTE. Sans ce filtre, « supprimer »
+       n'aurait aucun effet visible — et le geste se répéterait indéfiniment.
+       ⚠️ MAIS UNE COLONNE PAS ENCORE CRÉÉE NE DOIT PAS VIDER L'ÉCRAN. Le 07/08, sur l'autre
+       application, un filtre posé sur une colonne absente a fait disparaître toute une liste
+       d'un coup. On réessaie sans le filtre, et on DIT ce qui manque. */
     var r=await window.sb.from('entreprises')
-      .select('id,nom,ville,code_postal,adresse,email,cree_le').order('nom',{ascending:true}).limit(300);
+      .select('id,nom,ville,code_postal,adresse,email,cree_le,supprime_le')
+      .is('supprime_le',null).order('nom',{ascending:true}).limit(300);
+    if(r.error && /supprime_le/i.test(String(r.error.message||''))){
+      manqueArchive=true;
+      r=await window.sb.from('entreprises')
+        .select('id,nom,ville,code_postal,adresse,email,cree_le').order('nom',{ascending:true}).limit(300);
+    }
     if(r.error) erreur=r.error.message||'Lecture impossible.';
     else (r.data||[]).forEach(function(e){ lignes+=entCarte(e, !!(t && t.id===e.id)); });
   }catch(e){ erreur='La base n\'a pas répondu.'; }
@@ -8941,6 +8989,13 @@ async function entreprisesView(){
       ? '<div class="card" style="border-left:4px solid #b45309;"><div class="sec">'
         +'<div style="font-size:12.5px;color:#b45309;line-height:1.5;">'
         +'<i class="ti ti-arrow-guide"></i> '+esc(avis)+'</div></div></div>'
+      : '')
+    +(manqueArchive
+      ? '<div class="card" style="border-left:4px solid #b45309;"><div class="sec">'
+        +'<div style="font-size:12.5px;color:#b45309;line-height:1.5;">'
+        +'<i class="ti ti-database-exclamation"></i> La base n\'a pas encore la colonne d\'archivage : '
+        +'les dossiers retirés s\'affichent quand même. Exécutez <b>docs/entreprises-archivage.sql</b>.'
+        +'</div></div></div>'
       : '')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;">Nouvelle entreprise</div>'
