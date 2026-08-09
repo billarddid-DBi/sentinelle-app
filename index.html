@@ -3583,7 +3583,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 261';
+var IVE_VERSION='09/08 · 262';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4266,7 +4266,22 @@ function avisTxt(av){ if(!av||av.note==null) return '<span style="color:#9ca3af;
 function auraCell(au,est){ if(!au||au.note==null) return '<span style="color:#9ca3af;">n.c.</span>'; var a=AURAS[au.couleur]||AURAS['Bleu']; return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+a.h+';box-shadow:0 0 4px '+a.h+'88;vertical-align:middle;margin-right:5px;"></span><b>'+(est?'≈':'')+au.note+'</b> <span style="color:#f59e0b;font-size:10px;">'+starsHTML(au.note)+'</span>'; }
 /* La carte de la concurrence coûte une recherche web + un appel IA : on la garde et on la relit. */
 var concStore={
-  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_conc_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  /* ⚠️ UNE CARTE PAR DOSSIER, PAS UNE PAR COMPTE. Didier, 09/08/2026 : « j'ai créé un nouveau
+     client, référence pare-brise, j'ai fait une SENTINELLE et une carte de la concurrence — elle
+     a été créée, sauf qu'impossible de l'ouvrir de nouveau ».
+
+     Cette clé ne portait que l'email : UNE seule carte pour tous les dossiers. Conséquences en
+     chaîne — la carte d'un prospect écrasait celle du précédent ; la tuile s'affichait « Faite »
+     sur une entreprise jamais analysée ; et c'est elle qui faisait remonter « Feu Vert » sur le
+     dossier dronavia. Une carte qui ne sait pas de qui elle parle ment à tous les coups.
+
+     `cpCle()` porte déjà le dossier de travail — c'est la même clé que le quotidien et la feuille
+     de route. On s'aligne dessus : une seule règle de rangement dans toute l'application.
+
+     ⚠️ CONSÉQUENCE ASSUMÉE : les cartes enregistrées avant aujourd'hui, sous l'ancienne clé, ne
+     s'affichent plus. Elles n'appartenaient à aucun dossier — les rattacher au hasard serait
+     pire que de les relancer. */
+  key:function(){ return 'ive_conc_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
   load:function(){ try{ var s=localStorage.getItem(concStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
   // La carte enregistre déjà sa date : sa génération EST le repère, aucun bouton à ajouter.
   // Mais refaire la même carte ne périme rien — c'est le contenu qui compte, pas le geste.
@@ -8907,8 +8922,17 @@ function boussoleOutil(which){
     if(_cs && _cs.d){
       var _co=document.getElementById('cOut');
       if(_co){
+        /* ⚠️ UN ÉCHEC D'AFFICHAGE NE S'AVALE PAS. Ce `catch` était vide : si le rendu échouait,
+           l'écran restait blanc et « il ne se passe rien » — sans un mot, sans trace. On dit ce
+           qui s'est passé, et on propose le seul geste qui répare. */
         // renderConcu réécrit cOut : on pose la barre de date APRÈS, en tête.
-        try{ renderConcu(_cs.d); }catch(e){}
+        try{ renderConcu(_cs.d); }
+        catch(e){
+          _co.innerHTML='<div class="sec" style="font-size:12.5px;color:#991b1b;">'
+            +'<i class="ti ti-alert-triangle"></i> La carte enregistrée n\'a pas pu s\'afficher ('
+            +esc((e&&e.message)||'erreur inconnue')+').<br>'
+            +'<span style="color:#6b7280;">Relancez la recherche : elle sera reconstruite.</span></div>';
+        }
         _co.insertAdjacentHTML('afterbegin','<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11.5px;color:#9ca3af;margin:2px 2px 8px;"><span><i class="ti ti-clock"></i> Analyse du '+concQuand()+'</span></div>');
       }
     }
