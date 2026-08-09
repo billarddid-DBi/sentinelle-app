@@ -3525,7 +3525,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 232';
+var IVE_VERSION='09/08 · 233';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6139,6 +6139,20 @@ function iveIdentTitre(nomCompte){
      « Bientôt disponible ». Il revient parce que l'écran existe maintenant : on remet un bouton
      quand il y a quelque chose derrière, pas avant. */
   var bouton='<div style="margin-top:8px;"><button type="button" onclick="iveNav(\'params\')" style="border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e5e7eb;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-user-circle"></i> Mon compte</button></div>';
+  /* ⚠️ LE CONSULTANT NE S'APPELLE PAS COMME SON COMPTE D'ESSAI. Didier, 09/08/2026 : « tu
+     remplaces Le test de Bibi par espace consultant ». Le bandeau affichait le nom de la
+     dernière entreprise analysée depuis ce compte — un vieux compte d'essai — et le présentait
+     comme SON identité. Sur l'atelier du consultant, ce bandeau n'a personne à nommer.
+
+     ⚠️ SAUF QUAND UN DOSSIER EST OUVERT, ET LÀ C'EST L'INVERSE : c'est le seul moment où le
+     nom compte vraiment, parce qu'il dit sur quelle fiche tout ce qu'il fait s'écrit. On ne
+     remplace donc jamais un dossier ouvert par un titre générique. */
+  if(typeof iveIsAdmin==='function' && iveIsAdmin()){
+    var trav=(typeof entTravail==='function')?entTravail():null;
+    if(trav) return '<div style="'+st+'"><i class="ti ti-briefcase" style="color:#E8A07E;"></i> '
+      +esc(trav.nom||'entreprise sans nom')+(trav.ville?' · '+esc(trav.ville):'')+'</div>'+bouton;
+    return '<div style="'+st+'">Espace consultant</div>'+bouton;
+  }
   if(!n) return '<div style="'+st+'">'+esc(nomCompte||(a&&a.name)||'')+'</div>'+bouton;
   return '<div style="'+st+'"><i class="ti ti-building-store" style="color:#E8A07E;"></i> '+esc(n)+(v?' · '+esc(v):'')+'</div>'+bouton;
 }
