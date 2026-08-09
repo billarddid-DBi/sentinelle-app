@@ -3544,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 242';
+var IVE_VERSION='09/08 · 243';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8916,13 +8916,19 @@ async function authLogin(){
 }
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
 function goHome(){ window.currentSpace=null; if($('histPanel'))$('histPanel').remove(); showView('home'); window.scrollTo(0,0); }
-/* ⚠️ ON DEMANDE SUR QUEL DOSSIER AVANT DE LANCER, pas après. Le message arrive au moment où il
-   peut encore choisir — pas sous forme d'échec, une fois le scan payé et affiché. */
+/* ⚠️ ON DEMANDE SUR QUEL DOSSIER AVANT DE LANCER, pas après : le scan ne part jamais avant qu'on
+   sache où son résultat s'enregistrera — sinon l'échec arrive une fois le jeton dépensé.
+
+   ⚠️ ET SANS MESSAGE D'EXPLICATION (Didier, 09/08/2026 : « supprime cet encadré »). Il avait
+   son sens tant que « Mes entreprises » était un bouton de la barre : le renvoi ressemblait
+   alors à un détour, et un détour s'explique. Depuis que ce bouton a disparu, passer par la
+   liste EST le chemin normal — et on n'explique pas le chemin normal. L'écran qui s'ouvre porte
+   déjà son titre et son formulaire de création : il se lit sans commentaire.
+   Le mécanisme `MSG_ENT` reste, pour ce qui suit une ACTION (un dossier retiré, une base en
+   retard) : là, il y a quelque chose à dire. */
 function enterDiagnostic(){
   if(typeof iveIsAdmin==='function' && iveIsAdmin()
      && typeof entTravail==='function' && !entTravail()){
-    MSG_ENT='Ouvrez le dossier sur lequel cet audit doit s\'enregistrer, ou créez-le. '
-           +'Sans dossier ouvert, la SENTINELLE, la BOUSSOLE et le MIROIR s\'écriraient sur votre propre fiche.';
     entreprisesView();
     return;
   }
