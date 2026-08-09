@@ -3525,7 +3525,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 234';
+var IVE_VERSION='09/08 · 235';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6188,7 +6188,16 @@ function sentKey(acc){ acc=acc||currentAccount()||{};
    c'est Didier qui les a repérés, un par un, sur son propre compteur.
    Cet écran regarde les mêmes points, en lecture seule, gratuitement. Il ne répare rien : il
    DIT ce qu'il voit, et ce qu'il ne peut pas voir. */
-function santeLigne(etat, titre, detail, quoiFaire){
+/* ⚠️ CHAQUE LIGNE DIT POURQUOI ELLE EXISTE. Didier, 09/08/2026 : « mets-moi un point
+   d'information pour chaque ligne, que je sache le pourquoi de la ligne ». Un tableau de
+   contrôle dont on ne sait pas ce qu'il surveille se lit comme une liste de verdicts : on voit
+   du vert, on tourne la page, et le jour où une ligne passe au rouge on ne sait pas ce qu'elle
+   reproche. Chacune de ces lignes vient d'un défaut RÉEL, tombé une fois — c'est cette
+   histoire-là qu'on raconte.
+   ⚠️ REPLIÉ PAR DÉFAUT, en <details> natif : déplié, l'écran ferait trois fois sa hauteur et
+   plus personne n'y chercherait un problème. Pas de JavaScript — ça marche partout, y compris
+   si un script échoue plus haut. */
+function santeLigne(etat, titre, detail, quoiFaire, pourquoi){
   var c = etat==='ok' ? ['#15803d','#f4fbf6','#bbf7d0','ti-circle-check']
         : etat==='attention' ? ['#b45309','#fffbeb','#fde68a','ti-alert-triangle']
         : etat==='grave' ? ['#991b1b','#fef2f2','#fecaca','ti-alert-octagon']
@@ -6202,6 +6211,11 @@ function santeLigne(etat, titre, detail, quoiFaire){
     +'<div style="flex:1;min-width:0;font-size:12px;color:#4b5563;line-height:1.5;">'
       +'<b style="color:#1C1C1C;">'+titre+'</b> '+detail
       +(quoiFaire?('<div style="font-size:11.5px;color:'+c[0]+';margin-top:4px;">→ '+quoiFaire+'</div>'):'')
+      +(pourquoi?('<details style="margin-top:6px;">'
+        +'<summary style="cursor:pointer;font-size:11px;color:#6b7280;font-weight:600;list-style:none;">'
+          +'<i class="ti ti-info-circle"></i> Pourquoi cette ligne ?</summary>'
+        +'<div style="font-size:11px;color:#6b7280;margin-top:5px;line-height:1.55;border-left:2px solid '+c[2]+';padding-left:9px;">'
+          +pourquoi+'</div></details>'):'')
     +'</div></div>';
 }
 /* ===== MON COMPTE — créé le 01/08/2026 =====
@@ -6311,14 +6325,42 @@ async function santeView(){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
   if(!acc){ renderAuth('login'); return; }
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-stethoscope','CONTRÔLE DES DONNÉES','Ce que la base dit de ce compte','accueil')
+    +iveEntete('ti-stethoscope','CHECK BASE','Ce que la base dit de ce compte','accueil')
     +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
     +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture en cours…</div></div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+  /* ⚠️ UNE SEULE FORMULATION PAR CONTRÔLE. Les branches ok / attention / grave d'une même ligne
+     surveillent exactement la même chose : deux textes séparés finiraient par se contredire au
+     premier correctif, et c'est le vert qui mentirait — celui qu'on ne relit jamais. */
+  var P={
+    ent:'Un compte est rattaché à <b>une seule</b> entreprise, et c\'est elle qui reçoit tout ce '
+       +'que vous produisez. Si la mauvaise est rattachée, la BOUSSOLE, le MIROIR et la feuille '
+       +'de route s\'écrivent au mauvais endroit — sans qu\'aucun écran ne le dise.',
+    cloison:'C\'est le contrôle de <b>confidentialité</b>. Chaque compte ne doit lire que sa '
+       +'propre fiche. Le vôtre est administrateur : il voit toute la base, c\'est voulu — et je '
+       +'l\'ai pris deux fois pour une faille le 1er août, en oubliant de regarder QUI regardait.',
+    taches:'Le 31 juillet, 7 tâches saisies s\'affichaient <b>14 fois</b> : la fusion comparait '
+       +'les identifiants alors qu\'une même tâche venue de deux sources en porte deux différents. '
+       +'Le compteur du matin est faussé d\'autant, et le doublon ne se voit pas à l\'écran.',
+    salaries:'Le questionnaire salariés est plafonné à dix réponses par entreprise, en base. '
+       +'Au-delà, une réponse est <b>refusée</b> — et le salarié qui l\'a remplie ne le sait pas. '
+       +'Cette ligne dit combien de places il reste avant que ça n\'arrive.',
+    fiches:'Une analyse peut vivre dans le navigateur sans être en base : elle disparaît alors au '
+       +'changement d\'appareil ou au nettoyage de l\'historique. Cette ligne dit ce que la '
+       +'<b>base</b> détient — le seul endroit qui survit au téléphone.',
+    jetons:'Le 2 août, l\'écran affichait « 2 / 30 » alors que la base portait 390 : l\'appel qui '
+       +'rapporte le solde échouait <b>en silence</b>. Une valeur d\'argent qui se trompe sans le '
+       +'dire est le pire des défauts. Cette ligne interroge la base ici, sous vos yeux.',
+    miroir:'Le MIROIR est enregistré sur <b>cet appareil</b>. Cette ligne dit s\'il est encore à '
+       +'jour, ou si des éléments ont bougé depuis — auquel cas le relancer coûte 3 jetons.',
+    coupure:'Ce tableau lit six choses à la suite. Si la base s\'arrête en route, il vaut mieux le '
+       +'dire que d\'afficher les lignes obtenues comme si elles étaient <b>complètes</b> : un '
+       +'tableau vert incomplet est plus dangereux qu\'un tableau annoncé comme tel.'
+  };
   var h='';
   try{
     await window.sbReady;
-    if(!window.sb){ h=santeLigne('inconnu','Hors ligne.','Impossible d\'interroger la base depuis cet appareil.',''); }
+    if(!window.sb){ h=santeLigne('inconnu','Hors ligne.','Impossible d\'interroger la base depuis cet appareil.','',P.coupure); }
     else{
       var ent=(typeof frEntreprise==='function')?await frEntreprise():null;
       /* 1. VOTRE ENTREPRISE — CORRIGÉ LE 01/08, ET JE M'ÉTAIS TROMPÉ DE MESURE.
@@ -6336,8 +6378,8 @@ async function santeView(){
         monEnt=(rm && !rm.error && rm.data)?rm.data:null;
       }
       h+=(monEnt)
-        ? santeLigne('ok','Votre entreprise est identifiée.', '<b>'+esc(monEnt.nom||'—')+'</b>'+(monEnt.ville?' · '+esc(monEnt.ville):'')+'.','')
-        : santeLigne('inconnu','Aucune entreprise rattachée à ce compte.','Le compte n\'a peut-être pas encore été initialisé.','Ouvrez une SENTINELLE ou un questionnaire pour la créer.');
+        ? santeLigne('ok','Votre entreprise est identifiée.', '<b>'+esc(monEnt.nom||'—')+'</b>'+(monEnt.ville?' · '+esc(monEnt.ville):'')+'.','',P.ent)
+        : santeLigne('inconnu','Aucune entreprise rattachée à ce compte.','Le compte n\'a peut-être pas encore été initialisé.','Ouvrez une SENTINELLE ou un questionnaire pour la créer.',P.ent);
       /* 1 bis. CE QUE CE COMPTE PEUT LIRE D'AUTRE. C'est la vraie alerte, et elle ne concerne
          pas l'affichage mais la CONFIDENTIALITÉ : si la base laisse ce compte lire les fiches
          d'autres entreprises, un client verrait passer les noms de tous les autres. */
@@ -6352,13 +6394,13 @@ async function santeView(){
       if(nLisibles!=null){
         if(estAdmin){
           h+=santeLigne('info','Vue administrateur : '+nLisibles+' fiche'+(nLisibles>1?'s':'')+' d\'entreprise'+(nLisibles>1?'s':'')+' lisible'+(nLisibles>1?'s':'')+'.',
-              'C\'est normal sur votre compte : la règle de lecture ouvre toute la base à l\'administrateur. Un client, lui, ne voit que la sienne.','');
+              'C\'est normal sur votre compte : la règle de lecture ouvre toute la base à l\'administrateur. Un client, lui, ne voit que la sienne.','',P.cloison);
         }else if(nLisibles>1){
           h+=santeLigne('grave', 'Ce compte peut lire '+nLisibles+' fiches d\'entreprises.',
               'Il ne devrait voir que la sienne.',
-              'Cloisonnement à revoir côté base (règle de lecture sur la table des entreprises).');
+              'Cloisonnement à revoir côté base (règle de lecture sur la table des entreprises).',P.cloison);
         }else{
-          h+=santeLigne('ok','Ce compte ne lit que sa propre entreprise.','Le cloisonnement fonctionne.','');
+          h+=santeLigne('ok','Ce compte ne lit que sa propre entreprise.','Le cloisonnement fonctionne.','',P.cloison);
         }
       }
       // 2. LES TÂCHES : doublons, et tâches d'un plan qui n'existe plus.
@@ -6374,25 +6416,25 @@ async function santeView(){
         });
         var plan=vives.filter(function(t){ return t.origine==='plan'; }).length;
         h+=(dbl===0)
-          ? santeLigne('ok','Aucune tâche en double.', vives.length+' tâche'+(vives.length>1?'s':'')+' active'+(vives.length>1?'s':'')+', dont '+plan+' venue'+(plan>1?'s':'')+' du plan.','')
+          ? santeLigne('ok','Aucune tâche en double.', vives.length+' tâche'+(vives.length>1?'s':'')+' active'+(vives.length>1?'s':'')+', dont '+plan+' venue'+(plan>1?'s':'')+' du plan.','',P.taches)
           : santeLigne('attention', dbl+' tâche'+(dbl>1?'s':'')+' en double.',
               'Même libellé et même échéance qu\'une autre — le compteur du matin est faussé d\'autant.',
-              'Le déclencheur en base les bloque à l\'écriture ; celles-ci sont antérieures.');
+              'Le déclencheur en base les bloque à l\'écriture ; celles-ci sont antérieures.',P.taches);
         // 3. LES RÉPONSES SALARIÉS, avec le plafond.
         var rr=await window.sb.from('reponses_salaries').select('id').eq('entreprise_id',ent);
         var nr=(rr && !rr.error && rr.data)?rr.data.length:null;
         if(nr!=null) h+=santeLigne(nr>=10?'attention':'ok', nr+' réponse'+(nr>1?'s':'')+' de salariés.',
             nr>=10?'Le plafond de dix est atteint : une réponse de plus sera refusée.'
                   :'Plafond à dix. Il reste '+(10-nr)+' place'+((10-nr)>1?'s':'')+'.',
-            nr===0?'Partagez le lien du questionnaire : le MIROIR en tiendra compte.':'');
+            nr===0?'Partagez le lien du questionnaire : le MIROIR en tiendra compte.':'',P.salaries);
         // 4. CE QUI A ÉTÉ PRODUIT, ET CE QUI A BOUGÉ DEPUIS.
         var rf=await window.sb.from('fiches').select('kind,cree_le').eq('entreprise_id',ent).order('cree_le',{ascending:false}).limit(200);
         var fs=(rf && !rf.error && rf.data)?rf.data:[];
         var parKind={}; fs.forEach(function(f){ parKind[f.kind]=(parKind[f.kind]||0)+1; });
         var kinds=Object.keys(parKind);
         h+=kinds.length
-          ? santeLigne('ok','Analyses enregistrées.', kinds.map(function(k){ return parKind[k]+' '+k; }).join(' · ')+'.','')
-          : santeLigne('inconnu','Aucune analyse enregistrée.','Ni SENTINELLE, ni BOUSSOLE, ni MIROIR pour ce compte.','');
+          ? santeLigne('ok','Analyses enregistrées.', kinds.map(function(k){ return parKind[k]+' '+k; }).join(' · ')+'.','',P.fiches)
+          : santeLigne('inconnu','Aucune analyse enregistrée.','Ni SENTINELLE, ni BOUSSOLE, ni MIROIR pour ce compte.','',P.fiches);
 
         /* 4bis. LE SOLDE DE JETONS, TEL QUE LA BASE LE DONNE (02/08/2026).
            Didier a passé une heure avec « 2 / 30 » à l'écran quand sa ligne en base portait
@@ -6405,7 +6447,7 @@ async function santeView(){
           if(rj && rj.error){
             h+=santeLigne('grave','Le solde de jetons ne peut pas être lu.',
               'La base a refusé la lecture : <b>'+esc(rj.error.message||'erreur inconnue')+'</b>.',
-              'Le compteur affiché à l\'écran n\'est alors qu\'une estimation — ne vous y fiez pas.');
+              'Le compteur affiché à l\'écran n\'est alors qu\'une estimation — ne vous y fiez pas.',P.jetons);
           }else if(rj && rj.data && rj.data.ok){
             var jd=rj.data, jr=Math.max(0,(+jd.inclus||0)-(+jd.utilises||0))+(+jd.packs||0);
             var ecran=(typeof jetEtat==='function')?jetEtat().reste:null;
@@ -6413,14 +6455,14 @@ async function santeView(){
               'Solde en base : '+jr+' jeton'+(jr>1?'s':'')+'.',
               'Formule <b>'+esc(jd.formule||'—')+'</b> · '+(+jd.inclus||0)+' inclus · '+(+jd.utilises||0)+' utilisés · '+(+jd.packs||0)+' en packs.'
               +(ecran===jr?'' : ' <b>L\'écran affiche '+ecran+'</b> — les deux ne concordent pas.'),
-              ecran===jr?'' : 'Rechargez la page (Ctrl+Maj+R). Si l\'écart persiste, signalez-le.');
+              ecran===jr?'' : 'Rechargez la page (Ctrl+Maj+R). Si l\'écart persiste, signalez-le.',P.jetons);
           }else{
             h+=santeLigne('grave','Le solde de jetons n\'a pas été rendu.',
               'La base a répondu : <b>'+esc((rj&&rj.data&&rj.data.error)||'aucune réponse exploitable')+'</b>.',
-              'Le compteur affiché n\'est alors qu\'une estimation.');
+              'Le compteur affiché n\'est alors qu\'une estimation.',P.jetons);
           }
         }catch(ej){
-          h+=santeLigne('grave','Le solde de jetons est injoignable.', esc(String(ej&&ej.message||ej)),'');
+          h+=santeLigne('grave','Le solde de jetons est injoignable.', esc(String(ej&&ej.message||ej)),'',P.jetons);
         }
       }
       // 5. LES REPÈRES DE FRAÎCHEUR, côté navigateur.
@@ -6429,12 +6471,12 @@ async function santeView(){
       h+=sv
         ? santeLigne(nouv.length?'attention':'ok','MIROIR enregistré.',
             nouv.length?('Du nouveau depuis : '+esc(nouv.join(', '))+'.'):'À jour, rien n\'a bougé depuis.',
-            nouv.length?'Une mise à jour du MIROIR coûterait 3 jetons.':'')
-        : santeLigne('inconnu','Aucun MIROIR sur cet appareil.','Il existe peut-être en base : il sera relu à la prochaine connexion.','');
+            nouv.length?'Une mise à jour du MIROIR coûterait 3 jetons.':'',P.miroir)
+        : santeLigne('inconnu','Aucun MIROIR sur cet appareil.','Il existe peut-être en base : il sera relu à la prochaine connexion.','',P.miroir);
     }
-  }catch(e){ h+=santeLigne('inconnu','Lecture interrompue.','La base n\'a pas répondu jusqu\'au bout : ce tableau est incomplet.',''); }
+  }catch(e){ h+=santeLigne('inconnu','Lecture interrompue.','La base n\'a pas répondu jusqu\'au bout : ce tableau est incomplet.','',P.coupure); }
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-stethoscope','CONTRÔLE DES DONNÉES','Ce que la base dit de ce compte','accueil')
+    +iveEntete('ti-stethoscope','CHECK BASE','Ce que la base dit de ce compte','accueil')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:12px;color:#4b5563;line-height:1.55;">Lecture seule, gratuite. Rien n\'est modifié ici.</div>'
       +h
@@ -6458,10 +6500,10 @@ function adminBar(){
        était la barre du bas, retirée le 31/07. Un outil complet — dernière activité, avancement,
        régression / stagnation / silence — est resté orphelin une semaine, atteignable seulement
        en tapant son adresse.
-       C'est ICI qu'il devait être : l'écran « Contrôle » répond pour UN compte, celui-ci pour
+       C'est ICI qu'il devait être : l'écran « Check base » répond pour UN compte, celui-ci pour
        les onze. Didier : « c'était le rôle de mon compte, il faut le remettre. » */
     +'<button type="button" onclick="openConsole()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-users"></i> Mes abonnés</button>'
-    +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-stethoscope"></i> Contrôle</button>'
+    +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-stethoscope"></i> Check base</button>'
     /* MES ENTREPRISES — l'atelier du consultant (08/08/2026). « Mes clients » pilote les comptes
        existants ; celui-ci ouvre les DOSSIERS D'AUDIT, qui n'ont pas de compte du tout. */
     +'<button type="button" onclick="entreprisesView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-briefcase"></i> Mes entreprises</button>'
