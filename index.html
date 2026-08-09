@@ -3583,7 +3583,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 259';
+var IVE_VERSION='09/08 · 260';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5401,9 +5401,22 @@ async function chargerFaitsDossier(){
   try{ if(window.currentSpace==='dirigeant' && typeof dirigeantSpace==='function') dirigeantSpace(); }catch(e){}
 }/* Rouvrir : chaque type a déjà sa fonction de reprise, elles marchaient — il n'y avait plus
    d'endroit d'où les appeler. */
+/* ⚠️ IL FAUT QUITTER L'ACCUEIL AVANT D'AFFICHER LA FICHE. Didier, 09/08/2026 : « je suis sur le
+   compte de dronavia, mais quand je clique sur SENTINELLE, il n'y a rien qui s'ouvre. »
+
+   La fiche s'écrit dans `#result`, qui vit tout en BAS de la page, après les panneaux.
+   `restoreFiche()` masque bien `#form`, mais pas `#dirigeant` : la grille d'accueil restait
+   affichée, la fiche se dessinait dessous, et le `scrollTo(0,0)` de fin ramenait devant la
+   grille. Le travail était fait, invisible, à deux écrans plus bas.
+
+   ⚠️ `showView('form')` D'ABORD : elle masque tous les panneaux ET vide `#result`. Ensuite
+   seulement `restoreFiche()` cache `#form` et remplit `#result`. L'ordre compte — l'inverse
+   effacerait la fiche qu'on vient d'écrire.
+   Les deux autres savent déjà se montrer : `restoreMiroir` appelle `showView('miroir')` et
+   `restoreBoussole` ouvre sa grille. On ne touche qu'à celle qui ne le faisait pas. */
 function dossierOuvrir(cle){
   var f=(window.__dossierFaits||{})[cle]; if(!f) return;
-  if(cle==='sentinelle') restoreFiche(f.ref);
+  if(cle==='sentinelle'){ showView('form'); restoreFiche(f.ref); }
   else if(cle==='boussole') restoreBoussole(f.ref);
   else if(cle==='miroir') restoreMiroir(f.ref);
   else if(cle==='feuille') goFeuille();
@@ -6839,11 +6852,26 @@ function iveGrilleEtats(){
     var nb=(f.agents&&f.agents.length)?f.agents.length:0;
     o.outils = nb?{txt:nb+' piste'+(nb>1?'s':''),ton:'ok'}:{txt:'Après SENTINELLE',ton:'off'};
 
+    /* ⚠️ SANS DOSSIER OUVERT, LE CONSULTANT N'A AUCUNE ENTREPRISE À DÉCRIRE. Didier, 09/08/2026 :
+       « pourquoi carte de la concurrence n'est pas grisée au démarrage sans entreprise ? »
+       Parce que la grille affichait encore l'état de SON compte à lui : sa carte de la
+       concurrence, son questionnaire à 34/40, sa SENTINELLE. Des chiffres vrais, mais qui ne
+       parlent de personne à ce moment-là — et qui laissaient croire qu'un dossier était en cours.
+       Un atelier sans dossier ouvert n'a rien en cours : toutes les tuiles d'entreprise
+       s'éteignent, et disent quoi faire pour qu'elles s'allument. */
+    var estAdmin=(typeof iveIsAdmin==='function') && iveIsAdmin();
+    var trav=(typeof entTravail==='function') ? entTravail() : null;
+    if(estAdmin && !trav){
+      var vide={txt:'Ouvrez un dossier', ton:'off'};
+      o.sent=vide; o.quest=vide; o.sal=vide; o.bou=vide; o.mir=vide;
+      o.conc=vide; o.feuille=vide; o.outils=vide; o.sim=vide;
+      o.parcoursFini=false;
+    }
     /* ⚠️ LE DOSSIER OUVERT A LE DERNIER MOT. Ce qui précède se calcule sur la mémoire du
        navigateur — vide après un rechargement. Quand un dossier est ouvert, c'est la base qui
        sait ce qui a été produit POUR LUI, et elle passe devant. */
     var fd=window.__dossierFaits;
-    if(fd && typeof entTravail==='function' && entTravail()){
+    if(fd && trav){
       o.sent    = fd.sentinelle ? {txt:'Fait le '+fd.sentinelle.date, ton:'ok'} : {txt:'À lancer',        ton:'att'};
       o.bou     = fd.boussole   ? {txt:'Fait le '+fd.boussole.date,   ton:'ok'}
                 : (fd.sentinelle ? {txt:'À lancer', ton:'att'} : {txt:'Après SENTINELLE', ton:'off'});
