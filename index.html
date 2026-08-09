@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 268';
+var IVE_VERSION='09/08 · 269';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5482,6 +5482,37 @@ async function chargerFaitsDossier(){
   }catch(e){}
   FAITS_EN_VOL=false;
   window.__dossierFaits=faits;
+  /* ⚠️ ON REMET LA FICHE DU DOSSIER EN MÉMOIRE. Didier, 09/08/2026 : « j'ai ce message quand je
+     lance MIROIR et SENTINELLE est fait » — « il lui manque l'analyse SENTINELLE ».
+
+     Le MIROIR ne lit pas la base : il regarde `window.lastMiroir.indiceExterieur`, une mémoire
+     de session. Après un rechargement — et ouvrir un dossier recharge — elle est vide, et il
+     conclut que la SENTINELLE manque alors qu'elle est en base depuis une heure. Le repli
+     `iveChargerFiche()` ne le sauve pas : il va chercher la fiche du COMPTE, pas celle du
+     dossier.
+
+     On rétablit donc ici, une fois, ce que le scan avait posé : la fiche, la note extérieure,
+     l'aura, les avis. Mêmes champs que `iveChargerFiche()` — une seule façon de garnir cette
+     mémoire, sinon les deux divergent au premier correctif. */
+  try{
+    var cs=faits.sentinelle ? window.__histBase['base:'+String(faits.sentinelle.ref).slice(5)] : null;
+    if(!cs && faits.sentinelle) cs=window.__histBase[faits.sentinelle.ref];
+    var fi=(cs && cs.fiche) ? cs.fiche : cs;
+    if(fi && typeof fi==='object'){
+      window.__sentData=fi;
+      window.lastActivite=fi.activite||''; window.lastArchetype=fi.archetype||'';
+      window.lastSite=fi.site||'';
+      window.lastAura=(fi.aura&&fi.indice&&fi.indice.estime!=null)
+        ? {note:fi.indice.estime, couleur:fi.aura.couleur, eclat:fi.aura.eclat} : null;
+      window.lastAvis=(fi._auraCalc&&fi._auraCalc.note_google!=null)
+        ? {note:fi._auraCalc.note_google, nombre:fi._auraCalc.nb_avis||null} : null;
+      /* C'est CE champ que le MIROIR interroge avant de refuser. */
+      if(fi.indice && fi.indice.estime!=null){
+        window.lastMiroir=window.lastMiroir||{};
+        window.lastMiroir.indiceExterieur=+fi.indice.estime;
+      }
+    }
+  }catch(e){}
   /* On redessine : la première grille a été peinte avant la réponse de la base. */
   try{ if(window.currentSpace==='dirigeant' && typeof dirigeantSpace==='function') dirigeantSpace(); }catch(e){}
 }/* Rouvrir : chaque type a déjà sa fonction de reprise, elles marchaient — il n'y avait plus
