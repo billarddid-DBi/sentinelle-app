@@ -166,7 +166,7 @@
     <div id="archAvis" style="display:none;padding:10px 16px;background:#fffbeb;border-bottom:1px solid var(--line);font-size:12px;color:#b45309;"></div>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
-      <th>Client</th><th>Adresse</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
+      <th>Client</th><th>Adresse</th><th>Email</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
     </tr></thead><tbody id="financeRows"></tbody></table></div>
   </div>
 
@@ -312,10 +312,10 @@ async function loadClients(){
   /* ⚠️ ON LIT AUSSI L'ARCHIVAGE, ET UNE COLONNE ABSENTE NE DOIT PAS VIDER LA CONSOLE. Le 07/08,
      sur l'autre application, un champ pas encore migré a fait disparaître toute une liste d'un
      coup. Ici on réessaie sans la colonne, et l'onglet le dira. */
-  var er=await SB.from('entreprises').select('id,nom,secteur,ville,code_postal,adresse,taille,supprime_le');
+  var er=await SB.from('entreprises').select('id,nom,secteur,ville,code_postal,adresse,email,taille,supprime_le');
   /* ⚠️ UNE COLONNE PAS ENCORE MIGREE NE DOIT PAS VIDER LA CONSOLE — c est l accident du 07/08 sur
      l autre application. On retombe sur le jeu minimal, qui existe depuis l origine, et on le dit. */
-  if(er.error && /supprime_le|adresse|code_postal/i.test(String(er.error.message||''))){
+  if(er.error && /supprime_le|adresse|code_postal|email/i.test(String(er.error.message||''))){
     if(/supprime_le/i.test(String(er.error.message||''))) MANQUE_ARCHIVE=true;
     er=await SB.from('entreprises').select('id,nom,secteur,ville,taille');
   }
@@ -353,6 +353,10 @@ function mapEnt(e, blob, jet){
      masque le manque — or une fiche SENTINELLE se reconnait sur nom + ville + ADRESSE : sans la
      rue, le prochain scan cree une SECONDE fiche et l analyse deja payee devient invisible. */
   var sansRue=!e.adresse;
+  /* ⚠️ L EMAIL EST LA CLE DU FUTUR PONT vers l APP DIRIGEANT : c est par lui que le plan d action
+     retrouvera le compte de son destinataire. Un dossier sans email est un dossier a qui on ne
+     pourra rien envoyer — autant le voir maintenant, pas le jour du rendez-vous. */
+  var email=e.email||'';
   var data=(blob&&blob.data)||{};
   var maj=(blob&&blob.maj)||null;
   var snaps=(Array.isArray(data.snaps)?data.snaps:[]).map(function(s){
@@ -400,7 +404,7 @@ function mapEnt(e, blob, jet){
     plan:plan, price:prix, jetOuvert:jetOuvert, jReste:jReste, jInclus:jInclus, jPacks:jPacks,
     since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events,
-    supprime:supprime, adresse:adresse, sansRue:sansRue };
+    supprime:supprime, adresse:adresse, sansRue:sansRue, email:email };
 }
 
 /* ============ FACTURATION LIVE (DBi360 micro-entreprise) ============ */
@@ -727,8 +731,11 @@ function renderFinance(){
       + (d.sansRue
           ? '<div style="color:#b45309;font-size:11.5px;white-space:nowrap;">⚠ sans adresse — doublon SENTINELLE au prochain scan</div>'
           : '');
-    return '<tr><td class="co">'+d.nom+'</td><td>'+acell+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td style="white-space:nowrap">'+(SB?(d.supprime?'<button onclick="entRestaurer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">Restaurer</button>':'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button> <button onclick="entSupprimer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;color:#b91c1c">Supprimer</button>'):'')+'</td></tr>';
-  }).join("") || '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:18px">'
+    var ecell = d.email
+      ? '<a href="mailto:'+esc(d.email)+'" style="color:inherit;">'+esc(d.email)+'</a>'
+      : '<span style="color:#b45309;font-size:11.5px;white-space:nowrap;">⚠ pas d\'email — rien à lui envoyer</span>';
+    return '<tr><td class="co">'+d.nom+'</td><td>'+acell+'</td><td class="sec">'+ecell+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td style="white-space:nowrap">'+(SB?(d.supprime?'<button onclick="entRestaurer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">Restaurer</button>':'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button> <button onclick="entSupprimer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;color:#b91c1c">Supprimer</button>'):'')+'</td></tr>';
+  }).join("") || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:18px">'
     +(VUE==='supprimes'?'Aucun dossier supprimé.':'Aucun abonné.')+'</td></tr>';
 }
 /* ═══ RETIRER / REMETTRE UN DOSSIER ═════════════════════════════════════════════════════════
