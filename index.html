@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 246';
+var IVE_VERSION='09/08 · 247';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4091,13 +4091,25 @@ function render(d,skipSave){
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
   </div>
   <div id="saveStatus" style="text-align:center;font-size:12px;color:#6b7280;margin-top:12px;"><i class="ti ti-device-floppy"></i> Enregistrement sur le cloud…</div>
+  <!-- ⚠️ EN LIGNE, PAS EN COLONNE (Didier, 09/08/2026 : « aligne tous les boutons en horizontal »).
+       Empilés, les quatre cercles faisaient descendre la sortie de l'écran très en dessous du
+       résultat : il fallait faire défiler pour retrouver la moindre suite. « .btnrow » existait
+       déjà dans la feuille de style, avec son retour à la ligne sur petit écran.
+
+       ⚠️ ET « NOUVELLE ENTREPRISE » EST RETIRÉ. Il faisait location.reload() — un rechargement
+       brut, qui repartait sur le dossier ouvert sans rien changer. Depuis que l'atelier existe,
+       une nouvelle entreprise se crée dans « Mes entreprises », avec son nom, sa ville et son
+       adresse : ce bouton promettait un geste qu'il ne faisait pas.
+
+       ⚠️ ET « ACCUEIL » EST AJOUTÉ. La fiche était un cul-de-sac : aucun bouton n'en sortait
+       vers l'application, seulement vers la suite du parcours ou vers l'extérieur. -->
   ${SS
-    ? `<button class="btn btn-primary" style="margin-top:10px;" onclick="paywallView()"><i class="ti ti-lock-open"></i> Débloquer mes outils IA et mon plan</button>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button>`
-    : `<button class="btn btn-primary" style="margin-top:10px;" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
-  <a class="btn btn-ghost" style="margin-top:10px;text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence autour de vous</button>
-  <button class="btn btn-ghost" style="margin-top:10px;" onclick="location.reload()"><i class="ti ti-refresh"></i> Nouvelle entreprise</button>`}`;
+    ? `<div class="btnrow"><button class="btn btn-primary" onclick="paywallView()"><i class="ti ti-lock-open"></i> Débloquer mes outils IA et mon plan</button>
+  <button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button></div>`
+    : `<div class="btnrow"><button class="btn btn-primary" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
+  <a class="btn btn-ghost" style="text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
+  <button class="btn btn-ghost" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence</button>
+  <button class="btn btn-ghost" onclick="iveNav('accueil')"><i class="ti ti-home"></i> Accueil</button></div>`}`;
 
   // Radar
   try{
