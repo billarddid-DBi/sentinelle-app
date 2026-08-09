@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 247';
+var IVE_VERSION='09/08 · 248';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4364,8 +4364,14 @@ async function histListe(){
   try{
     await window.sbReady;
     if(window.sb){
-      // La RLS restreint déjà `fiches` à sa propre entreprise : pas de filtre à ajouter ici.
-      var r=await window.sb.from('fiches').select('id,kind,nom,contenu,cree_le').order('cree_le',{ascending:false}).limit(200);
+      /* ⚠️ LA RLS NE SUFFIT PLUS. Elle restreint `fiches` à sa propre entreprise — pour un
+         DIRIGEANT. Pour l'administrateur, elle ouvre TOUTE la base : « Mes recherches » lui
+         listait les fiches de tous les dossiers mélangées, et le même nom revenait plusieurs
+         fois. Didier, 09/08/2026 : « plus de doublon dans les fenêtres ».
+         On filtre donc explicitement sur l'entreprise de travail. */
+      var qh=window.sb.from('fiches').select('id,kind,nom,contenu,cree_le');
+      if(window.dbEnt) qh=qh.eq('entreprise_id', window.dbEnt);
+      var r=await qh.order('cree_le',{ascending:false}).limit(200);
       if(!r.error && r.data){
         r.data.forEach(function(f){
           // Seuls ces trois types savent se rouvrir ; aura et feuille n'ont pas d'écran de reprise.
@@ -5303,6 +5309,121 @@ function entApresBascule(){
   var quoi=null;
   try{ quoi=localStorage.getItem(ENT_APRES_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
   if(quoi==='scan') lancerSentinelleDossier();
+  else if(quoi==='dossier') ecranDossier();
+}
+/* ═══ L'AVANCEMENT D'UN DOSSIER ═════════════════════════════════════════════════════════════
+   Didier, 09/08/2026 : « quand je clique sur l'entreprise je vois l'avancement et je peux ouvrir
+   SENTINELLE ou BOUSSOLE ou MIROIR ou feuille de route, comme un tableau avec des cases : quand
+   c'est grisé ce n'est pas disponible, sinon je peux ouvrir si ça a déjà été réalisé. »
+
+   ⚠️ TROIS DÉFAUTS RÉELS QUE CET ÉCRAN CORRIGE, constatés dans le code :
+   1. UNE SENTINELLE CRÉÉE NE POUVAIT PLUS SE ROUVRIR. `restoreFiche()` existe et fonctionne,
+      mais son seul accès — « Mes recherches » — n'était branché nulle part depuis que la barre
+      du bas a été retirée le 31/07. Le travail était en base, sans porte pour y revenir.
+   2. « MES RECHERCHES » MÉLANGEAIT LES ENTREPRISES. Le commentaire disait « la RLS restreint
+      déjà » : vrai pour un dirigeant, FAUX pour l'admin, à qui elle ouvre toute la base.
+   3. LES BOUTONS RENVOYAIENT À L'ACCUEIL DU DIRIGEANT, qui se construit sur des variables de
+      compte (`lastMiroir`, `frData`) — donc sur le dernier dossier vu, pas sur celui qui est
+      ouvert. D'où l'impression que « ça ne ramène pas au bon endroit ».
+
+   ⚠️ L'ORDRE DES QUATRE N'EST PAS DÉCORATIF. On regarde dehors (SENTINELLE), puis on interroge
+   (BOUSSOLE), puis on confronte (MIROIR), puis on planifie (FEUILLE DE ROUTE). Une case grisée
+   dit CE QU'IL MANQUE avant elle — pas seulement qu'elle est fermée. */
+var DOSSIER_ETAPES=[
+  {cle:'sentinelle', titre:'SENTINELLE', quoi:'Ce que les autres voient',      ic:'ti-radar-2',  c:'#075985', f:'#e0f2fe'},
+  {cle:'boussole',   titre:'BOUSSOLE',   quoi:'Ce que le dirigeant en dit',    ic:'ti-compass',  c:'#cf4712', f:'#FBE7DC'},
+  {cle:'miroir',     titre:'MIROIR',     quoi:'Ce que ses journées montrent',  ic:'ti-arrows-diff',   c:'#6d28d9', f:'#f5f3ff'},
+  {cle:'feuille',    titre:'FEUILLE DE ROUTE', quoi:'Par où commencer',        ic:'ti-map-2',    c:'#15803d', f:'#f0fdf4'}
+];
+function dossierCase(e, fait, precedent){
+  var dispo = fait || !precedent || precedent.fait;      // ouvrable, ou lançable si l'étape d'avant est faite
+  var couleur = fait ? e.c : (dispo ? '#6b7280' : '#c7ccd3');
+  var fond    = fait ? e.f : '#f8fafc';
+  var action  = fait ? ('dossierOuvrir(\''+e.cle+'\')') : (dispo ? ('dossierLancer(\''+e.cle+'\')') : '');
+  var etat    = fait ? ('Fait le '+fait.date)
+              : (dispo ? 'Pas encore — à lancer'
+                       : 'Il faut d\'abord ' + precedent.titre);
+  return '<button type="button"'+(action?(' onclick="'+action+'"'):' disabled')+' '
+    +'style="text-align:left;border:1.5px solid '+couleur+'33;background:'+fond+';border-radius:14px;'
+    +'padding:12px 13px;font-family:inherit;cursor:'+(action?'pointer':'default')+';width:100%;">'
+    +'<div style="font-size:12px;font-weight:800;color:'+couleur+';letter-spacing:.5px;">'
+      +'<i class="ti '+e.ic+'"></i> '+e.titre+'</div>'
+    +'<div style="font-size:11px;color:#6b7280;margin-top:3px;">'+esc(e.quoi)+'</div>'
+    +'<div style="font-size:11.5px;font-weight:700;color:'+couleur+';margin-top:7px;">'
+      +(fait?'<i class="ti ti-circle-check"></i> ':(dispo?'<i class="ti ti-player-play"></i> ':'<i class="ti ti-lock"></i> '))
+      +esc(etat)+'</div>'
+  +'</button>';
+}
+async function ecranDossier(){
+  var t=(typeof entTravail==='function')?entTravail():null;
+  if(!t){ entreprisesView(); return; }
+  $('dirigeant').innerHTML=adminBar()
+    +iveEntete('ti-briefcase','DOSSIER', t.nom||'', 'accueil')
+    +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
+    +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture de l\'avancement…</div></div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+
+  /* ⚠️ ON LIT L'ÉTAT EN BASE, PAS EN MÉMOIRE. Les variables du navigateur portent le DERNIER
+     dossier consulté ; la base porte celui-ci. C'est toute la différence entre un écran juste
+     et un écran qui ment après une bascule. */
+  var faits={}, erreur='';
+  window.__histBase=window.__histBase||{};
+  try{
+    await window.sbReady;
+    var r=await window.sb.from('fiches').select('id,kind,nom,contenu,cree_le')
+            .eq('entreprise_id', t.id).order('cree_le',{ascending:false}).limit(200);
+    if(r.error) erreur=r.error.message||'Lecture impossible.';
+    else (r.data||[]).forEach(function(f){
+      var k=String(f.kind||'').toLowerCase();
+      if(faits[k]) return;                                  // la plus récente d'abord : on garde celle-là
+      window.__histBase['base:'+f.id]=f.contenu;
+      faits[k]={ref:'base:'+f.id, date:new Date(f.cree_le).toLocaleDateString('fr-FR')};
+    });
+    /* La feuille de route vit dans sa propre table, pas dans `fiches`. */
+    var rf=await window.sb.from('feuille_route').select('entreprise_id,steps').eq('entreprise_id',t.id).maybeSingle();
+    if(rf && !rf.error && rf.data) faits.feuille={ref:'', date:''};
+  }catch(e){ erreur='La base n\'a pas répondu.'; }
+  window.__dossierFaits=faits;
+
+  var cases='', prec=null;
+  DOSSIER_ETAPES.forEach(function(e){
+    var fait=faits[e.cle]||null;
+    cases+=dossierCase(e, fait, prec);
+    prec={titre:e.titre, fait:!!fait};
+  });
+
+  $('dirigeant').innerHTML=adminBar()
+    +iveEntete('ti-briefcase','DOSSIER', t.nom||'', 'accueil')
+    +(erreur?'<div class="card"><div class="sec" style="color:#b91c1c;font-size:12.5px;">'+esc(erreur)+'</div></div>':'')
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;">'
+        +esc([t.adresse,t.ville].filter(Boolean).join(', ')||'adresse non renseignée')+'</div>'
+      +'<div class="grid2" style="margin-top:10px;">'+cases+'</div>'
+    +'</div></div>'
+    +'<div class="card"><div class="sec">'
+      +'<button type="button" onclick="entreprisesView()" class="tsel" style="border:1px solid #d7dbe3;'
+        +'background:#fff;color:#4b5563;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:700;'
+        +'cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i> Tous mes dossiers</button> '
+      +'<button type="button" onclick="entTravailQuitter()" class="tsel" style="border:1px solid #d7dbe3;'
+        +'background:#fff;color:#4b5563;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:700;'
+        +'cursor:pointer;font-family:inherit;"><i class="ti ti-home"></i> Revenir chez moi</button>'
+    +'</div></div>';
+  window.scrollTo(0,0);
+}
+/* Rouvrir : chaque type a déjà sa fonction de reprise, elles marchaient — il n'y avait plus
+   d'endroit d'où les appeler. */
+function dossierOuvrir(cle){
+  var f=(window.__dossierFaits||{})[cle]; if(!f) return;
+  if(cle==='sentinelle') restoreFiche(f.ref);
+  else if(cle==='boussole') restoreBoussole(f.ref);
+  else if(cle==='miroir') restoreMiroir(f.ref);
+  else if(cle==='feuille') goFeuille();
+}
+function dossierLancer(cle){
+  if(cle==='sentinelle') lancerSentinelleDossier();
+  else if(cle==='boussole') { if(typeof goBoussole==='function') goBoussole(); }
+  else if(cle==='miroir') { if(typeof iveNav==='function') iveNav('miroir'); }
+  else if(cle==='feuille') { if(typeof goFeuille==='function') goFeuille(); }
 }
 /* ⚠️ ON NE REDEMANDE PAS CE QU'IL VIENT DE TAPER. Didier, 09/08/2026 : « quand je lance
    SENTINELLE sur le nouveau bouton il ouvre ça, je veux aller directement sur SENTINELLE ».
@@ -6220,7 +6341,7 @@ function iveIdentLigne(){
        bon endroit : on cherche à changer de dossier là où on lit celui qu'on a. */
     return '<div style="margin-top:6px;background:#E8541A;color:#fff;border-radius:8px;padding:5px 9px;'
       +'font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;">'
-      +'<button type="button" onclick="entreprisesView()" title="Changer de dossier" '
+      +'<button type="button" onclick="ecranDossier()" title="Voir l\'avancement de ce dossier" '
       +'style="border:none;background:transparent;color:#fff;font-family:inherit;font-size:11.5px;'
       +'font-weight:700;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">'
       +'<i class="ti ti-briefcase"></i> AUDIT · '+esc(t.nom||'entreprise sans nom')
@@ -6265,8 +6386,8 @@ function iveIdentTitre(nomCompte){
      remplace donc jamais un dossier ouvert par un titre générique. */
   if(typeof iveIsAdmin==='function' && iveIsAdmin()){
     var trav=(typeof entTravail==='function')?entTravail():null;
-    if(trav) return '<div style="'+st+'"><button type="button" onclick="entreprisesView()" '
-      +'title="Changer de dossier" style="border:none;background:transparent;color:#fff;'
+    if(trav) return '<div style="'+st+'"><button type="button" onclick="ecranDossier()" '
+      +'title="Voir l\'avancement de ce dossier" style="border:none;background:transparent;color:#fff;'
       +'font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;padding:0;text-align:left;">'
       +'<i class="ti ti-briefcase" style="color:#E8A07E;"></i> '
       +esc(trav.nom||'entreprise sans nom')+(trav.ville?' · '+esc(trav.ville):'')+'</button></div>'+bouton;
@@ -9024,7 +9145,11 @@ function entCarte(e, courante){
     +'</div>'
     +(courante
       ? '<button type="button" onclick="entTravailQuitter()" style="border:1px solid #d7dbe3;background:#fff;color:#4b5563;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Fermer</button>'
-      : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\',\'\',\''+escJs(e.adresse||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
+      /* ⚠️ OUVRIR MÈNE À L'AVANCEMENT DU DOSSIER, pas à l'accueil. L'accueil du dirigeant se
+         construit sur des variables de compte (`lastMiroir`, `frData`) : après une bascule, il
+         montre le DERNIER dossier consulté, pas celui qu'on vient d'ouvrir. C'est ce qui donnait
+         l'impression que « les boutons ne ramènent pas au bon endroit ». */
+      : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\',\'dossier\',\''+escJs(e.adresse||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
     /* ⚠️ « RETIRER », PAS « DÉTRUIRE ». Le dossier sort de la liste et se restaure depuis la
        console. Le libellé dit ce que le geste fait vraiment — promettre une destruction qu'on
        ne fait pas serait pire que de ne rien promettre. */
