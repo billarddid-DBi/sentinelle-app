@@ -2610,15 +2610,20 @@ function iveNav(s){
   // l'onglet cliqué, on ne quitte pas un questionnaire modifié sans l'avoir dit.
   if(typeof bGrilleSortieOk==='function' && !bGrilleSortieOk()) return;
   if(typeof ahSortieOk==='function' && !ahSortieOk()) return;
-  /* ⚠️ « ACCUEIL » EST LE SEUL ENDROIT OÙ L'ON DIT « JE RENTRE », et c'est donc le seul qui
-     referme le dossier ouvert. Mis dans le rendu, ce geste se déclenchait à chaque
-     rafraîchissement de fond ; mis ici, il ne part que sur un clic. */
-  if(s==='accueil'){
-    if(typeof iveIsAdmin==='function' && iveIsAdmin()
-       && typeof entTravail==='function' && entTravail()
-       && typeof entTravailQuitter==='function'){ entTravailQuitter(); return; }
-    dirigeantSpace();
-  }
+  /* ⚠️ « ACCUEIL » NE FERME PLUS LE DOSSIER. Didier, 09/08/2026 : « quand j'ai sélectionné une
+     entreprise et que je reviens sur l'accueil, je veux rester sur cette entreprise. Si je veux
+     vraiment fermer, je retourne dans mes dossiers et je fais Fermer. »
+
+     Il a raison, et j'avais pris le problème à l'envers. Un dossier ouvert est un CONTEXTE DE
+     TRAVAIL, pas une page : on y revient vingt fois dans un rendez-vous — après une fiche, après
+     un questionnaire, après la carte. Le fermer à chaque retour obligeait à le rouvrir à chaque
+     fois, et faisait perdre le fil au milieu d'un entretien.
+
+     ⚠️ IL RESTE DONC EXACTEMENT DEUX FAÇONS DE FERMER, toutes deux explicites :
+       · « Fermer », sur la ligne du dossier ouvert dans « Mes dossiers » ;
+       · « Déconnexion », qui referme tout.
+     Aucune autre. Un contexte de travail ne se perd pas par accident. */
+  if(s==='accueil'){ dirigeantSpace(); }
   // SENTINELLE : version complète si l'abonnement est pris, sinon l'aperçu (qui propose de le prendre).
   else if(s==='sentinelle'){ sentApercu(); }   // page SENTINELLE unique, abonné ou non
   /* « Mes actions », « Résultats » et « Mon 360° » n'existent plus depuis le 01/08 : leurs douze
@@ -3583,7 +3588,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 262';
+var IVE_VERSION='09/08 · 263';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
