@@ -1362,7 +1362,7 @@ function saveMiroir(m){
 /* Le MIROIR coûte un appel IA à chaque génération : on le garde et on le relit,
    au lieu de le refaire. Régénération uniquement sur demande explicite. */
 var miroirStore={
-  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_miroir_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  key:function(){ return 'ive_miroir_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
   load:function(){ try{ var s=localStorage.getItem(miroirStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
   // Plus d'empreinte globale ici : c'est la DATE de l'analyse qui compte, comparée aux repères
   // des trois sources (cf. majDepuis). Une analyse est périmée si une source a bougé APRÈS elle.
@@ -2780,7 +2780,7 @@ function parcoursCarte(coul,fond,bord,icone,titre,sous,lignes,libBouton,action){
 /* Identité de l'entreprise (nom + ville) retenue durablement, par compte : une fois connue,
    elle n'est plus jamais redemandée ni rechargée. */
 /* Simulateur de gain : les valeurs du dirigeant sont conservées — elles serviront au plan. */
-function simKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_simu_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function simKey(){ return 'ive_simu_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function simGet(){ try{ var s=localStorage.getItem(simKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
 function simSauver(){
   var P=$('sP'),H=$('sH'),C=$('sC'); if(!P||!H||!C) return;
@@ -2795,19 +2795,36 @@ function simChip(){
   var d=new Date(v.ts);
   m.innerHTML='<span style="color:#9ca3af;font-weight:600;"><i class="ti ti-clock"></i> Enregistré le '+d.toLocaleDateString('fr-FR')+'</span>';
 }
-function iveIdentKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_ident_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveIdentKey(){ return 'ive_ident_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function iveIdentSauver(){
   try{ if(window.lastNom) localStorage.setItem(iveIdentKey(), JSON.stringify({nom:window.lastNom,ville:window.lastVille||'',activite:window.lastActivite||''})); }catch(e){}
 }
+/* ⚠️ LE DOSSIER OUVERT FAIT AUTORITÉ SUR L'IDENTITÉ. Didier, 09/08/2026 : « quand j'ouvre
+   BOUSSOLE j'ai Feu Vert et pas references pare brise ».
+
+   `window.lastNom` est une mémoire de SESSION : elle garde le nom du dernier écran qui l'a
+   posée. Sur un dossier neuf, rien ne l'écrasait — le nom précédent restait, et la BOUSSOLE
+   s'affichait au nom de la mauvaise entreprise. Les tests `if(!window.lastNom)` protégeaient
+   justement cette valeur périmée.
+
+   Quand un dossier est ouvert, son nom et sa ville viennent de la fiche qu'on a saisie : ils ne
+   se devinent pas, ils ne se perdent pas, et ils passent devant toute mémoire. */
 function iveIdentRestaurer(){
-  try{ var s=localStorage.getItem(iveIdentKey()); if(!s) return null; var o=JSON.parse(s);
+  try{
+    var t=(typeof entTravail==='function')?entTravail():null;
+    if(t && t.nom){
+      window.lastNom=t.nom;
+      window.lastVille=t.ville||'';
+      return {nom:t.nom, ville:t.ville||''};
+    }
+    var s=localStorage.getItem(iveIdentKey()); if(!s) return null; var o=JSON.parse(s);
     if(!window.lastNom && o.nom) window.lastNom=o.nom;
     if(!window.lastVille && o.ville) window.lastVille=o.ville;
     if(!window.lastActivite && o.activite) window.lastActivite=o.activite;
     return o;
   }catch(e){ return null; }
 }
-function iveFaitsKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_faits_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveFaitsKey(){ return 'ive_faits_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function iveFaits(){ try{ var s=localStorage.getItem(iveFaitsKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function iveFaitGet(k){ return !!iveFaits()[k]; }
 function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.setItem(iveFaitsKey(), JSON.stringify(o)); }catch(e){} }
@@ -3130,7 +3147,7 @@ function jetBouton(libelle,cle,action){
   var clic = assez ? ('jetLancer('+c+',function(){'+action+'},\''+cle+'\')') : 'offreView()';
   return jetBoutonBrut(libelle,c,clic,'payant');
 }
-function iveCoffreKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_coffre_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function iveCoffreKey(){ return 'ive_coffre_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function iveCoffreTout(){ try{ var s=localStorage.getItem(iveCoffreKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function iveCoffreLire(cle){ var o=iveCoffreTout()[cle]; return o||null; }
 function iveCoffreEcrire(cle,valeur,empreinte){
@@ -3178,7 +3195,7 @@ function iveCoffrePerimeHtml(cle,actionRelance){
     +'<span style="color:#9a3412;"><i class="ti ti-alert-triangle"></i> Vos données ont changé depuis cette analyse'+(q?(' du '+q):'')+'.</span>'
     +'<span onclick="'+actionRelance+'" style="cursor:pointer;color:#E8541A;font-weight:700;white-space:nowrap;"><i class="ti ti-refresh"></i> Mettre à jour</span></div>';
 }
-function detKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_detail_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function detKey(){ return 'ive_detail_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function detTous(){ try{ var s=localStorage.getItem(detKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
 function detGet(cle){ return detTous()[cle]||null; }
 function detSet(cle,o){ try{ var d=detTous(); d[cle]=o; localStorage.setItem(detKey(), JSON.stringify(d)); }catch(e){} iveCoffreEcrire('detail:'+cle,1,iveEmpreinte()); }
@@ -3273,7 +3290,7 @@ function iveQuiFait(s){ return outilsQuiFait({nom:'',benefice:s||''}); }
 function iveQuiBadge(q){
   return '<span style="font-size:10px;font-weight:800;letter-spacing:.5px;color:'+q.c+';background:'+q.f+';border:1px solid '+q.b+';border-radius:20px;padding:2px 9px;">'+q.t+'</span>';
 }
-function recurDecKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recurdec_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function recurDecKey(){ return 'ive_recurdec_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function recurDecs(){ try{ var s=localStorage.getItem(recurDecKey()); return s?JSON.parse(s):[]; }catch(e){ return []; } }
 function recurDecider(sujet,etat){
   var l=recurDecs().filter(function(d){ return d.sujet!==sujet; });
@@ -3286,7 +3303,7 @@ function recurDecider(sujet,etat){
   recurSet({sujets:window.__recurSujets, ts:0});
   boussoleOutil('outilsia');
 }
-function recurKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_recur_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
+function recurKey(){ return 'ive_recur_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function recurGet(){ try{ var s=localStorage.getItem(recurKey()); return s?JSON.parse(s):null; }catch(e){ return null; } }
 function recurSet(o){ try{ localStorage.setItem(recurKey(), JSON.stringify(o)); }catch(e){} }
 /* MÊME SOURCE que miroirQuotidien (cf. pmTaches30) : deux comptages séparés du même quotidien
@@ -3588,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 266';
+var IVE_VERSION='09/08 · 267';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8347,7 +8364,7 @@ function iveNb(n){ return (n==null||isNaN(n))?'–':Math.round(n).toLocaleString
 
 // Couche de stockage : localStorage aujourd'hui, Supabase demain SANS toucher au reste du code.
 var iveStore={
-  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_rep_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  key:function(){ return 'ive_rep_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
   load:function(){ try{ var s=localStorage.getItem(iveStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
   save:function(o){ try{ localStorage.setItem(iveStore.key(), JSON.stringify(o)); }catch(e){} return o; },
   clear:function(){ try{ localStorage.removeItem(iveStore.key()); }catch(e){} window.__bouRep=null; }
@@ -8357,7 +8374,7 @@ var iveStore={
 var bouGrilleStore={
   // v2 : on mémorise aussi ce que le dirigeant a réellement touché (« vu »), sans quoi un
   // curseur jamais déplacé serait indiscernable d'une note volontairement mise à 3.
-  key:function(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_grille_v2_'+(((a&&a.email)||'anon')+'').toLowerCase(); },
+  key:function(){ return 'ive_grille_v2_'+((typeof cpCle==='function')?cpCle():'anon'); },
   load:function(){ try{ var s=localStorage.getItem(bouGrilleStore.key()); return s?JSON.parse(s):null; }catch(e){ return null; } },
   save:function(){
     if(window.bResto) return;            // pendant la restauration, on n'écrase rien
