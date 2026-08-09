@@ -1255,6 +1255,25 @@ async function ficheEnregistrer(kind, nom, contenu, html){
        ensure_my_entreprise, donc potentiellement deux entreprises créées à chaque visite. */
     if(!window.dbEnt){ try{ await frEntreprise(); }catch(x){} }
     if(!window.dbEnt) return {ok:false, err:'entreprise inconnue'};
+    /* ⚠️ EN MODE CONSULTANT, RIEN NE S'ENREGISTRE SANS DOSSIER OUVERT. Didier, 09/08/2026 :
+       « oui, corrige Analyser un prospect ».
+
+       C'était la dernière porte par laquelle l'ancien défaut revenait. On croyait n'avoir qu'un
+       bouton à rebrancher — mais un scan appelle DÉJÀ `ficheEnregistrer` tout seul (voir l'appel
+       'sentinelle' plus bas) : analyser trois prospects d'affilée déposait trois fiches sur la
+       fiche DBi360, en silence, sans que personne n'ait cliqué sur « enregistrer ».
+
+       ⚠️ LE GARDE-FOU EST ICI, PAS SUR LE BOUTON. Les trois écritures — SENTINELLE, BOUSSOLE,
+       MIROIR — passent toutes par cette fonction. Le poser sur le bouton d'entrée laisserait
+       ouvertes les deux autres routes.
+
+       ⚠️ ET IL NE TOUCHE PAS SON PROPRE ESPACE. `selfServe === false` veut dire « j'analyse
+       quelqu'un d'autre » ; quand il travaille chez lui, l'enregistrement se fait comme avant.
+       Un dirigeant, lui, ne passe jamais par ce chemin. */
+    if(window.selfServe===false && typeof iveIsAdmin==='function' && iveIsAdmin()
+       && typeof entTravail==='function' && !entTravail()){
+      return {ok:false, err:'aucun dossier ouvert — ouvrez-en un dans « Mes entreprises », sinon ceci s\'écrirait sur votre propre fiche'};
+    }
     var r=await window.sb.from('fiches').insert({
       entreprise_id: window.dbEnt,
       auteur_id: (window.currentUser&&window.currentUser.id)||null,
@@ -3525,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 235';
+var IVE_VERSION='09/08 · 236';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8851,7 +8870,18 @@ async function authLogin(){
 }
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
 function goHome(){ window.currentSpace=null; if($('histPanel'))$('histPanel').remove(); showView('home'); window.scrollTo(0,0); }
-function enterDiagnostic(){ window.currentSpace='consultant'; window.selfServe=false; showView('form'); window.scrollTo(0,0); }
+/* ⚠️ ON DEMANDE SUR QUEL DOSSIER AVANT DE LANCER, pas après. Le message arrive au moment où il
+   peut encore choisir — pas sous forme d'échec, une fois le scan payé et affiché. */
+function enterDiagnostic(){
+  if(typeof iveIsAdmin==='function' && iveIsAdmin()
+     && typeof entTravail==='function' && !entTravail()){
+    MSG_ENT='Ouvrez le dossier sur lequel cet audit doit s\'enregistrer, ou créez-le. '
+           +'Sans dossier ouvert, la SENTINELLE, la BOUSSOLE et le MIROIR s\'écriraient sur votre propre fiche.';
+    entreprisesView();
+    return;
+  }
+  window.currentSpace='consultant'; window.selfServe=false; showView('form'); window.scrollTo(0,0);
+}
 /* ═══ MES ENTREPRISES — LA LISTE DE L'ATELIER ══════════════════════════════════════════════
    Didier, 08/08/2026 : « je crée les entreprises sans limitation, et j'enregistre les parcours ».
 
@@ -8882,9 +8912,13 @@ function entCarte(e, courante){
 /* Une valeur qui repart dans un attribut onclick : les apostrophes et les barres obliques y
    casseraient le code, et « L'Atelier du Bois » est un nom d'entreprise parfaitement normal. */
 function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/[\r\n]+/g,' '); }
+/* ⚠️ UN MESSAGE QUI NE VIT QU'UN SEUL AFFICHAGE. Posé une fois, lu une fois, effacé : une
+   consigne qui ne part jamais finit par ne plus rien consigner. */
+var MSG_ENT='';
 async function entreprisesView(){
   if(!iveIsAdmin()){ iveNav('accueil'); return; }
   var t=entTravail();
+  var avis=MSG_ENT; MSG_ENT='';
   $('dirigeant').innerHTML=adminBar()
     +iveEntete('ti-briefcase','MES ENTREPRISES','Les dossiers que j\'audite','accueil')
     +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
@@ -8903,6 +8937,11 @@ async function entreprisesView(){
   $('dirigeant').innerHTML=adminBar()
     +iveEntete('ti-briefcase','MES ENTREPRISES','Les dossiers que j\'audite','accueil')
     /* ═══ CRÉER ═══ */
+    +(avis
+      ? '<div class="card" style="border-left:4px solid #b45309;"><div class="sec">'
+        +'<div style="font-size:12.5px;color:#b45309;line-height:1.5;">'
+        +'<i class="ti ti-arrow-guide"></i> '+esc(avis)+'</div></div></div>'
+      : '')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;">Nouvelle entreprise</div>'
       +'<div style="font-size:11.5px;color:#6b7280;margin:3px 0 10px;">Aucun compte n\'est créé pour elle. '
