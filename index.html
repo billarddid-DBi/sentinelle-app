@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 267';
+var IVE_VERSION='09/08 · 268';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5502,7 +5502,13 @@ async function chargerFaitsDossier(){
 function dossierOuvrir(cle){
   var f=(window.__dossierFaits||{})[cle]; if(!f) return;
   if(cle==='sentinelle'){ showView('form'); restoreFiche(f.ref); }
-  else if(cle==='boussole') restoreBoussole(f.ref);
+  /* ⚠️ LE RAPPORT, PAS LE QUESTIONNAIRE. Didier, 09/08/2026 : « quand je clique sur BOUSSOLE ça
+     me ramène sur le questionnaire et pas sur le rapport ».
+     `restoreBoussole()` recharge les RÉPONSES dans la grille — c'est fait pour reprendre une
+     saisie, et c'est utile depuis l'historique. Ici on vient LIRE un résultat déjà produit :
+     `boussoleResultats()` reconstruit la grille en silence et affiche directement le rapport.
+     Deux gestes voisins, deux fonctions — j'avais pris celle qui portait le mot « restore ». */
+  else if(cle==='boussole') boussoleResultats();
   else if(cle==='miroir') restoreMiroir(f.ref);
   else if(cle==='feuille') goFeuille();
 }
