@@ -125,13 +125,27 @@
   <!-- KPIs -->
   <div class="kpis" id="kpis"></div>
 
-  <!-- OUTIL DE TEST : réinitialiser un compte -->
-  <div class="panel" style="margin-bottom:20px;padding:14px 16px;border:1px solid #fecaca;background:#fff5f5;">
-    <div style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;">🧪 Réinitialiser un compte de test</div>
-    <div style="font-size:12px;color:var(--muted);margin:4px 0 10px;">Supprime la fiche SENTINELLE liée <b>et</b> le compte (libère l'email pour recréer). Réservé à l'admin.</div>
+  <!-- ⚠️ LE MOT « SUPPRIMER » VEUT DIRE DEUX CHOSES OPPOSEES DANS CETTE CONSOLE, ET C EST LE
+       DANGER. Sur une ligne du tableau, il ARCHIVE : rien n est detruit, l onglet « Supprimes »
+       le garde et « Restaurer » le ramene. ICI, il DETRUIT le compte utilisateur pour de bon —
+       l email redevient libre, il n y a pas de retour. Didier, 09/08/2026 : « precise que le
+       compte est supprime definitivement, ecris en rouge avec alerte ».
+       Le bouton s appelle donc « Detruire » et non « Supprimer » : deux gestes irreversibles a
+       des degres differents ne peuvent pas porter le meme verbe. -->
+  <div class="panel" style="margin-bottom:20px;padding:14px 16px;border:2px solid #dc2626;background:#fff5f5;">
+    <div style="font-size:14px;font-weight:800;color:#b91c1c;display:flex;align-items:center;gap:8px;">⚠️ DESTRUCTION DÉFINITIVE — outil de test</div>
+    <div style="font-size:12.5px;color:#b91c1c;margin:6px 0 0;line-height:1.55;">
+      <b>Le compte utilisateur est détruit, pas archivé.</b> Sa fiche SENTINELLE part avec lui et
+      l'email redevient libre. <b>Il n'y a aucun retour possible</b> — ni onglet, ni « Restaurer ».
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin:6px 0 10px;line-height:1.5;">
+      À ne pas confondre avec le bouton <b>Supprimer</b> des lignes ci-dessous, qui ne fait que
+      <b>retirer de la liste</b> : celui-là ne détruit rien et se restaure d'un clic.
+      Réservé aux comptes d'essai.
+    </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <input id="resetEmail" type="email" placeholder="email du compte à supprimer" onkeydown="if(event.key==='Enter')resetTestAccount()" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px;font-size:13px;min-width:260px;">
-      <button onclick="resetTestAccount()" style="padding:8px 14px;border:none;background:#dc2626;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;">Supprimer le compte</button>
+      <input id="resetEmail" type="email" placeholder="email du compte à détruire" onkeydown="if(event.key==='Enter')resetTestAccount()" style="padding:8px 10px;border:1px solid #fecaca;border-radius:8px;font-size:13px;min-width:260px;">
+      <button onclick="resetTestAccount()" style="padding:8px 14px;border:none;background:#dc2626;color:#fff;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;">⚠️ Détruire définitivement</button>
       <span id="resetMsg" style="font-size:12px;"></span>
     </div>
   </div>
@@ -152,7 +166,7 @@
     <div id="archAvis" style="display:none;padding:10px 16px;background:#fffbeb;border-bottom:1px solid var(--line);font-size:12px;color:#b45309;"></div>
     <div id="financeKpis" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:16px 16px 4px"></div>
     <div style="overflow-x:auto"><table><thead><tr>
-      <th>Client</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
+      <th>Client</th><th>Adresse</th><th>Formule</th><th>Prix</th><th>Jetons</th><th>Souscrit le</th><th>Prochaine échéance</th><th>Paiement</th><th></th>
     </tr></thead><tbody id="financeRows"></tbody></table></div>
   </div>
 
@@ -298,9 +312,11 @@ async function loadClients(){
   /* ⚠️ ON LIT AUSSI L'ARCHIVAGE, ET UNE COLONNE ABSENTE NE DOIT PAS VIDER LA CONSOLE. Le 07/08,
      sur l'autre application, un champ pas encore migré a fait disparaître toute une liste d'un
      coup. Ici on réessaie sans la colonne, et l'onglet le dira. */
-  var er=await SB.from('entreprises').select('id,nom,secteur,ville,taille,supprime_le');
-  if(er.error && /supprime_le/i.test(String(er.error.message||''))){
-    MANQUE_ARCHIVE=true;
+  var er=await SB.from('entreprises').select('id,nom,secteur,ville,code_postal,adresse,taille,supprime_le');
+  /* ⚠️ UNE COLONNE PAS ENCORE MIGREE NE DOIT PAS VIDER LA CONSOLE — c est l accident du 07/08 sur
+     l autre application. On retombe sur le jeu minimal, qui existe depuis l origine, et on le dit. */
+  if(er.error && /supprime_le|adresse|code_postal/i.test(String(er.error.message||''))){
+    if(/supprime_le/i.test(String(er.error.message||''))) MANQUE_ARCHIVE=true;
     er=await SB.from('entreprises').select('id,nom,secteur,ville,taille');
   }
   if(er.error){ showLogin('Accès refusé : '+er.error.message); return; }
@@ -329,6 +345,14 @@ async function loadClients(){
 function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
 function mapEnt(e, blob, jet){
   var supprime=e.supprime_le||null;   // null = dossier vivant ; une date = retiré de la liste
+  /* ⚠️ L ADRESSE EST COMPOSEE, PAS SEULEMENT RECOPIEE. Elle sert a reconnaitre l etablissement —
+     et une fiche SENTINELLE se reconnait justement sur nom + ville + ADRESSE. Un dossier sans
+     adresse est celui qui produira un doublon au prochain scan : on veut le voir d un coup d oeil. */
+  var adresse=[e.adresse, [e.code_postal, e.ville].filter(Boolean).join(' ')].filter(Boolean).join(', ');
+  /* ⚠️ C EST LA RUE QUI MANQUE, PAS LA LIGNE. Une ville seule suffit a remplir la cellule et
+     masque le manque — or une fiche SENTINELLE se reconnait sur nom + ville + ADRESSE : sans la
+     rue, le prochain scan cree une SECONDE fiche et l analyse deja payee devient invisible. */
+  var sansRue=!e.adresse;
   var data=(blob&&blob.data)||{};
   var maj=(blob&&blob.maj)||null;
   var snaps=(Array.isArray(data.snaps)?data.snaps:[]).map(function(s){
@@ -376,7 +400,7 @@ function mapEnt(e, blob, jet){
     plan:plan, price:prix, jetOuvert:jetOuvert, jReste:jReste, jInclus:jInclus, jPacks:jPacks,
     since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events,
-    supprime:supprime };
+    supprime:supprime, adresse:adresse, sansRue:sansRue };
 }
 
 /* ============ FACTURATION LIVE (DBi360 micro-entreprise) ============ */
@@ -698,8 +722,13 @@ function renderFinance(){
     // Créditer un pack racheté (30 / 100 / 300). La fonction serveur crée la ligne si besoin,
     // donc le bouton s'affiche même pour un client qui ne s'est jamais connecté.
     if(SB) jcell += '<div style="margin-top:3px;"><button onclick="jetonsPack(\''+d.id+'\',this)" style="padding:2px 8px;border:1px solid var(--line);background:#fff;border-radius:6px;cursor:pointer;font-size:11px;white-space:nowrap;color:var(--muted)">+ pack</button></div>';
-    return '<tr><td class="co">'+d.nom+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td style="white-space:nowrap">'+(SB?(d.supprime?'<button onclick="entRestaurer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">Restaurer</button>':'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button> <button onclick="entSupprimer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;color:#b91c1c">Supprimer</button>'):'')+'</td></tr>';
-  }).join("") || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:18px">'
+    /* Un manque se DIT, en ambre : c est lui qui annonce le doublon SENTINELLE a venir. */
+    var acell = (d.adresse?'<span class="sec">'+esc(d.adresse)+'</span>':'')
+      + (d.sansRue
+          ? '<div style="color:#b45309;font-size:11.5px;white-space:nowrap;">⚠ sans adresse — doublon SENTINELLE au prochain scan</div>'
+          : '');
+    return '<tr><td class="co">'+d.nom+'</td><td>'+acell+'</td><td>'+(d.plan==="annuel"?"Annuel":"Mensuel")+bascule+'</td><td>'+EUR(d.price)+'</td><td>'+jcell+'</td><td class="sec">'+d.since+'</td><td>'+d.renewal+' <span class="sec">('+(d.renewalDays<0?"dépassé":"dans "+d.renewalDays+" j")+')</span></td><td><span class="pill '+p[0]+'"><span class="d"></span>'+p[1]+'</span></td><td style="white-space:nowrap">'+(SB?(d.supprime?'<button onclick="entRestaurer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">Restaurer</button>':'<button onclick="factNew(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap">🧾 Facturer</button> <button onclick="entSupprimer(\''+d.id+'\')" style="padding:4px 10px;border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:12px;white-space:nowrap;color:#b91c1c">Supprimer</button>'):'')+'</td></tr>';
+  }).join("") || '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:18px">'
     +(VUE==='supprimes'?'Aucun dossier supprimé.':'Aucun abonné.')+'</td></tr>';
 }
 /* ═══ RETIRER / REMETTRE UN DOSSIER ═════════════════════════════════════════════════════════
