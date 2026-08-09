@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 248';
+var IVE_VERSION='09/08 · 249';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6751,7 +6751,20 @@ function adminBar(){
        second n'économisait un clic que dans un cas sur deux, sur une barre déjà jugée illisible.
        L'écran, lui, existe toujours : on y accède en cliquant le nom du dossier dans le bandeau
        orange — c'est là qu'on cherche à en changer. */
-    +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Analyser un prospect</button>'
+    /* ⚠️ LE BOUTON DIT CE QU'IL VA FAIRE, ET CE N'EST PAS LA MÊME CHOSE SELON L'ÉTAT. Didier,
+       09/08/2026 : « sur quel bouton je dois aller pour retrouver les entreprises qui sont
+       créées ? » — la réponse était « Analyser un prospect », puisque sans dossier ouvert il
+       ouvre la liste. Mais il a dû POSER la question : un libellé qu'on doit expliquer est un
+       libellé faux.
+       Sans dossier ouvert → « Mes dossiers », et il ouvre la liste.
+       Avec un dossier ouvert → « Analyser <le dossier> », et il va droit au scan.
+       Un seul bouton, deux vérités, jamais de mensonge. */
+    +(function(){
+       var td=(typeof entTravail==='function')?entTravail():null;
+       var lib=td ? ('Analyser '+esc((td.nom||'').slice(0,22))) : 'Mes dossiers';
+       var ic =td ? 'ti-radar-2' : 'ti-briefcase';
+       return '<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti '+ic+'"></i> '+lib+'</button>';
+     })()
     +'</div>';
 }
 /* ===================== ACCUEIL DIRIGEANT — DEUX PORTES =====================
