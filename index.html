@@ -3575,7 +3575,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 256';
+var IVE_VERSION='09/08 · 257';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6383,9 +6383,11 @@ function iveIdentLigne(){
       +'font-weight:700;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">'
       +'<i class="ti ti-briefcase"></i> AUDIT · '+esc(t.nom||'entreprise sans nom')
       +(t.ville?' · '+esc(t.ville):'')+'</button>'
-      +'<button type="button" onclick="entTravailQuitter()" style="border:1px solid #ffffff66;'
-      +'background:transparent;color:#fff;border-radius:6px;padding:2px 7px;font-size:10.5px;'
-      +'font-weight:700;cursor:pointer;font-family:inherit;">Revenir chez moi</button>'
+      /* ⚠️ PLUS DE « REVENIR CHEZ MOI » (Didier, 09/08/2026 : « tu enlèves les revenir chez moi
+         partout »). Il était justifié tant qu'il était la SEULE sortie d'un dossier. Depuis que
+         « ← Accueil » referme le dossier — la règle « Accueil veut dire chez moi » —, deux
+         boutons faisaient la même chose côte à côte, dont un présent sur tous les écrans.
+         Le bandeau ne garde que ce qu'il est seul à savoir dire : sur QUOI on travaille. */
     +'</div>';
   }
   /* ⚠️ SANS DOSSIER OUVERT, LE CONSULTANT N'A PAS D'ENTREPRISE À AFFICHER. Didier, 09/08/2026 :
