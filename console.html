@@ -211,7 +211,7 @@
             <th data-k="iat" onclick="sortBy('iat')">IAT</th>
             <th data-k="ive" onclick="sortBy('ive')">IVE</th>
             <th data-k="av" onclick="sortBy('av')">Avancement</th>
-            <th data-k="nb" onclick="sortBy('nb')">Contrôles</th>
+            <th data-k="nb" onclick="sortBy('nb')">Analyses</th>
             <th data-k="statut" onclick="sortBy('statut')">Statut</th>
           </tr></thead>
           <tbody id="rows"></tbody>
@@ -334,7 +334,23 @@ async function loadClients(){
      La table `jetons` porte la vérité depuis ce matin, et l'administrateur seul peut l'écrire. */
   var jr=await SB.from('jetons').select('entreprise_id,formule,inclus,utilises,packs,periode');
   var jets={}; (jr.data||[]).forEach(function(x){ jets[x.entreprise_id]=x; });
-  DATA = ents.map(function(e){ return mapEnt(e, blobs[e.id], jets[e.id]); });
+  /* ⚠️ LA CONSOLE NE REGARDAIT QUE LE DIRIGEANT. Didier, 09/08/2026 : « pourquoi j ai pas d info
+     dans la console ? » — dronavia et references pare brise s affichaient a « 0 % », « 0
+     controles », « Silence », alors qu il venait d y faire une SENTINELLE.
+     Normal : `pm_data` et `snaps` sont le QUOTIDIEN DU DIRIGEANT, et un dossier d audit n en a
+     pas — personne ne s y connecte. Ce que le CONSULTANT produit vit dans `fiches`. Sans elle,
+     la console jugeait « silencieux » un dossier sur lequel on venait de travailler. */
+  var fr=await SB.from('fiches').select('entreprise_id,kind,cree_le').order('cree_le',{ascending:false});
+  var analyses={};
+  (fr.data||[]).forEach(function(f){
+    var id=f.entreprise_id, k=String(f.kind||'').toLowerCase();
+    if(!analyses[id]) analyses[id]={n:0, kinds:{}, derniere:null};
+    analyses[id].n++;
+    if(!analyses[id].kinds[k]) analyses[id].kinds[k]=(''+f.cree_le).slice(0,10);
+    var d=(''+f.cree_le).slice(0,10);
+    if(!analyses[id].derniere || d>analyses[id].derniere) analyses[id].derniere=d;
+  });
+  DATA = ents.map(function(e){ return mapEnt(e, blobs[e.id], jets[e.id], analyses[e.id]); });
   var sel=document.getElementById('secteur');
   if(sel){ sel.innerHTML='<option value="">Tous secteurs</option>';
     Array.from(new Set(ents.map(function(x){return x.secteur;}).filter(Boolean))).sort().forEach(function(s){ var o=document.createElement('option'); o.value=s; o.textContent=s; sel.appendChild(o); }); }
@@ -349,7 +365,7 @@ async function loadClients(){
   loadFacturation();
 }
 function num(v){ return (v==null||v==='')?null:(isNaN(+v)?null:+v); }
-function mapEnt(e, blob, jet){
+function mapEnt(e, blob, jet, ana){
   var supprime=e.supprime_le||null;   // null = dossier vivant ; une date = retiré de la liste
   /* ⚠️ L ADRESSE EST COMPOSEE, PAS SEULEMENT RECOPIEE. Elle sert a reconnaitre l etablissement —
      et une fiche SENTINELLE se reconnait justement sur nom + ville + ADRESSE. Un dossier sans
@@ -381,9 +397,14 @@ function mapEnt(e, blob, jet){
   var dIat=(prev&&last&&last.iat!=null&&prev.iat!=null)?(last.iat-prev.iat):null;
   var dIve=(prev&&last&&last.ive!=null&&prev.ive!=null)?(last.ive-prev.ive):null;
   var lastD=last?last.d:(maj?(''+maj).slice(0,10):null);
+  /* ⚠️ CE QUE LE CONSULTANT A PRODUIT COMPTE AUSSI COMME ACTIVITE. Sans ca, un dossier audite
+     hier passait « Silence » parce que son dirigeant, lui, ne s est jamais connecte. */
+  if(ana && ana.derniere && (!lastD || ana.derniere>lastD)) lastD=ana.derniere;
   var jours=lastD?Math.round((TODAY-new Date(lastD))/864e5):999;
   var statut='ok';
-  if(!snaps.length || jours>45) statut='silence';
+  /* ⚠️ « SILENCE » VEUT DIRE « PLUS RIEN NE BOUGE », pas « le dirigeant n a pas de trajectoire ».
+     Un dossier d audit n a pas de `snaps` — c est normal, et ce n est pas un silence. */
+  if((!snaps.length && !(ana&&ana.n)) || jours>45) statut='silence';
   else if((dIat!=null&&dIat<0)||(dIve!=null&&dIve<0)) statut='regression';
   else if(prev&&dIat===0&&dIve===0) statut='stagnation';
   /* ABONNEMENT — désormais lu dans la table `jetons`, plus écrit en dur.
@@ -410,7 +431,8 @@ function mapEnt(e, blob, jet){
     plan:plan, price:prix, jetOuvert:jetOuvert, jReste:jReste, jInclus:jInclus, jPacks:jPacks,
     since:since, renewal:ren.toISOString().slice(0,10), renewalDays:renewalDays,
     pay:(renewalDays<0?'retard':(renewalDays<=30?'proche':'ajour')), snaps:snaps, steps:steps, events:events,
-    supprime:supprime, adresse:adresse, sansRue:sansRue, email:email };
+    supprime:supprime, adresse:adresse, sansRue:sansRue, email:email,
+    ana:(ana||{n:0,kinds:{},derniere:null}) };
 }
 
 /* ============ FACTURATION LIVE (DBi360 micro-entreprise) ============ */
@@ -677,6 +699,25 @@ function trendHtml(delta){
 }
 function pill(s){return '<span class="pill p-'+({ok:"ok",stagnation:"stag",regression:"reg",silence:"sil"}[s])+'"><span class="d"></span>'+STAT_LABEL[s]+'</span>';}
 function bar(v){return '<span class="bar"><i style="width:'+v+'%"></i></span><span class="bar-l">'+v+'%</span>';}
+/* ⚠️ CE QUE LE CONSULTANT A PRODUIT, EN TROIS LETTRES. Didier, 09/08/2026 : « pourquoi j ai pas
+   d info dans la console ? » — la colonne comptait les CONTROLES du dirigeant (ses instantanes),
+   qui n existent pas sur un dossier d audit. Elle affichait donc « 0 » sur une entreprise
+   analysee la veille. Elle montre desormais ce qui a ete PRODUIT pour elle : S, B, M — chacune
+   allumee si la piece existe, avec sa date en infobulle.
+   ⚠️ ET LES INSTANTANES DU DIRIGEANT RESTENT AFFICHES quand il y en a : les deux mesures ne
+   disent pas la meme chose, effacer l une pour montrer l autre serait perdre de l information. */
+function anaHtml(d){
+  var a=d.ana||{kinds:{}};
+  var jeu=[['S','SENTINELLE'],['B','BOUSSOLE'],['M','MIROIR']];
+  var html=jeu.map(function(p){
+    var quand=a.kinds[p[1].toLowerCase()];
+    var st=quand ? 'background:#dcfce7;color:#14532d;' : 'background:#f1f3f4;color:#c7ccd3;';
+    return '<span title="'+p[1]+(quand?(' — '+quand):' — pas encore')+'" style="display:inline-block;'
+      +'min-width:19px;text-align:center;border-radius:6px;padding:1px 5px;font-size:11px;'
+      +'font-weight:700;margin-right:3px;'+st+'">'+p[0]+'</span>';
+  }).join('');
+  return html + (d.nb ? '<div class="sec" style="margin-top:2px;">'+d.nb+' contrôle'+(d.nb>1?'s':'')+'</div>' : '');
+}
 function fmtDays(j){return j===0?"aujourd'hui":j===1?"hier":"il y a "+j+" j";}
 
 /* ============ SUIVI FINANCIER ============ */
@@ -871,7 +912,7 @@ function render(){
       <td><b>${d.iat}</b> ${trendHtml(d.dIat)}</td>
       <td><b>${d.ive}</b> ${trendHtml(d.dIve)}</td>
       <td>${bar(d.av)}</td>
-      <td>${d.nb}</td>
+      <td>${anaHtml(d)}</td>
       <td>${pill(d.statut)}</td>
     </tr>`).join("") || '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:26px">Aucun client ne correspond.</td></tr>';
 
