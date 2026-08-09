@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 252';
+var IVE_VERSION='09/08 · 253';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5400,13 +5400,16 @@ async function ecranDossier(){
         +esc([t.adresse,t.ville].filter(Boolean).join(', ')||'adresse non renseignée')+'</div>'
       +'<div class="grid2" style="margin-top:10px;">'+cases+'</div>'
     +'</div></div>'
+    /* ⚠️ « REVENIR CHEZ MOI » N'EST PLUS ICI (Didier, 09/08/2026 : « supprime revenir chez moi »).
+       Il apparaissait DEUX FOIS sur le même écran : dans le bandeau orange, et en bas. Le même
+       geste offert deux fois au même moment fait douter qu'il s'agisse du même geste.
+       ⚠️ ON GARDE CELUI DU BANDEAU, PAS CELUI-CI : le bandeau passe sur TOUS les écrans, donc
+       fermer un dossier reste possible de partout — y compris depuis une fiche ou un
+       questionnaire, où il n'y a pas de bas de page. */
     +'<div class="card"><div class="sec">'
       +'<button type="button" onclick="entreprisesView()" class="tsel" style="border:1px solid #d7dbe3;'
         +'background:#fff;color:#4b5563;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:700;'
-        +'cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i> Tous mes dossiers</button> '
-      +'<button type="button" onclick="entTravailQuitter()" class="tsel" style="border:1px solid #d7dbe3;'
-        +'background:#fff;color:#4b5563;border-radius:9px;padding:9px 12px;font-size:12.5px;font-weight:700;'
-        +'cursor:pointer;font-family:inherit;"><i class="ti ti-home"></i> Revenir chez moi</button>'
+        +'cursor:pointer;font-family:inherit;"><i class="ti ti-arrow-left"></i> Tous mes dossiers</button>'
     +'</div></div>';
   window.scrollTo(0,0);
 }
