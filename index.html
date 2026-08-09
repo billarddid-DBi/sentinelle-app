@@ -3525,7 +3525,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 231';
+var IVE_VERSION='09/08 · 232';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7783,7 +7783,11 @@ function renderAuth(mode){
       +'';
   }
   var html='<div class="card">'
-    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:15px;font-weight:500;margin-top:3px;">Votre suivi de transformation, rien qu\'à vous.</div></div>'
+    /* ⚠️ « ESPACE CONSULTANT » DEPUIS LE 09/08/2026 (Didier). Le titre disait « dirigeant » sur
+       la seule porte d'une application qui est désormais l'atelier du consultant — le dirigeant,
+       lui, se connecte sur l'APP DIRIGEANT. Le sous-titre suit : « votre suivi de
+       transformation » est ce qu'on promet à un client, pas ce qu'on se dit à soi-même. */
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-briefcase"></i> ESPACE CONSULTANT</div><div style="font-size:15px;font-weight:500;margin-top:3px;">Vos audits et vos dossiers d\'entreprises.</div></div>'
     /* ⚠️ L'ONGLET D'INSCRIPTION EST RETIRÉ, PAS LE CODE QUI EST DERRIÈRE. `renderAuth('signup')`
        fonctionne toujours : le jour où il faut fabriquer un compte d'essai, il s'appelle depuis
        la console du navigateur. On enlève la porte de la façade, on ne mure pas la pièce. */
