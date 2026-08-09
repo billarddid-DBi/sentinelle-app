@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 245';
+var IVE_VERSION='09/08 · 246';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5273,10 +5273,14 @@ function entTravail(){
    oublier un), et un rechargement perd tout ce qu'on tenait. On dépose donc l'intention à côté
    du dossier, et on la ramasse au démarrage. */
 var ENT_APRES_CLE='ive_apres_bascule_v1';
-function entTravailPoser(id, nom, ville, apres){
+/* ⚠️ L'ADRESSE VOYAGE AVEC LE DOSSIER. Sans elle, le scan repartirait sur « nom + ville » seuls —
+   or c'est précisément le trio nom + ville + ADRESSE qui distingue deux établissements
+   homonymes, et son absence qui fabrique les doublons. On la retient donc au moment où on
+   ouvre, pas au moment où on cherche. */
+function entTravailPoser(id, nom, ville, apres, adresse){
   if(!id) return;
   try{
-    localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||''}));
+    localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||'', adresse:adresse||''}));
     if(apres) localStorage.setItem(ENT_APRES_CLE, apres);
   }catch(e){}
   entRecharger();
@@ -5286,7 +5290,28 @@ function entTravailPoser(id, nom, ville, apres){
 function entApresBascule(){
   var quoi=null;
   try{ quoi=localStorage.getItem(ENT_APRES_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
-  if(quoi==='scan' && typeof enterDiagnostic==='function') enterDiagnostic();
+  if(quoi==='scan') lancerSentinelleDossier();
+}
+/* ⚠️ ON NE REDEMANDE PAS CE QU'IL VIENT DE TAPER. Didier, 09/08/2026 : « quand je lance
+   SENTINELLE sur le nouveau bouton il ouvre ça, je veux aller directement sur SENTINELLE ».
+   Il venait de saisir le nom, la ville et l'adresse pour créer le dossier — et le formulaire de
+   scan lui redemandait « Nom de l'entreprise + ville ». Le dossier SAIT qui il est : il porte
+   l'identité, le scan la reprend.
+
+   ⚠️ ET C'EST LE MÊME CHEMIN QUE POUR LE DIRIGEANT (`lancerMaSentinelle`) : on remplit le champ
+   ET on lance. Le champ reste rempli à l'écran — il verra sur quoi le scan est parti, ce qui
+   compte le jour où le résultat surprend. */
+function lancerSentinelleDossier(){
+  var t=(typeof entTravail==='function')?entTravail():null;
+  if(!t) return;
+  var q=[t.nom, t.adresse, t.ville].filter(Boolean).join(', ').trim();
+  if(!q) return;
+  window.currentSpace='consultant';
+  window.selfServe=false;
+  showView('form');
+  if($('q')) $('q').value=q;
+  if(typeof run==='function') run({ text:q });
+  window.scrollTo(0,0);
 }
 function entTravailQuitter(){
   try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
@@ -8953,7 +8978,15 @@ function enterDiagnostic(){
     entreprisesView();
     return;
   }
-  window.currentSpace='consultant'; window.selfServe=false; showView('form'); window.scrollTo(0,0);
+  window.currentSpace='consultant'; window.selfServe=false; showView('form');
+  /* ⚠️ AVEC UN DOSSIER OUVERT, LE CHAMP EST DÉJÀ REMPLI — et pas par confort : scanner une AUTRE
+     entreprise pendant qu'un dossier est ouvert ferait atterrir sa fiche sur le mauvais dossier.
+     Le champ reste modifiable (une re-mesure, une correction d'adresse), mais il part juste. */
+  var td=(typeof entTravail==='function')?entTravail():null;
+  if(td && $('q') && !$('q').value.trim()){
+    $('q').value=[td.nom, td.adresse, td.ville].filter(Boolean).join(', ');
+  }
+  window.scrollTo(0,0);
 }
 /* ═══ MES ENTREPRISES — LA LISTE DE L'ATELIER ══════════════════════════════════════════════
    Didier, 08/08/2026 : « je crée les entreprises sans limitation, et j'enregistre les parcours ».
@@ -8979,7 +9012,7 @@ function entCarte(e, courante){
     +'</div>'
     +(courante
       ? '<button type="button" onclick="entTravailQuitter()" style="border:1px solid #d7dbe3;background:#fff;color:#4b5563;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Fermer</button>'
-      : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
+      : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\',\'\',\''+escJs(e.adresse||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
     /* ⚠️ « RETIRER », PAS « DÉTRUIRE ». Le dossier sort de la liste et se restaure depuis la
        console. Le libellé dit ce que le geste fait vraiment — promettre une destruction qu'on
        ne fait pas serait pire que de ne rien promettre. */
@@ -9144,7 +9177,7 @@ async function entCreer(){
       return;
     }
     /* On crée, on ouvre, ET on enchaîne sur le scan : c'est pour ça qu'on crée un dossier. */
-    entTravailPoser(r.data.id, r.data.nom, r.data.ville, 'scan');
+    entTravailPoser(r.data.id, r.data.nom, r.data.ville, 'scan', adresse);
   }catch(e){ dire('La base n\'a pas répondu. Rien n\'a été créé.','#b91c1c'); }
 }
 function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ location.href='console.html'; } }
