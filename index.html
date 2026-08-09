@@ -3544,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 239';
+var IVE_VERSION='09/08 · 240';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5248,6 +5248,11 @@ function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={
    `profils.entreprise_id` de `auth.uid()`. Auditer un prospect puise donc dans VOTRE compteur,
    jamais dans le sien — c'est votre prospection, c'est vous qui la payez. */
 var ENT_TRAVAIL_CLE='ive_ent_travail_v1';
+/* ⚠️ LE RECHARGEMENT PASSE PAR UNE FONCTION, pas par `location.reload()` écrit à quatre endroits.
+   Ce n'est pas de la coquetterie : un banc ne PEUT PAS remplacer `location` — y affecter un objet
+   déclenche une navigation, et la page testée disparaît. Une fonction, elle, se remplace. Sans
+   ça, ces quatre chemins resteraient les seuls du fichier à ne jamais être vérifiés. */
+function entRecharger(){ location.reload(); }
 function entTravail(){
   if(typeof iveIsAdmin!=='function' || !iveIsAdmin()) return null;
   try{ var j=JSON.parse(localStorage.getItem(ENT_TRAVAIL_CLE)||'null');
@@ -5260,11 +5265,39 @@ function entTravail(){
 function entTravailPoser(id, nom, ville){
   if(!id) return;
   try{ localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||''})); }catch(e){}
-  location.reload();
+  entRecharger();
 }
 function entTravailQuitter(){
   try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
-  location.reload();
+  entRecharger();
+}
+/* ⚠️ UN DOSSIER OUVERT ICI PEUT AVOIR ÉTÉ RETIRÉ AILLEURS. Didier, 09/08/2026 : « pourquoi
+   c'est écrit Feu Vert Marly, pour le moment il n'y a plus d'entreprise ? » — il avait retiré le
+   dossier depuis la console, et l'application continuait de l'annoncer en gros sur tous ses
+   écrans. Le choix vit dans le navigateur, la vérité vit dans la base : il faut les confronter.
+
+   ⚠️ ON NE LÂCHE LE DOSSIER QUE SI LA BASE DIT NON, PAS SI ELLE NE RÉPOND PAS. Une coupure
+   réseau ne doit jamais lui faire perdre son contexte de travail — c'est la faute inverse, et
+   elle est pire : il continuerait d'écrire en croyant être ailleurs.
+
+   ⚠️ ET UNE SEULE FOIS PAR SESSION. `frEntreprise()` est appelée à chaque écriture ; vérifier à
+   chaque fois ajouterait une requête à chaque geste. Après le nettoyage, la clé n'existe plus :
+   le rechargement ne peut pas boucler. */
+var ENT_VERIFIE=false;
+async function entTravailVerifier(trav){
+  if(ENT_VERIFIE || !trav) return;
+  ENT_VERIFIE=true;
+  try{
+    var r=await window.sb.from('entreprises').select('id,supprime_le').eq('id',trav.id).maybeSingle();
+    if(r.error) return;                       // la base n'a pas répondu : on ne touche à rien
+    var perdu = !r.data || r.data.supprime_le;
+    if(!perdu) return;
+    try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
+    alert('Le dossier « '+(trav.nom||'')+' » a été retiré des listes ailleurs.\n\n'
+      +'Rien n\'est perdu : il se restaure depuis « Mes abonnés », onglet « Supprimés ».\n'
+      +'L\'application repart sur votre propre compte.');
+    entRecharger();
+  }catch(e){}
 }
 async function frEntreprise(){
   try{
@@ -5273,7 +5306,7 @@ async function frEntreprise(){
     /* Le choix du consultant passe AVANT le cache : au rechargement, `dbEnt` est vide et la RPC
        ramènerait sa propre entreprise — donc la première écriture partirait au mauvais endroit. */
     var trav=entTravail();
-    if(trav){ window.dbEnt=trav.id; return trav.id; }
+    if(trav){ window.dbEnt=trav.id; entTravailVerifier(trav); return trav.id; }
     if(window.dbEnt) return window.dbEnt;
     if(window.__entEnVol) return window.__entEnVol;
     window.__entEnVol=(async function(){
@@ -8942,7 +8975,7 @@ async function entArchiver(id, nom){
     }
     /* Le dossier archivé était celui ouvert : `dbEnt` pointerait sur un dossier retiré de la
        liste. On repart proprement plutôt que de laisser l'application écrire dessus. */
-    if(courant){ try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){} location.reload(); return; }
+    if(courant){ try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){} entRecharger(); return; }
     MSG_ENT='« '+(nom||'')+' » est retiré de la liste. Rien n\'est perdu : il se restaure depuis « Mes abonnés », onglet « Supprimés ».';
     entreprisesView();
   }catch(e){ MSG_ENT='La base n\'a pas répondu. Rien n\'a été retiré.'; entreprisesView(); }
