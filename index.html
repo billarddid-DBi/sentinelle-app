@@ -3588,7 +3588,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 263';
+var IVE_VERSION='09/08 · 264';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4369,12 +4369,42 @@ function runConcurrence(){
   }
   fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
-   .then(function(d){ if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; } concStore.save(d,kw); renderConcu(d); })
-   .catch(function(e){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>'; });
+   /* ⚠️ ON RELÂCHE LE BOUTON, QUOI QU'IL ARRIVE. Didier, 09/08/2026 : « ça dit aucun concurrent »,
+      la pastille bloquée sur « en cours… » — et, avant ça, « si je lance une nouvelle recherche
+      il ne se passe rien ».
+      `jetLancer()` ne libère le bouton QUE sur ses propres échecs : dès que le jeton est
+      décompté, elle appelle l'action et s'en va. L'action, elle, est asynchrone — personne ne
+      rendait donc la main au bouton une fois la recherche terminée. Il restait verrouillé, et
+      plus aucune relance n'était possible : le geste suivant ne faisait littéralement rien.
+      C'est ici que ça se répare : l'action sait quand elle a fini. */
+   .then(function(d){
+     if(typeof jetLibere==='function') jetLibere();
+     if(d.error){ out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc(d.error)+'</div>'; return; }
+     concStore.save(d,kw); renderConcu(d);
+   })
+   .catch(function(e){
+     if(typeof jetLibere==='function') jetLibere();
+     out.innerHTML='<div class="sec" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> L\'analyse a pris trop de temps (recherche web lente en ce moment). Réessayez dans un instant.</div>';
+   });
 }
 function renderConcu(d){
   var out=document.getElementById('cOut');
-  if(!d.concurrents||!d.concurrents.length){ out.innerHTML='<div class="sec" style="color:#6b7280;font-size:13px;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon. Essayez un autre mot-clé ou un rayon plus grand.</div>'; return; }
+  /* ⚠️ ZÉRO RÉSULTAT : ON DIT LA CAUSE LA PLUS FRÉQUENTE. Didier a cherché « reference pare brise
+     augny » — le NOM de son client, et sa ville. Le champ attend le MÉTIER : on cherche les
+     entreprises qui font la même chose que lui, pas celle qui porte ce nom. Un mot de trop et la
+     recherche ne peut rien trouver. « Essayez un autre mot-clé » ne le disait pas. */
+  if(!d.concurrents||!d.concurrents.length){
+    var mots=String(d.keyword||'').trim().split(/\s+/).filter(Boolean);
+    out.innerHTML='<div class="sec" style="font-size:13px;color:#6b7280;">'
+      +'<b style="color:#1C1C1C;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon.</b>'
+      +(mots.length>2
+        ? '<div style="margin-top:6px;color:#b45309;"><i class="ti ti-bulb"></i> Le mot-clé est le <b>métier</b>, '
+          +'pas le nom de l\'entreprise ni sa ville — on cherche ceux qui font la MÊME CHOSE qu\'elle. '
+          +'Essayez <b>« pare-brise »</b> seul.</div>'
+        : '<div style="margin-top:6px;">Essayez un mot plus courant, ou un rayon plus grand.</div>')
+    +'</div>';
+    return;
+  }
   // Prospect en 1re ligne, puis concurrents DU PLUS PROCHE AU PLUS LOIN (tri par distance croissante)
   d.concurrents.sort(function(a,b){ return (a.distance!=null?a.distance:1e9)-(b.distance!=null?b.distance:1e9); });
   window.__concuData=d; // mémorisé pour l'envoi email (récap slide 7)
