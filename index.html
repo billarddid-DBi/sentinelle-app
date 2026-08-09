@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 253';
+var IVE_VERSION='09/08 · 254';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5310,6 +5310,10 @@ function entApresBascule(){
   try{ quoi=localStorage.getItem(ENT_APRES_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
   if(quoi==='scan') lancerSentinelleDossier();
   else if(quoi==='dossier') ecranDossier();
+  /* ⚠️ APRÈS AVOIR REFERMÉ UN DOSSIER, ON ATTERRIT CHEZ SOI, pas sur la page publique. Le
+     rechargement est nécessaire — il purge les caches du dossier — mais sans cette intention il
+     ramènerait sur l'écran d'accueil du site, et il faudrait encore un clic pour rentrer. */
+  else if(quoi==='accueil' && typeof dirigeantSpace==='function') dirigeantSpace();
 }
 /* ═══ L'AVANCEMENT D'UN DOSSIER ═════════════════════════════════════════════════════════════
    Didier, 09/08/2026 : « quand je clique sur l'entreprise je vois l'avancement et je peux ouvrir
@@ -5450,7 +5454,7 @@ function lancerSentinelleDossier(){
   window.scrollTo(0,0);
 }
 function entTravailQuitter(){
-  try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
+  try{ localStorage.removeItem(ENT_TRAVAIL_CLE); localStorage.setItem(ENT_APRES_CLE,'accueil'); }catch(e){}
   entRecharger();
 }
 /* ⚠️ UN DOSSIER OUVERT ICI PEUT AVOIR ÉTÉ RETIRÉ AILLEURS. Didier, 09/08/2026 : « pourquoi
@@ -6864,23 +6868,28 @@ function iveGrilleEtats(){
   }catch(e){}
   return o;
 }
-/* ⚠️ UN DOSSIER OUVERT A UN SEUL ACCUEIL — LE SIEN. Didier, 09/08/2026 : « pourquoi j'ai cette
-   page maintenant, Dronavia est déjà analysé... je comprends plus rien, c'est le bordel dans
-   l'architecture. » Il avait raison, et voici exactement le défaut :
+/* ⚠️ ACCUEIL VEUT DIRE « CHEZ MOI » — ET UN DOSSIER OUVERT S'Y REFERME. Didier, 09/08/2026 :
+   « quand je clique sur accueil, je dois systématiquement revenir sur cette page ».
 
-   `dirigeantSpace()` est l'accueil du DIRIGEANT. Ses douze tuiles se construisent sur des
-   variables de COMPTE — `lastMiroir`, `frData`, `pmData`, `__sentData` — jamais sur le dossier
-   ouvert. Avec Dronavia ouvert, l'écran affichait donc « Questionnaire 34/40 », « Carte de la
-   concurrence : Faite », « SENTINELLE : à lancer » : les chiffres de SON compte à lui, sous le
-   nom de Dronavia. Deux accueils qui ne se connaissaient pas.
+   L'écran qu'il montre est SON espace : ses douze tuiles se construisent sur des variables de
+   COMPTE (`lastMiroir`, `frData`, `pmData`), jamais sur le dossier ouvert. C'est ce qui, une
+   heure plus tôt, affichait « Questionnaire 34/40 » et « SENTINELLE : à lancer » sous le nom de
+   Dronavia : les chiffres de son compte à lui, posés sur un dossier qui ne les connaît pas.
 
-   ⚠️ LA RÈGLE TIENT ICI, EN UN SEUL ENDROIT, parce que tout ce qui « rentre à la maison » passe
-   par cette fonction — la navigation, le retour d'un enregistrement, la sortie d'une fiche
-   archivée. La poser sur chaque appelant, c'est en oublier un, et le désordre revient par là. */
+   Deux façons de régler ça : détourner Accueil vers le dossier, ou faire qu'Accueil RAMÈNE
+   VRAIMENT CHEZ SOI. Il a tranché pour la seconde, et elle est meilleure : un mot, un endroit.
+   Le dossier se rouvre par « Mes dossiers ».
+
+   ⚠️ ON RECHARGE EN REFERMANT, et ce n'est pas de la prudence excessive : une douzaine de caches
+   du dossier vivent en mémoire. Rentrer chez soi en les gardant afficherait les chiffres de
+   Dronavia comme étant les siens — exactement le défaut qu'on corrige.
+
+   ⚠️ ET LA RÈGLE TIENT ICI, EN UN SEUL ENDROIT, parce que tout ce qui « rentre à la maison »
+   passe par cette fonction. La poser sur chaque appelant, c'est en oublier un. */
 function dirigeantSpace(){
   if(typeof iveIsAdmin==='function' && iveIsAdmin()
      && typeof entTravail==='function' && entTravail()
-     && typeof ecranDossier==='function'){ ecranDossier(); return; }
+     && typeof entTravailQuitter==='function'){ entTravailQuitter(); return; }
   window.currentSpace='dirigeant';
   if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
   var acc=currentAccount();
@@ -8073,7 +8082,22 @@ function syncPush(now){
     }catch(e){ console.warn('syncPush', e && e.message); }
   }, now?0:1200);
 }
-async function authLogout(){ try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){} window.currentUser=null; if(typeof authResetState==='function') authResetState(); renderAuth('login'); }
+/* ⚠️ LA DÉCONNEXION REFERME LE DOSSIER OUVERT. Didier, 09/08/2026 : « quand je suis déconnecté
+   et que je me reconnecte, je ne dois pas tomber sur une entreprise déjà en cours. Je dois
+   tomber sur la page d'accueil et rouvrir l'entreprise de mon choix. »
+
+   Le dossier de travail vit dans le navigateur, pas dans la session : il survivait donc à la
+   déconnexion, et la connexion suivante rouvrait l'application sur une entreprise qu'on n'avait
+   pas choisie — avec le risque d'y écrire en croyant être chez soi.
+
+   ⚠️ ON EFFACE AUSSI L'INTENTION EN ATTENTE. Un « lancer la SENTINELLE » déposé juste avant une
+   déconnexion partirait à la reconnexion, sur un dossier qu'on vient de refermer. */
+async function authLogout(){
+  try{ localStorage.removeItem(ENT_TRAVAIL_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
+  window.dbEnt=null;
+  try{ await window.sbReady; if(window.sb) await window.sb.auth.signOut(); }catch(e){}
+  window.currentUser=null; if(typeof authResetState==='function') authResetState(); renderAuth('login');
+}
 async function sendHandoff(){
   var email=prompt("Email du dirigeant qui recevra ce diagnostic dans son espace :");
   if(!email||!email.trim()) return;
