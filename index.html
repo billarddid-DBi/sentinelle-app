@@ -3575,7 +3575,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 255';
+var IVE_VERSION='09/08 · 256';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6388,6 +6388,14 @@ function iveIdentLigne(){
       +'font-weight:700;cursor:pointer;font-family:inherit;">Revenir chez moi</button>'
     +'</div>';
   }
+  /* ⚠️ SANS DOSSIER OUVERT, LE CONSULTANT N'A PAS D'ENTREPRISE À AFFICHER. Didier, 09/08/2026 :
+     « pourquoi j'ai Feu Vert dans le bandeau ? » — sur l'écran de ses dossiers, la ligne
+     annonçait « Feu Vert Metz Marly · Marly (57155) », c'est-à-dire SA propre entreprise, reprise
+     de `lastNom`. Un reste de la conception « dirigeant », où cette ligne rappelait l'entreprise
+     qu'on est en train de regarder. Sur l'atelier, il n'y en a pas : la seule identité qui
+     compte est le dossier ouvert, et quand il n'y en a pas, la ligne se tait.
+     Son identité à lui est déjà dans la barre noire du dessus (« Mode admin · DBi360 »). */
+  if(typeof iveIsAdmin==='function' && iveIsAdmin()) return '';
   var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var n=window.lastNom||(a&&a.name)||'', v=window.lastVille||(a&&a.ville)||'';
   if(!n) return '';
