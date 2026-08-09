@@ -3522,7 +3522,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='02/08 · 229';
+var IVE_VERSION='09/08 · 230';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5202,10 +5202,56 @@ function frSaveLocal(){ var d=window.frData; if(!d) return; var st={},no={},he={
    vol garantit qu'il n'y en a qu'une, comme pour la lecture des réponses salariés (ahAuto).
    La promesse est relâchée dans le `finally` : posée d'avance et jamais libérée, un échec
    condamnerait la session — c'est la faute déjà commise le 31/07. */
+/* ═══ L'ENTREPRISE DE TRAVAIL — L'ATELIER DU CONSULTANT ═══════════════════════════════════
+   Didier, 08/08/2026 : « L'IVE devient mon outil de travail : je crée les entreprises sans
+   limitation, je fais SENTINELLE, BOUSSOLE, MIROIR et tout le reste, et j'enregistre les
+   parcours. »
+
+   ⚠️ CE QUI SE PASSAIT AVANT. Le scan SENTINELLE, lui, était bien rangé à part (la table
+   `sentinelles` n'appartient à personne). Mais TOUT le reste — BOUSSOLE, MIROIR, feuille de
+   route, tâches, snapshots — s'écrivait avec `entreprise_id = window.dbEnt`, et `dbEnt` valait
+   toujours l'entreprise du compte connecté. Deux audits de deux prospects se mélangeaient donc
+   sur la fiche DBi360, sans que rien ne le dise à l'écran.
+
+   ⚠️ POURQUOI UN SEUL POINT SUFFIT. Tout le code d'écriture passe par `frEntreprise()`. Changer
+   ce qu'elle renvoie fait basculer l'ensemble d'un coup — il n'y a pas douze endroits à
+   corriger, il y en a un.
+
+   ⚠️ ET LA BASE TRANCHE, PAS LE NAVIGATEUR. Aucun contrôle n'est ajouté ici : les règles RLS
+   disent déjà `is_admin() or entreprise_id = my_entreprise()`. Un dirigeant qui forcerait cette
+   valeur depuis la console verrait la base refuser chacune de ses lectures ET de ses écritures.
+   Le 31/07/2026, trois failles de cloisonnement venaient d'un contrôle posé côté navigateur.
+
+   ⚠️ LES JETONS RESTENT LES VÔTRES. Vérifié dans `jetons_consommer` : elle lit toujours
+   `profils.entreprise_id` de `auth.uid()`. Auditer un prospect puise donc dans VOTRE compteur,
+   jamais dans le sien — c'est votre prospection, c'est vous qui la payez. */
+var ENT_TRAVAIL_CLE='ive_ent_travail_v1';
+function entTravail(){
+  if(typeof iveIsAdmin!=='function' || !iveIsAdmin()) return null;
+  try{ var j=JSON.parse(localStorage.getItem(ENT_TRAVAIL_CLE)||'null');
+       return (j && j.id) ? j : null; }catch(e){ return null; }
+}
+/* ⚠️ ON RECHARGE LA PAGE APRÈS AVOIR BASCULÉ. Une douzaine de caches vivent en mémoire — la
+   feuille de route, le dernier MIROIR, le quotidien, les instantanés. Les purger un par un,
+   c'est se tromper d'en oublier un, et laisser le plan de Martin à l'écran sous le nom de
+   Dupont. Un rechargement ne laisse aucun résidu, et il coûte une seconde. */
+function entTravailPoser(id, nom, ville){
+  if(!id) return;
+  try{ localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||''})); }catch(e){}
+  location.reload();
+}
+function entTravailQuitter(){
+  try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
+  location.reload();
+}
 async function frEntreprise(){
   try{
     await window.sbReady;
     if(!window.sb) return null;
+    /* Le choix du consultant passe AVANT le cache : au rechargement, `dbEnt` est vide et la RPC
+       ramènerait sa propre entreprise — donc la première écriture partirait au mauvais endroit. */
+    var trav=entTravail();
+    if(trav){ window.dbEnt=trav.id; return trav.id; }
     if(window.dbEnt) return window.dbEnt;
     if(window.__entEnVol) return window.__entEnVol;
     window.__entEnVol=(async function(){
@@ -5597,7 +5643,19 @@ function cpSlug(){ var b=window.lastMiroir||{}, ah=window.lastAH; return frSlug(
    et les tâches du dirigeant paraissaient perdues. Les 13 autres stockages de l'app se nomment
    déjà par le compte ; ces 5-là (pm_, cp_snaps_, fr_, cp_next_, diag_) les rejoignent.
    cpSlug() est CONSERVÉ : il sert encore au nom du fichier .ics et à retrouver les anciens seaux. */
-function cpCle(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return (((a&&a.email)||'anon')+'').toLowerCase(); }
+/* ⚠️ LES SEAUX LOCAUX SUIVENT L'ENTREPRISE DE TRAVAIL, PAS SEULEMENT LE COMPTE. Sans ce suffixe,
+   le quotidien, la feuille de route et les instantanés de deux prospects partageraient la même
+   clé de stockage : les tâches de Martin s'afficheraient chez Dupont. C'est exactement l'accident
+   du 31/07/2026 — « du compte Le test de Bibi vers un autre » — et il ne doit pas revenir par
+   une autre porte.
+   ⚠️ SON PROPRE COMPTE GARDE SA CLÉ HISTORIQUE : pas de suffixe quand aucune entreprise de
+   travail n'est choisie, donc rien de ce qui existe déjà n'est déplacé. */
+function cpCle(){
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  var base=(((a&&a.email)||'anon')+'').toLowerCase();
+  var t=(typeof entTravail==='function')?entTravail():null;
+  return t ? (base+'|'+t.id) : base;
+}
 /* Le nom AFFICHÉ suit le compte connecté. Le nom saisi sert encore à l'ANALYSE, jamais à
    l'identité. Exception : le consultant (admin) analyse des prospects — son écran doit garder
    le nom qu'il a tapé, sinon toutes ses fiches s'appelleraient comme sa propre société. */
@@ -6037,6 +6095,22 @@ function iveDateAnalyse(){
 /* L'entreprise et sa ville, rappelées à gauche dans tous les bandeaux — sans allonger l'encadré. */
 function iveIdentLigne(){
   if(typeof iveIdentRestaurer==='function') iveIdentRestaurer();
+  /* ⚠️ QUAND ON TRAVAILLE SUR UNE AUTRE ENTREPRISE, ÇA DOIT SE VOIR SUR CHAQUE ÉCRAN. Le vrai
+     danger n'est plus la sécurité — la base refuse déjà tout ce qui n'est pas permis — c'est
+     d'écrire la feuille de route de Martin sur la fiche de Dupont sans s'en apercevoir. Cette
+     ligne passe dans TOUS les en-têtes : il n'y a aucun écran où l'information puisse manquer.
+     Et le retour chez soi est à un clic, toujours au même endroit. */
+  var t=(typeof entTravail==='function')?entTravail():null;
+  if(t){
+    return '<div style="margin-top:6px;background:#E8541A;color:#fff;border-radius:8px;padding:5px 9px;'
+      +'font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;">'
+      +'<span><i class="ti ti-briefcase"></i> AUDIT · '+esc(t.nom||'entreprise sans nom')
+      +(t.ville?' · '+esc(t.ville):'')+'</span>'
+      +'<button type="button" onclick="entTravailQuitter()" style="border:1px solid #ffffff66;'
+      +'background:transparent;color:#fff;border-radius:6px;padding:2px 7px;font-size:10.5px;'
+      +'font-weight:700;cursor:pointer;font-family:inherit;">Revenir chez moi</button>'
+    +'</div>';
+  }
   var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
   var n=window.lastNom||(a&&a.name)||'', v=window.lastVille||(a&&a.ville)||'';
   if(!n) return '';
@@ -6367,6 +6441,9 @@ function adminBar(){
        les onze. Didier : « c'était le rôle de mon compte, il faut le remettre. » */
     +'<button type="button" onclick="openConsole()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-users"></i> Mes clients</button>'
     +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-stethoscope"></i> Contrôle</button>'
+    /* MES ENTREPRISES — l'atelier du consultant (08/08/2026). « Mes clients » pilote les comptes
+       existants ; celui-ci ouvre les DOSSIERS D'AUDIT, qui n'ont pas de compte du tout. */
+    +'<button type="button" onclick="entreprisesView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-briefcase"></i> Mes entreprises</button>'
     +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Analyser un prospect</button>'
     +'</div>';
 }
@@ -8703,6 +8780,115 @@ async function authLogin(){
 /* ===== NAVIGATION (méthode Apple : entrée 2 espaces + barre d'onglets) ===== */
 function goHome(){ window.currentSpace=null; if($('histPanel'))$('histPanel').remove(); showView('home'); window.scrollTo(0,0); }
 function enterDiagnostic(){ window.currentSpace='consultant'; window.selfServe=false; showView('form'); window.scrollTo(0,0); }
+/* ═══ MES ENTREPRISES — LA LISTE DE L'ATELIER ══════════════════════════════════════════════
+   Didier, 08/08/2026 : « je crée les entreprises sans limitation, et j'enregistre les parcours ».
+
+   ⚠️ RIEN N'EST OUVERT ICI. La table `entreprises` n'a aucune colonne « propriétaire » et sa
+   règle d'écriture est déjà `is_admin()` : le droit existait, il manquait seulement un écran.
+   Un dirigeant qui appellerait cette fonction verrait la base lui renvoyer une liste vide.
+
+   ⚠️ L'ADRESSE COMPTE PLUS QU'ELLE N'EN A L'AIR. Les fiches SENTINELLE ne sont pas rattachées
+   par identifiant : elles sont reconnues sur nom + ville + adresse. Créer une entreprise sans
+   son adresse, puis relancer un scan, DUPLIQUE la fiche — c'est déjà arrivé. On la demande donc
+   dès la création, et on le dit. */
+function entCarte(e, courante){
+  var sous=[e.ville, e.code_postal].filter(Boolean).join(' ');
+  return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #eee;flex-wrap:wrap;">'
+    +'<div style="flex:1;min-width:150px;">'
+      +'<div style="font-size:13.5px;font-weight:700;color:#1C1C1C;">'+esc(e.nom||'(sans nom)')
+        +(courante?' <span style="color:#E8541A;font-size:11px;">· en cours</span>':'')+'</div>'
+      +'<div style="font-size:11px;color:#6b7280;margin-top:2px;">'+esc(sous||'ville non renseignée')
+        +(e.email?' · '+esc(e.email):' · <span style="color:#b45309;">pas d\'email</span>')+'</div>'
+      +(e.adresse?'':'<div style="font-size:10.5px;color:#b45309;margin-top:2px;">'
+        +'<i class="ti ti-alert-triangle"></i> sans adresse : un nouveau scan risque de créer une seconde fiche</div>')
+    +'</div>'
+    +(courante
+      ? '<button type="button" onclick="entTravailQuitter()" style="border:1px solid #d7dbe3;background:#fff;color:#4b5563;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Fermer</button>'
+      : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
+  +'</div>';
+}
+/* Une valeur qui repart dans un attribut onclick : les apostrophes et les barres obliques y
+   casseraient le code, et « L'Atelier du Bois » est un nom d'entreprise parfaitement normal. */
+function escJs(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;').replace(/[\r\n]+/g,' '); }
+async function entreprisesView(){
+  if(!iveIsAdmin()){ iveNav('accueil'); return; }
+  var t=entTravail();
+  $('dirigeant').innerHTML=adminBar()
+    +iveEntete('ti-briefcase','MES ENTREPRISES','Les dossiers que j\'audite','accueil')
+    +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
+    +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture en cours…</div></div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+
+  var lignes='', erreur='';
+  try{
+    await window.sbReady;
+    var r=await window.sb.from('entreprises')
+      .select('id,nom,ville,code_postal,adresse,email,cree_le').order('nom',{ascending:true}).limit(300);
+    if(r.error) erreur=r.error.message||'Lecture impossible.';
+    else (r.data||[]).forEach(function(e){ lignes+=entCarte(e, !!(t && t.id===e.id)); });
+  }catch(e){ erreur='La base n\'a pas répondu.'; }
+
+  $('dirigeant').innerHTML=adminBar()
+    +iveEntete('ti-briefcase','MES ENTREPRISES','Les dossiers que j\'audite','accueil')
+    /* ═══ CRÉER ═══ */
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;">Nouvelle entreprise</div>'
+      +'<div style="font-size:11.5px;color:#6b7280;margin:3px 0 10px;">Aucun compte n\'est créé pour elle. '
+        +'C\'est un dossier d\'audit, il vit ici.</div>'
+      +'<input id="entNom" placeholder="Nom de l\'entreprise *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      +'<div style="display:flex;gap:7px;flex-wrap:wrap;">'
+        +'<input id="entVille" placeholder="Ville" style="flex:2;min-width:120px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+        +'<input id="entCp" placeholder="Code postal" style="flex:1;min-width:90px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      +'</div>'
+      +'<input id="entAdresse" placeholder="Adresse exacte (recommandée)" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      +'<input id="entEmail" type="email" placeholder="Email du dirigeant" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;">'
+      /* ⚠️ ON DIT À QUOI SERT CET EMAIL, SINON IL SERA RENSEIGNÉ AVEC UN contact@ — et le pont
+         vers l'app du dirigeant ne trouvera jamais le compte correspondant. */
+      +'<div style="font-size:11px;color:#6b7280;margin-top:5px;line-height:1.45;">'
+        +'C\'est par cet email que le plan rejoindra plus tard son application. Il doit être '
+        +'<b>celui avec lequel il crée son compte</b>, pas une adresse de standard.</div>'
+      +'<div id="entMsg" style="font-size:12px;margin-top:8px;"></div>'
+      +'<button type="button" onclick="entCreer()" style="margin-top:9px;border:none;background:#E8541A;color:#fff;border-radius:9px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">'
+        +'<i class="ti ti-plus"></i> Créer et ouvrir</button>'
+    +'</div></div>'
+    /* ═══ LA LISTE ═══ */
+    +'<div class="card"><div class="sec">'
+      +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;margin-bottom:2px;">Mes dossiers</div>'
+      +(erreur
+        ? '<div style="font-size:12.5px;color:#b91c1c;margin-top:8px;">'+esc(erreur)+'</div>'
+        : (lignes || '<div style="font-size:12.5px;color:#6b7280;margin-top:8px;">Aucune entreprise pour l\'instant. Créez la première ci-dessus.</div>'))
+    +'</div></div>';
+  window.scrollTo(0,0);
+}
+async function entCreer(){
+  var val=function(id){ var e=$(id); return e?String(e.value||'').trim():''; };
+  var nom=val('entNom'), msg=$('entMsg');
+  var dire=function(txt, couleur){ if(msg){ msg.style.color=couleur; msg.textContent=txt; } };
+  if(!nom){ dire('Le nom est obligatoire — c\'est lui qui identifie le dossier.','#b91c1c'); return; }
+  dire('Création…','#6b7280');
+  try{
+    await window.sbReady;
+    /* `slug` reste vide : la colonne est unique, et deux dossiers créés à la main finiraient par
+       se heurter. PostgreSQL accepte autant de valeurs nulles qu'on veut dans un index unique. */
+    var r=await window.sb.from('entreprises').insert({
+      nom:nom, ville:val('entVille')||null, code_postal:val('entCp')||null,
+      adresse:val('entAdresse')||null, email:val('entEmail').toLowerCase()||null
+    }).select('id,nom,ville').single();
+    if(r.error){
+      /* ⚠️ ON NOMME LA CAUSE. « Erreur » tout court laisse chercher : ici, dans neuf cas sur dix,
+         c'est un email déjà porté par un autre dossier — et c'est justement ce qu'on interdit,
+         puisque le pont ne saurait plus quel compte viser. */
+      var m=String(r.error.message||'');
+      if(/duplicate|unique/i.test(m) && /email/i.test(m))
+        dire('Cet email est déjà rattaché à une autre entreprise. Un email = un dossier, sinon le plan ne saura pas où aller.','#b91c1c');
+      else if(/column .*(adresse|email)/i.test(m))
+        dire('La base n\'a pas encore les colonnes adresse et email — exécutez la migration docs/entreprises-consultant.sql.','#b45309');
+      else dire('Création refusée : '+m,'#b91c1c');
+      return;
+    }
+    entTravailPoser(r.data.id, r.data.nom, r.data.ville);
+  }catch(e){ dire('La base n\'a pas répondu. Rien n\'a été créé.','#b91c1c'); }
+}
 function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ location.href='console.html'; } }
 function goFeuille(){ if(window.frData){ showView('frView'); } else { frBuild(); } }
 function renderTabbar(v){
