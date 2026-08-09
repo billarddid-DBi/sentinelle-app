@@ -3544,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 243';
+var IVE_VERSION='09/08 · 244';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -9055,10 +9055,17 @@ async function entreprisesView(){
         +'C\'est un dossier d\'audit, il vit ici.</div>'
       +'<input id="entNom" placeholder="Nom de l\'entreprise *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
       +'<div style="display:flex;gap:7px;flex-wrap:wrap;">'
-        +'<input id="entVille" placeholder="Ville" style="flex:2;min-width:120px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+        +'<input id="entVille" placeholder="Ville *" style="flex:2;min-width:120px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
         +'<input id="entCp" placeholder="Code postal" style="flex:1;min-width:90px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
       +'</div>'
-      +'<input id="entAdresse" placeholder="Adresse exacte (recommandée)" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      +'<input id="entAdresse" placeholder="Adresse exacte *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      /* ⚠️ POURQUOI CES TROIS-LÀ SONT OBLIGATOIRES (Didier, 09/08/2026 : « tu mets un * sur nom
+         de l'entreprise, ville, adresse »). Ce ne sont pas trois champs d'état civil : c'est
+         EXACTEMENT la clé sur laquelle une fiche SENTINELLE est reconnue — `unique(nom_norm,
+         ville_norm, adresse_norm)`. Il en manque un, et le prochain scan crée une SECONDE fiche :
+         l'analyse déjà payée devient invisible. Le piège est déjà tombé une fois. */
+      +'<div class="hint" style="margin:-2px 0 7px;">Nom, ville et adresse identifient l\'établissement. '
+        +'S\'il en manque un, un nouveau scan risque de créer une <b>seconde fiche</b>.</div>'
       +'<input id="entEmail" type="email" placeholder="Email du dirigeant" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;">'
       /* ⚠️ ON DIT À QUOI SERT CET EMAIL, SINON IL SERA RENSEIGNÉ AVEC UN contact@ — et le pont
          vers l'app du dirigeant ne trouvera jamais le compte correspondant. */
@@ -9080,17 +9087,28 @@ async function entreprisesView(){
 }
 async function entCreer(){
   var val=function(id){ var e=$(id); return e?String(e.value||'').trim():''; };
-  var nom=val('entNom'), msg=$('entMsg');
+  var nom=val('entNom'), ville=val('entVille'), adresse=val('entAdresse'), msg=$('entMsg');
   var dire=function(txt, couleur){ if(msg){ msg.style.color=couleur; msg.textContent=txt; } };
-  if(!nom){ dire('Le nom est obligatoire — c\'est lui qui identifie le dossier.','#b91c1c'); return; }
+  /* ⚠️ ON NOMME CE QUI MANQUE, ET POURQUOI. « Champs obligatoires » laisse chercher lequel ; et
+     sans la raison, on remplit n'importe quoi pour passer — ce qui produit le doublon qu'on
+     voulait empêcher. */
+  var manque=[];
+  if(!nom) manque.push('le nom');
+  if(!ville) manque.push('la ville');
+  if(!adresse) manque.push('l\'adresse');
+  if(manque.length){
+    dire('Il manque '+manque.join(', ')+'. Ces trois-là identifient l\'établissement : '
+        +'sans eux, un nouveau scan créerait une seconde fiche.','#b91c1c');
+    return;
+  }
   dire('Création…','#6b7280');
   try{
     await window.sbReady;
     /* `slug` reste vide : la colonne est unique, et deux dossiers créés à la main finiraient par
        se heurter. PostgreSQL accepte autant de valeurs nulles qu'on veut dans un index unique. */
     var r=await window.sb.from('entreprises').insert({
-      nom:nom, ville:val('entVille')||null, code_postal:val('entCp')||null,
-      adresse:val('entAdresse')||null, email:val('entEmail').toLowerCase()||null
+      nom:nom, ville:ville, code_postal:val('entCp')||null,
+      adresse:adresse, email:val('entEmail').toLowerCase()||null
     }).select('id,nom,ville').single();
     if(r.error){
       /* ⚠️ ON NOMME LA CAUSE. « Erreur » tout court laisse chercher : ici, dans neuf cas sur dix,
