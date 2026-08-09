@@ -3588,7 +3588,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 264';
+var IVE_VERSION='09/08 · 265';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7076,7 +7076,13 @@ function dirigeantSpace(){
       +ivTuile('ti-robot','Pistes d\'outils IA','boussoleOutil(\'outilsia\')',G.outils.txt,G.outils.ton,_verrou)
       +ivTuile('ti-route','Feuille de route','boussoleOutil(\'feuille\')',G.feuille.txt,G.feuille.ton,_verrou)
       +ivTuile('ti-calculator','Simulateur de gain','boussoleOutil(\'simulateur\')',G.sim.txt,G.sim.ton,_verrou)
-      +ivTuile('ti-coins','Jetons &amp; formule','offreView()',G.jet.txt,G.jet.ton,false)
+      /* ⚠️ « FORMULE » NE LE CONCERNE PAS, LE COMPTEUR SI. Didier, 09/08/2026 : « est-ce que ce
+         bouton me concerne, c'est les abonnements ? » — moitié seulement. Le nombre est le SIEN :
+         c'est son budget de prospection, celui que chaque scan de prospect entame. Le mot
+         « formule », lui, parle d'un abonnement de dirigeant qu'il ne prendra jamais : c'est son
+         application. On garde donc le compteur et on retire le mot qui égare. */
+      +ivTuile('ti-coins', (typeof iveIsAdmin==='function' && iveIsAdmin()) ? 'Mes jetons' : 'Jetons &amp; formule',
+               'offreView()', G.jet.txt, G.jet.ton, false)
       /* Ces deux-là n'existent pas encore : iveNav('historique') et iveNav('params') tombent
          sur « Bientôt disponible ». On les montre grisées plutôt que de faire semblant — une
          tuile qui promet un écran inexistant coûte plus cher qu'une tuile grise. */
