@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 250';
+var IVE_VERSION='09/08 · 251';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6865,7 +6865,23 @@ function iveGrilleEtats(){
   }catch(e){}
   return o;
 }
+/* ⚠️ UN DOSSIER OUVERT A UN SEUL ACCUEIL — LE SIEN. Didier, 09/08/2026 : « pourquoi j'ai cette
+   page maintenant, Dronavia est déjà analysé... je comprends plus rien, c'est le bordel dans
+   l'architecture. » Il avait raison, et voici exactement le défaut :
+
+   `dirigeantSpace()` est l'accueil du DIRIGEANT. Ses douze tuiles se construisent sur des
+   variables de COMPTE — `lastMiroir`, `frData`, `pmData`, `__sentData` — jamais sur le dossier
+   ouvert. Avec Dronavia ouvert, l'écran affichait donc « Questionnaire 34/40 », « Carte de la
+   concurrence : Faite », « SENTINELLE : à lancer » : les chiffres de SON compte à lui, sous le
+   nom de Dronavia. Deux accueils qui ne se connaissaient pas.
+
+   ⚠️ LA RÈGLE TIENT ICI, EN UN SEUL ENDROIT, parce que tout ce qui « rentre à la maison » passe
+   par cette fonction — la navigation, le retour d'un enregistrement, la sortie d'une fiche
+   archivée. La poser sur chaque appelant, c'est en oublier un, et le désordre revient par là. */
 function dirigeantSpace(){
+  if(typeof iveIsAdmin==='function' && iveIsAdmin()
+     && typeof entTravail==='function' && entTravail()
+     && typeof ecranDossier==='function'){ ecranDossier(); return; }
   window.currentSpace='dirigeant';
   if(window.currentUser===undefined){ $('dirigeant').innerHTML='<div class="panel" style="text-align:center;color:#6b7280;font-size:13px;padding:26px;"><span class="spin"></span><div style="margin-top:8px;">Chargement…</div></div>'; showView('dirigeant'); loadUser().then(function(){ dirigeantSpace(); }); return; }
   var acc=currentAccount();
