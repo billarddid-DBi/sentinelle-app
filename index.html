@@ -207,9 +207,12 @@
         <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Temps estimé : <span style="color:#E8541A;font-weight:600;">1 min 30</span></div>
       </div>
       <div style="text-align:center;margin-top:16px;"><button onclick="introShow(true)" style="background:none;border:none;color:#9ca3af;font-size:12.5px;cursor:pointer;font-family:inherit;"><i class="ti ti-player-play"></i> Revoir la démo</button></div>
-      <div style="text-align:center;font-size:10px;letter-spacing:2px;color:#6b7280;margin-top:20px;">QUE SOUHAITEZ-VOUS FAIRE ?</div>
-      <div style="display:flex;gap:10px;margin-top:12px;">
-        <button onclick="renderAuth('signup')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #E8541A;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-user-plus" style="font-size:26px;color:#E8541A;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Créer un<br>compte</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Et découvrir SENTINELLE gratuitement.</div><i class="ti ti-arrow-right" style="color:#E8541A;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
+      <!-- ⚠️ UNE SEULE PORTE DEPUIS LE 09/08/2026. Didier : « peux-tu enlever créer un compte ».
+           L'IVE est devenue l'ATELIER DU CONSULTANT — les dirigeants, eux, s'inscrivent sur
+           l'APP DIRIGEANT, qui vit sur une autre base. Laisser une porte d'inscription ici
+           créerait des comptes que plus rien ne sert, dans la base qui n'est pas la leur.
+           « Que souhaitez-vous faire ? » devant un choix unique a disparu avec le choix. -->
+      <div style="display:flex;gap:10px;margin-top:20px;">
         <button onclick="renderAuth('login')" style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:16px 12px;cursor:pointer;font-family:inherit;text-align:center;"><div style="width:52px;height:52px;border-radius:50%;border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><i class="ti ti-user" style="font-size:26px;color:#3b82f6;"></i></div><div style="font-size:14px;font-weight:700;color:#fff;line-height:1.25;">Mon compte</div><div style="font-size:10.5px;color:#9ca3af;margin-top:8px;line-height:1.35;">Retrouvez vos analyses, votre progression et vos plans d'action.</div><div id="verCompte" style="font-size:10.5px;color:#6b7280;margin-top:6px;"></div><i class="ti ti-arrow-right" style="color:#3b82f6;font-size:18px;margin-top:8px;display:inline-block;"></i></button>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 6px;">
@@ -3522,7 +3525,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 230';
+var IVE_VERSION='09/08 · 231';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7775,11 +7778,16 @@ function renderAuth(mode){
       +fld('auPass','Mot de passe','password','','','current-password')
       +'<div id="auMsg" style="font-size:12px;color:#991b1b;margin-top:8px;"></div>'
       +'<button class="btn btn-primary" onclick="authLogin()"><i class="ti ti-login"></i> Se connecter</button>'
-      +'<div style="font-size:11.5px;color:#9ca3af;text-align:center;margin-top:8px;">Pas encore de compte ? <a href="#" onclick="renderAuth(\'signup\');return false;" style="color:#E8541A;font-weight:600;">Créer un compte gratuit</a></div>';
+      /* ⚠️ PLUS D'INVITATION À S'INSCRIRE. Elle vivait juste sous le bouton de connexion, et
+         elle disait le contraire de la décision du 09/08 : ici, on ne crée pas de compte. */
+      +'';
   }
   var html='<div class="card">'
     +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-user-heart"></i> ESPACE DIRIGEANT</div><div style="font-size:15px;font-weight:500;margin-top:3px;">Votre suivi de transformation, rien qu\'à vous.</div></div>'
-    +'<div style="display:flex;border-bottom:1px solid #f1f3f4;">'+tab('signup','Créer un compte','ti-user-plus')+tab('login','Se connecter','ti-login')+'</div>'
+    /* ⚠️ L'ONGLET D'INSCRIPTION EST RETIRÉ, PAS LE CODE QUI EST DERRIÈRE. `renderAuth('signup')`
+       fonctionne toujours : le jour où il faut fabriquer un compte d'essai, il s'appelle depuis
+       la console du navigateur. On enlève la porte de la façade, on ne mure pas la pièce. */
+    +'<div style="display:flex;border-bottom:1px solid #f1f3f4;">'+tab('login','Se connecter','ti-login')+'</div>'
     +'<div class="sec">'+body+'</div>'
     +'<div class="foot"><i class="ti ti-shield-lock"></i> Connexion sécurisée — vos données sont chiffrées et retrouvables sur tous vos appareils.</div></div>'
     +'<button class="btn btn-ghost" onclick="goHome()"><i class="ti ti-home"></i> Accueil</button>';
