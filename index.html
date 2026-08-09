@@ -319,7 +319,11 @@ window.sbReady.then(function(ok){
       return;
     }
   }catch(e){}
-  if(ok && typeof loadUser==='function') loadUser();
+  /* `entApresBascule()` a besoin du compte pour savoir si c'est l'admin : on la ramasse APRÈS
+     `loadUser`, jamais avant. */
+  if(ok && typeof loadUser==='function'){
+    loadUser().then(function(){ try{ if(typeof entApresBascule==='function') entApresBascule(); }catch(e){} });
+  }
 });
 const SECTEURS = {
   btp:'#3f5a6b', artisan:'#3f5a6b', commerce:'#8a5a2b', boulangerie:'#8a5a2b',
@@ -3544,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 244';
+var IVE_VERSION='09/08 · 245';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5262,10 +5266,27 @@ function entTravail(){
    feuille de route, le dernier MIROIR, le quotidien, les instantanés. Les purger un par un,
    c'est se tromper d'en oublier un, et laisser le plan de Martin à l'écran sous le nom de
    Dupont. Un rechargement ne laisse aucun résidu, et il coûte une seconde. */
-function entTravailPoser(id, nom, ville){
+/* ⚠️ L'INTENTION DOIT SURVIVRE AU RECHARGEMENT. Didier, 09/08/2026 : « tu remplaces par lancer
+   SENTINELLE si c'est bien ça » — ça ne l'était pas : le bouton créait et ouvrait, puis
+   s'arrêtait là. Plutôt que de renommer à moitié, on rend le bouton vrai.
+   Mais basculer RECHARGE la page (les caches en mémoire ne se purgent pas un par un sans en
+   oublier un), et un rechargement perd tout ce qu'on tenait. On dépose donc l'intention à côté
+   du dossier, et on la ramasse au démarrage. */
+var ENT_APRES_CLE='ive_apres_bascule_v1';
+function entTravailPoser(id, nom, ville, apres){
   if(!id) return;
-  try{ localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||''})); }catch(e){}
+  try{
+    localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom||'', ville:ville||''}));
+    if(apres) localStorage.setItem(ENT_APRES_CLE, apres);
+  }catch(e){}
   entRecharger();
+}
+/* ⚠️ ET ELLE NE SE RAMASSE QU'UNE FOIS. Laissée en place, elle rouvrirait le formulaire de scan
+   à CHAQUE ouverture de l'application — on la retire avant de l'exécuter, pas après. */
+function entApresBascule(){
+  var quoi=null;
+  try{ quoi=localStorage.getItem(ENT_APRES_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
+  if(quoi==='scan' && typeof enterDiagnostic==='function') enterDiagnostic();
 }
 function entTravailQuitter(){
   try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
@@ -9074,7 +9095,7 @@ async function entreprisesView(){
         +'<b>celui avec lequel il crée son compte</b>, pas une adresse de standard.</div>'
       +'<div id="entMsg" style="font-size:12px;margin-top:8px;"></div>'
       +'<button type="button" onclick="entCreer()" style="margin-top:9px;border:none;background:#E8541A;color:#fff;border-radius:9px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">'
-        +'<i class="ti ti-plus"></i> Créer et ouvrir</button>'
+        +'<i class="ti ti-radar-2"></i> Créer et lancer SENTINELLE</button>'
     +'</div></div>'
     /* ═══ LA LISTE ═══ */
     +'<div class="card"><div class="sec">'
@@ -9122,7 +9143,8 @@ async function entCreer(){
       else dire('Création refusée : '+m,'#b91c1c');
       return;
     }
-    entTravailPoser(r.data.id, r.data.nom, r.data.ville);
+    /* On crée, on ouvre, ET on enchaîne sur le scan : c'est pour ça qu'on crée un dossier. */
+    entTravailPoser(r.data.id, r.data.nom, r.data.ville, 'scan');
   }catch(e){ dire('La base n\'a pas répondu. Rien n\'a été créé.','#b91c1c'); }
 }
 function openConsole(){ try{ window.open('console.html','_blank'); }catch(e){ location.href='console.html'; } }
