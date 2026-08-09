@@ -3544,7 +3544,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 241';
+var IVE_VERSION='09/08 · 242';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6157,10 +6157,16 @@ function iveIdentLigne(){
      Et le retour chez soi est à un clic, toujours au même endroit. */
   var t=(typeof entTravail==='function')?entTravail():null;
   if(t){
+    /* ⚠️ LE NOM DU DOSSIER EST LE CHEMIN POUR EN CHANGER. Depuis que « Mes entreprises » a quitté
+       la barre admin, c'est le seul accès à la liste quand un dossier est ouvert — et c'est le
+       bon endroit : on cherche à changer de dossier là où on lit celui qu'on a. */
     return '<div style="margin-top:6px;background:#E8541A;color:#fff;border-radius:8px;padding:5px 9px;'
       +'font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;">'
-      +'<span><i class="ti ti-briefcase"></i> AUDIT · '+esc(t.nom||'entreprise sans nom')
-      +(t.ville?' · '+esc(t.ville):'')+'</span>'
+      +'<button type="button" onclick="entreprisesView()" title="Changer de dossier" '
+      +'style="border:none;background:transparent;color:#fff;font-family:inherit;font-size:11.5px;'
+      +'font-weight:700;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px;">'
+      +'<i class="ti ti-briefcase"></i> AUDIT · '+esc(t.nom||'entreprise sans nom')
+      +(t.ville?' · '+esc(t.ville):'')+'</button>'
       +'<button type="button" onclick="entTravailQuitter()" style="border:1px solid #ffffff66;'
       +'background:transparent;color:#fff;border-radius:6px;padding:2px 7px;font-size:10.5px;'
       +'font-weight:700;cursor:pointer;font-family:inherit;">Revenir chez moi</button>'
@@ -6201,8 +6207,11 @@ function iveIdentTitre(nomCompte){
      remplace donc jamais un dossier ouvert par un titre générique. */
   if(typeof iveIsAdmin==='function' && iveIsAdmin()){
     var trav=(typeof entTravail==='function')?entTravail():null;
-    if(trav) return '<div style="'+st+'"><i class="ti ti-briefcase" style="color:#E8A07E;"></i> '
-      +esc(trav.nom||'entreprise sans nom')+(trav.ville?' · '+esc(trav.ville):'')+'</div>'+bouton;
+    if(trav) return '<div style="'+st+'"><button type="button" onclick="entreprisesView()" '
+      +'title="Changer de dossier" style="border:none;background:transparent;color:#fff;'
+      +'font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;padding:0;text-align:left;">'
+      +'<i class="ti ti-briefcase" style="color:#E8A07E;"></i> '
+      +esc(trav.nom||'entreprise sans nom')+(trav.ville?' · '+esc(trav.ville):'')+'</button></div>'+bouton;
     return '<div style="'+st+'">Espace consultant</div>'+bouton;
   }
   if(!n) return '<div style="'+st+'">'+esc(nomCompte||(a&&a.name)||'')+'</div>'+bouton;
@@ -6556,9 +6565,13 @@ function adminBar(){
        les onze. Didier : « c'était le rôle de mon compte, il faut le remettre. » */
     +'<button type="button" onclick="openConsole()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-users"></i> Mes abonnés</button>'
     +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-stethoscope"></i> Check base</button>'
-    /* MES ENTREPRISES — l'atelier du consultant (08/08/2026). « Mes clients » pilote les comptes
-       existants ; celui-ci ouvre les DOSSIERS D'AUDIT, qui n'ont pas de compte du tout. */
-    +'<button type="button" onclick="entreprisesView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-briefcase"></i> Mes entreprises</button>'
+    /* ⚠️ « MES ENTREPRISES » A ÉTÉ RETIRÉ DE LA BARRE (Didier, 09/08/2026 : « c'est quoi la
+       différence entre mes entreprises et analyser un prospect — si c'est pareil tu gardes
+       analyser un prospect »). Il a raison : depuis que « Analyser un prospect » renvoie sur la
+       liste quand aucun dossier n'est ouvert, les deux boutons mènent au MÊME écran à froid. Le
+       second n'économisait un clic que dans un cas sur deux, sur une barre déjà jugée illisible.
+       L'écran, lui, existe toujours : on y accède en cliquant le nom du dossier dans le bandeau
+       orange — c'est là qu'on cherche à en changer. */
     +'<button type="button" onclick="enterDiagnostic()" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-plus"></i> Analyser un prospect</button>'
     +'</div>';
 }
