@@ -3548,7 +3548,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 249';
+var IVE_VERSION='09/08 · 250';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -9253,9 +9253,26 @@ async function entreprisesView(){
         +'les dossiers retirés s\'affichent quand même. Exécutez <b>docs/entreprises-archivage.sql</b>.'
         +'</div></div></div>'
       : '')
+    /* ═══ LA LISTE D'ABORD ═══
+       ⚠️ Didier, 09/08/2026 : « quand j'ouvre SENTINELLE je vois cet encadré » — il cliquait
+       « Mes dossiers » et tombait sur un formulaire de CRÉATION. On vient y chercher un dossier
+       existant neuf fois sur dix ; créer est le cas rare. L'ordre suit l'usage, pas la
+       chronologie de construction. */
     +'<div class="card"><div class="sec">'
-      +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;">Nouvelle entreprise</div>'
-      +'<div style="font-size:11.5px;color:#6b7280;margin:3px 0 10px;">Aucun compte n\'est créé pour elle. '
+      +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;margin-bottom:2px;">Mes dossiers</div>'
+      +(erreur
+        ? '<div style="font-size:12.5px;color:#b91c1c;margin-top:8px;">'+esc(erreur)+'</div>'
+        : (lignes || '<div style="font-size:12.5px;color:#6b7280;margin-top:8px;">Aucune entreprise pour l\'instant. Créez la première ci-dessous.</div>'))
+    +'</div></div>'
+    /* ═══ CRÉER, REPLIÉ ═══
+       ⚠️ EN <details> NATIF, ET OUVERT D'OFFICE QUAND LA LISTE EST VIDE : replier la seule chose
+       à faire sur un écran vide serait un cul-de-sac. Pas de JavaScript — ça marche même si un
+       script échoue plus haut. */
+    +'<div class="card"><div class="sec">'
+      +'<details'+(lignes?'':' open')+'>'
+      +'<summary style="cursor:pointer;font-size:13px;font-weight:800;color:#E8541A;list-style:none;">'
+        +'<i class="ti ti-plus"></i> Nouvelle entreprise</summary>'
+      +'<div style="font-size:11.5px;color:#6b7280;margin:6px 0 10px;">Aucun compte n\'est créé pour elle. '
         +'C\'est un dossier d\'audit, il vit ici.</div>'
       +'<input id="entNom" placeholder="Nom de l\'entreprise *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
       +'<div style="display:flex;gap:7px;flex-wrap:wrap;">'
@@ -9279,13 +9296,7 @@ async function entreprisesView(){
       +'<div id="entMsg" style="font-size:12px;margin-top:8px;"></div>'
       +'<button type="button" onclick="entCreer()" style="margin-top:9px;border:none;background:#E8541A;color:#fff;border-radius:9px;padding:11px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">'
         +'<i class="ti ti-radar-2"></i> Créer et lancer SENTINELLE</button>'
-    +'</div></div>'
-    /* ═══ LA LISTE ═══ */
-    +'<div class="card"><div class="sec">'
-      +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;margin-bottom:2px;">Mes dossiers</div>'
-      +(erreur
-        ? '<div style="font-size:12.5px;color:#b91c1c;margin-top:8px;">'+esc(erreur)+'</div>'
-        : (lignes || '<div style="font-size:12.5px;color:#6b7280;margin-top:8px;">Aucune entreprise pour l\'instant. Créez la première ci-dessus.</div>'))
+      +'</details>'
     +'</div></div>';
   window.scrollTo(0,0);
 }
