@@ -159,7 +159,34 @@
     body.impression .impressionEntete{display:block!important;}
   }
   .impressionEntete{display:none;}
+  /* ⚠️ LA PAGE PUBLIQUE NE DOIT PAS CLIGNOTER AU RETOUR D'UN RECHARGEMENT. Didier, 09/08/2026 :
+     « quand je fais mes dossiers - ouvrir, j'ai cette page qui s'affiche pendant 1/2 seconde, et
+     ça le fait aussi ailleurs ».
+     Ouvrir, refermer ou archiver un dossier recharge la page — c'est nécessaire, une douzaine de
+     caches vivent en mémoire et les purger un par un, c'est en oublier un. Mais le temps que la
+     session revienne et que l'application reprenne la main, le navigateur affiche ce qu'il a :
+     l'accueil public. Tant qu'une reprise est EN ATTENTE, on le masque et on montre qu'on
+     travaille. */
+  html.iveReprise #home{display:none!important;}
+  html.iveReprise body::before{content:'';position:fixed;top:50%;left:50%;width:34px;height:34px;
+    margin:-17px 0 0 -17px;border:3px solid #e6e1d8;border-top-color:#E8541A;border-radius:50%;
+    animation:sp 1s linear infinite;z-index:9999;}
 </style>
+<script>
+/* ⚠️ CE SCRIPT EST DANS L'EN-TÊTE, ET C'EST TOUT SON INTÉRÊT : il s'exécute AVANT que le corps
+   de la page ne soit peint. Placé plus bas, il masquerait l'accueil public après l'avoir laissé
+   apparaître — ce qui est exactement le défaut à corriger.
+
+   ⚠️ ET IL SE DÉSARME TOUT SEUL AU BOUT DE CINQ SECONDES. Si la reprise n'aboutit pas — session
+   expirée, réseau coupé, compte qui n'est plus admin — un masque laissé en place donnerait un
+   écran vide et définitif. Mieux vaut un clignotement qu'une page morte. */
+try{
+  if(localStorage.getItem('ive_apres_bascule_v1')){
+    document.documentElement.className+=' iveReprise';
+    setTimeout(function(){ document.documentElement.classList.remove('iveReprise'); }, 5000);
+  }
+}catch(e){}
+</script>
 </head>
 <body>
 <!-- DÉMO D'OUVERTURE : tourne au lancement, bouton Passer -->
@@ -3548,7 +3575,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 254';
+var IVE_VERSION='09/08 · 255';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5308,6 +5335,9 @@ function entTravailPoser(id, nom, ville, apres, adresse){
 function entApresBascule(){
   var quoi=null;
   try{ quoi=localStorage.getItem(ENT_APRES_CLE); localStorage.removeItem(ENT_APRES_CLE); }catch(e){}
+  /* On rend la main à l'affichage AVANT de dessiner la destination : le masque a fait son
+     travail, le laisser une ligne de plus le ferait clignoter à son tour. */
+  try{ document.documentElement.classList.remove('iveReprise'); }catch(e){}
   if(quoi==='scan') lancerSentinelleDossier();
   else if(quoi==='dossier') ecranDossier();
   /* ⚠️ APRÈS AVOIR REFERMÉ UN DOSSIER, ON ATTERRIT CHEZ SOI, pas sur la page publique. Le
@@ -5478,7 +5508,7 @@ async function entTravailVerifier(trav){
     if(r.error) return;                       // la base n'a pas répondu : on ne touche à rien
     var perdu = !r.data || r.data.supprime_le;
     if(!perdu) return;
-    try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){}
+    try{ localStorage.removeItem(ENT_TRAVAIL_CLE); localStorage.setItem(ENT_APRES_CLE,'accueil'); }catch(e){}
     alert('Le dossier « '+(trav.nom||'')+' » a été retiré des listes ailleurs.\n\n'
       +'Rien n\'est perdu : il se restaure depuis « Mes abonnés », onglet « Supprimés ».\n'
       +'L\'application repart sur votre propre compte.');
@@ -9237,7 +9267,9 @@ async function entArchiver(id, nom){
     }
     /* Le dossier archivé était celui ouvert : `dbEnt` pointerait sur un dossier retiré de la
        liste. On repart proprement plutôt que de laisser l'application écrire dessus. */
-    if(courant){ try{ localStorage.removeItem(ENT_TRAVAIL_CLE); }catch(e){} entRecharger(); return; }
+    /* Même traitement que partout : une destination, sinon le rechargement retombe sur la page
+       publique et elle clignote avant que l'application ne reprenne la main. */
+    if(courant){ try{ localStorage.removeItem(ENT_TRAVAIL_CLE); localStorage.setItem(ENT_APRES_CLE,'accueil'); }catch(e){} entRecharger(); return; }
     MSG_ENT='« '+(nom||'')+' » est retiré de la liste. Rien n\'est perdu : il se restaure depuis « Mes abonnés », onglet « Supprimés ».';
     entreprisesView();
   }catch(e){ MSG_ENT='La base n\'a pas répondu. Rien n\'a été retiré.'; entreprisesView(); }
@@ -9450,7 +9482,13 @@ function introClose(){
 (function(){
   var s=document.createElement('style'); s.textContent='@keyframes introFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}'; document.head.appendChild(s);
   var vu=null; try{ vu=localStorage.getItem('intro_vu'); }catch(e){}
-  if(!vu) introShow(false);
+  /* ⚠️ PAS DE DÉMO PAR-DESSUS UNE REPRISE. Elle ne se lance qu'une fois par appareil, donc elle
+     ne se voit pas sur un poste déjà utilisé — mais sur un poste neuf, ouvrir un dossier
+     recharge la page et la démo se déclencherait DEVANT l'écran qu'on venait chercher, en
+     couvrant tout pendant seize secondes. Un masque qui laisse passer un rideau ne masque rien. */
+  var reprise=false;
+  try{ reprise=document.documentElement.classList.contains('iveReprise'); }catch(e){}
+  if(!vu && !reprise) introShow(false);
   // Compteur IVE global (odomètre 5→95 en boucle) — anime toutes les pastilles présentes
   window.__iveV=50;
   setInterval(function(){
