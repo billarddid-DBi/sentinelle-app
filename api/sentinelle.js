@@ -29,13 +29,9 @@ Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BO
 
 PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »).
 
-CE QU'ON Y TROUVE (pour CHAQUE plateforme retenue, Google compris) : va voir la page de l'entreprise sur la plateforme et relève QUATRE choses — "nb" (combien d'avis y sont publiés), "note" (la moyenne sur 5), "dernier" (la date du DERNIER avis publié) et "resume" (ce que disent ces avis, UNE phrase, en reprenant ce qui revient — jamais un jugement de ta part).
-RÈGLE ABSOLUE, PLUS IMPORTANTE QUE LA COMPLÉTUDE : chacun de ces quatre champs vaut null si tu ne l'as pas VU. Pas d'estimation, pas d'ordre de grandeur, pas de déduction à partir d'une autre plateforme. Un tableau à moitié vide est exploitable ; un tableau plein de chiffres inventés est une bombe à retardement — le dirigeant les vérifiera devant toi.
-LA DATE DU DERNIER AVIS EST LE SIGNAL LE PLUS UTILE DU TABLEAU : elle dit si la page est vivante ou abandonnée. Une note de 4,8 sur trois avis vieux de 2019 ne vaut pas une note de 4,1 nourrie chaque mois. Cherche-la vraiment.
-CHAQUE CHIFFRE VA DANS SA LIGNE — INTERDICTION D'ÉCRIRE EN PROSE CE QUI A UNE CASE. Si tu as vu "4,5/5 sur 11 avis" sur PagesJaunes, cela va dans note=4.5 et nb=11 de la LIGNE PagesJaunes ; JAMAIS dans le texte du champ "avis" ni dans le "resume" d'une autre plateforme. Un chiffre noyé dans une phrase n'est ni comparable, ni triable, ni vérifiable — et il oblige le lecteur à le relire pour le comprendre. Le champ "avis" ne parle QUE de Google, et sans citer d'autre plateforme.
-ORDRE DE PRIORITÉ SI LE TEMPS MANQUE : remplis d'abord nb, note et dernier des TROIS PREMIÈRES plateformes (les plus pertinentes), avant d'en chercher une quatrième ou une cinquième. Trois lignes complètes valent mieux que six lignes vides — et si tu ne peux vraiment renseigner aucun chiffre sur une plateforme, garde-la quand même : savoir qu'elle existe et qu'on ne s'y est jamais penché est déjà une information.
-UNE DATE APPARTIENT À LA PLATEFORME OÙ TU L'AS LUE, ET À AUCUNE AUTRE. Ne reporte JAMAIS la date, la note ou le nombre d'avis d'un site sur la ligne d'un autre, même quand les chiffres se ressemblent. Cas réel du 10/08/2026 : la date du dernier avis PagesJaunes (27/02/2020) s'est retrouvée dans la ligne Google, dont la page recevait en réalité des avis chaque mois — le dirigeant l'a vu en trois secondes sur son téléphone. Une case vide se comprend ; une date empruntée à une autre source a l'air vérifiée et ne l'est pas.
-LA LIGNE GOOGLE NE T'APPARTIENT PAS : le nombre d'avis, la note et la date du dernier avis Google sont MESURÉS par l'application auprès de Google, après ta réponse. N'essaie pas de les fournir ni de les deviner. Le champ "avis" décrit uniquement CE QUE DISENT les avis Google, en une phrase, sans aucun chiffre et sans citer d'autre plateforme ; si tu n'as pas pu lire les avis Google, laisse-le vide plutôt que d'y résumer d'autres sites.
+⚠️ AUCUN CHIFFRE SUR CES PLATEFORMES. Ne renseigne NI le nombre d'avis, NI la note, NI la date du dernier avis : ces pages sont construites par JavaScript et fermées aux robots, tu ne les lis pas — tu les déduirais, et une déduction affichée comme un relevé est un mensonge. Vérifié deux fois le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021, et la date du dernier avis Google, jamais trouvée, avait été remplacée par celle de PagesJaunes. L'application n'affiche plus que des chiffres MESURÉS ; tout chiffre que tu écrirais ici serait retiré avant affichage. Pour chaque plateforme, renseigne donc uniquement : "nom", "url" (réelle, vérifiée), "role" (ce qu'est ce site, en cinq mots) et "resume" (ce que disent les avis, UNE phrase sur le FOND — sans aucun chiffre, sans note, sans date).
+LA LIGNE GOOGLE NE T'APPARTIENT PAS NON PLUS : son nombre d'avis, sa note et la date de son dernier avis sont mesurés par l'application auprès de Google, après ta réponse. Le champ "avis" décrit uniquement CE QUE DISENT les avis Google, en une phrase, sans aucun chiffre et sans citer d'autre plateforme ; si tu n'as pas pu les lire, laisse-le vide plutôt que d'y résumer d'autres sites.
+CE QUI EST ATTENDU DE TOI SUR CE SUJET, ET QUI A DE LA VALEUR : trouver les BONNES plateformes, leur VRAIE adresse, et dire ce que les clients y expriment. C'est précisément ce qu'aucune API ne donne — et personne d'autre ne peut le faire.
 N'INVENTE JAMAIS de plateforme ni d'URL.
 
 SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
@@ -54,7 +50,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "avis": "synthèse des avis Google (ou 'Non trouvé publiquement')",
  "avisDernier": "date du DERNIER avis Google publié, AAAA-MM-JJ (ou AAAA-MM), null si tu ne l'as pas vue",
  "presence": "présence & réseaux",
- "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…", "nb": nombre d'avis trouvés sur CETTE plateforme (entier) ou null, "note": note moyenne sur 5 (nombre, ex 4.2) ou null, "dernier": date du dernier avis publié au format AAAA-MM-JJ (ou AAAA-MM si le jour est inconnu) ou null, "resume": "ce que disent ces avis, 1 phrase — ou null" } ] (0 à 5, CLASSÉES meilleure→moins bonne),
+  "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…", "resume": "ce que les clients y expriment, UNE phrase sur le fond — AUCUN chiffre, AUCUNE note, AUCUNE date" } ],
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "… (INTERDIT : ne JAMAIS écrire le mot Hypothèse ni de fourchette chiffrée spéculative dans ce champ — décris le bénéfice concret, point. Chaque piste doit pouvoir se justifier par un SIGNAL PUBLIC que tu as observé ; si tu n'en as aucun, n'inscris pas la piste)" } ],
@@ -157,11 +153,23 @@ function pickCanonical(results, nom) {
 async function getDetails(placeId, key) {
   const vide = { website: null, dernierAvis: null };
   if (!placeId || !key) return vide;
-  try {
-    const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=website,reviews&reviews_sort=newest&language=fr&key=${key}`);
-    if (!r.ok) return vide;
+  const lire = async (url) => {
+    const r = await fetch(url);
+    if (!r.ok) return null;
     const d = await r.json();
-    const res = d.result || {};
+    if (!d || !d.result) return null;          // OVER_QUERY_LIMIT, INVALID_REQUEST, ZERO_RESULTS…
+    return d.result;
+  };
+  const base = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&language=fr&key=${key}`;
+  try {
+    let res = await lire(`${base}&fields=website,reviews&reviews_sort=newest`);
+    /* ⚠️ SI LA DEMANDE ENRICHIE ÉCHOUE, ON REDEMANDE LE STRICT MINIMUM. Un paramètre refusé par
+       Google fait tomber TOUTE la réponse — on perdrait alors l'adresse du site. Or le site
+       entre dans le calcul de la note : la note baisserait silencieusement de plusieurs points,
+       et personne ne saurait que c'est un paramètre d'API qui a bougé, pas l'entreprise.
+       Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
+    if (!res) res = await lire(`${base}&fields=website`);
+    if (!res) return vide;
     let dernier = null;
     if (Array.isArray(res.reviews) && res.reviews.length) {
       const t = res.reviews.map(x => x && x.time).filter(x => typeof x === "number" && x > 0);

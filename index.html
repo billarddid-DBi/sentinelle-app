@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 285';
+var IVE_VERSION='10/08 · 286';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5002,6 +5002,27 @@ function avisDate(v){
   var jours=Math.round((Date.now()-d.getTime())/864e5);
   return {txt:txt, vieux:(jours>365), jours:jours};
 }
+/* ⚠️ UN CHIFFRE NON MESURÉ NE DOIT PAS NON PLUS PASSER PAR LA PROSE. Vider les colonnes ne sert
+   à rien si « 4,5/5 sur 11 avis, dernier avis 27/02/2020 » se retrouve dans le résumé : le
+   lecteur le lira pareil, et le citera pareil. On retire donc les notes, les compteurs d'avis et
+   les dates du texte des plateformes non mesurées. Ce qui reste — ce que les clients disent —
+   est justement ce qu'aucune API ne donne, et ce qu'aucun chiffre ne remplace. */
+function avisTexteSansChiffres(t){
+  /* ⚠️ ON RETIRE LA PROPOSITION ENTIÈRE, PAS SEULEMENT LE CHIFFRE. Effacer « 4,5 » dans
+     « 4,5/5 sur 11 avis, dernier le 27/02/2020 » laisse « sur , dernier le » — une bouillie qui
+     se lit plus mal qu'une case vide. Une proposition qui contient un chiffre EST une annonce
+     chiffrée : elle part en entier, et ce qui reste est du texte lisible. */
+  var morceaux=String(t||'').split(/([.;]\s*)/);
+  var gardees=[];
+  for(var i=0;i<morceaux.length;i+=2){
+    var phrase=morceaux[i]||'', fin=morceaux[i+1]||'';
+    if(!phrase.trim()) continue;
+    var bouts=phrase.split(',').filter(function(b){ return !/\d/.test(b); });
+    var reste=bouts.join(',').replace(/\s{2,}/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();
+    if(reste) gardees.push(reste+(fin.trim()?fin.trim():'.'));
+  }
+  return gardees.join(' ').replace(/\s{2,}/g,' ').trim();
+}
 function avisTableau(d){
   var lignes=[];
   /* Google d'abord : la source que tout le monde regarde, et la seule qu'on ait déjà mesurée. */
@@ -5029,9 +5050,30 @@ function avisTableau(d){
                  note:(g.note_google!=null?g.note_google:null),
                  dernier:(g.dernier_avis||null), resume:_res, mesure:true});
   }
+  /* ═══ ⚠️ ON N'AFFICHE PLUS AUCUN CHIFFRE QUE PERSONNE N'A MESURÉ ═══════════════════════════
+     Didier, 10/08/2026, après deux dates fausses de suite : « je vais sur PagesJaunes, le
+     dernier avis c'est le 6 avril 2021. Tu ne fais vraiment pas le boulot. […] tu continues à
+     écrire des dates alors que tu ne les as même pas vérifiées. »
+
+     Il avait raison deux fois. La fiche annonçait 27/02/2020 pour PagesJaunes — la vraie date
+     est le 06/04/2021. Le premier défaut était une date empruntée à une autre plateforme ; le
+     second est plus grave : même « à sa place », le chiffre était faux.
+
+     ⚠️ LA CAUSE N'EST PAS UN BUG, C'EST LA SOURCE. Ces pages sont construites par JavaScript et
+     fermées aux robots : le modèle ne les lit pas, il les DEVINE à partir de ce que la recherche
+     web lui renvoie. Aucune consigne, si ferme soit-elle, ne rend fiable une donnée qu'il n'a
+     jamais vue — j'ai déjà tenté trois fois de durcir le prompt, et il s'est trompé trois fois.
+
+     La seule règle qui tienne : un chiffre s'affiche s'il est MESURÉ. Google l'est (API Places).
+     Les autres plateformes ne le sont pas — donc leurs colonnes restent vides, et la ligne porte
+     un lien direct vers la page. Ce que Didier veut savoir (« cette page est-elle vivante ? »)
+     se lit en un clic sur la vraie page, en trois secondes, avec la certitude en prime.
+
+     Trois cases vides valent mieux qu'une date fausse : la case vide ne se remet pas sous son
+     nez devant un dirigeant. */
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
-    lignes.push({nom:p.nom||'', url:p.url||'', nb:(p.nb!=null?p.nb:null),
-                 note:(p.note!=null?p.note:null), dernier:p.dernier||null, resume:p.resume||p.role||''});
+    lignes.push({nom:p.nom||'', url:p.url||'', nb:null, note:null, dernier:null,
+                 resume:avisTexteSansChiffres(p.resume||p.role||''), mesure:false});
   });
   if(!lignes.length) return '';
   var cel='padding:7px 8px;border-top:1px solid #f1f5f9;font-size:12px;vertical-align:top;';
@@ -5048,10 +5090,22 @@ function avisTableau(d){
     +'</tr></thead><tbody>'
     +lignes.map(function(l){
       var dd=avisDate(l.dernier);
-      return '<tr>'
-        +'<td style="'+cel+'font-weight:700;">'
+      var nomCell='<td style="'+cel+'font-weight:700;">'
           +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#1f2937;text-decoration:none;">'+esc(l.nom)+' <i class="ti ti-external-link" style="font-size:10px;"></i></a>'):esc(l.nom))
-        +'</td>'
+        +'</td>';
+      /* ⚠️ UNE LIGNE NON MESURÉE NE MONTRE PAS TROIS TIRETS, ELLE MONTRE LE CHEMIN. Trois « — »
+         se lisent « il n'y a rien » ; or il y a sans doute des avis — c'est nous qui ne pouvons
+         pas les compter d'ici. On le dit, et on ouvre la page : la réponse est à un clic. */
+      if(!l.mesure){
+        return '<tr>'+nomCell
+          +'<td colspan="3" style="'+cel+'color:#9ca3af;font-size:11px;">'
+            +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-weight:700;text-decoration:none;">Voir les avis sur le site <i class="ti ti-external-link" style="font-size:10px;"></i></a>')
+                   :'Chiffres non mesurables depuis l\'application')
+          +'</td>'
+          +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+        +'</tr>';
+      }
+      return '<tr>'+nomCell
         +'<td style="'+cel+'">'+(l.nb!=null?('<b>'+l.nb+'</b>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
         +'<td style="'+cel+'white-space:nowrap;">'+(l.note!=null?('<b>'+String(l.note).replace('.',',')+'</b><span style="color:#9ca3af;">/5</span>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
         +'<td style="'+cel+'white-space:nowrap;'+(dd.vieux?'color:#b45309;font-weight:700;':'color:#6b7280;')+'">'
@@ -5070,14 +5124,19 @@ function avisTableau(d){
        /* ⚠️ UNE FICHE D'AVANT LA MISE À JOUR NE PEUT PAS PORTER CES CHAMPS. Sans cette phrase,
           une colonne de tirets se lit comme « ces plateformes n'ont aucun avis » — un contresens
           exactement inverse de la réalité. On dit d'où vient le vide, et quoi faire. */
-       var anciennes=lignes.filter(function(l,i){ return i>0 && l.nb==null && l.note==null && !l.dernier; }).length;
+       /* ⚠️ LE MESSAGE « FICHE ANCIENNE » EST RETIRÉ (10/08/2026). Il se déclenchait quand aucune
+          plateforme n'avait de chiffres — ce qui est désormais le cas de TOUTES, par construction.
+          Il aurait donc conseillé de relancer à chaque affichage, pour un manque qui ne se
+          comblera jamais. Un message qui ne distingue plus rien ne dit plus rien. */
+       var anciennes=0;
        /* ⚠️ ON DIT D'OÙ VIENT CHAQUE CHIFFRE. Didier, 10/08/2026 : « tu dis que le dernier avis
           c'est février 2020 et je viens de voir sur Google que c'était il y a trois mois ». La
           ligne Google est MESURÉE auprès de Google ; les autres sont relevées par l'analyse en
           parcourant les sites. Ce ne sont pas les mêmes garanties, et le lecteur doit le savoir
           avant de citer un chiffre devant un dirigeant. */
-       var origine='<div style="font-size:10.5px;color:#9ca3af;margin-top:5px;line-height:1.5;">'
-         +'Ligne Google : chiffres <b>mesurés</b> directement auprès de Google. Autres plateformes : relevées par l\'analyse sur chaque site.</div>';
+       var origine='<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
+         +'<b>Ce tableau ne contient que des chiffres mesurés.</b> Le nombre d\'avis, la note et la date du dernier avis Google sont relevés directement auprès de Google. '
+         +'Les autres plateformes n\'exposent pas leurs données : leurs chiffres ne sont donc pas affichés, mais le lien ouvre la page — la réponse s\'y lit en trois secondes.</div>';
        return tot + origine + ((anciennes && anciennes===lignes.length-1)
          ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'
            +'<i class="ti ti-info-circle"></i> Cette analyse a été produite avant que le détail par plateforme n\'existe. '
