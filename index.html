@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 289';
+var IVE_VERSION='10/08 · 290';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5070,58 +5070,6 @@ function conseilSansPasse(t){
      afficher le moignon. */
   return (out.split(/\s+/).length>=4)?out:'';
 }
-/* ═══ CE QUE LA MACHINE NE PEUT PAS LIRE, LE CONSULTANT LE RELÈVE ══════════════════════════
-   Didier, 10/08/2026 : « pourquoi tu ne mets pas Facebook avec le nombre d'avis et le dernier
-   avis publié ? » — et, plus tôt : « c'est à toi de trouver les solutions, ce n'est pas moi. »
-
-   ⚠️ VÉRIFIÉ, PAS SUPPOSÉ. J'ai interrogé les sites depuis un serveur :
-     · PagesJaunes  → 403, accès refusé, même en se présentant comme un navigateur
-     · Trustpilot   → 403, accès refusé
-     · Facebook     → page servie, mais mur de connexion : aucun chiffre dedans
-   Seul Google expose ses données à une machine. J'avais annoncé le contraire une heure plus
-   tôt, sans l'avoir essayé.
-
-   ⚠️ ON NE PEUT DONC PAS MESURER — MAIS LUI LE PEUT, EN UN CLIC. Il ouvre déjà ces pages pour
-   vérifier ; qu'il y passe trente secondes de plus et le chiffre devient CERTAIN, daté, et
-   attribué. Un relevé fait par un humain qui a vu la page vaut mieux qu'une estimation faite
-   par une machine qui ne l'a pas vue — et il vaut mieux qu'une case vide.
-
-   Le relevé vit par DOSSIER : un chiffre lu chez CERIBE n'a aucun sens chez un autre client. */
-function avisManuelKey(){ return 'ive_avis_manuel_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
-function avisManuelTout(){ try{ var s=localStorage.getItem(avisManuelKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
-function avisManuelLire(nom){ var o=avisManuelTout()[String(nom||'').toLowerCase()]; return o||null; }
-function avisManuelEnregistrer(nom){
-  var cle=String(nom||'').toLowerCase();
-  var g=function(id){ var el=document.getElementById(id+cle.replace(/[^a-z0-9]/g,'')); return el?el.value.trim():''; };
-  var nb=g('amNb'), note=g('amNote'), dern=g('amDate');
-  var o=avisManuelTout();
-  if(!nb && !note && !dern){ delete o[cle]; }
-  else {
-    o[cle]={ nb:(nb!==''?Math.max(0,parseInt(nb,10)||0):null),
-             note:(note!==''?Math.min(5,Math.max(0,parseFloat(note.replace(',','.'))||0)):null),
-             dernier:(dern||null), le:new Date().toISOString().slice(0,10) };
-  }
-  try{ localStorage.setItem(avisManuelKey(), JSON.stringify(o)); }catch(e){}
-  /* On redessine la fiche entière : le total, la légende et la ligne changent ensemble. Les
-     rafraîchir séparément, c'est prendre le risque qu'un des trois reste en arrière. */
-  if(window.__sentData && typeof render==='function') render(window.__sentData,true);
-}
-function avisManuelOuvrir(nom){
-  var cle=String(nom||'').toLowerCase(), sfx=cle.replace(/[^a-z0-9]/g,'');
-  var z=document.getElementById('amBloc'+sfx); if(!z) return;
-  var v=avisManuelLire(cle)||{};
-  var champ=function(id,ph,val,type){
-    return '<input id="'+id+sfx+'" type="'+(type||'text')+'" placeholder="'+ph+'" value="'+esc(val==null?'':String(val).replace('.',','))+'" '
-      +'style="width:100%;box-sizing:border-box;border:1px solid #d7dbe3;border-radius:8px;padding:6px 8px;font-size:12px;font-family:inherit;">';
-  };
-  z.innerHTML='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-end;margin-top:6px;">'
-    +'<div style="flex:1;min-width:66px;"><div style="font-size:9.5px;color:#9ca3af;font-weight:700;">AVIS</div>'+champ('amNb','ex : 11',v.nb)+'</div>'
-    +'<div style="flex:1;min-width:66px;"><div style="font-size:9.5px;color:#9ca3af;font-weight:700;">NOTE /5</div>'+champ('amNote','ex : 4,5',v.note)+'</div>'
-    +'<div style="flex:1.4;min-width:118px;"><div style="font-size:9.5px;color:#9ca3af;font-weight:700;">DERNIER AVIS</div>'+champ('amDate','',v.dernier,'date')+'</div>'
-    +'<button type="button" onclick="avisManuelEnregistrer(\''+esc(cle)+'\')" style="border:none;border-radius:8px;background:#1C1C1C;color:#fff;font-size:11px;font-weight:800;padding:7px 12px;cursor:pointer;font-family:inherit;">Enregistrer</button>'
-    +'</div>'
-    +'<div style="font-size:10px;color:#9ca3af;margin-top:4px;line-height:1.4;">Ouvrez la page, lisez, recopiez. Le chiffre sera daté à votre nom — et il ne bougera plus tout seul.</div>';
-}
 function avisTableau(d){
   var lignes=[];
   /* Google d'abord : la source que tout le monde regarde, et la seule qu'on ait déjà mesurée. */
@@ -5171,15 +5119,6 @@ function avisTableau(d){
      Trois cases vides valent mieux qu'une date fausse : la case vide ne se remet pas sous son
      nez devant un dirigeant. */
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
-    /* ⚠️ LE RELEVÉ DU CONSULTANT PASSE DEVANT TOUT LE RESTE. Il a ouvert la page et lu le
-       chiffre : c'est la seule source de cette table qui ait vu ce qu'elle annonce. Le laisser
-       derrière une estimation reviendrait à préférer une supposition à un témoignage. */
-    var man=avisManuelLire(p.nom);
-    if(man && (man.nb!=null || man.note!=null || man.dernier)){
-      lignes.push({nom:p.nom||'', url:p.url||'', nb:man.nb, note:man.note, dernier:man.dernier||null,
-                   resume:avisTexteSansChiffres(p.resume||p.role||''), mesure:true, releve:man.le||''});
-      return;
-    }
     lignes.push({nom:p.nom||'', url:p.url||'',
                  nb:(p.nb!=null?p.nb:null), note:(p.note!=null?p.note:null),
                  /* ⚠️ LA DATE RESTE ABSENTE HORS GOOGLE. Didier, 10/08/2026 : « le seul truc que
@@ -5219,17 +5158,7 @@ function avisTableau(d){
       var stChiffre = l.mesure ? 'color:#1C1C1C;font-weight:800;' : 'color:#9ca3af;font-weight:600;';
       var marque = l.mesure ? '' : '<span style="color:#c7ccd3;font-size:9px;vertical-align:super;" title="Annoncé par l\'analyse, non vérifié sur la page">°</span>';
       var vide='<span style="color:#c7ccd3;">—</span>';
-      /* ⚠️ SEULES LES LIGNES QU'ON NE SAIT PAS MESURER REÇOIVENT LE CRAYON. L'offrir sur Google
-         inviterait à écraser à la main une mesure exacte — et le jour où les deux divergent,
-         plus personne ne saurait laquelle croit. */
-      var sfx=String(l.nom||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-      var crayon = (l.nom!=='Google')
-        ? '<div><button type="button" onclick="avisManuelOuvrir(\''+esc(String(l.nom||'').toLowerCase())+'\')" style="border:none;background:none;padding:0;margin-top:3px;cursor:pointer;font-family:inherit;font-size:10px;color:#2563EB;font-weight:700;"><i class="ti ti-pencil"></i> '+(l.releve?'corriger':'je l\'ai lu')+'</button></div>'
-          +'<div id="amBloc'+sfx+'"></div>' : '';
-      if(l.releve){
-        marque='<span style="color:#15803d;font-size:9px;vertical-align:super;" title="Relevé par vous le '+esc(l.releve)+'">✓</span>';
-      }
-      return '<tr>'+nomCell.replace('</td>', crayon+'</td>')
+      return '<tr>'+nomCell
         +'<td style="'+cel+stChiffre+'">'+(l.nb!=null?(l.nb+marque):vide)+'</td>'
         +'<td style="'+cel+'white-space:nowrap;'+stChiffre+'">'
           +(l.note!=null?(String(l.note).replace('.',',')+'<span style="color:#9ca3af;font-weight:600;">/5</span>'+marque):vide)+'</td>'
@@ -5268,11 +5197,29 @@ function avisTableau(d){
        /* La légende ne s'écrit que si un ° apparaît vraiment : une explication permanente pour un
           cas qui n'arrive pas devient du bruit, et on cesse de la lire le jour où elle compte. */
        var douteux=lignes.filter(function(l){ return !l.mesure && (l.nb!=null || l.note!=null); }).length;
-       var releves=lignes.filter(function(l){ return l.releve; }).length;
-       var origine='<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
-         +'<b>Chiffres en noir : sûrs.</b> Google est mesuré automatiquement, date du dernier avis comprise.'
-         +(releves?'<br><b style="color:#15803d;">✓</b> : relevé par vous sur la page, à la date indiquée.':'')
-         +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : annoncés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez la page et cliquez <b>« je l\'ai lu »</b> : trente secondes, et le chiffre devient sûr.'):'')
+       /* ⚠️ QUAND GOOGLE REFUSE, ON DIT CE QU'IL A RÉPONDU. Didier, 10/08/2026 : « qu'est-ce que
+          je dois vérifier dans la console Google Cloud ? » Sans ce mot, la réponse est une liste
+          de suppositions ; avec lui, elle tient en une ligne. Réservé à l'administrateur : c'est
+          un message de réglage, il n'a rien à faire sous les yeux d'un dirigeant. */
+       var gs=(d&&d._auraCalc)?d._auraCalc.google_statut:null;
+       var diag='';
+       if(gs && gs!=='OK' && typeof iveIsAdmin==='function' && iveIsAdmin()){
+         var QUOI={
+           REQUEST_DENIED:'la clé est refusée — vérifiez que « Places API » (l\'ancienne, pas seulement « Places API (New) ») est activée, et que la restriction de la clé est « Aucune » ou « Adresses IP », jamais « Référents HTTP » : un appel serveur n\'envoie pas de référent.',
+           OK_SANS_AVIS:'Google répond mais ne renvoie aucun avis — le champ « reviews » relève des données Atmosphere : vérifiez que la facturation est active sur le projet et que la clé n\'est pas restreinte à d\'autres API.',
+           OVER_QUERY_LIMIT:'quota dépassé ou facturation inactive sur le projet.',
+           INVALID_REQUEST:'la requête a été rejetée — un paramètre n\'est pas accepté par cette version de l\'API.',
+           SANS_CLE:'aucune clé Google n\'est configurée côté serveur (variable GOOGLE_PLACES_KEY).'
+         };
+         diag='<div style="font-size:10.5px;color:#9a3412;background:#fffaf6;border:1px solid #fed7aa;border-radius:8px;padding:7px 9px;margin-top:6px;line-height:1.55;">'
+           +'<b><i class="ti ti-alert-triangle"></i> Date Google indisponible — réponse de Google : <code>'+esc(gs)+'</code></b><br>'
+           +(QUOI[gs]||'statut non répertorié : notez-le, il désigne le réglage à corriger.')
+           +((d._auraCalc&&d._auraCalc.google_detail)?('<br><span style="color:#b45309;">'+esc(d._auraCalc.google_detail)+'</span>'):'')
+           +'<br><span style="color:#9ca3af;">Visible par vous seul.</span></div>';
+       }
+       var origine=diag+'<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
+         +'<b>Chiffres en noir : mesurés.</b> Google est relevé automatiquement, date du dernier avis comprise.'
+         +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : annoncés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez leur page avant de citer ces chiffres.'):'')
          +'</div>';
        return tot + origine + ((anciennes && anciennes===lignes.length-1)
          ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'

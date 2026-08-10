@@ -156,13 +156,21 @@ function pickCanonical(results, nom) {
    d'abord ; si le tri est ignoré, le maximum des horodatages reste une mesure, jamais une
    supposition. */
 async function getDetails(placeId, key) {
-  const vide = { website: null, dernierAvis: null };
+  const vide = { website: null, dernierAvis: null, statut: (key ? "SANS_LIEU" : "SANS_CLE"), detail: null };
   if (!placeId || !key) return vide;
+  /* ⚠️ ON RETIENT CE QUE GOOGLE RÉPOND QUAND IL REFUSE. Didier, 10/08/2026 : « qu'est-ce que je
+     dois vérifier dans la console Google Cloud pour pouvoir accéder à la date ? » Sans le
+     message d'erreur, la réponse est une liste de suppositions à essayer une par une. Google
+     dit précisément pourquoi il refuse — REQUEST_DENIED, OVER_QUERY_LIMIT, INVALID_REQUEST — et
+     chacun désigne un réglage différent. On garde ce mot ; il ne contient aucun secret. */
+  let statut = null, detail = null;
   const lire = async (url) => {
     const r = await fetch(url);
-    if (!r.ok) return null;
+    if (!r.ok) { statut = "HTTP_" + r.status; return null; }
     const d = await r.json();
-    if (!d || !d.result) return null;          // OVER_QUERY_LIMIT, INVALID_REQUEST, ZERO_RESULTS…
+    if (d && d.status) statut = d.status;
+    if (d && d.error_message) detail = String(d.error_message).slice(0, 160);
+    if (!d || !d.result) return null;
     return d.result;
   };
   const base = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&language=fr&key=${key}`;
@@ -181,14 +189,18 @@ async function getDetails(placeId, key) {
        plusieurs points sans que personne sache que c'est une API qui a bougé, pas l'entreprise.
        Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
     if (!res) res = await lire(`${base}&fields=website`);
-    if (!res) return vide;
+    if (!res) return { website: null, dernierAvis: null, statut: statut || "SANS_REPONSE", detail };
     let dernier = null;
     if (Array.isArray(res.reviews) && res.reviews.length) {
       const t = res.reviews.map(x => x && x.time).filter(x => typeof x === "number" && x > 0);
       if (t.length) dernier = new Date(Math.max.apply(null, t) * 1000).toISOString().slice(0, 10);
     }
-    return { website: res.website || null, dernierAvis: dernier };
-  } catch (_) { return vide; }
+    /* ⚠️ « OK SANS AVIS » N'EST PAS « OK ». Google peut répondre OK et ne renvoyer aucun avis :
+       c'est le signe que le champ `reviews` n'est pas ouvert sur cette clé, pas que la fiche
+       n'a pas d'avis. Les confondre ferait chercher le défaut du mauvais côté. */
+    if (!dernier && statut === "OK") statut = "OK_SANS_AVIS";
+    return { website: res.website || null, dernierAvis: dernier, statut: statut || "OK", detail };
+  } catch (_) { return { website: null, dernierAvis: null, statut: statut || "ERREUR_RESEAU", detail }; }
 }
 
 /* ═══ LIRE LA NOTE ET LE NOMBRE D'AVIS SUR LA PAGE ELLE-MÊME ═══════════════════════════════
@@ -333,7 +345,7 @@ export default async function handler(req, res) {
             fiche.indice = fiche.indice || {};
             fiche.indice.estime = note;
             fiche.indice.potentiel = Math.min(100, note + 18);
-            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis };
+            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis, google_statut: det.statut || null, google_detail: det.detail || null };
             /* ⚠️ ON EFFACE CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Le champ était sa porte d'entrée
                pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
                absente : il n'y a pas de troisième cas. */
