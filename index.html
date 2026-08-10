@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 282';
+var IVE_VERSION='10/08 · 283';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3650,6 +3650,389 @@ function iveSerie(){
   return s.filter(function(x){ return x && x.date && x.ive!=null; })
           .sort(function(a,b){ return a.date<b.date?-1:1; });
 }
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+   LE RAPPORT SENTINELLE — 10/08/2026
+
+   Didier : « je voudrais que tu me crées un rapport PDF, mais aux petits oignons […] digne des
+   plus grands cabinets d'audit […] où tu parles bien aux dirigeants et pas des trucs
+   destructifs, je veux que du constructif […] tu l'appelleras rapport SENTINELLE et tu le
+   mettras dans historique. Avec la date bien sûr. Et les versions, donc la première ce sera
+   la v zéro. »
+
+   ⚠️ AUCUNE DÉPENDANCE NOUVELLE, ET AUCUNE FONCTION VERCEL. Le PDF sort de l'impression native
+   du navigateur (Ctrl+P → Enregistrer en PDF). Une bibliothèque PDF pèserait 300 Ko chargés à
+   chaque ouverture de l'application pour un bouton utilisé une fois par audit, et une route
+   serveur coûterait une des douze fonctions — il n'en reste aucune.
+
+   ⚠️ LES GRAPHIQUES SONT EN SVG, PAS EN CANVAS. Un canvas s'imprime en image matricielle : net
+   à l'écran, flou sur le papier et illisible une fois zoomé dans le PDF. Le SVG est vectoriel :
+   il reste net à toute taille, et il se dessine sans attendre une bibliothèque.
+
+   ⚠️ ET LE TON EST CONSTRUCTIF PAR CONSTRUCTION. Un chiffre bas n'est pas un reproche : c'est
+   l'endroit où l'effort paie le plus. Le rapport part sous l'en-tête de Didier, chez un
+   dirigeant qui le lira seul — chaque page doit finir sur ce qui est possible.
+   ═══════════════════════════════════════════════════════════════════════════════════════════ */
+var RAP_BANDES=[{s:75,l:'Solide',c:'#15803d'},{s:60,l:'Bon niveau',c:'#2563EB'},
+                {s:45,l:'En construction',c:'#b45309'},{s:0,l:'Terrain à gagner',c:'#9a3412'}];
+function rapBande(n){ for(var i=0;i<RAP_BANDES.length;i++){ if(n>=RAP_BANDES[i].s) return RAP_BANDES[i]; } return RAP_BANDES[3]; }
+/* ⚠️ « TERRAIN À GAGNER », PAS « FAIBLE ». Le mot qu'on met sous un chiffre décide de ce que le
+   dirigeant en fait : « faible » se subit, « terrain à gagner » se travaille. Même chiffre, même
+   vérité — une seule des deux formulations laisse une prise. */
+
+/* Une barre horizontale : la note d'aujourd'hui, et en trait clair ce qui est atteignable. */
+function rapBarre(titre, val, pot, sousTitre){
+  val=Math.max(0,Math.min(100,+val||0));
+  pot=Math.max(val,Math.min(100,+pot||val));
+  var b=rapBande(val);
+  return '<div style="margin:0 0 13px;page-break-inside:avoid;break-inside:avoid;">'
+    +'<div style="display:flex;align-items:baseline;gap:8px;">'
+      +'<div style="flex:1;font-size:11.5px;font-weight:700;color:#1C1C1C;">'+esc(titre)+'</div>'
+      +'<div style="font-size:13px;font-weight:800;color:'+b.c+';">'+val+'<span style="font-size:9.5px;color:#9ca3af;font-weight:600;">/100</span></div>'
+      +'<div style="font-size:9.5px;font-weight:700;color:'+b.c+';min-width:88px;text-align:right;">'+b.l+'</div>'
+    +'</div>'
+    +'<div style="position:relative;height:9px;border-radius:5px;background:#eef2f5;margin-top:4px;overflow:hidden;">'
+      +'<div style="position:absolute;left:0;top:0;bottom:0;width:'+pot+'%;background:'+b.c+'22;"></div>'
+      +'<div style="position:absolute;left:0;top:0;bottom:0;width:'+val+'%;background:'+b.c+';border-radius:5px;"></div>'
+    +'</div>'
+    +(sousTitre?'<div style="font-size:10px;color:#6b7280;margin-top:3px;">'+esc(sousTitre)+(pot>val?' · atteignable : '+pot+'/100':'')+'</div>':'')
+  +'</div>';
+}
+
+/* Le radar des 8 piliers, en SVG. Deux polygones : ce qui est mesuré aujourd'hui, et le
+   potentiel. L'écart entre les deux EST le sujet du rapport — il se voit d'un coup d'oeil. */
+function rapRadarSVG(r, taille){
+  r=r||{}; taille=taille||360;
+  var lab=r.labels||[], act=r.actuel||[], pot=r.potentiel||[];
+  var n=Math.min(lab.length, act.length); if(n<3) return '';
+  var C=taille/2, R=taille*0.34;
+  var pt=function(i,v){ var a=(Math.PI*2*i/n)-Math.PI/2, d=R*Math.max(0,Math.min(100,v))/100;
+                        return [(C+d*Math.cos(a)).toFixed(1),(C+d*Math.sin(a)).toFixed(1)]; };
+  var poly=function(vals){ var p=[]; for(var i=0;i<n;i++) p.push(pt(i,vals[i]||0).join(',')); return p.join(' '); };
+  var s='<svg viewBox="0 0 '+taille+' '+taille+'" width="100%" style="max-width:'+taille+'px;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg">';
+  /* Les cercles de graduation : 25, 50, 75, 100 — sans eux, un polygone ne se lit pas. */
+  [25,50,75,100].forEach(function(g){
+    s+='<circle cx="'+C+'" cy="'+C+'" r="'+(R*g/100).toFixed(1)+'" fill="none" stroke="#e5e9ee" stroke-width="1"/>';
+  });
+  for(var i=0;i<n;i++){ var e=pt(i,100);
+    s+='<line x1="'+C+'" y1="'+C+'" x2="'+e[0]+'" y2="'+e[1]+'" stroke="#e5e9ee" stroke-width="1"/>'; }
+  s+='<polygon points="'+poly(pot)+'" fill="#E8541A14" stroke="#E8541A" stroke-width="1.5" stroke-dasharray="4 3"/>';
+  s+='<polygon points="'+poly(act)+'" fill="#2563EB26" stroke="#2563EB" stroke-width="2"/>';
+  for(var j=0;j<n;j++){ var p=pt(j,act[j]||0);
+    s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6" fill="#2563EB"/>'; }
+  /* Les libellés : ancrés selon leur côté, sinon ils débordent du cadre à gauche et à droite. */
+  for(var k=0;k<n;k++){
+    var a=(Math.PI*2*k/n)-Math.PI/2, d=R+16;
+    var x=C+d*Math.cos(a), y=C+d*Math.sin(a);
+    var anc=(Math.cos(a)>0.25)?'start':((Math.cos(a)<-0.25)?'end':'middle');
+    s+='<text x="'+x.toFixed(1)+'" y="'+(y+3).toFixed(1)+'" text-anchor="'+anc+'" font-size="9.5" font-weight="700" fill="#4b5563" font-family="system-ui,sans-serif">'+esc(String(lab[k]||''))+'</text>';
+  }
+  s+='</svg>';
+  return s;
+}
+
+/* La jauge de couverture : aujourd'hui → atteignable, en gros. */
+function rapJauge(est, pot, hex){
+  est=+est||0; pot=+pot||est; hex=hex||'#2563EB';
+  var gain=Math.max(0,pot-est);
+  return '<div style="display:flex;align-items:center;justify-content:center;gap:26px;padding:6px 0;">'
+    +'<div style="text-align:center;"><div style="font-size:9px;letter-spacing:1.4px;color:#9ca3af;font-weight:700;">AUJOURD\'HUI</div>'
+      +'<div style="font-size:44px;font-weight:800;color:'+hex+';line-height:1.05;">'+est+'<span style="font-size:15px;color:#9ca3af;font-weight:600;">/100</span></div></div>'
+    +'<div style="text-align:center;color:#E8541A;"><div style="font-size:22px;line-height:1;">→</div>'
+      +'<div style="font-size:12px;font-weight:800;margin-top:3px;">+'+gain+' pts</div>'
+      +'<div style="font-size:9px;color:#9ca3af;font-weight:600;">à portée</div></div>'
+    +'<div style="text-align:center;"><div style="font-size:9px;letter-spacing:1.4px;color:#9ca3af;font-weight:700;">ATTEIGNABLE</div>'
+      +'<div style="font-size:44px;font-weight:800;color:#E8541A;line-height:1.05;">'+pot+'<span style="font-size:15px;color:#9ca3af;font-weight:600;">/100</span></div></div>'
+  +'</div>';
+}
+
+function rapTitre(num, titre, sous){
+  return '<div style="page-break-inside:avoid;break-inside:avoid;margin:0 0 10px;">'
+    +'<div style="display:flex;align-items:baseline;gap:9px;border-bottom:2px solid #1C1C1C;padding-bottom:5px;">'
+      +'<span style="font-size:10px;font-weight:800;color:#E8541A;letter-spacing:1px;">'+num+'</span>'
+      +'<span style="flex:1;font-size:14px;font-weight:800;color:#1C1C1C;letter-spacing:.2px;">'+esc(titre)+'</span>'
+    +'</div>'
+    +(sous?'<div style="font-size:10.5px;color:#6b7280;margin-top:5px;line-height:1.5;">'+sous+'</div>':'')
+  +'</div>';
+}
+function rapSection(html){ return '<section style="margin:0 0 26px;page-break-inside:avoid;break-inside:avoid;">'+html+'</section>'; }
+/* L'intercalaire d'une partie : il dit la NATURE de ce qui suit — fait relevé, déduction ou
+   recommandation. C'est ce qui empêche de lire une hypothèse comme une mesure. */
+function rapPartie(num, titre, intro){
+  /* `data-partie` marque l'intercalaire lui-même. Le sommaire de la synthèse reprend les trois
+     mêmes libellés — sans ce repère, chercher « Ce que nous avons relevé » tombe sur le sommaire
+     et non sur la partie. Le banc s'y est fait prendre avant d'être corrigé. */
+  return '<div data-partie="'+esc(num)+'" style="page-break-inside:avoid;break-inside:avoid;margin:34px 0 18px;background:#1C1C1C;color:#fff;border-radius:12px;padding:15px 18px;">'
+    +'<div style="display:flex;align-items:baseline;gap:10px;">'
+      +'<span style="font-size:19px;font-weight:800;color:#E8A07E;">'+esc(num)+'</span>'
+      +'<span style="flex:1;font-size:15px;font-weight:800;letter-spacing:.2px;">'+esc(titre)+'</span>'
+    +'</div>'
+    +(intro?'<div style="font-size:11px;color:#d7dbe3;line-height:1.6;margin-top:6px;">'+intro+'</div>':'')
+  +'</div>';
+}
+
+/* ⚠️ LA PHRASE D'OUVERTURE EST CALCULÉE, PAS RECOPIÉE. Elle dit où en est l'entreprise ET ce
+   que ça ouvre — jamais l'un sans l'autre. Un dirigeant qui lit « 45/100 » sans savoir quoi en
+   faire referme le rapport. */
+function rapOuverture(est, pot, nom){
+  var gain=Math.max(0,pot-est);
+  var socle = est>=75 ? 'Votre image publique est déjà une force : elle travaille pour vous avant même le premier rendez-vous.'
+            : est>=60 ? 'Votre image publique est solide et bien installée sur ses fondamentaux.'
+            : est>=45 ? 'Votre image publique est en construction : les bases sont là, elles demandent à être mises en avant.'
+            :           'Votre image publique est encore discrète : presque tout ce qui se joue en ligne reste à écrire, et c\'est une page blanche plutôt qu\'un retard.';
+  var suite = gain>=25 ? 'La marge repérée est importante — <b>+'+gain+' points</b> — et elle tient à des gestes simples, pas à une refonte.'
+            : gain>=12 ? 'La marge repérée est nette : <b>+'+gain+' points</b> accessibles sans changer votre façon de travailler.'
+            : gain>0   ? 'Il reste <b>+'+gain+' points</b> à aller chercher, sur des détails qui se corrigent vite.'
+            :            'Vous êtes déjà au niveau que permettent vos données publiques actuelles.';
+  return '<b>'+esc(nom||'Votre entreprise')+'.</b> '+socle+' '+suite;
+}
+
+/* Points d'attention : le texte du modèle est conservé, mais il est ENCADRÉ. Sans cadre, une
+   liste de manques se lit comme un bulletin de notes ; avec, c'est une liste de chantiers. */
+function rapAttention(vig){
+  var l=(vig||[]).filter(function(v){ return v && v.texte; });
+  if(!l.length) return '';
+  return rapSection(
+    rapTitre('08','Ce qui mérite votre attention',
+      'Aucun de ces points n\'est un défaut de fond : ce sont des endroits où un geste court produit un effet visible, parce que personne ne les a encore traités.')
+    +l.map(function(v){
+      return '<div style="display:flex;gap:10px;align-items:flex-start;border-left:3px solid #fed7aa;background:#fffaf6;padding:9px 12px;margin-top:7px;page-break-inside:avoid;">'
+        +'<div style="font-size:12px;">'+esc(v.niveau||'•')+'</div>'
+        +'<div style="flex:1;font-size:11.5px;color:#4b5563;line-height:1.55;">'+esc(v.texte)+'</div></div>';
+    }).join('')
+  );
+}
+
+/* ⚠️ LE NUMÉRO DE VERSION VIENT DU RANG, PAS D'UN COMPTEUR STOCKÉ. Didier : « la première ce
+   sera la v zéro ». Un compteur à part se désynchronise le jour où une analyse est effacée ou
+   rejouée ; le rang dans la liste triée par date, lui, ne peut pas mentir. */
+function rapVersionLib(i){ return 'v'+i; }
+function rapDateLongue(x){
+  try{ return new Date(x).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}); }
+  catch(e){ return ''; }
+}
+
+/* Le document lui-même. */
+function rapportHtml(d, version, dateAnalyse){
+  d=d||{};
+  var v=(typeof synthVals==='function')?synthVals(d):{est:50,pot:68,coul:'Bleu',hex:'#2563EB'};
+  var est=v.est, pot=v.pot, hex=v.hex;
+  var adef=(typeof AURADEF!=='undefined'&&AURADEF[v.coul])?AURADEF[v.coul]:null;
+  var aSens=(d.aura&&d.aura.sens)||(adef&&adef.s)||'';
+  var aDef=(d.aura&&d.aura.definition)||(adef&&adef.d)||'';
+  var dateTxt=rapDateLongue(dateAnalyse||Date.now());
+  var editeLe=rapDateLongue(Date.now());
+
+  /* ── COUVERTURE ────────────────────────────────────────────────────────────────────────── */
+  var h='<div class="rapDoc" style="font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1C1C1C;">';
+  h+='<div style="page-break-after:always;break-after:page;padding:6px 0 0;">'
+    +'<div style="display:flex;align-items:center;gap:8px;">'
+      +'<span style="font-size:10px;font-weight:800;letter-spacing:2.5px;color:#E8541A;">SENTINELLE</span>'
+      +'<span style="flex:1;height:1px;background:#e5e9ee;"></span>'
+      +'<span style="font-size:10px;font-weight:700;color:#9ca3af;">DBi360</span>'
+    +'</div>'
+    +'<div style="margin-top:52px;">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:3px;color:#9ca3af;">RAPPORT D\'ANALYSE</div>'
+      +'<div style="font-size:34px;font-weight:800;line-height:1.1;margin-top:8px;">'+esc(d.nom||'Votre entreprise')+'</div>'
+      +'<div style="font-size:13px;color:#4b5563;margin-top:6px;line-height:1.5;">'+esc(d.ville||'')+(d.activite?' · '+esc(d.activite):'')+'</div>'
+      +'<div style="display:inline-flex;align-items:center;gap:9px;margin-top:20px;background:#f8fafc;border:1px solid #e5e9ee;border-radius:22px;padding:7px 15px;">'
+        +'<span style="font-size:11px;font-weight:800;color:#E8541A;">'+esc(rapVersionLib(version))+'</span>'
+        +'<span style="width:1px;height:12px;background:#e5e9ee;"></span>'
+        +'<span style="font-size:11px;color:#4b5563;">Analyse du '+esc(dateTxt)+'</span>'
+      +'</div>'
+    +'</div>'
+    +'<div style="margin-top:44px;">'+rapJauge(est,pot,hex)+'</div>'
+    +'<div style="font-size:12px;color:#374151;line-height:1.7;margin-top:34px;border-left:3px solid '+hex+';padding-left:14px;">'
+      +rapOuverture(est,pot,d.nom)+'</div>'
+    +'<div style="position:relative;margin-top:52px;font-size:10px;color:#9ca3af;line-height:1.6;border-top:1px solid #e5e9ee;padding-top:10px;">'
+      +'Analyse fondée exclusivement sur des <b>données publiques vérifiables</b> — avis, fiches, site, présence en ligne. '
+      +'Aucun entretien n\'a été conduit à ce stade : ce document décrit ce que <b>le public</b> voit de vous.'
+      +'<br>Édité le '+esc(editeLe)+'.'
+    +'</div>'
+  +'</div>';
+
+  /* ── SYNTHÈSE ──────────────────────────────────────────────────────────────────────────── */
+  h+=rapSection(rapTitre('','Synthèse','En une page : d\'où vient la note, et ce qu\'elle peut devenir. Le détail suit, dans l\'ordre où il a été établi.')
+    +'<div style="background:#f8fafc;border:1px solid #e5e9ee;border-radius:12px;padding:14px 16px;">'
+      +rapJauge(est,pot,hex)
+      +(aSens?'<div style="text-align:center;font-size:12px;color:#4b5563;margin-top:8px;line-height:1.6;"><b style="color:'+hex+';">Aura '+esc(v.coul)+' — '+esc(aSens)+'.</b> '+esc(aDef)+'</div>':'')
+    +'</div>'
+    +(d.fierte?'<div style="margin-top:12px;font-size:11.5px;color:#4b5563;line-height:1.6;"><b style="color:#15803d;">Ce que vos clients citent d\'eux-mêmes :</b> '+esc(d.fierte)+'</div>':'')
+    +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;font-size:10px;color:#6b7280;">'
+      +'<span style="background:#eff6ff;border:1px solid #dbeafe;border-radius:14px;padding:4px 10px;"><b>I.</b> Ce que nous avons relevé</span>'
+      +'<span style="background:#fffaf6;border:1px solid #fed7aa;border-radius:14px;padding:4px 10px;"><b>II.</b> Ce que nous en déduisons</span>'
+      +'<span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:4px 10px;"><b>III.</b> Ce que nous recommandons</span>'
+    +'</div>');
+
+  /* ⚠️ TROIS PARTIES, ET ON DIT LAQUELLE ON LIT. Didier, 10/08/2026 : « je veux que le rapport
+     soit logique — les hypothèses, les mesures et les conclusions, quelque chose de cohérent,
+     pas un truc dans n'importe quel ordre ».
+     Un fait relevé, une déduction et une recommandation n'ont pas la même solidité. Mélangés
+     dans une suite de sections, tout se lit avec la même autorité — et le radar de pré-audit,
+     qui est une HYPOTHÈSE, passe pour une mesure. Chaque partie annonce donc ce qu'elle
+     contient, et l'ordre est celui du raisonnement : on observe, puis on déduit, puis on
+     propose. Rien ne peut être recommandé avant d'avoir été observé. */
+  h+=rapPartie('I','Ce que nous avons relevé',
+      'Des <b>faits publics</b>, rien d\'autre. Chaque élément de cette partie est vérifiable à la source, aujourd\'hui, par n\'importe qui.');
+
+  /* ── 01 · CARTE D'IDENTITÉ ─────────────────────────────────────────────────────────────── */
+  if(d.identite && !/non trouv/i.test(d.identite)){
+    h+=rapSection(rapTitre('01','Carte d\'identité','Les éléments publics qui vous identifient, relevés dans les registres officiels.')
+      +'<div style="font-size:11.5px;color:#4b5563;line-height:1.75;">'+((typeof identiteHtml==='function')?identiteHtml(d):esc(d.identite))+'</div>');
+  }
+
+  /* ── 02 · CE QUE VOUS RENVOYEZ ─────────────────────────────────────────────────────────── */
+  if(d.valeurs||d.imagePercue){
+    h+=rapSection(rapTitre('02','Ce que votre vitrine affiche','Vos mots tels qu\'ils sont publiés, et la lecture qu\'en fait un visiteur qui ne vous connaît pas.')
+      +'<div style="display:flex;gap:14px;flex-wrap:wrap;">'
+      +(d.valeurs?'<div style="flex:1;min-width:200px;background:#f8fafc;border-radius:10px;padding:11px 13px;"><div style="font-size:10px;font-weight:800;color:#2563EB;letter-spacing:.4px;">VALEURS AFFICHÉES</div><div style="font-size:11.5px;color:#4b5563;line-height:1.6;margin-top:4px;">'+esc(d.valeurs)+'</div></div>':'')
+      +(d.imagePercue?'<div style="flex:1;min-width:200px;background:#f8fafc;border-radius:10px;padding:11px 13px;"><div style="font-size:10px;font-weight:800;color:#E8541A;letter-spacing:.4px;">IMAGE PERÇUE</div><div style="font-size:11.5px;color:#4b5563;line-height:1.6;margin-top:4px;">'+esc(d.imagePercue)+'</div></div>':'')
+      +'</div>');
+  }
+
+  /* ── 03 · RÉPUTATION, PLATEFORME PAR PLATEFORME ────────────────────────────────────────── */
+  var tab=(typeof avisTableau==='function')?avisTableau(d):'';
+  if(tab) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
+      'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab);
+
+  h+=rapPartie('II','Ce que nous en déduisons',
+      'À partir des faits ci-dessus. Les notes sont <b>calculées</b> ; le radar des huit piliers est une <b>hypothèse de pré-audit</b>, à confirmer en entretien.');
+
+  /* ── 04 · LES CINQ INDICATEURS ─────────────────────────────────────────────────────────── */
+  h+=rapSection(rapTitre('04','Vos cinq indicateurs publics',
+      'Chacun se lit sur 100 et découle des relevés de la partie I. La barre pleine est la mesure d\'aujourd\'hui ; la barre claire, ce que les mêmes sources permettraient d\'atteindre.')
+    +rapBarre('Réputation en ligne', (v.ng!=null?Math.round(v.ng/5*100):est), 100, (v.ng!=null?(String(v.ng).replace('.',',')+'/5 sur '+(v.nbA||0)+' avis'):'Aucune note publique repérée'))
+    +rapBarre('Visibilité', v.visib, Math.min(100,v.visib+14), 'Présence et lisibilité sur le web')
+    +rapBarre('Sentiment', v.senti, Math.min(100,v.senti+9), 'Tonalité de ce qui est écrit sur vous')
+    +rapBarre('Positionnement', v.posi, Math.min(100,v.posi+13), 'Clarté de ce que vous proposez, et à qui')
+    +rapBarre('Confiance', v.conf, Math.min(100,v.conf+11), 'Signaux de fiabilité perçus en ligne')
+    +(d.presence?'<div style="font-size:10.5px;color:#6b7280;margin-top:9px;border-top:1px solid #eef2f5;padding-top:8px;"><b>Canaux repérés :</b> '+esc(d.presence)+'</div>':''));
+
+  /* ── 05 · LE RADAR ─────────────────────────────────────────────────────────────────────── */
+  var rr=d.radar||{};
+  if((rr.labels||[]).length>=3){
+    h+=rapSection(rapTitre('05','Les huit piliers de votre organisation',
+        '<b>Hypothèse de pré-audit</b>, établie sur les seuls signaux publics — donc à confirmer avec vous. Le trait plein est l\'estimation d\'aujourd\'hui ; le pointillé orange, le niveau atteignable. <b>C\'est l\'écart entre les deux qui indique où l\'effort paie le plus.</b>')
+      +rapRadarSVG(rr,360)
+      +'<div style="display:flex;justify-content:center;gap:20px;margin-top:6px;font-size:10px;color:#6b7280;">'
+        +'<span><span style="display:inline-block;width:16px;height:2px;background:#2563EB;vertical-align:middle;"></span> Aujourd\'hui</span>'
+        +'<span><span style="display:inline-block;width:16px;height:0;border-top:2px dashed #E8541A;vertical-align:middle;"></span> Atteignable</span>'
+      +'</div>'
+      +((typeof pilierBarresHtml==='function')?('<div style="margin-top:12px;">'+pilierBarresHtml(rr)+'</div>'):''));
+  }
+
+  /* ── 06 · POINTS D'ATTENTION ───────────────────────────────────────────────────────────── */
+  h+=rapAttention(d.vigilance);
+
+  h+=rapPartie('III','Ce que nous recommandons',
+      'Des gestes, pas des intentions. Chacun découle d\'un point relevé plus haut et peut être engagé sans attendre la suite du diagnostic.');
+
+  /* ── 07 · PAR QUOI COMMENCER ───────────────────────────────────────────────────────────── */
+  var qw=(d.quickwins||[]).filter(Boolean);
+  if(qw.length){
+    h+=rapSection(rapTitre('07','Par quoi commencer',
+        'Gestes courts, classés par effet. Aucun ne demande d\'outil, de budget ni de compétence nouvelle — seulement d\'être fait une fois.')
+      +qw.map(function(q,i){
+        return '<div style="display:flex;gap:11px;align-items:flex-start;margin-top:9px;page-break-inside:avoid;">'
+          +'<div style="width:22px;height:22px;border-radius:50%;background:#E8541A;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+(i+1)+'</div>'
+          +'<div style="flex:1;font-size:11.5px;color:#374151;line-height:1.6;padding-top:2px;">'+esc(q)+'</div></div>';
+      }).join(''));
+  }
+
+  /* ── 08 · PISTES D'OUTILS ──────────────────────────────────────────────────────────────── */
+  var ag=(d.agents||[]).filter(function(a){ return a && a.nom; });
+  if(ag.length){
+    h+=rapSection(rapTitre('08','Pistes d\'outils à explorer',
+        'Repérées à partir de votre vitrine, donc à confirmer avec vous. Elles ne remplacent personne : elles retirent du temps de travail sans valeur ajoutée.')
+      +ag.map(function(a){
+        return '<div style="border:1px solid #e5e9ee;border-radius:10px;padding:10px 13px;margin-top:8px;page-break-inside:avoid;">'
+          +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(a.nom)+'</div>'
+          +(a.benefice?'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(a.benefice)+'</div>':'')
+        +'</div>';
+      }).join(''));
+  }
+
+  /* ── 09 · MÉTHODE ──────────────────────────────────────────────────────────────────────── */
+  h+=rapSection(rapTitre('09','Méthode, sources et limites',
+      'Ce document n\'a de valeur que si l\'on sait comment il a été produit — et ce qu\'il ne peut pas dire.')
+    +'<div style="font-size:11px;color:#4b5563;line-height:1.75;">'
+      +'<b>Ce qui a été lu.</b> Uniquement des sources publiques : fiche d\'établissement, avis clients, site, annuaires professionnels, registres d\'entreprises. '
+      +'La note globale est <b>calculée</b> — qualité des avis, volume, existence d\'un site — et pondérée selon votre métier ; elle n\'est pas une appréciation.'
+      +'<br><br><b>Ce que ce rapport ne dit pas.</b> Il décrit votre <b>image</b>, pas votre réalité interne : ni votre organisation, ni votre trésorerie, ni le climat de votre équipe. '
+      +'Une entreprise excellente peut être mal vue en ligne — et l\'inverse existe aussi. La suite du diagnostic (BOUSSOLE) mesure l\'intérieur et met les deux côte à côte.'
+      +'<br><br><b>Fraîcheur.</b> Le public bouge lentement. Une nouvelle mesure a du sens quand quelque chose a changé : de nouveaux avis, un site refait, une fiche corrigée.'
+    +'</div>'
+    +'<div style="margin-top:14px;border-top:1px solid #e5e9ee;padding-top:9px;font-size:9.5px;color:#9ca3af;line-height:1.6;">'
+      +'Rapport SENTINELLE '+esc(rapVersionLib(version))+' — '+esc(d.nom||'')+' · analyse du '+esc(dateTxt)+' · édité le '+esc(editeLe)+'.'
+      +'<br>SENTINELLE est un premier avis public, sans entretien. Les pistes chiffrées sont indicatives et non contractuelles.'
+    +'</div>');
+
+  return h+'</div>';
+}
+
+/* L'écran du rapport : le document, et un bouton pour l'imprimer ou l'enregistrer en PDF. */
+function rapportView(d, version, dateAnalyse){
+  if(!d){ alert('Aucune analyse à mettre en rapport.'); return; }
+  var titre='Rapport SENTINELLE '+rapVersionLib(version);
+  $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
+    +(typeof iveNavBar==='function'?iveNavBar('accueil'):'')
+    +'<div class="card cpNoPrint" style="margin-bottom:12px;"><div class="sec" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+      +'<div style="flex:1;min-width:170px;"><div style="font-size:13px;font-weight:800;color:#1C1C1C;">'+esc(titre)+'</div>'
+      +'<div style="font-size:11px;color:#6b7280;margin-top:2px;">'+esc(d.nom||'')+' · analyse du '+esc(rapDateLongue(dateAnalyse||Date.now()))+'</div></div>'
+      +'<button type="button" onclick="rapImprimer()" style="border:none;border-radius:11px;background:#E8541A;color:#fff;font-size:12.5px;font-weight:800;padding:11px 18px;cursor:pointer;font-family:inherit;"><i class="ti ti-file-type-pdf"></i> Enregistrer en PDF</button>'
+    +'</div></div>'
+    +'<div class="card"><div class="sec" style="padding:18px 16px;">'+rapportHtml(d,version,dateAnalyse)+'</div></div>';
+  showView('dirigeant'); window.scrollTo(0,0);
+}
+/* ⚠️ ON RETIRE LA CLASSE APRÈS COUP, PAS AVANT. Sur Chrome, window.print() rend la main dès que
+   la boîte de dialogue s'ouvre : nettoyer juste après imprimerait la page sans sa mise en forme.
+   On attend le signal afterprint, avec un repli en cas de navigateur qui ne l'émet pas. */
+function rapImprimer(){
+  document.body.classList.add('impression');
+  var fini=function(){ document.body.classList.remove('impression'); window.removeEventListener('afterprint',fini); };
+  window.addEventListener('afterprint',fini);
+  setTimeout(function(){ try{ window.print(); }catch(e){} setTimeout(fini,4000); },60);
+}
+
+/* ⚠️ LES VERSIONS VIENNENT DE LA BASE, PAS DE LA MÉMOIRE. Une session ne connaît que la dernière
+   analyse ; l'historique, lui, doit pouvoir rouvrir la v0 six mois plus tard. On lit la table
+   des fiches du dossier, du plus ancien au plus récent — le rang donne le numéro de version. */
+var RAP_CACHE=null;
+async function rapportsCharger(force){
+  if(RAP_CACHE && !force) return RAP_CACHE;
+  var out=[];
+  try{
+    var t=(typeof entTravail==='function')?entTravail():null;
+    var ent=t?t.id:((typeof frEntreprise==='function')?await frEntreprise():null);
+    if(ent && window.sb){
+      await window.sbReady;
+      var r=await window.sb.from('fiches').select('id,kind,contenu,cree_le')
+              .eq('entreprise_id',ent).eq('kind','sentinelle')
+              .order('cree_le',{ascending:true}).limit(50);
+      if(!r.error) (r.data||[]).forEach(function(f){
+        var c=f.contenu; if(typeof c==='string'){ try{ c=JSON.parse(c); }catch(e){ c=null; } }
+        if(c) out.push({id:f.id, date:f.cree_le, fiche:c});
+      });
+    }
+  }catch(e){}
+  /* Repli : aucune base lisible, mais une analyse est à l'écran — elle vaut mieux que rien. */
+  if(!out.length && window.__sentData) out.push({id:'memoire', date:Date.now(), fiche:window.__sentData});
+  RAP_CACHE=out;
+  return out;
+}
+function rapportOuvrir(i){
+  rapportsCharger().then(function(l){
+    var x=l[i]; if(!x){ alert('Rapport introuvable.'); return; }
+    rapportView(x.fiche, i, x.date);
+  });
+}
+/* Le rapport de l'analyse affichée — sans passer par l'historique. */
+function rapportCourant(){
+  var d=window.__sentData;
+  if(!d){ alert('Ouvrez une analyse SENTINELLE avant d\'éditer son rapport.'); return; }
+  rapportsCharger().then(function(l){
+    rapportView(d, Math.max(0,l.length-1), (l.length?l[l.length-1].date:Date.now()));
+  });
+}
 function historiqueView(){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
   if(!acc){ renderAuth('login'); return; }
@@ -3685,11 +4068,43 @@ function historiqueView(){
       +'<div style="font-size:11px;color:#9ca3af;margin-top:10px;line-height:1.5;">Une mesure est enregistrée à chaque analyse SENTINELLE. Une par semaine suffit : en dessous, rien n\'a le temps de bouger.</div>'
       +'</div></div>';
   }
+  /* ⚠️ LES RAPPORTS SE CHARGENT APRÈS COUP. Didier, 10/08/2026 : « tu l'appelleras rapport
+     SENTINELLE et tu le mettras dans historique. Avec la date, et les versions, donc la première
+     ce sera la v zéro. » La liste vient de la base ; attendre cette lecture pour afficher l'écran
+     ferait patienter devant du blanc, alors que la courbe et les mesures sont déjà là. On pose
+     un emplacement, on le remplit quand la base répond. */
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
     +iveEntete('ti-history','HISTORIQUE','Comment votre note a bougé dans le temps','accueil')
     +'<div class="card"><div class="sec">'+corps+'</div></div>'
-    +liste;
+    +liste
+    +'<div class="card" style="margin-top:14px;"><div class="sec" id="rapListe">'
+      +'<div style="font-size:12.5px;font-weight:800;color:#1C1C1C;"><i class="ti ti-file-text" style="color:#E8541A;"></i> Rapports SENTINELLE</div>'
+      +'<div style="font-size:11.5px;color:#9ca3af;margin-top:8px;"><span class="spin"></span> Lecture des analyses enregistrées…</div>'
+    +'</div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
+  rapportsCharger(true).then(function(l){
+    var z=document.getElementById('rapListe'); if(!z) return;
+    var tete='<div style="font-size:12.5px;font-weight:800;color:#1C1C1C;"><i class="ti ti-file-text" style="color:#E8541A;"></i> Rapports SENTINELLE</div>';
+    if(!l.length){
+      z.innerHTML=tete+'<div style="font-size:11.5px;color:#6b7280;line-height:1.6;margin-top:7px;">Le premier rapport sera édité dès votre première analyse SENTINELLE enregistrée. Il portera le numéro <b>v0</b>.</div>';
+      return;
+    }
+    /* ⚠️ DU PLUS RÉCENT AU PLUS ANCIEN À L'ÉCRAN, MAIS LE NUMÉRO VIENT DU RANG CHRONOLOGIQUE :
+       la v0 reste la v0 même si elle s'affiche en bas. Inverser les deux ferait changer le
+       numéro d'un rapport déjà remis à un client. */
+    z.innerHTML=tete
+      +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:5px 0 10px;">Un rapport par analyse, prêt à être enregistré en PDF et remis au dirigeant.</div>'
+      +l.map(function(x,i){ return {x:x,i:i}; }).reverse().map(function(o){
+        var derniere=(o.i===l.length-1);
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid #eef2f5;">'
+          +'<span style="font-size:11px;font-weight:800;color:#E8541A;min-width:26px;">'+esc(rapVersionLib(o.i))+'</span>'
+          +'<span style="flex:1;font-size:12.5px;color:#1f2937;">Rapport SENTINELLE'
+            +(derniere?' <span style="font-size:10px;font-weight:700;color:#15803d;">· à jour</span>':'')
+            +'<div style="font-size:11px;color:#9ca3af;">'+esc(rapDateLongue(o.x.date))+'</div></span>'
+          +'<button type="button" onclick="rapportOuvrir('+o.i+')" style="border:1px solid #d7dbe3;background:#fff;color:#374151;border-radius:18px;font-size:11px;font-weight:800;padding:6px 13px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-eye"></i> Ouvrir</button>'
+        +'</div>';
+      }).join('');
+  });
 }
 /* Les deux volets d'INFORMATION SUR L'OUTIL, désormais dans Mon compte. */
 function iveAccordeonsInfos(d){
@@ -4154,7 +4569,7 @@ function render(d,skipSave){
       <a href="${siteLink(d.nom,d.ville,d.site)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:9px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;text-decoration:none;font-size:11.5px;font-weight:700;border-radius:20px;padding:5px 12px;"><i class="ti ti-world"></i> Voir le site et les avis <i class="ti ti-external-link" style="font-size:10px;opacity:.8;"></i></a>
     </div>
     ${auraTop}
-    ${relanceBtn?`<div style="display:flex;justify-content:flex-end;padding:9px 14px 0;">${relanceBtn}</div>`:''}
+    ${relanceBtn?`<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:9px 14px 0;"><button type="button" onclick="rapportCourant()" style="flex:0 0 auto;border:1px solid #d7dbe3;border-radius:20px;background:#fff;color:#374151;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-text"></i> Rapport SENTINELLE</button>${relanceBtn}</div>`:''}
     ${precisBloc}
     <div style="background:#fef3c7;border-left:4px solid #d97706;padding:9px 14px;font-size:12px;color:#7c4a03;line-height:1.5;">
       <b>Votre premier niveau d'analyse</b>, fondé sur des données publiques vérifiables. Rapide, objectif et en toute autonomie.
