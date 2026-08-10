@@ -29,7 +29,9 @@ Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BO
 
 PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »).
 
-⚠️ AUCUN CHIFFRE SUR CES PLATEFORMES. Ne renseigne NI le nombre d'avis, NI la note, NI la date du dernier avis : ces pages sont construites par JavaScript et fermées aux robots, tu ne les lis pas — tu les déduirais, et une déduction affichée comme un relevé est un mensonge. Vérifié deux fois le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021, et la date du dernier avis Google, jamais trouvée, avait été remplacée par celle de PagesJaunes. L'application n'affiche plus que des chiffres MESURÉS ; tout chiffre que tu écrirais ici serait retiré avant affichage. Pour chaque plateforme, renseigne donc uniquement : "nom", "url" (réelle, vérifiée), "role" (ce qu'est ce site, en cinq mots) et "resume" (ce que disent les avis, UNE phrase sur le FOND — sans aucun chiffre, sans note, sans date).
+⚠️ L'URL EST LE CHAMP LE PLUS IMPORTANT DE CETTE LISTE — plus important que les chiffres. Après ta réponse, l'application OUVRE elle-même chaque page et y lit la note et le nombre d'avis publiés dans le code du site. Une URL exacte vaut donc un chiffre mesuré ; une URL approximative ne vaut rien, et aucun chiffre ne la rattrape. Donne l'adresse de la PAGE DE CETTE ENTREPRISE sur la plateforme, jamais celle de l'accueil du site ni d'une recherche.
+"nb" ET "note" : renseigne-les seulement si tu les as VUS sur la page, sinon null. Ils ne servent que de secours quand la lecture automatique échoue, et l'écran indique alors qu'ils ne sont pas vérifiés. Vérifié le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021 — une déduction affichée comme un relevé est un mensonge, et le dirigeant la vérifie en trois secondes devant toi.
+⚠️ AUCUNE DATE, sur aucune plateforme, Google compris. La date du dernier avis Google est mesurée par l'application ; celle des autres n'est pas lisible automatiquement et ne sera pas affichée. N'en écris nulle part, ni en champ, ni en prose.
 LA LIGNE GOOGLE NE T'APPARTIENT PAS NON PLUS : son nombre d'avis, sa note et la date de son dernier avis sont mesurés par l'application auprès de Google, après ta réponse. Le champ "avis" décrit uniquement CE QUE DISENT les avis Google, en une phrase, sans aucun chiffre et sans citer d'autre plateforme ; si tu n'as pas pu les lire, laisse-le vide plutôt que d'y résumer d'autres sites.
 CE QUI EST ATTENDU DE TOI SUR CE SUJET, ET QUI A DE LA VALEUR : trouver les BONNES plateformes, leur VRAIE adresse, et dire ce que les clients y expriment. C'est précisément ce qu'aucune API ne donne — et personne d'autre ne peut le faire.
 N'INVENTE JAMAIS de plateforme ni d'URL.
@@ -50,7 +52,7 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "avis": "synthèse des avis Google (ou 'Non trouvé publiquement')",
  "avisDernier": "date du DERNIER avis Google publié, AAAA-MM-JJ (ou AAAA-MM), null si tu ne l'as pas vue",
  "presence": "présence & réseaux",
-  "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…", "resume": "ce que les clients y expriment, UNE phrase sur le fond — AUCUN chiffre, AUCUNE note, AUCUNE date" } ],
+  "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…", "nb": nombre d'avis publiés sur CETTE page (entier) ou null si tu ne l'as pas VU, "note": moyenne sur 5 (ex 4.2) ou null si tu ne l'as pas VUE, "resume": "ce que les clients y expriment, UNE phrase sur le fond, sans chiffre" } ],
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "… (INTERDIT : ne JAMAIS écrire le mot Hypothèse ni de fourchette chiffrée spéculative dans ce champ — décris le bénéfice concret, point. Chaque piste doit pouvoir se justifier par un SIGNAL PUBLIC que tu as observé ; si tu n'en as aucun, n'inscris pas la piste)" } ],
@@ -179,6 +181,65 @@ async function getDetails(placeId, key) {
   } catch (_) { return vide; }
 }
 
+/* ═══ LIRE LA NOTE ET LE NOMBRE D'AVIS SUR LA PAGE ELLE-MÊME ═══════════════════════════════
+   Didier, 10/08/2026 : « je veux que tu me mettes, par plateforme, le nombre d'avis et la note.
+   Le seul truc que je concède, c'est la date du dernier avis. »
+
+   ⚠️ ON NE REDEMANDE PAS AU MODÈLE : ON VA LIRE. Il s'est trompé trois fois parce qu'il ne voit
+   pas ces pages. Mais la plupart des sites d'avis publient leur note et leur compteur en clair
+   dans le code de la page, au format standard schema.org `AggregateRating` — c'est ce que Google
+   lui-même lit pour afficher les étoiles dans ses résultats. Ce n'est pas du contournement :
+   c'est une donnée que le site publie POUR être lue par des machines.
+
+   Trouvé → le chiffre est MESURÉ, et il vaut celui de Google. Pas trouvé → il reste celui que
+   l'analyse annonce, et l'écran le dit. Les deux ne se confondent jamais. */
+function extraireNote(html) {
+  const nb = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; };
+  /* 1. Le JSON-LD, quand il est là : c'est la source la plus propre et la moins ambiguë. */
+  const blocs = html.match(/<script[^>]+application\/ld\+json[^>]*>([\s\S]*?)<\/script>/gi) || [];
+  for (const b of blocs) {
+    const brut = b.replace(/^[\s\S]*?>/, "").replace(/<\/script>$/i, "");
+    let data; try { data = JSON.parse(brut); } catch (_) { continue; }
+    const pile = [data];
+    while (pile.length) {
+      const x = pile.pop();
+      if (!x || typeof x !== "object") continue;
+      if (Array.isArray(x)) { x.forEach(y => pile.push(y)); continue; }
+      const ar = x.aggregateRating;
+      if (ar && typeof ar === "object") {
+        const note = nb(ar.ratingValue);
+        const compte = nb(ar.reviewCount != null ? ar.reviewCount : ar.ratingCount);
+        if (note != null || compte != null) return { note, nb: compte != null ? Math.round(compte) : null };
+      }
+      Object.keys(x).forEach(k => pile.push(x[k]));
+    }
+  }
+  /* 2. À défaut, les microdonnées en attributs — même vocabulaire, autre écriture. */
+  const mN = html.match(/itemprop=["']ratingValue["'][^>]*content=["']([\d.,]+)["']/i)
+          || html.match(/["']ratingValue["']\s*:\s*["']?([\d.,]+)/i);
+  const mC = html.match(/itemprop=["'](?:reviewCount|ratingCount)["'][^>]*content=["'](\d+)["']/i)
+          || html.match(/["'](?:reviewCount|ratingCount)["']\s*:\s*["']?(\d+)/i);
+  if (mN || mC) return { note: mN ? nb(mN[1]) : null, nb: mC ? parseInt(mC[1], 10) : null };
+  return null;
+}
+async function mesurerPlateforme(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  const stop = new AbortController();
+  /* ⚠️ QUATRE SECONDES, PAS PLUS. La fonction entière tient sous 60 s et l'analyse est déjà
+     longue : une plateforme lente ne doit jamais faire échouer l'enquête complète. */
+  const minuteur = setTimeout(() => stop.abort(), 4000);
+  try {
+    const r = await fetch(url, {
+      signal: stop.signal,
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SENTINELLE/1.0; +https://dbi360.fr)", "Accept-Language": "fr-FR,fr;q=0.9" }
+    });
+    if (!r.ok) return null;
+    const html = (await r.text()).slice(0, 400000);   // au-delà, ce n'est plus de l'en-tête
+    return extraireNote(html);
+  } catch (_) { return null; }
+  finally { clearTimeout(minuteur); }
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
@@ -269,6 +330,29 @@ export default async function handler(req, res) {
             fiche.avisDernier = det.dernierAvis || null;
           }
         }
+      }
+    } catch (_) {}
+
+    /* ═══ ON VA LIRE CHAQUE PLATEFORME, EN PARALLÈLE ═══════════════════════════════════════
+       ⚠️ CINQ AU MAXIMUM, ET TOUTES EN MÊME TEMPS. En série, cinq pages à quatre secondes
+       feraient vingt secondes ajoutées à une analyse déjà longue — le plafond de 60 s de la
+       fonction est vite atteint, et c'est toute l'enquête qui tombe, pas seulement un chiffre.
+       Un échec de lecture n'est jamais fatal : la plateforme garde alors le chiffre annoncé par
+       l'analyse, et l'écran dira qu'il n'est pas vérifié. */
+    try {
+      const plats = Array.isArray(fiche.plateformes) ? fiche.plateformes.slice(0, 5) : [];
+      if (plats.length) {
+        const lus = await Promise.all(plats.map(p => mesurerPlateforme(p && p.url)));
+        plats.forEach((p, i) => {
+          const m = lus[i];
+          if (!p || !m) return;
+          if (m.note != null) { p.note = m.note; }
+          if (m.nb != null) { p.nb = m.nb; }
+          /* Le drapeau voyage AVEC le chiffre : sans lui, l'écran ne saurait plus distinguer une
+             note lue sur la page d'une note annoncée par le modèle — et c'est exactement cette
+             confusion qui a fait afficher trois dates fausses. */
+          if (m.note != null || m.nb != null) p.mesure = true;
+        });
       }
     } catch (_) {}
 

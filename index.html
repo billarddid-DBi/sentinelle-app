@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 286';
+var IVE_VERSION='10/08 · 287';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5072,8 +5072,16 @@ function avisTableau(d){
      Trois cases vides valent mieux qu'une date fausse : la case vide ne se remet pas sous son
      nez devant un dirigeant. */
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
-    lignes.push({nom:p.nom||'', url:p.url||'', nb:null, note:null, dernier:null,
-                 resume:avisTexteSansChiffres(p.resume||p.role||''), mesure:false});
+    lignes.push({nom:p.nom||'', url:p.url||'',
+                 nb:(p.nb!=null?p.nb:null), note:(p.note!=null?p.note:null),
+                 /* ⚠️ LA DATE RESTE ABSENTE HORS GOOGLE. Didier, 10/08/2026 : « le seul truc que
+                    je concède, c'est la date du dernier avis. » Elle n'est pas dans le code des
+                    pages : la lire supposerait de comprendre l'affichage de chaque site, et on
+                    retomberait sur des dates devinées — celles qui l'ont fait passer pour un
+                    abruti deux fois de suite. */
+                 dernier:null,
+                 resume:avisTexteSansChiffres(p.resume||p.role||''),
+                 mesure:!!p.mesure});
   });
   if(!lignes.length) return '';
   var cel='padding:7px 8px;border-top:1px solid #f1f5f9;font-size:12px;vertical-align:top;';
@@ -5093,31 +5101,36 @@ function avisTableau(d){
       var nomCell='<td style="'+cel+'font-weight:700;">'
           +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#1f2937;text-decoration:none;">'+esc(l.nom)+' <i class="ti ti-external-link" style="font-size:10px;"></i></a>'):esc(l.nom))
         +'</td>';
-      /* ⚠️ UNE LIGNE NON MESURÉE NE MONTRE PAS TROIS TIRETS, ELLE MONTRE LE CHEMIN. Trois « — »
-         se lisent « il n'y a rien » ; or il y a sans doute des avis — c'est nous qui ne pouvons
-         pas les compter d'ici. On le dit, et on ouvre la page : la réponse est à un clic. */
-      if(!l.mesure){
-        return '<tr>'+nomCell
-          +'<td colspan="3" style="'+cel+'color:#9ca3af;font-size:11px;">'
-            +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-weight:700;text-decoration:none;">Voir les avis sur le site <i class="ti ti-external-link" style="font-size:10px;"></i></a>')
-                   :'Chiffres non mesurables depuis l\'application')
-          +'</td>'
-          +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):'<span style="color:#c7ccd3;">—</span>')+'</td>'
-        +'</tr>';
-      }
+      /* ⚠️ UN CHIFFRE MESURÉ ET UN CHIFFRE ANNONCÉ NE DOIVENT PAS SE RESSEMBLER. Le premier a été
+         lu sur la page ; le second vient de l'analyse, et l'analyse s'est trompée trois fois en
+         une matinée. Les afficher à l'identique reviendrait à faire porter au lecteur un risque
+         qu'il ne voit pas — c'est exactement ce qui a mis Didier en défaut devant un dirigeant.
+         Le mesuré est net et noir ; l'annoncé est gris, marqué d'un °, et la légende dit ce que
+         le ° veut dire. Aucun des deux n'est caché : on rend le doute visible, pas le chiffre
+         invisible. */
+      var stChiffre = l.mesure ? 'color:#1C1C1C;font-weight:800;' : 'color:#9ca3af;font-weight:600;';
+      var marque = l.mesure ? '' : '<span style="color:#c7ccd3;font-size:9px;vertical-align:super;" title="Annoncé par l\'analyse, non vérifié sur la page">°</span>';
+      var vide='<span style="color:#c7ccd3;">—</span>';
       return '<tr>'+nomCell
-        +'<td style="'+cel+'">'+(l.nb!=null?('<b>'+l.nb+'</b>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
-        +'<td style="'+cel+'white-space:nowrap;">'+(l.note!=null?('<b>'+String(l.note).replace('.',',')+'</b><span style="color:#9ca3af;">/5</span>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+        +'<td style="'+cel+stChiffre+'">'+(l.nb!=null?(l.nb+marque):vide)+'</td>'
+        +'<td style="'+cel+'white-space:nowrap;'+stChiffre+'">'
+          +(l.note!=null?(String(l.note).replace('.',',')+'<span style="color:#9ca3af;font-weight:600;">/5</span>'+marque):vide)+'</td>'
         +'<td style="'+cel+'white-space:nowrap;'+(dd.vieux?'color:#b45309;font-weight:700;':'color:#6b7280;')+'">'
-          +dd.txt+(dd.vieux?' <i class="ti ti-alert-triangle" title="Plus d\'un an sans nouvel avis"></i>':'')+'</td>'
-        +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+          +(l.dernier?(dd.txt+(dd.vieux?' <i class="ti ti-alert-triangle" title="Plus d\'un an sans nouvel avis"></i>':''))
+                     :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
+        +'</td>'
+        +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):vide)+'</td>'
       +'</tr>';
     }).join('')
     +'</tbody></table></div>'
     /* On ne compte pas ce qu'on n'a pas vu : le total ne porte que sur les lignes renseignées. */
     +(function(){
        var n=0, vus=0;
-       lignes.forEach(function(l){ if(l.nb!=null){ n+=+l.nb; vus++; } });
+       /* ⚠️ UN TOTAL N'ADDITIONNE QUE DU MESURÉ. Mélanger un chiffre lu et un chiffre annoncé
+          produit une somme dont plus personne ne peut dire ce qu'elle vaut — et elle, elle
+          n'aura pas de ° pour prévenir. Le doute se signale ligne par ligne ; il ne se
+          totalise pas. */
+       lignes.forEach(function(l){ if(l.mesure && l.nb!=null){ n+=+l.nb; vus++; } });
        var tot = vus ? '<div style="font-size:11px;color:#6b7280;margin-top:7px;"><b>'+n+' avis</b> au total sur '
          +vus+' plateforme'+(vus>1?'s':'')+' mesurée'+(vus>1?'s':'')
          +(vus<lignes.length?(' — '+(lignes.length-vus)+' non trouvée'+((lignes.length-vus)>1?'s':'')):'')+'.</div>' : '';
@@ -5134,9 +5147,13 @@ function avisTableau(d){
           ligne Google est MESURÉE auprès de Google ; les autres sont relevées par l'analyse en
           parcourant les sites. Ce ne sont pas les mêmes garanties, et le lecteur doit le savoir
           avant de citer un chiffre devant un dirigeant. */
+       /* La légende ne s'écrit que si un ° apparaît vraiment : une explication permanente pour un
+          cas qui n'arrive pas devient du bruit, et on cesse de la lire le jour où elle compte. */
+       var douteux=lignes.filter(function(l){ return !l.mesure && (l.nb!=null || l.note!=null); }).length;
        var origine='<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
-         +'<b>Ce tableau ne contient que des chiffres mesurés.</b> Le nombre d\'avis, la note et la date du dernier avis Google sont relevés directement auprès de Google. '
-         +'Les autres plateformes n\'exposent pas leurs données : leurs chiffres ne sont donc pas affichés, mais le lien ouvre la page — la réponse s\'y lit en trois secondes.</div>';
+         +'<b>Chiffres en noir : mesurés.</b> Relevés directement sur Google et sur la page de chaque plateforme. La date du dernier avis n\'est mesurable que sur Google.'
+         +(douteux?('<br><b style="color:#9ca3af;">Chiffres en gris, suivis de °</b> : annoncés par l\'analyse, <b>non vérifiés</b> — la page n\'a pas pu être lue. Ouvrez-la avant de les citer.'):'')
+         +'</div>';
        return tot + origine + ((anciennes && anciennes===lignes.length-1)
          ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'
            +'<i class="ti ti-info-circle"></i> Cette analyse a été produite avant que le détail par plateforme n\'existe. '
