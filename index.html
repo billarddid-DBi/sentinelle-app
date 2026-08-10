@@ -3608,7 +3608,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 296';
+var IVE_VERSION='10/08 · 297';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3776,6 +3776,86 @@ function rapSignaux(d, v){
 function rapLectureHtml(cle, val){
   var t=rapLecture(cle,val); if(!t) return '';
   return '<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:5px;border-left:2px solid #e5e9ee;padding-left:9px;">'+esc(t)+'</div>';
+}
+/* ═══ LE PLAN D'ACTION — POUR LE CONSULTANT, SOUS LA VUE D'ENSEMBLE ════════════════════════
+   Didier, 10/08/2026 : « comme on a vu tout à l'heure, c'est moi le plan d'action par rapport à
+   la vue d'ensemble. Et tu l'écris en dessous. »
+
+   ⚠️ CE SONT LES DIRECTIVES RETIRÉES DU RAPPORT CE MATIN — reprises telles quelles depuis
+   l'historique, pas réécrites : elles avaient été validées, les réécrire aurait été l'occasion
+   de les abîmer. Elles changent seulement de destinataire : elles ne partent plus chez le
+   dirigeant, elles se posent sous les cinq pastilles, sur l'écran de travail du consultant.
+
+   ⚠️ AU-DESSUS DE 95, ON N'INVENTE PAS D'ACTION. Chercher une amélioration sur un 98/100 revient
+   à chercher un défaut pour justifier sa présence. La consigne devient « à entretenir » : tenir
+   un niveau EST un travail, et c'est le plus difficile à tenir dans la durée.
+
+   ⚠️ CALCULÉES, JAMAIS DEMANDÉES AU MODÈLE : la même note donne toujours la même consigne. Un
+   conseil qui change d'une analyse à l'autre n'est plus un conseil, c'est une humeur. */var RAP_DIRECTIVES={
+  reputation:[
+    {min:95, tenir:true, txt:'Continuez à demander un avis en fin de prestation. Une note haute se tient par le flux, jamais par le stock : trois mois sans nouvel avis et elle commence à vieillir.'},
+    {min:75, txt:'Demandez systématiquement un avis en fin de prestation, et répondez aux nouveaux dans la semaine. C\'est le levier qui monte le plus vite, et il ne coûte rien.'},
+    {min:60, txt:'Mettez la demande d\'avis dans votre routine : un mot en partant, un lien sur la facture. Dix avis récents changent la lecture de votre fiche.'},
+    {min:0,  txt:'Priorité : reprenez vos clients satisfaits des trois derniers mois et demandez-leur un avis, un par jour pendant deux semaines. C\'est le poste où l\'effort paie le plus vite.'}
+  ],
+  visibilite:[
+    {min:95, tenir:true, txt:'Vérifiez une fois par trimestre que vos horaires, votre adresse et vos photos sont toujours exacts. Une fiche parfaite se dégrade seule, au fil des changements.'},
+    {min:75, txt:'Complétez ce qui manque sur votre fiche d\'établissement : horaires, services, photos récentes de vos chantiers ou de votre local.'},
+    {min:60, txt:'Reprenez votre fiche d\'établissement de bout en bout et publiez une actualité par mois. Une page vivante remonte dans les résultats sans rien payer.'},
+    {min:0,  txt:'Priorité : assurez-vous d\'exister là où l\'on vous cherche — fiche d\'établissement complète, et une page qui dit clairement ce que vous faites.'}
+  ],
+  sentiment:[
+    {min:95, tenir:true, txt:'Continuez à répondre aussi aux avis positifs, en nommant ce que le client a apprécié. C\'est ce qui donne envie aux suivants d\'en écrire un.'},
+    {min:75, txt:'Répondez aux avis récents, les bons compris. Une réponse courte et personnelle vaut mieux qu\'une formule répétée.'},
+    {min:60, txt:'Repérez le reproche qui revient le plus souvent et répondez-y publiquement, une fois, en disant ce que vous avez changé.'},
+    {min:0,  txt:'Priorité : traitez le sujet qui revient dans les avis, puis dites publiquement ce qui a été corrigé. Un client qui voit une réponse sincère revient plus souvent qu\'un client jamais mécontent.'}
+  ],
+  positionnement:[
+    {min:95, tenir:true, txt:'Gardez votre accroche à jour quand votre offre évolue. Ce qui est clair aujourd\'hui devient flou dès qu\'un nouveau service arrive sans être annoncé.'},
+    {min:75, txt:'Dites en une phrase, tout en haut de votre site et de votre fiche, ce que vous faites et pour qui. Le visiteur décide en sept secondes.'},
+    {min:60, txt:'Nommez vos trois prestations principales et vos communes d\'intervention. Un visiteur qui doit deviner s\'en va chez celui qui l\'a écrit.'},
+    {min:0,  txt:'Priorité : écrivez en une phrase votre métier, votre zone et le client que vous visez. Tout le reste de votre communication en découle.'}
+  ],
+  confiance:[
+    {min:95, tenir:true, txt:'Gardez vos certifications, assurances et mentions à jour et bien visibles. Une qualification périmée affichée fait plus de tort qu\'une absence.'},
+    {min:75, txt:'Mettez vos certifications et qualifications là où on les voit — page d\'accueil et fiche d\'établissement, pas seulement en bas de page.'},
+    {min:60, txt:'Affichez ce qui vous engage : certifications, assurance, années d\'expérience, quelques références nommées.'},
+    {min:0,  txt:'Priorité : rendez votre entreprise identifiable — raison sociale, SIREN, adresse, moyen de contact réel. Sans ces repères, le doute s\'installe avant même votre offre.'}
+  ]
+};
+
+
+function planAction(cle, val){
+  var l=RAP_DIRECTIVES[cle]; if(!l) return null;
+  for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i]; }
+  return l[l.length-1];
+}
+function planActionHtml(v){
+  var lignes=[
+    {cle:'reputation',     nom:'Réputation en ligne', val:(v.ng!=null?Math.round(v.ng/5*100):v.est)},
+    {cle:'visibilite',     nom:'Visibilité',          val:v.visib},
+    {cle:'sentiment',      nom:'Sentiment global',    val:v.senti},
+    {cle:'positionnement', nom:'Positionnement',      val:v.posi},
+    {cle:'confiance',      nom:'Confiance',           val:v.conf}
+  ];
+  return '<div class="sec" style="border-top:2px solid #1C1C1C;">'
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-lock"></i> PLAN D\'ACTION — CONSULTANT</div>'
+    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 9px;">Une consigne par pastille, calculée sur la note. <b>Ne figure pas dans le rapport remis.</b></div>'
+    +lignes.map(function(x){
+      var a=planAction(x.cle,x.val); if(!a) return '';
+      var c=a.tenir?{f:'#f0fdf4',b:'#bbf7d0',t:'#15803d',l:'À ENTRETENIR'}
+                   :{f:'#fffaf6',b:'#fed7aa',t:'#9a3412',l:'À FAIRE'};
+      return '<div style="background:'+c.f+';border:1px solid '+c.b+';border-radius:9px;padding:8px 11px;margin-top:7px;">'
+        +'<div style="display:flex;align-items:baseline;gap:7px;">'
+          +'<span style="font-size:11px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+'</span>'
+          +'<span style="font-size:11px;font-weight:800;color:'+c.t+';">'+x.val+'</span>'
+          +'<span style="flex:1;"></span>'
+          +'<span style="font-size:9px;font-weight:800;letter-spacing:.6px;color:'+c.t+';">'+c.l+'</span>'
+        +'</div>'
+        +'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(a.txt)+'</div>'
+      +'</div>';
+    }).join('')
+  +'</div>';
 }
 /* Une barre horizontale : la note d'aujourd'hui, et en trait clair ce qui est atteignable. */
 function rapBarre(titre, val, pot, sousTitre, cle){
@@ -4737,7 +4817,18 @@ function render(d,skipSave){
       ? '<div class="sec"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-layout-grid"></i> VUE D\'ENSEMBLE</div>'+iveTuilesHtml(d)
         +(d.presence?'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:9px;border-top:1px solid #eef0f3;padding-top:8px;"><i class="ti ti-speakerphone" style="color:#E8541A;"></i> <b>Canaux repérés :</b> '+esc(d.presence)+'</div>':'')
         +'</div>'
-      : ''
+      : '',
+    /* ⚠️ LE PLAN D'ACTION SE LIT SOUS LES PASTILLES, ET NULLE PART AILLEURS. Didier, 10/08/2026 :
+       « c'est moi le plan d'action par rapport à la vue d'ensemble, et tu l'écris en dessous. »
+       Il est collé aux cinq notes qu'il commente : une consigne séparée du chiffre qui la
+       justifie oblige à faire l'aller-retour, et on cesse de la lire.
+       ⚠️ ET IL EST SOUMIS AU MÊME VERROU QUE LE RESTE : construit uniquement pour
+       l'administrateur. Un non-admin n'en reçoit pas même la trace. */
+    /* ⚠️ MÊME SOURCE QUE LES PASTILLES : synthVals(d). Recalculer les notes autrement ferait dire
+       « 73 » à la pastille et « 76 » à la consigne juste en dessous — et le lecteur ne saurait
+       plus laquelle croire. Une seule fonction produit les deux. */
+    (_conf && typeof planActionHtml==='function' && typeof synthVals==='function')
+      ? planActionHtml(synthVals(d)) : ''
   ].join('');
 
   /* ⚠️ LE SITE SE CONSULTE EN LISANT, PAS APRÈS. Didier, 10/08/2026 : « le bouton voir le site
