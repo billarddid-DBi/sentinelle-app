@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 273';
+var IVE_VERSION='10/08 · 274';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4058,6 +4058,16 @@ function render(d,skipSave){
   const auraTop = window.__iveTop ? auraHTML : '';
   const auraBottom = window.__iveTop ? '' : auraHTML;
 
+  /* ⚠️ RELANCER N'ÉTAIT ATTEIGNABLE QUE LÀ OÙ IL N'Y AVAIT RIEN À RELANCER. Didier, 09/08/2026 :
+     « comment je peux relancer SENTINELLE ». Le seul bouton vivait sur l'écran d'aperçu, or la
+     tuile de l'accueil n'y mène QUE si le dossier n'a aucune fiche : dès qu'une analyse existait,
+     elle ouvrait CE rapport-ci, qui n'avait aucune sortie vers la relance. Une fiche enregistrée
+     était donc figée pour toujours — alors que remesurer est le geste courant d'un suivi
+     (nouveaux avis, site refait) et le seul moyen d'obtenir les colonnes ajoutées depuis.
+     Il est en HAUT : c'est là qu'on décide de remesurer, pas après avoir tout relu. */
+  const relanceBtn = (typeof jetBouton==='function' && typeof sentRelancer==='function')
+    ? jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()') : '';
+
   $('result').innerHTML = `
   <div class="card">
     <div style="background:${col};color:#fff;padding:16px 18px;">
@@ -4066,6 +4076,7 @@ function render(d,skipSave){
       <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
     </div>
+    ${relanceBtn?`<div style="display:flex;justify-content:flex-end;padding:9px 14px 0;">${relanceBtn}</div>`:''}
     <div style="background:#fef3c7;border-left:4px solid #d97706;padding:9px 14px;font-size:12px;color:#7c4a03;line-height:1.5;">
       <b>Votre premier niveau d'analyse</b>, fondé sur des données publiques vérifiables. Rapide, objectif et en toute autonomie.
     </div>
