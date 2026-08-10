@@ -29,6 +29,8 @@ Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BO
 
 PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »).
 
+⚠️ RÉPONDRE À UN AVIS : SEULEMENT S'IL EST RÉCENT. On répond dans la semaine, au pire dans le mois. JAMAIS à un avis vieux de plusieurs mois ou de plusieurs années : une réponse tardive ne rassure personne et fait l'effet inverse — elle affiche publiquement qu'on ne regardait pas. Didier, 10/08/2026, sur un quick win qui proposait de répondre à des avis de 2020 : « tu ne réponds pas au bout de six ans, là tu passes pour un abruti. » Quand les avis sont anciens, la bonne action n'est pas de répondre : c'est d'en faire arriver de nouveaux (demander un avis en fin de prestation) et de répondre à ceux-là, vite. N'écris donc JAMAIS un quick win qui invite à répondre à des avis anciens.
+⚠️ AUCUNE DATE NI DURÉE DU PASSÉ DANS LES QUICK WINS ET LA VIGILANCE. Pas de « dernier avis en 2020 », pas de « 6 ans sans réaction », pas de « depuis mars », pas de « 147 likes » : ces éléments viennent de pages que tu n'as pas lues, et ils seront retirés avant affichage. Décris le GESTE à faire, pas la statistique qui le justifie. Un quick win se juge à ce qu'il fait faire, pas au chiffre qu'il cite.
 ⚠️ L'URL EST LE CHAMP LE PLUS IMPORTANT DE CETTE LISTE — plus important que les chiffres. Après ta réponse, l'application OUVRE elle-même chaque page et y lit la note et le nombre d'avis publiés dans le code du site. Une URL exacte vaut donc un chiffre mesuré ; une URL approximative ne vaut rien, et aucun chiffre ne la rattrape. Donne l'adresse de la PAGE DE CETTE ENTREPRISE sur la plateforme, jamais celle de l'accueil du site ni d'une recherche.
 "nb" ET "note" : renseigne-les seulement si tu les as VUS sur la page, sinon null. Ils ne servent que de secours quand la lecture automatique échoue, et l'écran indique alors qu'ils ne sont pas vérifiés. Vérifié le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021 — une déduction affichée comme un relevé est un mensonge, et le dirigeant la vérifie en trois secondes devant toi.
 ⚠️ AUCUNE DATE, sur aucune plateforme, Google compris. La date du dernier avis Google est mesurée par l'application ; celle des autres n'est pas lisible automatiquement et ne sera pas affichée. N'en écris nulle part, ni en champ, ni en prose.
@@ -164,11 +166,18 @@ async function getDetails(placeId, key) {
   };
   const base = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&language=fr&key=${key}`;
   try {
+    /* ⚠️ TROIS TENTATIVES, DE LA PLUS PRÉCISE À LA PLUS SÛRE — ET L'ORDRE COMPTE. Didier,
+       10/08/2026 : « pourquoi tu ne m'affiches pas la date dans le tableau ? » Le repli sautait
+       directement du tri par date à la demande minimale : si Google refusait `reviews_sort`, on
+       repartait SANS les avis, donc sans aucune date, et en silence. Un repli qui abandonne
+       l'information qu'on cherchait n'est pas un repli, c'est un abandon.
+       On redemande donc les avis SANS le tri avant de renoncer : même non triés, le plus récent
+       de leurs horodatages reste une mesure. */
     let res = await lire(`${base}&fields=website,reviews&reviews_sort=newest`);
-    /* ⚠️ SI LA DEMANDE ENRICHIE ÉCHOUE, ON REDEMANDE LE STRICT MINIMUM. Un paramètre refusé par
-       Google fait tomber TOUTE la réponse — on perdrait alors l'adresse du site. Or le site
-       entre dans le calcul de la note : la note baisserait silencieusement de plusieurs points,
-       et personne ne saurait que c'est un paramètre d'API qui a bougé, pas l'entreprise.
+    if (!res) res = await lire(`${base}&fields=website,reviews`);
+    /* Dernier recours : le strict minimum. Un paramètre refusé fait tomber TOUTE la réponse — on
+       perdrait alors l'adresse du site, qui entre dans le calcul de la note. Elle baisserait de
+       plusieurs points sans que personne sache que c'est une API qui a bougé, pas l'entreprise.
        Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
     if (!res) res = await lire(`${base}&fields=website`);
     if (!res) return vide;

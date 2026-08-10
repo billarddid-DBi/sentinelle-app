@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 287';
+var IVE_VERSION='10/08 · 288';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4401,7 +4401,13 @@ function render(d,skipSave){
   const date = new Date().toLocaleDateString('fr-FR');
   const SS = !!window.selfServe; // dirigeant autonome : constat offert, prescription verrouillée
   const vig = (d.vigilance||[]).map(v=>`<div class="row"><span>${esc(v.niveau)}</span><div>${esc(v.texte)}</div></div>`).join('');
-  const qwAll = d.quickwins||[];
+  /* ⚠️ LES CONSEILS PASSENT PAR LE MÊME FILTRE QUE LE TABLEAU. Didier, 10/08/2026 : « Répondre
+     aux 11 avis PagesJaunes (dernier 2020) : 6 ans sans réaction ». On avait verrouillé les
+     colonnes, pas les phrases — et c'est par les phrases que la date non mesurée est revenue.
+     Un garde-fou posé sur un seul chemin ne garde rien : il déplace le passage. */
+  const qwAll = (d.quickwins||[]).map(function(q){
+    return (typeof conseilSansPasse==='function')?conseilSansPasse(q):q;
+  }).filter(Boolean);
   const qw = SS
     ? (qwAll.length? `<b>Action offerte :</b> ${esc(qwAll[0])}`+(qwAll.length>1?`<div style="margin-top:7px;color:#94a3b8;"><i class="ti ti-lock"></i> ${qwAll.length-1} autre${qwAll.length>2?'s':''} action${qwAll.length>2?'s':''} rapide${qwAll.length>2?'s':''} identifiée${qwAll.length>2?'s':''} — débloquée${qwAll.length>2?'s':''} avec la BOUSSOLE</div>`:'') : '')
     : `<b>Quick wins :</b> ${qwAll.map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ')}`;
@@ -5022,6 +5028,47 @@ function avisTexteSansChiffres(t){
     if(reste) gardees.push(reste+(fin.trim()?fin.trim():'.'));
   }
   return gardees.join(' ').replace(/\s{2,}/g,' ').trim();
+}
+/* ═══ LES CONSEILS NE CITENT PAS UN PASSÉ QU'ON N'A PAS MESURÉ ═════════════════════════════
+   Didier, 10/08/2026, devant « Répondre aux 11 avis PagesJaunes (dernier 2020) : 6 ans sans
+   réaction » : « je ne sais même pas si c'est des vrais chiffres, tes dates elles sont bidons.
+   Et tu ne réponds pas au bout de six ans, là tu passes pour un abruti. »
+
+   ⚠️ DEUX DÉFAUTS DANS UNE SEULE LIGNE, ET LE PIRE N'EST PAS LE CHIFFRE. Le premier : une date
+   non mesurée s'était glissée dans la prose des conseils, là où aucun garde-fou ne l'attendait —
+   on avait verrouillé le tableau, pas les phrases. Le second, plus grave : le conseil lui-même
+   était mauvais. Répondre à un avis six ans après ne rassure personne ; ça affiche publiquement
+   qu'on ne regardait pas. La bonne action, quand les avis sont vieux, c'est d'en faire arriver
+   de nouveaux et de répondre à CEUX-LÀ, dans la semaine.
+
+   Ici on traite le premier : toute proposition qui date le passé est retirée. Le second se
+   traite dans le prompt — et un conseil qui perdrait tout son sens une fois sa date retirée
+   n'avait pas de sens sans elle : il disparaît. */
+function conseilSansPasse(t){
+  /* Ce qu'on retire : ce qui DÉCRIT un passé ou un existant qu'on n'a pas mesuré — une année,
+     une durée, un compteur d'avis ou d'audience. Ce qu'on garde : les nombres qui font partie de
+     la CONSIGNE (« ajouter 6 photos », « 1 post par mois ») — ceux-là ne prétendent rien sur la
+     réalité, ils disent quoi faire. La différence n'est pas le chiffre, c'est ce qu'il affirme. */
+  var PASSE=/(19|20)\d{2}|\b\d+\s*(ans?|mois|semaines?|jours?)\b|\b\d+\s*(likes?|avis|abonn|follow|publications?|étoiles?|commentaires?)|depuis\s|il y a\s/i;
+  var morceaux=String(t||'').split(/([.;:]\s*)/);
+  var gardees=[];
+  for(var i=0;i<morceaux.length;i+=2){
+    var phrase=morceaux[i]||'', fin=(morceaux[i+1]||'').trim();
+    if(!phrase.trim()) continue;
+    /* On coupe aussi sur les parenthèses : « (dernier 2020) » est une incise datée greffée sur
+       une consigne par ailleurs valable — la retirer laisse la consigne debout. */
+    var sansIncise=phrase.replace(/\([^)]*\)/g,function(m){ return PASSE.test(m)?'':m; });
+    var bouts=sansIncise.split(',').filter(function(b){ return !PASSE.test(b); });
+    var reste=bouts.join(',').replace(/\s{2,}/g,' ').replace(/^[\s,;:–—-]+|[\s,;:–—-]+$/g,'').trim();
+    /* Deux-points et point-virgule prennent une espace devant, en français. Recoller sans elle
+       donnerait « Répondre aux avis: montrer… » — une faute de typographie dans un document qui
+       part sous l'en-tête de Didier. */
+    if(reste) gardees.push(reste+((fin===':'||fin===';')?(' '+fin):(fin||'.')));
+  }
+  var out=gardees.join(' ').replace(/\s{2,}/g,' ').trim();
+  /* Une consigne réduite à trois mots n'est plus une consigne : mieux vaut l'écarter que d'en
+     afficher le moignon. */
+  return (out.split(/\s+/).length>=4)?out:'';
 }
 function avisTableau(d){
   var lignes=[];
