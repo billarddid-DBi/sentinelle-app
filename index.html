@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 292';
+var IVE_VERSION='10/08 · 293';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3895,7 +3895,7 @@ function rapportHtml(d, version, dateAnalyse){
       'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab);
 
   h+=rapPartie('II','Ce que nous en déduisons',
-      'À partir des faits ci-dessus. Les notes sont <b>calculées</b> ; le radar des huit piliers est une <b>hypothèse de pré-audit</b>, à confirmer en entretien.');
+      'À partir des faits ci-dessus, et de rien d\'autre. Chaque note est <b>calculée</b> à partir des relevés de la partie I — aucune n\'est une impression.');
 
   /* ── 04 · LES CINQ INDICATEURS ─────────────────────────────────────────────────────────── */
   h+=rapSection(rapTitre('04','Vos cinq indicateurs publics',
@@ -3907,18 +3907,12 @@ function rapportHtml(d, version, dateAnalyse){
     +rapBarre('Confiance', v.conf, Math.min(100,v.conf+11), 'Signaux de fiabilité perçus en ligne')
     +(d.presence?'<div style="font-size:10.5px;color:#6b7280;margin-top:9px;border-top:1px solid #eef2f5;padding-top:8px;"><b>Canaux repérés :</b> '+esc(d.presence)+'</div>':''));
 
-  /* ── 05 · LE RADAR ─────────────────────────────────────────────────────────────────────── */
-  var rr=d.radar||{};
-  if((rr.labels||[]).length>=3){
-    h+=rapSection(rapTitre('05','Les huit piliers de votre organisation',
-        '<b>Hypothèse de pré-audit</b>, établie sur les seuls signaux publics — donc à confirmer avec vous. Le trait plein est l\'estimation d\'aujourd\'hui ; le pointillé orange, le niveau atteignable. <b>C\'est l\'écart entre les deux qui indique où l\'effort paie le plus.</b>')
-      +rapRadarSVG(rr,360)
-      +'<div style="display:flex;justify-content:center;gap:20px;margin-top:6px;font-size:10px;color:#6b7280;">'
-        +'<span><span style="display:inline-block;width:16px;height:2px;background:#2563EB;vertical-align:middle;"></span> Aujourd\'hui</span>'
-        +'<span><span style="display:inline-block;width:16px;height:0;border-top:2px dashed #E8541A;vertical-align:middle;"></span> Atteignable</span>'
-      +'</div>'
-      +((typeof pilierBarresHtml==='function')?('<div style="margin-top:12px;">'+pilierBarresHtml(rr)+'</div>'):''));
-  }
+  /* ⚠️ LE RADAR DES 8 PILIERS NE FIGURE PAS DANS LE RAPPORT NON PLUS. Didier, 10/08/2026 :
+     « c'est bourré d'hypothèses, tu me l'enlèves tout de suite ». Le retirer de l'écran et le
+     laisser dans le document remis au dirigeant aurait été le pire des deux : l'hypothèse
+     disparaissait de là où Didier peut la corriger, et restait là où elle est imprimée sous son
+     en-tête. La partie II du rapport garde les indicateurs CALCULÉS, qui eux découlent des faits
+     relevés en partie I. */
 
   /* ── 06 · POINTS D'ATTENTION ───────────────────────────────────────────────────────────── */
   h+=rapAttention(d.vigilance);
@@ -4594,12 +4588,6 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec" data-chap="forces">
-      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:4px;">Radar des 8 piliers <span style="font-weight:400;color:#6b7280;font-size:11px;">— hypothèses de pré-audit</span></div>
-      <div style="max-width:430px;margin:0 auto;"><canvas id="radar" height="260"></canvas></div>
-      ${pilierBarresHtml(r)}
-      <div style="font-size:11px;color:#6b7280;margin-top:6px;">L'écart <b>Actuel → Potentiel</b> = les leviers IA à prioriser.</div>
-    </div>
 
     <div class="sec" data-chap="identite"><div class="grid2">
       <div><div style="font-size:12px;font-weight:600;color:${col};margin-bottom:4px;">Valeurs affichées</div><div style="font-size:12px;color:#4b5563;line-height:1.5;">${esc(d.valeurs)}</div></div>
@@ -4671,13 +4659,16 @@ function render(d,skipSave){
   <button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button></div>`
     : `<div class="btnrow"><button class="btn btn-ghost" onclick="iveNav('accueil')"><i class="ti ti-home"></i> Accueil</button></div>`}`;
 
-  // Radar
-  try{
-    window.__sentRadar = new Chart(document.getElementById('radar'),{type:'radar',data:{labels:r.labels,datasets:[
-      {label:'Actuel estimé',data:r.actuel,borderColor:col,backgroundColor:col+'2e',borderWidth:2,pointRadius:2},
-      {label:'Potentiel IA',data:r.potentiel,borderColor:'#d97706',backgroundColor:'#d9770622',borderWidth:2,pointRadius:2}
-    ]},options:{responsive:true,maintainAspectRatio:false,animation:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9},color:'#9ca3af',backdropColor:'transparent'},grid:{color:'#e5e7eb'},angleLines:{color:'#e5e7eb'},pointLabels:{font:{size:10},color:'#4b5563'}}},plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,padding:10}}}}});
-  }catch(e){}
+  /* ⚠️ LE RADAR DES 8 PILIERS EST RETIRÉ DU RAPPORT (Didier, 10/08/2026 : « c'est bourré
+     d'hypothèses, tu me l'enlèves tout de suite »).
+     Il annonçait lui-même « hypothèses de pré-audit » — huit notes sur 100 déduites d'une vitrine,
+     sans avoir vu ni l'atelier ni les comptes. Écrit à côté de chiffres mesurés, sur la même
+     page et dans la même mise en forme, il empruntait leur crédit : le lecteur ne fait pas la
+     part entre « 172 avis, mesuré » et « Processus 50/100, supposé ». Un seul de ces huit
+     chiffres contesté en rendez-vous, et c'est tout le document qui devient discutable.
+     Ce que ces piliers cherchent à approcher se mesure vraiment en BOUSSOLE, avec le dirigeant.
+     Le dessin du graphique part avec la section : un canvas sans conteneur ne dessine rien, mais
+     laisser le code, c'est laisser croire qu'il reste quelque chose à afficher. */
 
   // Simulateur
   function sim2(){
