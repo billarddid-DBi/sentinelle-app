@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 293';
+var IVE_VERSION='10/08 · 294';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3851,10 +3851,15 @@ function rapportHtml(d, version, dateAnalyse){
   +'</div>';
 
   /* ── SYNTHÈSE ──────────────────────────────────────────────────────────────────────────── */
-  h+=rapSection(rapTitre('','Synthèse','En une page : d\'où vient la note, et ce qu\'elle peut devenir. Le détail suit, dans l\'ordre où il a été établi.')
+  /* ⚠️ LA JAUGE NE FIGURE QU'UNE FOIS. Didier, 10/08/2026 : « il n'y a pas comme un doublon
+     d'informations ? » Elle était sur la couverture ET répétée dans la synthèse, à trois
+     centimètres. Deux fois le même chiffre en tête de document ne le renforce pas : il fait
+     douter qu'il s'agisse bien du même, et donne l'impression d'un document assemblé plutôt
+     qu'écrit. La couverture la garde — c'est là qu'on la cherche. La synthèse dit ce que la
+     couverture ne dit pas : le tempérament de l'entreprise, et ce que les clients en citent. */
+  h+=rapSection(rapTitre('','Synthèse','Ce que la note recouvre, et ce sur quoi elle s\'appuie. Le détail suit, dans l\'ordre où il a été établi.')
     +'<div style="background:#f8fafc;border:1px solid #e5e9ee;border-radius:12px;padding:14px 16px;">'
-      +rapJauge(est,pot,hex)
-      +(aSens?'<div style="text-align:center;font-size:12px;color:#4b5563;margin-top:8px;line-height:1.6;"><b style="color:'+hex+';">Aura '+esc(v.coul)+' — '+esc(aSens)+'.</b> '+esc(aDef)+'</div>':'')
+      +(aSens?'<div style="text-align:center;font-size:13px;color:#4b5563;line-height:1.6;"><b style="color:'+hex+';">Aura '+esc(v.coul)+' — '+esc(aSens)+'.</b> '+esc(aDef)+'</div>':'')
     +'</div>'
     +(d.fierte?'<div style="margin-top:12px;font-size:11.5px;color:#4b5563;line-height:1.6;"><b style="color:#15803d;">Ce que vos clients citent d\'eux-mêmes :</b> '+esc(d.fierte)+'</div>':'')
     +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;font-size:10px;color:#6b7280;">'
