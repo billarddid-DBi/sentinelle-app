@@ -157,6 +157,11 @@
     body.impression [id^="sSlide_"]:last-child{page-break-after:auto;break-after:auto;}
     /* En-tête propre au document imprimé : nom, date d'analyse, date d'export. */
     body.impression .impressionEntete{display:block!important;}
+    /* ⚠️ UN CHAPITRE REPLIÉ NE DOIT PAS DISPARAÎTRE DU PDF. « Méthode, sources et limites » est
+       replié à l'écran — on le lit une fois — mais c'est précisément le chapitre qui dit ce que
+       le rapport NE PEUT PAS dire. L'imprimer fermé reviendrait à livrer les conclusions sans
+       leurs limites, sous l'en-tête de Didier. */
+    body.impression .rapDeplie{display:block!important;}
   }
   .impressionEntete{display:none;}
   /* ⚠️ LA PAGE PUBLIQUE NE DOIT PAS CLIGNOTER AU RETOUR D'UN RECHARGEMENT. Didier, 09/08/2026 :
@@ -3603,7 +3608,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 294';
+var IVE_VERSION='10/08 · 295';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3679,8 +3684,73 @@ function rapBande(n){ for(var i=0;i<RAP_BANDES.length;i++){ if(n>=RAP_BANDES[i].
    dirigeant en fait : « faible » se subit, « terrain à gagner » se travaille. Même chiffre, même
    vérité — une seule des deux formulations laisse une prise. */
 
+/* ═══ UNE DIRECTIVE PAR INDICATEUR ═════════════════════════════════════════════════════════
+   Didier, 10/08/2026 : « je veux un plan d'action par ligne — réputation en ligne, visibilité,
+   sentiment, positionnement et confiance. En fonction de chaque ligne, on donne une directive.
+   Si la note est au-dessus de 95, on ne donnera pas de directive : on dira qu'il faut entretenir
+   cette note-là, sans jamais descendre. »
+
+   ⚠️ UNE NOTE SANS SUITE NE SERT À RIEN. « Positionnement 73/100 » ne dit pas quoi faire lundi
+   matin ; le dirigeant referme le rapport en sachant qu'il a 73, et rien de plus. Chaque ligne
+   porte donc son geste.
+
+   ⚠️ ET AU-DESSUS DE 95, ON SE TAIT — C'EST UNE RÈGLE, PAS UN OUBLI. Inventer une amélioration
+   sur un 98/100 revient à chercher un défaut pour justifier sa présence : le dirigeant le sent,
+   et il cesse de croire les autres lignes. Tenir un niveau EST une consigne, et c'est la plus
+   difficile à respecter dans la durée.
+
+   ⚠️ LES DIRECTIVES SONT CALCULÉES, PAS DEMANDÉES AU MODÈLE. Deux analyses de la même entreprise
+   doivent donner le même conseil : une consigne qui change d'une fois sur l'autre n'est plus une
+   consigne, c'est une opinion. */
+var RAP_DIRECTIVES={
+  reputation:[
+    {min:95, tenir:true, txt:'Continuez à demander un avis en fin de prestation. Une note haute se tient par le flux, jamais par le stock : trois mois sans nouvel avis et elle commence à vieillir.'},
+    {min:75, txt:'Demandez systématiquement un avis en fin de prestation, et répondez aux nouveaux dans la semaine. C\'est le levier qui monte le plus vite, et il ne coûte rien.'},
+    {min:60, txt:'Mettez la demande d\'avis dans votre routine : un mot en partant, un lien sur la facture. Dix avis récents changent la lecture de votre fiche.'},
+    {min:0,  txt:'Priorité : reprenez vos clients satisfaits des trois derniers mois et demandez-leur un avis, un par jour pendant deux semaines. C\'est le poste où l\'effort paie le plus vite.'}
+  ],
+  visibilite:[
+    {min:95, tenir:true, txt:'Vérifiez une fois par trimestre que vos horaires, votre adresse et vos photos sont toujours exacts. Une fiche parfaite se dégrade seule, au fil des changements.'},
+    {min:75, txt:'Complétez ce qui manque sur votre fiche d\'établissement : horaires, services, photos récentes de vos chantiers ou de votre local.'},
+    {min:60, txt:'Reprenez votre fiche d\'établissement de bout en bout et publiez une actualité par mois. Une page vivante remonte dans les résultats sans rien payer.'},
+    {min:0,  txt:'Priorité : assurez-vous d\'exister là où l\'on vous cherche — fiche d\'établissement complète, et une page qui dit clairement ce que vous faites.'}
+  ],
+  sentiment:[
+    {min:95, tenir:true, txt:'Continuez à répondre aussi aux avis positifs, en nommant ce que le client a apprécié. C\'est ce qui donne envie aux suivants d\'en écrire un.'},
+    {min:75, txt:'Répondez aux avis récents, les bons compris. Une réponse courte et personnelle vaut mieux qu\'une formule répétée.'},
+    {min:60, txt:'Repérez le reproche qui revient le plus souvent et répondez-y publiquement, une fois, en disant ce que vous avez changé.'},
+    {min:0,  txt:'Priorité : traitez le sujet qui revient dans les avis, puis dites publiquement ce qui a été corrigé. Un client qui voit une réponse sincère revient plus souvent qu\'un client jamais mécontent.'}
+  ],
+  positionnement:[
+    {min:95, tenir:true, txt:'Gardez votre accroche à jour quand votre offre évolue. Ce qui est clair aujourd\'hui devient flou dès qu\'un nouveau service arrive sans être annoncé.'},
+    {min:75, txt:'Dites en une phrase, tout en haut de votre site et de votre fiche, ce que vous faites et pour qui. Le visiteur décide en sept secondes.'},
+    {min:60, txt:'Nommez vos trois prestations principales et vos communes d\'intervention. Un visiteur qui doit deviner s\'en va chez celui qui l\'a écrit.'},
+    {min:0,  txt:'Priorité : écrivez en une phrase votre métier, votre zone et le client que vous visez. Tout le reste de votre communication en découle.'}
+  ],
+  confiance:[
+    {min:95, tenir:true, txt:'Gardez vos certifications, assurances et mentions à jour et bien visibles. Une qualification périmée affichée fait plus de tort qu\'une absence.'},
+    {min:75, txt:'Mettez vos certifications et qualifications là où on les voit — page d\'accueil et fiche d\'établissement, pas seulement en bas de page.'},
+    {min:60, txt:'Affichez ce qui vous engage : certifications, assurance, années d\'expérience, quelques références nommées.'},
+    {min:0,  txt:'Priorité : rendez votre entreprise identifiable — raison sociale, SIREN, adresse, moyen de contact réel. Sans ces repères, le doute s\'installe avant même votre offre.'}
+  ]
+};
+function rapDirective(cle, val){
+  var l=RAP_DIRECTIVES[cle]; if(!l) return null;
+  for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i]; }
+  return l[l.length-1];
+}
+function rapDirectiveHtml(cle, val){
+  var dir=rapDirective(cle,val); if(!dir) return '';
+  var c=dir.tenir?{f:'#f0fdf4',b:'#bbf7d0',t:'#15803d',l:'À ENTRETENIR',i:'ti-shield-check'}
+                 :{f:'#fffaf6',b:'#fed7aa',t:'#9a3412',l:'À FAIRE',i:'ti-arrow-right'};
+  return '<div style="background:'+c.f+';border:1px solid '+c.b+';border-radius:9px;padding:8px 11px;margin-top:6px;page-break-inside:avoid;">'
+    +'<div style="font-size:9px;font-weight:800;letter-spacing:.8px;color:'+c.t+';"><i class="ti '+c.i+'"></i> '+c.l+'</div>'
+    +'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(dir.txt)+'</div>'
+  +'</div>';
+}
+
 /* Une barre horizontale : la note d'aujourd'hui, et en trait clair ce qui est atteignable. */
-function rapBarre(titre, val, pot, sousTitre){
+function rapBarre(titre, val, pot, sousTitre, cle){
   val=Math.max(0,Math.min(100,+val||0));
   pot=Math.max(val,Math.min(100,+pot||val));
   var b=rapBande(val);
@@ -3695,6 +3765,7 @@ function rapBarre(titre, val, pot, sousTitre){
       +'<div style="position:absolute;left:0;top:0;bottom:0;width:'+val+'%;background:'+b.c+';border-radius:5px;"></div>'
     +'</div>'
     +(sousTitre?'<div style="font-size:10px;color:#6b7280;margin-top:3px;">'+esc(sousTitre)+(pot>val?' · atteignable : '+pot+'/100':'')+'</div>':'')
+    +(cle?rapDirectiveHtml(cle,val):'')
   +'</div>';
 }
 
@@ -3905,11 +3976,11 @@ function rapportHtml(d, version, dateAnalyse){
   /* ── 04 · LES CINQ INDICATEURS ─────────────────────────────────────────────────────────── */
   h+=rapSection(rapTitre('04','Vos cinq indicateurs publics',
       'Chacun se lit sur 100 et découle des relevés de la partie I. La barre pleine est la mesure d\'aujourd\'hui ; la barre claire, ce que les mêmes sources permettraient d\'atteindre.')
-    +rapBarre('Réputation en ligne', (v.ng!=null?Math.round(v.ng/5*100):est), 100, (v.ng!=null?(String(v.ng).replace('.',',')+'/5 sur '+(v.nbA||0)+' avis'):'Aucune note publique repérée'))
-    +rapBarre('Visibilité', v.visib, Math.min(100,v.visib+14), 'Présence et lisibilité sur le web')
-    +rapBarre('Sentiment', v.senti, Math.min(100,v.senti+9), 'Tonalité de ce qui est écrit sur vous')
-    +rapBarre('Positionnement', v.posi, Math.min(100,v.posi+13), 'Clarté de ce que vous proposez, et à qui')
-    +rapBarre('Confiance', v.conf, Math.min(100,v.conf+11), 'Signaux de fiabilité perçus en ligne')
+    +rapBarre('Réputation en ligne', (v.ng!=null?Math.round(v.ng/5*100):est), 100, (v.ng!=null?(String(v.ng).replace('.',',')+'/5 sur '+(v.nbA||0)+' avis'):'Aucune note publique repérée'), 'reputation')
+    +rapBarre('Visibilité', v.visib, Math.min(100,v.visib+14), 'Présence et lisibilité sur le web', 'visibilite')
+    +rapBarre('Sentiment', v.senti, Math.min(100,v.senti+9), 'Tonalité de ce qui est écrit sur vous', 'sentiment')
+    +rapBarre('Positionnement', v.posi, Math.min(100,v.posi+13), 'Clarté de ce que vous proposez, et à qui', 'positionnement')
+    +rapBarre('Confiance', v.conf, Math.min(100,v.conf+11), 'Signaux de fiabilité perçus en ligne', 'confiance')
     +(d.presence?'<div style="font-size:10.5px;color:#6b7280;margin-top:9px;border-top:1px solid #eef2f5;padding-top:8px;"><b>Canaux repérés :</b> '+esc(d.presence)+'</div>':''));
 
   /* ⚠️ LE RADAR DES 8 PILIERS NE FIGURE PAS DANS LE RAPPORT NON PLUS. Didier, 10/08/2026 :
@@ -3951,15 +4022,30 @@ function rapportHtml(d, version, dateAnalyse){
   }
 
   /* ── 09 · MÉTHODE ──────────────────────────────────────────────────────────────────────── */
-  h+=rapSection(rapTitre('09','Méthode, sources et limites',
-      'Ce document n\'a de valeur que si l\'on sait comment il a été produit — et ce qu\'il ne peut pas dire.')
+  /* ⚠️ REPLIÉ À L'ÉCRAN, DÉPLIÉ À L'IMPRESSION. Didier, 10/08/2026 : « ce chapitre-là a un menu
+     déroulant ». C'est le seul du rapport qui ne se lit qu'une fois : on veut savoir COMMENT le
+     document a été produit, puis on n'y revient plus. Douze lignes qu'on saute à chaque
+     ouverture prennent la place de ce qu'on cherche vraiment.
+     ⚠️ MAIS IL DOIT SORTIR DANS LE PDF. Un chapitre replié au moment d'imprimer disparaîtrait du
+     document remis au dirigeant — et c'est précisément celui qui dit ce que le rapport NE PEUT
+     PAS dire. Le retirer du papier reviendrait à livrer les conclusions sans leurs limites.
+     D'où le repli en JavaScript plutôt qu'en <details> : la classe d'impression le rouvre. */
+  h+=rapSection(rapTitre('09','Méthode, sources et limites','')
+    +'<div onclick="var b=document.getElementById(\'rapMethode\'),c=document.getElementById(\'rapMethodeChev\');if(b){var o=(b.style.display===\'none\');b.style.display=o?\'block\':\'none\';if(c)c.style.transform=o?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:#f8fafc;border:1px solid #e5e9ee;border-radius:9px;padding:8px 11px;">'
+      +'<div style="flex:1;font-size:10.5px;color:#6b7280;line-height:1.5;">Comment ce document a été produit — et ce qu\'il ne peut pas dire.</div>'
+      +'<i id="rapMethodeChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:18px;transition:transform .2s;"></i>'
+    +'</div>'
+    +'<div id="rapMethode" class="rapDeplie" style="display:none;margin-top:10px;">'
     +'<div style="font-size:11px;color:#4b5563;line-height:1.75;">'
       +'<b>Ce qui a été lu.</b> Uniquement des sources publiques : fiche d\'établissement, avis clients, site, annuaires professionnels, registres d\'entreprises. '
       +'La note globale est <b>calculée</b> — qualité des avis, volume, existence d\'un site — et pondérée selon votre métier ; elle n\'est pas une appréciation.'
       +'<br><br><b>Ce que ce rapport ne dit pas.</b> Il décrit votre <b>image</b>, pas votre réalité interne : ni votre organisation, ni votre trésorerie, ni le climat de votre équipe. '
       +'Une entreprise excellente peut être mal vue en ligne — et l\'inverse existe aussi. La suite du diagnostic (BOUSSOLE) mesure l\'intérieur et met les deux côte à côte.'
       +'<br><br><b>Fraîcheur.</b> Le public bouge lentement. Une nouvelle mesure a du sens quand quelque chose a changé : de nouveaux avis, un site refait, une fiche corrigée.'
-    +'</div>'
+    +'</div></div>'
+    /* Le pied de page reste TOUJOURS visible : c'est lui qui identifie le document — quelle
+       version, quelle entreprise, quelle date. Le replier reviendrait à livrer un rapport dont
+       on ne sait plus, une fois imprimé, à quoi il correspond. */
     +'<div style="margin-top:14px;border-top:1px solid #e5e9ee;padding-top:9px;font-size:9.5px;color:#9ca3af;line-height:1.6;">'
       +'Rapport SENTINELLE '+esc(rapVersionLib(version))+' — '+esc(d.nom||'')+' · analyse du '+esc(dateTxt)+' · édité le '+esc(editeLe)+'.'
       +'<br>SENTINELLE est un premier avis public, sans entretien. Les pistes chiffrées sont indicatives et non contractuelles.'
