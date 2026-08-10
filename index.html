@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 290';
+var IVE_VERSION='10/08 · 291';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5070,6 +5070,44 @@ function conseilSansPasse(t){
      afficher le moignon. */
   return (out.split(/\s+/).length>=4)?out:'';
 }
+/* ═══ LA FRAÎCHEUR PLUTÔT QUE LA DATE ══════════════════════════════════════════════════════
+   Didier, 10/08/2026 : « je ne veux pas une date précise, je veux quelque chose d'approché :
+   moins de trois mois, entre trois et six mois, entre six et douze, entre un et deux ans, ou
+   plus de deux ans. »
+
+   ⚠️ UNE TRANCHE EST PLUS SOLIDE QU'UNE DATE, ET ELLE DIT LA MÊME CHOSE. Ce qu'on cherche à
+   savoir, c'est si la page est vivante — pas si le dernier avis date du 6 ou du 8 avril. Une
+   date au jour près se trompe de façon spectaculaire (février 2020 au lieu d'avril 2021) ;
+   une tranche, elle, encaisse l'imprécision sans mentir. Et elle se vérifie d'un coup d'œil
+   sur la page, là où une date exacte demande de chercher.
+
+   Les cinq tranches sont celles de Didier, dans son ordre, sans en ajouter. */
+var FRAICHEURS=[
+  {cle:'moins_3m', max:92,   lib:'moins de 3 mois', c:'#15803d'},
+  {cle:'3_6m',     max:184,  lib:'3 à 6 mois',      c:'#2563EB'},
+  {cle:'6_12m',    max:366,  lib:'6 à 12 mois',     c:'#b45309'},
+  {cle:'1_2a',     max:731,  lib:'1 à 2 ans',       c:'#9a3412'},
+  {cle:'plus_2a',  max:1e9,  lib:'plus de 2 ans',   c:'#9a3412'}
+];
+function fraicheurDe(cle){ for(var i=0;i<FRAICHEURS.length;i++){ if(FRAICHEURS[i].cle===cle) return FRAICHEURS[i]; } return null; }
+/* Depuis une date mesurée : le calcul est exact, la tranche l'est donc aussi. */
+function fraicheurDepuisDate(x){
+  if(!x) return null;
+  var t=new Date(x); if(isNaN(t)) return null;
+  var jours=Math.floor((Date.now()-t.getTime())/86400000);
+  if(jours<0) jours=0;
+  for(var i=0;i<FRAICHEURS.length;i++){ if(jours<=FRAICHEURS[i].max) return FRAICHEURS[i]; }
+  return FRAICHEURS[FRAICHEURS.length-1];
+}
+function fraicheurHtml(f, sur){
+  if(!f) return '<span style="color:#c7ccd3;">—</span>';
+  /* ⚠️ AU-DELÀ D'UN AN, ON LE SIGNALE — SANS LE DIRE MÉCHAMMENT. Une page sans avis récent
+     n'est pas une faute : c'est l'endroit où un seul geste se verra le plus. */
+  var alerte=(f.cle==='1_2a'||f.cle==='plus_2a');
+  return '<span style="color:'+f.c+';font-weight:'+(alerte?'700':'600')+';white-space:nowrap;">'
+    +esc(f.lib)+(alerte?' <i class="ti ti-alert-triangle" title="Un avis récent se verrait tout de suite"></i>':'')+'</span>'
+    +(sur||'');
+}
 function avisTableau(d){
   var lignes=[];
   /* Google d'abord : la source que tout le monde regarde, et la seule qu'on ait déjà mesurée. */
@@ -5095,7 +5133,9 @@ function avisTableau(d){
        source a l'air vérifiée et ne l'est pas. Il n'y a plus de repli : mesurée, ou rien. */
     lignes.push({nom:'Google', url:'', nb:(g.nb_avis!=null?g.nb_avis:null),
                  note:(g.note_google!=null?g.note_google:null),
-                 dernier:(g.dernier_avis||null), resume:_res, mesure:true});
+                 /* La tranche vient du calcul quand la date est mesurée : exacte par construction. */
+                 frais:fraicheurDepuisDate(g.dernier_avis), fraisMesure:!!g.dernier_avis,
+                 resume:_res, mesure:true});
   }
   /* ═══ ⚠️ ON N'AFFICHE PLUS AUCUN CHIFFRE QUE PERSONNE N'A MESURÉ ═══════════════════════════
      Didier, 10/08/2026, après deux dates fausses de suite : « je vais sur PagesJaunes, le
@@ -5121,12 +5161,15 @@ function avisTableau(d){
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
     lignes.push({nom:p.nom||'', url:p.url||'',
                  nb:(p.nb!=null?p.nb:null), note:(p.note!=null?p.note:null),
-                 /* ⚠️ LA DATE RESTE ABSENTE HORS GOOGLE. Didier, 10/08/2026 : « le seul truc que
-                    je concède, c'est la date du dernier avis. » Elle n'est pas dans le code des
-                    pages : la lire supposerait de comprendre l'affichage de chaque site, et on
-                    retomberait sur des dates devinées — celles qui l'ont fait passer pour un
-                    abruti deux fois de suite. */
-                 dernier:null,
+                 /* ⚠️ PLUS DE DATE AU JOUR PRÈS, MAIS UNE TRANCHE. Didier, 10/08/2026 : « je ne
+                    veux pas une date précise, je veux quelque chose d'approché » — puis « ChatGPT
+                    le fait très bien, donc à toi de faire le boulot ».
+                    Il a raison : je lui avais INTERDIT toute date, il n'en donnait donc plus.
+                    Une tranche est une réponse honnête à ce qu'il lit vraiment sur la page
+                    (« il y a 3 mois ») : elle encaisse l'imprécision sans mentir, là où une date
+                    exacte se trompait de quatorze mois. Elle reste marquée ° — reportée, pas
+                    mesurée. */
+                 frais:fraicheurDe(p.fraicheur), fraisMesure:false,
                  resume:avisTexteSansChiffres(p.resume||p.role||''),
                  mesure:!!p.mesure});
   });
@@ -5140,11 +5183,10 @@ function avisTableau(d){
       +'<th style="'+cel+'border-top:none;">Plateforme</th>'
       +'<th style="'+cel+'border-top:none;">Avis</th>'
       +'<th style="'+cel+'border-top:none;">Note</th>'
-      +'<th style="'+cel+'border-top:none;white-space:nowrap;">Dernier avis</th>'
+      +'<th style="'+cel+'border-top:none;white-space:nowrap;">Dernier avis</th>'   // en tranches, pas au jour près
       +'<th style="'+cel+'border-top:none;">Ce qu\'ils disent</th>'
     +'</tr></thead><tbody>'
     +lignes.map(function(l){
-      var dd=avisDate(l.dernier);
       var nomCell='<td style="'+cel+'font-weight:700;">'
           +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#1f2937;text-decoration:none;">'+esc(l.nom)+' <i class="ti ti-external-link" style="font-size:10px;"></i></a>'):esc(l.nom))
         +'</td>';
@@ -5162,9 +5204,12 @@ function avisTableau(d){
         +'<td style="'+cel+stChiffre+'">'+(l.nb!=null?(l.nb+marque):vide)+'</td>'
         +'<td style="'+cel+'white-space:nowrap;'+stChiffre+'">'
           +(l.note!=null?(String(l.note).replace('.',',')+'<span style="color:#9ca3af;font-weight:600;">/5</span>'+marque):vide)+'</td>'
-        +'<td style="'+cel+'white-space:nowrap;'+(dd.vieux?'color:#b45309;font-weight:700;':'color:#6b7280;')+'">'
-          +(l.dernier?(dd.txt+(dd.vieux?' <i class="ti ti-alert-triangle" title="Plus d\'un an sans nouvel avis"></i>':''))
-                     :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
+        /* ⚠️ UNE TRANCHE, PAS UNE DATE. Et le ° suit la même règle que les chiffres : calculée
+           depuis une mesure Google, elle est nette ; reportée par l'analyse, elle porte sa marque.
+           Rien du tout : le lien vers la page, qui répond en trois secondes. */
+        +'<td style="'+cel+'white-space:nowrap;">'
+          +(l.frais?(fraicheurHtml(l.frais)+(l.fraisMesure?'':marque))
+                   :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
         +'</td>'
         +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):vide)+'</td>'
       +'</tr>';
