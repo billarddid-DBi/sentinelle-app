@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 276';
+var IVE_VERSION='10/08 · 277';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4070,6 +4070,27 @@ function render(d,skipSave){
   /* Les précisions se tiennent JUSTE À CÔTÉ de la relance : on corrige, puis on remesure. Séparer
      les deux gestes obligerait à se souvenir du second — et la correction resterait lettre morte. */
   const precisBloc = (typeof precisBlocHtml==='function') ? precisBlocHtml() : '';
+  /* ═══ UNE SEULE PAGE SENTINELLE ═══════════════════════════════════════════════════════════
+     Didier, 10/08/2026 : « je veux retrouver toutes les informations sur une seule et même page
+     de SENTINELLE. Là quand je fais relancer, j'ai d'autres informations, d'autres couleurs,
+     d'autres indicateurs. »
+
+     ⚠️ DEUX ÉCRANS LISAIENT DEUX FICHES DIFFERENTES. La relance atterrissait sur l'aperçu, qui
+     affichait l'analyse FRAÎCHE ; le rapport, lui, relisait la fiche pointée par le dossier —
+     chargée à l'ouverture, donc l'ANCIENNE. D'où deux auras contradictoires pour la même
+     entreprise (Orange 4,9/5 d'un côté, Bleu 4,5/5 de l'autre) : ce n'étaient pas deux calculs
+     divergents, c'étaient deux analyses d'âges différents affichées côte à côte.
+
+     La carte d'identité et la vue d'ensemble n'existaient que sur l'aperçu. Elles viennent ici,
+     depuis les MÊMES fonctions — pas une copie, sinon les deux se remettraient à diverger.
+     L'encart « ce que dit votre note » n'est PAS repris : le rapport a déjà le sien (IVE + sens),
+     et c'est ce doublon-là qu'on vient de supprimer ailleurs. */
+  const uneSeulePage = [
+    (typeof iveCarteIdentite==='function') ? iveCarteIdentite(d) : '',
+    (typeof iveTuilesHtml==='function')
+      ? '<div class="sec"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-layout-grid"></i> VUE D\'ENSEMBLE</div>'+iveTuilesHtml(d)+'</div>'
+      : ''
+  ].join('');
 
   $('result').innerHTML = `
   <div class="card">
@@ -4085,6 +4106,7 @@ function render(d,skipSave){
       <b>Votre premier niveau d'analyse</b>, fondé sur des données publiques vérifiables. Rapide, objectif et en toute autonomie.
     </div>
     ${auraTop}
+    ${uneSeulePage}
     <div class="sec" data-chap="forces" style="background:#f8fafc;">
       <div class="grid3">
         <div class="mini"><div class="l">Enjeu principal</div><div class="v" style="color:${col};">${esc(d.resume?.enjeu)}</div></div>
@@ -4253,6 +4275,13 @@ function saveFiche(d){
      venu chercher ; l'en chasser serait une régression. */
 function saveFicheRetour(){
   try{
+    /* ⚠️ SUR UN DOSSIER, ON NE CHANGE PAS D'ÉCRAN — et surtout on ne laisse pas le dossier
+       pointer sur l'analyse d'hier. `__dossierFaits` retient l'identifiant de la fiche la plus
+       récente AU MOMENT OÙ le dossier a été ouvert : après une relance, il désigne la
+       PRÉCÉDENTE. Rouvrir SENTINELLE rechargeait donc l'ancienne analyse — celle qui affichait
+       une autre aura et d'autres chiffres que ce qu'on venait de payer. On l'oublie ici pour
+       qu'elle soit relue de la base au prochain besoin. */
+    if(window.__relanceDossier){ window.__dossierFaits=null; window.__relanceDossier=false; return; }
     if(window.__etaitRemesure && typeof sentApercu==='function') sentApercu();
     else if(typeof dirigeantSpace==='function') dirigeantSpace();
   }catch(e){ try{ dirigeantSpace(); }catch(e2){} }
@@ -6569,9 +6598,15 @@ function sentRelancer(){
   var q=((k.texte)||'').trim();
   if(!q){ var n=window.lastNom||'', v=window.lastVille||''; q=(n+(v?', '+v:'')).trim(); }
   if(!q){ alert('Nom de l\'entreprise introuvable.'); return; }
+  /* ⚠️ AVEC UN DOSSIER OUVERT, ON NE BASCULE PAS SUR L'ESPACE DIRIGEANT. `selfServe` fait
+     remplacer le rapport par « Préparation de votre espace… », puis atterrir sur l'aperçu — un
+     SECOND écran, portant la fiche fraîche, pendant que le rapport gardait l'ancienne. C'est
+     exactement ce qui affichait deux auras contradictoires pour la même entreprise. Consultant
+     sur un dossier : le résultat s'écrit dans le rapport qu'on a déjà sous les yeux. */
+  window.__relanceDossier=(typeof entTravail==='function')?!!entTravail():false;
   // Espace dirigeant : en cas d'échec, la carte « Réessayer » — jamais le formulaire consultant,
   // qui redemandait un nom et une ville que l'application connaît déjà.
-  window.selfServe=true;
+  window.selfServe=!window.__relanceDossier;
   // Relance VOULUE et payée : on saute le verrou « SENTINELLE immuable », sinon le clic ne
   // faisait que renvoyer le dirigeant à son espace sans rien remesurer.
   window.__remesure=true;
