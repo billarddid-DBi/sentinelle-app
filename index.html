@@ -3608,7 +3608,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 295';
+var IVE_VERSION='10/08 · 296';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3684,71 +3684,99 @@ function rapBande(n){ for(var i=0;i<RAP_BANDES.length;i++){ if(n>=RAP_BANDES[i].
    dirigeant en fait : « faible » se subit, « terrain à gagner » se travaille. Même chiffre, même
    vérité — une seule des deux formulations laisse une prise. */
 
-/* ═══ UNE DIRECTIVE PAR INDICATEUR ═════════════════════════════════════════════════════════
-   Didier, 10/08/2026 : « je veux un plan d'action par ligne — réputation en ligne, visibilité,
-   sentiment, positionnement et confiance. En fonction de chaque ligne, on donne une directive.
-   Si la note est au-dessus de 95, on ne donnera pas de directive : on dira qu'il faut entretenir
-   cette note-là, sans jamais descendre. »
+/* ═══ UNE LECTURE PAR INDICATEUR — ET AUCUN CONSEIL ════════════════════════════════════════
+   Didier, 10/08/2026 : « il ne faut pas donner les pistes à l'entreprise. Il faut faire un
+   compte rendu, mais sans donner les propositions d'amélioration. On ne fait pas de cadeau. »
 
-   ⚠️ UNE NOTE SANS SUITE NE SERT À RIEN. « Positionnement 73/100 » ne dit pas quoi faire lundi
-   matin ; le dirigeant referme le rapport en sachant qu'il a 73, et rien de plus. Chaque ligne
-   porte donc son geste.
+   ⚠️ CE N'EST PAS UNE QUESTION DE MÉTHODE, C'EST LE MODÈLE ÉCONOMIQUE. Le constat se donne : il
+   crée l'envie de comprendre. Le plan se vend : c'est le travail. Un rapport qui livre les deux
+   n'a plus rien à proposer ensuite — et le dirigeant qui repart avec la liste des gestes n'a
+   aucune raison de payer la suite.
 
-   ⚠️ ET AU-DESSUS DE 95, ON SE TAIT — C'EST UNE RÈGLE, PAS UN OUBLI. Inventer une amélioration
-   sur un 98/100 revient à chercher un défaut pour justifier sa présence : le dirigeant le sent,
-   et il cesse de croire les autres lignes. Tenir un niveau EST une consigne, et c'est la plus
-   difficile à respecter dans la durée.
+   ⚠️ ET LE CONSTAT DOIT QUAND MÊME DIRE QUELQUE CHOSE. Une note nue (« Positionnement 73 ») ne
+   provoque rien. Une note LUE (« l'activité est identifiable, mais ce qui vous distingue
+   apparaît moins nettement ») fait naître la seule question qui compte : pourquoi 75 et pas 93 ?
+   On y répond en BOUSSOLE, pas ici.
 
-   ⚠️ LES DIRECTIVES SONT CALCULÉES, PAS DEMANDÉES AU MODÈLE. Deux analyses de la même entreprise
-   doivent donner le même conseil : une consigne qui change d'une fois sur l'autre n'est plus une
-   consigne, c'est une opinion. */
-var RAP_DIRECTIVES={
+   La règle de tri, phrase par phrase : est-ce que cela DÉCRIT ce qui se voit (le rapport), ou
+   est-ce que cela DIT QUOI FAIRE (la fiche consultant) ? */
+var RAP_LECTURES={
   reputation:[
-    {min:95, tenir:true, txt:'Continuez à demander un avis en fin de prestation. Une note haute se tient par le flux, jamais par le stock : trois mois sans nouvel avis et elle commence à vieillir.'},
-    {min:75, txt:'Demandez systématiquement un avis en fin de prestation, et répondez aux nouveaux dans la semaine. C\'est le levier qui monte le plus vite, et il ne coûte rien.'},
-    {min:60, txt:'Mettez la demande d\'avis dans votre routine : un mot en partant, un lien sur la facture. Dix avis récents changent la lecture de votre fiche.'},
-    {min:0,  txt:'Priorité : reprenez vos clients satisfaits des trois derniers mois et demandez-leur un avis, un par jour pendant deux semaines. C\'est le poste où l\'effort paie le plus vite.'}
+    {min:90, txt:'La réputation publique est un point d\'appui : le volume d\'avis et la note placent l\'entreprise au-dessus de ce qu\'on observe habituellement sur ce type d\'activité.'},
+    {min:75, txt:'La réputation publique est établie et lisible : un visiteur qui cherche l\'entreprise trouve de quoi se rassurer.'},
+    {min:60, txt:'La réputation publique existe mais reste discrète : les traces sont là, en nombre limité.'},
+    {min:0,  txt:'Peu de traces publiques d\'avis ont été relevées. Cela ne dit rien de la satisfaction réelle des clients — seulement qu\'elle ne s\'écrit pas en ligne aujourd\'hui.'}
   ],
   visibilite:[
-    {min:95, tenir:true, txt:'Vérifiez une fois par trimestre que vos horaires, votre adresse et vos photos sont toujours exacts. Une fiche parfaite se dégrade seule, au fil des changements.'},
-    {min:75, txt:'Complétez ce qui manque sur votre fiche d\'établissement : horaires, services, photos récentes de vos chantiers ou de votre local.'},
-    {min:60, txt:'Reprenez votre fiche d\'établissement de bout en bout et publiez une actualité par mois. Une page vivante remonte dans les résultats sans rien payer.'},
-    {min:0,  txt:'Priorité : assurez-vous d\'exister là où l\'on vous cherche — fiche d\'établissement complète, et une page qui dit clairement ce que vous faites.'}
+    {min:90, txt:'L\'entreprise est facile à trouver : les points de présence relevés se répondent et pointent tous vers la même activité.'},
+    {min:75, txt:'La présence en ligne couvre l\'essentiel de ce qu\'un client cherche avant de contacter une entreprise.'},
+    {min:60, txt:'La présence en ligne est partielle : certains points d\'entrée existent, d\'autres n\'ont pas été détectés dans les sources consultées.'},
+    {min:0,  txt:'Peu de points de présence ont été détectés publiquement. L\'entreprise se fait surtout connaître autrement qu\'en ligne.'}
   ],
   sentiment:[
-    {min:95, tenir:true, txt:'Continuez à répondre aussi aux avis positifs, en nommant ce que le client a apprécié. C\'est ce qui donne envie aux suivants d\'en écrire un.'},
-    {min:75, txt:'Répondez aux avis récents, les bons compris. Une réponse courte et personnelle vaut mieux qu\'une formule répétée.'},
-    {min:60, txt:'Repérez le reproche qui revient le plus souvent et répondez-y publiquement, une fois, en disant ce que vous avez changé.'},
-    {min:0,  txt:'Priorité : traitez le sujet qui revient dans les avis, puis dites publiquement ce qui a été corrigé. Un client qui voit une réponse sincère revient plus souvent qu\'un client jamais mécontent.'}
+    {min:90, txt:'La tonalité de ce qui est écrit sur l\'entreprise est nettement positive, et constante d\'une source à l\'autre.'},
+    {min:75, txt:'La tonalité générale des retours publics est positive.'},
+    {min:60, txt:'La tonalité des retours publics est globalement favorable, avec des appréciations plus nuancées sur certains points.'},
+    {min:0,  txt:'Les retours publics disponibles sont trop peu nombreux pour dégager une tonalité d\'ensemble.'}
   ],
   positionnement:[
-    {min:95, tenir:true, txt:'Gardez votre accroche à jour quand votre offre évolue. Ce qui est clair aujourd\'hui devient flou dès qu\'un nouveau service arrive sans être annoncé.'},
-    {min:75, txt:'Dites en une phrase, tout en haut de votre site et de votre fiche, ce que vous faites et pour qui. Le visiteur décide en sept secondes.'},
-    {min:60, txt:'Nommez vos trois prestations principales et vos communes d\'intervention. Un visiteur qui doit deviner s\'en va chez celui qui l\'a écrit.'},
-    {min:0,  txt:'Priorité : écrivez en une phrase votre métier, votre zone et le client que vous visez. Tout le reste de votre communication en découle.'}
+    {min:90, txt:'Ce que fait l\'entreprise, pour qui et sur quel territoire, se comprend immédiatement à la lecture de ses pages publiques.'},
+    {min:75, txt:'L\'activité principale est clairement identifiable publiquement.'},
+    {min:60, txt:'L\'activité principale est identifiable, mais ce qui distingue l\'entreprise de ses voisines apparaît moins nettement.'},
+    {min:0,  txt:'Les éléments publics ne permettent pas de saisir rapidement le périmètre exact de l\'activité ni le public visé.'}
   ],
   confiance:[
-    {min:95, tenir:true, txt:'Gardez vos certifications, assurances et mentions à jour et bien visibles. Une qualification périmée affichée fait plus de tort qu\'une absence.'},
-    {min:75, txt:'Mettez vos certifications et qualifications là où on les voit — page d\'accueil et fiche d\'établissement, pas seulement en bas de page.'},
-    {min:60, txt:'Affichez ce qui vous engage : certifications, assurance, années d\'expérience, quelques références nommées.'},
-    {min:0,  txt:'Priorité : rendez votre entreprise identifiable — raison sociale, SIREN, adresse, moyen de contact réel. Sans ces repères, le doute s\'installe avant même votre offre.'}
+    {min:90, txt:'Les signaux de fiabilité relevés publiquement — identification, qualifications, ancienneté — sont complets et cohérents entre eux.'},
+    {min:75, txt:'Les repères qui rassurent un client avant un premier contact sont présents publiquement.'},
+    {min:60, txt:'Une partie des repères de fiabilité est publique ; d\'autres n\'ont pas été retrouvés dans les sources consultées.'},
+    {min:0,  txt:'Peu d\'éléments publics permettent aujourd\'hui d\'identifier formellement l\'entreprise et ses qualifications.'}
   ]
 };
-function rapDirective(cle, val){
-  var l=RAP_DIRECTIVES[cle]; if(!l) return null;
-  for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i]; }
-  return l[l.length-1];
+function rapLecture(cle, val){
+  var l=RAP_LECTURES[cle]; if(!l) return '';
+  for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i].txt; }
+  return l[l.length-1].txt;
 }
-function rapDirectiveHtml(cle, val){
-  var dir=rapDirective(cle,val); if(!dir) return '';
-  var c=dir.tenir?{f:'#f0fdf4',b:'#bbf7d0',t:'#15803d',l:'À ENTRETENIR',i:'ti-shield-check'}
-                 :{f:'#fffaf6',b:'#fed7aa',t:'#9a3412',l:'À FAIRE',i:'ti-arrow-right'};
-  return '<div style="background:'+c.f+';border:1px solid '+c.b+';border-radius:9px;padding:8px 11px;margin-top:6px;page-break-inside:avoid;">'
-    +'<div style="font-size:9px;font-weight:800;letter-spacing:.8px;color:'+c.t+';"><i class="ti '+c.i+'"></i> '+c.l+'</div>'
-    +'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(dir.txt)+'</div>'
-  +'</div>';
-}
+/* ═══ LES SIGNAUX À APPROFONDIR ════════════════════════════════════════════════════════════
+   Ce qui remplace « Par quoi commencer ». La différence tient en un mot : un signal DÉCRIT un
+   écart constaté ; une action DIT QUOI FAIRE. « Le positionnement ressort moins nettement que le
+   reste » est un signal. « Écrivez une phrase d'accroche » est une action — elle appartient à la
+   fiche consultant, et au travail qui se paie.
 
+   ⚠️ ILS SE CALCULENT À PARTIR DES ÉCARTS MESURÉS, pas du texte du modèle. Un signal produit par
+   le modèle glisserait vers le conseil à la première occasion — on l'a vu trois fois dans la
+   journée. Ici, l'écart entre la note et son potentiel est un fait arithmétique ; la phrase qui
+   le nomme est écrite d'avance et ne varie pas.
+   ⚠️ CINQ AU MAXIMUM. Au-delà, ce n'est plus une liste de points d'attention, c'est un
+   inventaire de reproches — et le dirigeant se ferme. */
+function rapSignaux(d, v){
+  var s=[];
+  var ind=[
+    {cle:'positionnement', val:v.posi,  nom:'positionnement public'},
+    {cle:'visibilite',     val:v.visib, nom:'visibilité en ligne'},
+    {cle:'confiance',      val:v.conf,  nom:'signaux de confiance'},
+    {cle:'sentiment',      val:v.senti, nom:'tonalité des retours'}
+  ].filter(function(x){ return x.val!=null && x.val<85; })
+   .sort(function(a,b){ return a.val-b.val; });
+  ind.slice(0,3).forEach(function(x){
+    s.push('Le <b>'+esc(x.nom)+'</b> ressort moins nettement que le reste de votre présence publique. Les données extérieures ne disent pas pourquoi.');
+  });
+  /* Divergence entre plateformes : un fait, lisible dans le tableau, et qui appelle une question. */
+  var plats=(Array.isArray(d.plateformes)?d.plateformes:[]);
+  var endormies=plats.filter(function(p){ return p.fraicheur==='1_2a'||p.fraicheur==='plus_2a'; }).length;
+  if(endormies && (d._auraCalc&&d._auraCalc.dernier_avis)){
+    s.push('Toutes les plateformes ne présentent pas le même niveau d\'activité : certaines reçoivent encore des avis, d\'autres plus depuis longtemps.');
+  }
+  /* Données non vérifiables : on le dit, sans en faire un reproche à qui que ce soit. */
+  var aConfirmer=plats.filter(function(p){ return !p.mesure && (p.nb!=null||p.note!=null); }).length;
+  if(aConfirmer) s.push('Certaines informations n\'ont pas pu être vérifiées automatiquement : les plateformes concernées n\'exposent pas leurs données. Elles restent <b>à confirmer</b>.');
+  if(!plats.length) s.push('Peu de plateformes spécialisées ont été repérées pour votre métier. Cela peut tenir au secteur autant qu\'à votre présence.');
+  return s.slice(0,5);
+}
+function rapLectureHtml(cle, val){
+  var t=rapLecture(cle,val); if(!t) return '';
+  return '<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:5px;border-left:2px solid #e5e9ee;padding-left:9px;">'+esc(t)+'</div>';
+}
 /* Une barre horizontale : la note d'aujourd'hui, et en trait clair ce qui est atteignable. */
 function rapBarre(titre, val, pot, sousTitre, cle){
   val=Math.max(0,Math.min(100,+val||0));
@@ -3765,7 +3793,7 @@ function rapBarre(titre, val, pot, sousTitre, cle){
       +'<div style="position:absolute;left:0;top:0;bottom:0;width:'+val+'%;background:'+b.c+';border-radius:5px;"></div>'
     +'</div>'
     +(sousTitre?'<div style="font-size:10px;color:#6b7280;margin-top:3px;">'+esc(sousTitre)+(pot>val?' · atteignable : '+pot+'/100':'')+'</div>':'')
-    +(cle?rapDirectiveHtml(cle,val):'')
+    +(cle?rapLectureHtml(cle,val):'')
   +'</div>';
 }
 
@@ -3936,7 +3964,7 @@ function rapportHtml(d, version, dateAnalyse){
     +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;font-size:10px;color:#6b7280;">'
       +'<span style="background:#eff6ff;border:1px solid #dbeafe;border-radius:14px;padding:4px 10px;"><b>I.</b> Ce que nous avons relevé</span>'
       +'<span style="background:#fffaf6;border:1px solid #fed7aa;border-radius:14px;padding:4px 10px;"><b>II.</b> Ce que nous en déduisons</span>'
-      +'<span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:4px 10px;"><b>III.</b> Ce que nous recommandons</span>'
+      +'<span style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:4px 10px;"><b>III.</b> Ce qui mérite d\'être approfondi</span>'
     +'</div>');
 
   /* ⚠️ TROIS PARTIES, ET ON DIT LAQUELLE ON LIT. Didier, 10/08/2026 : « je veux que le rapport
@@ -3993,33 +4021,39 @@ function rapportHtml(d, version, dateAnalyse){
   /* ── 06 · POINTS D'ATTENTION ───────────────────────────────────────────────────────────── */
   h+=rapAttention(d.vigilance);
 
-  h+=rapPartie('III','Ce que nous recommandons',
-      'Des gestes, pas des intentions. Chacun découle d\'un point relevé plus haut et peut être engagé sans attendre la suite du diagnostic.');
+  /* ⚠️ « CE QUE NOUS RECOMMANDONS » N'EXISTE PLUS DANS LE RAPPORT REMIS. Didier, 10/08/2026 :
+     « il ne faut pas donner les pistes à l'entreprise […] on ne fait pas de cadeau ». Les deux
+     sections qui vivaient ici — « Par quoi commencer » et « Pistes d'outils à explorer » — ne
+     sont PAS supprimées : elles restent dans la fiche enregistrée et s'affichent sur l'écran de
+     travail du consultant, sous un bandeau confidentiel. Le jour où l'entreprise s'abonne, le
+     plan est déjà là : l'analyse ne sera pas refaite.
+     Ce qui les remplace ici n'est pas un plan mais une porte : ce qui reste à comprendre, et qui
+     ne peut pas se comprendre du dehors. */
+  h+=rapPartie('III','Ce qui mérite d\'être approfondi',
+      'Aucun de ces points n\'est un défaut : ce sont des endroits où les données publiques s\'arrêtent, et où seule une conversation avec vous peut dire ce qu\'il en est vraiment.');
 
-  /* ── 07 · PAR QUOI COMMENCER ───────────────────────────────────────────────────────────── */
-  var qw=(d.quickwins||[]).filter(Boolean);
-  if(qw.length){
-    h+=rapSection(rapTitre('07','Par quoi commencer',
-        'Gestes courts, classés par effet. Aucun ne demande d\'outil, de budget ni de compétence nouvelle — seulement d\'être fait une fois.')
-      +qw.map(function(q,i){
-        return '<div style="display:flex;gap:11px;align-items:flex-start;margin-top:9px;page-break-inside:avoid;">'
-          +'<div style="width:22px;height:22px;border-radius:50%;background:#E8541A;color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">'+(i+1)+'</div>'
-          +'<div style="flex:1;font-size:11.5px;color:#374151;line-height:1.6;padding-top:2px;">'+esc(q)+'</div></div>';
+  /* ── 07 · LES SIGNAUX ──────────────────────────────────────────────────────────────────── */
+  var signaux=rapSignaux(d,v);
+  if(signaux.length){
+    h+=rapSection(rapTitre('07','Les signaux relevés','Cinq au maximum, classés par écart constaté. Ils décrivent ce qui a été vu — pas ce qu\'il faudrait en faire.')
+      +signaux.map(function(s){
+        return '<div style="display:flex;gap:10px;align-items:flex-start;margin-top:9px;page-break-inside:avoid;">'
+          +'<div style="width:7px;height:7px;border-radius:50%;background:#E8541A;flex:0 0 auto;margin-top:6px;"></div>'
+          +'<div style="flex:1;font-size:11.5px;color:#374151;line-height:1.6;">'+s+'</div></div>';
       }).join(''));
   }
 
-  /* ── 08 · PISTES D'OUTILS ──────────────────────────────────────────────────────────────── */
-  var ag=(d.agents||[]).filter(function(a){ return a && a.nom; });
-  if(ag.length){
-    h+=rapSection(rapTitre('08','Pistes d\'outils à explorer',
-        'Repérées à partir de votre vitrine, donc à confirmer avec vous. Elles ne remplacent personne : elles retirent du temps de travail sans valeur ajoutée.')
-      +ag.map(function(a){
-        return '<div style="border:1px solid #e5e9ee;border-radius:10px;padding:10px 13px;margin-top:8px;page-break-inside:avoid;">'
-          +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(a.nom)+'</div>'
-          +(a.benefice?'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(a.benefice)+'</div>':'')
-        +'</div>';
-      }).join(''));
-  }
+  /* ── 08 · ET MAINTENANT ? ──────────────────────────────────────────────────────────────── */
+  /* ⚠️ LA DERNIÈRE PAGE NE VEND PAS, ELLE SITUE. Elle dit ce que le lecteur vient d'obtenir, ce
+     qui manque encore, et pourquoi cela ne pouvait pas figurer ici. Un rapport qui s'arrête sur
+     un constat sans suite laisse le dirigeant seul avec sa question ; un rapport qui enchaîne sur
+     une offre transforme l'analyse en prospectus. Entre les deux : nommer l'étape. */
+  h+=rapSection(rapTitre('08','Et maintenant ?','')
+    +'<div style="background:#f8fafc;border-left:3px solid #E8541A;border-radius:0 10px 10px 0;padding:14px 16px;font-size:12px;color:#374151;line-height:1.75;">'
+      +'Vous savez désormais ce que votre entreprise <b>montre à l\'extérieur</b>.'
+      +'<br><br>Pour comprendre ce qui se passe réellement à l\'intérieur, expliquer les écarts observés et identifier les leviers les plus pertinents, il faut maintenant <b>entendre le dirigeant</b>.'
+      +'<br><br>C\'est le rôle de la <b>BOUSSOLE</b>.'
+    +'</div>');
 
   /* ── 09 · MÉTHODE ──────────────────────────────────────────────────────────────────────── */
   /* ⚠️ REPLIÉ À L'ÉCRAN, DÉPLIÉ À L'IMPRESSION. Didier, 10/08/2026 : « ce chapitre-là a un menu
@@ -4615,6 +4649,68 @@ function render(d,skipSave){
   /* Les précisions se tiennent JUSTE À CÔTÉ de la relance : on corrige, puis on remesure. Séparer
      les deux gestes obligerait à se souvenir du second — et la correction resterait lettre morte. */
   const precisBloc = (typeof precisBlocHtml==='function') ? precisBlocHtml() : '';
+  /* ═══ CE QUI NE PART PAS CHEZ LE CLIENT ═══════════════════════════════════════════════════
+     Didier, 10/08/2026 : « il ne faut pas donner les pistes à l'entreprise […] on ne fait pas de
+     cadeau. Par contre, de notre côté, comme on a déjà fait l'analyse, il faut qu'on puisse
+     savoir sur quoi travailler quand l'entreprise aura pris l'abonnement, qu'on ne fasse pas le
+     travail deux fois. »
+
+     ⚠️ RIEN N'EST SUPPRIMÉ, TOUT EST DÉPLACÉ. Les pistes d'outils, les opportunités et
+     l'estimation chiffrée restent dans la fiche enregistrée et s'affichent ici, sur l'écran de
+     travail du consultant, derrière un bandeau qui dit clairement qu'elles ne figurent pas dans
+     le document remis. Le jour où l'entreprise s'abonne, le plan est déjà écrit et daté :
+     l'analyse ne sera pas refaite, et les jetons ne seront pas dépensés deux fois.
+
+     ⚠️ ET L'ESTIMATION CHIFFRÉE N'A RIEN À FAIRE DANS UN RAPPORT PUBLIC. « 36 000 € par an »
+     sort de trois curseurs — nombre de personnes, heures perdues, coût horaire — c'est-à-dire de
+     trois hypothèses sur le fonctionnement INTERNE, que SENTINELLE n'a pas vu. Sous l'en-tête de
+     Didier, devant un dirigeant qui connaît ses chiffres, elle se retourne en trois secondes.
+     Elle sert à préparer un argumentaire, pas à être remise.
+
+     ⚠️ CE CLOISONNEMENT EST CELUI DE L'ÉCRAN, PAS DE LA BASE — et Didier l'a choisi en le
+     sachant. La fiche enregistrée contient toujours ces éléments : un dirigeant qui ouvrirait les
+     outils de développement pourrait les y retrouver. Le rendre impossible demanderait une table
+     à part, réservée à l'administrateur ; ce sera un autre chantier si le besoin se confirme. */
+  const _conf = (typeof iveIsAdmin==='function') && iveIsAdmin();
+  const confOuvre = _conf
+    ? `<div class="sec" style="background:#1C1C1C;color:#fff;border-radius:12px 12px 0 0;padding:10px 14px;margin-top:14px;">
+         <div style="font-size:10px;font-weight:800;letter-spacing:1.4px;color:#E8A07E;"><i class="ti ti-lock"></i> CONFIDENTIEL — CONSULTANT DBi360</div>
+         <div style="font-size:11px;color:#d7dbe3;line-height:1.5;margin-top:3px;">Ce qui suit <b>ne figure pas</b> dans le rapport remis au dirigeant. C'est votre matière de travail : elle reste enregistrée avec l'analyse, prête à servir le jour où l'entreprise s'abonne.</div>
+       </div>
+       <div style="border:2px solid #1C1C1C;border-top:none;border-radius:0 0 12px 12px;">`
+    : '';
+  const confFerme = _conf ? '</div>' : '';
+  /* Le bloc lui-même : construit UNIQUEMENT pour l'administrateur. Le laisser dans le gabarit
+     avec un simple bandeau conditionnel l'aurait affiché à tout le monde — un cloisonnement qui
+     ne cloisonne rien est pire que pas de cloisonnement : on croit la porte fermée. */
+  const blocConsultant = !_conf ? '' : (confOuvre + `
+    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
+      <div style="margin-top:8px;">${agents}</div>
+    </div>
+
+    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-target"></i> LES OPPORTUNITÉS D'AMÉLIORATION</div>
+      <div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:8px;">L'analyse met en évidence plusieurs leviers pour réduire les délais, alléger les tâches administratives et renforcer la réactivité commerciale. À titre d'exemple :</div>
+      <div style="background:${col};color:#fff;border-radius:12px;padding:14px 16px;text-align:center;margin-top:10px;">
+        <div style="font-size:11px;opacity:.75;letter-spacing:.5px;"><i class="ti ti-calculator"></i> ESTIMATION INDICATIVE</div>
+        <div style="font-size:12px;opacity:.85;margin-top:3px;">${esc(d.chiffre?.label)||'Temps récupérable estimé'}</div>
+        <div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="heroV">–</span> ${unite==='h'?'h':'€'} <span style="font-size:14px;font-weight:400;opacity:.85;">/ an</span></div>
+        <div style="font-size:12px;opacity:.85;" id="heroSub"></div>
+        <div style="font-size:11px;opacity:.7;margin-top:4px;">Ajustez à votre réalité avec le simulateur ci-dessous.</div>
+      </div>
+      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-top:10px;">
+        <div style="font-size:12px;font-weight:600;color:${col};margin-bottom:8px;"><i class="ti ti-adjustments-horizontal"></i> Simulateur — ajustez à votre réalité</div>
+        <div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="${sim.personnes}"><span class="val" id="sPv"></span></div>
+        <div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem. / pers.</label><input type="range" id="sH" min="1" max="15" step="1" value="${sim.heures}"><span class="val" id="sHv"></span></div>
+        <div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="${sim.cout}"><span class="val" id="sCv"></span></div>
+      </div>
+      <div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.45;"><i class="ti ti-info-circle"></i> Exemple d'amélioration possible, à titre <b>illustratif et non contractuel</b> — les pistes réelles et chiffrées seront établies avec la <b>BOUSSOLE</b>.</div>
+      <div class="grid2" style="margin-top:8px;font-size:12px;">
+        <div class="mini"><div style="font-weight:600;color:#6b7280;">Aujourd'hui</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.aujourdhui)}</div></div>
+        <div class="mini" style="border:2px solid #d97706;"><div style="font-weight:600;color:#b45309;">Avec l'IA</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.avecIA)}</div></div>
+      </div>
+      <div style="background:#eef2ff;border:1px solid #E7DBD1;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
+    </div>
+` + confFerme);
   /* ═══ UNE SEULE PAGE SENTINELLE ═══════════════════════════════════════════════════════════
      Didier, 10/08/2026 : « je veux retrouver toutes les informations sur une seule et même page
      de SENTINELLE. Là quand je fais relancer, j'ai d'autres informations, d'autres couleurs,
@@ -4702,32 +4798,7 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
-      <div style="margin-top:8px;">${agents}</div>
-    </div>
-
-    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-target"></i> LES OPPORTUNITÉS D'AMÉLIORATION</div>
-      <div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:8px;">L'analyse met en évidence plusieurs leviers pour réduire les délais, alléger les tâches administratives et renforcer la réactivité commerciale. À titre d'exemple :</div>
-      <div style="background:${col};color:#fff;border-radius:12px;padding:14px 16px;text-align:center;margin-top:10px;">
-        <div style="font-size:11px;opacity:.75;letter-spacing:.5px;"><i class="ti ti-calculator"></i> ESTIMATION INDICATIVE</div>
-        <div style="font-size:12px;opacity:.85;margin-top:3px;">${esc(d.chiffre?.label)||'Temps récupérable estimé'}</div>
-        <div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="heroV">–</span> ${unite==='h'?'h':'€'} <span style="font-size:14px;font-weight:400;opacity:.85;">/ an</span></div>
-        <div style="font-size:12px;opacity:.85;" id="heroSub"></div>
-        <div style="font-size:11px;opacity:.7;margin-top:4px;">Ajustez à votre réalité avec le simulateur ci-dessous.</div>
-      </div>
-      <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;margin-top:10px;">
-        <div style="font-size:12px;font-weight:600;color:${col};margin-bottom:8px;"><i class="ti ti-adjustments-horizontal"></i> Simulateur — ajustez à votre réalité</div>
-        <div class="simrow"><label style="flex:1;margin:0;">Personnes concernées</label><input type="range" id="sP" min="1" max="10" step="1" value="${sim.personnes}"><span class="val" id="sPv"></span></div>
-        <div class="simrow"><label style="flex:1;margin:0;">Heures perdues / sem. / pers.</label><input type="range" id="sH" min="1" max="15" step="1" value="${sim.heures}"><span class="val" id="sHv"></span></div>
-        <div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="${sim.cout}"><span class="val" id="sCv"></span></div>
-      </div>
-      <div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.45;"><i class="ti ti-info-circle"></i> Exemple d'amélioration possible, à titre <b>illustratif et non contractuel</b> — les pistes réelles et chiffrées seront établies avec la <b>BOUSSOLE</b>.</div>
-      <div class="grid2" style="margin-top:8px;font-size:12px;">
-        <div class="mini"><div style="font-weight:600;color:#6b7280;">Aujourd'hui</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.aujourdhui)}</div></div>
-        <div class="mini" style="border:2px solid #d97706;"><div style="font-weight:600;color:#b45309;">Avec l'IA</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.avecIA)}</div></div>
-      </div>
-      <div style="background:#eef2ff;border:1px solid #E7DBD1;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
-    </div>
+    ${blocConsultant}
 
 
     <div class="foot"><b>Posture appliquée :</b> ${esc(d.posture)} (archétype : ${esc(d.archetype)}). <b>Sources & confiance :</b> ${esc(d.sources)} · SENTINELLE = premier avis public, sans entretien.</div>
@@ -4761,15 +4832,20 @@ function render(d,skipSave){
      Le dessin du graphique part avec la section : un canvas sans conteneur ne dessine rien, mais
      laisser le code, c'est laisser croire qu'il reste quelque chose à afficher. */
 
-  // Simulateur
+  /* ⚠️ LE SIMULATEUR NE S'ANIME QUE S'IL EXISTE. Il vit désormais dans le bloc consultant : sur
+     un compte non-administrateur, ses curseurs ne sont pas dans la page. Sans ces gardes, la
+     première ligne lèverait une erreur et TOUT ce qui suit — l'enregistrement de la fiche
+     compris — ne s'exécuterait jamais. Une fonctionnalité masquée ne doit jamais pouvoir
+     emporter le reste de l'écran avec elle. */
   function sim2(){
-    const p=+$('sP').value,h=+$('sH').value,c=+$('sC').value;
+    var eP=$('sP'), eH=$('sH'), eC=$('sC'); if(!eP||!eH||!eC) return;
+    const p=+eP.value,h=+eH.value,c=+eC.value;
     $('sPv').textContent=p; $('sHv').textContent=h+' h'; $('sCv').textContent=c+' €';
     const hrs=p*h*45, eur=Math.round(hrs*c/100)*100, soir=Math.round(hrs/8);
     if(unite==='h'){ $('heroV').textContent=hrs.toLocaleString('fr-FR'); $('heroSub').textContent='≈ '+soir+' soirées rendues — soit ≈ '+eur.toLocaleString('fr-FR')+' €'; }
     else { $('heroV').textContent=eur.toLocaleString('fr-FR'); $('heroSub').textContent='≈ '+hrs.toLocaleString('fr-FR')+' h ('+soir+' soirées) rendues'; }
   }
-  ['sP','sH','sC'].forEach(id=>$(id).addEventListener('input',sim2));
+  ['sP','sH','sC'].forEach(function(id){ var e=$(id); if(e) e.addEventListener('input',sim2); });
   sim2();
   window.scrollTo(0,0);
   if(!skipSave) setTimeout(function(){ saveFiche(d); }, 700);
