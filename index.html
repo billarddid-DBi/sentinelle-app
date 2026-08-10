@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 291';
+var IVE_VERSION='10/08 · 292';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5083,13 +5083,49 @@ function conseilSansPasse(t){
 
    Les cinq tranches sont celles de Didier, dans son ordre, sans en ajouter. */
 var FRAICHEURS=[
-  {cle:'moins_3m', max:92,   lib:'moins de 3 mois', c:'#15803d'},
-  {cle:'3_6m',     max:184,  lib:'3 à 6 mois',      c:'#2563EB'},
-  {cle:'6_12m',    max:366,  lib:'6 à 12 mois',     c:'#b45309'},
-  {cle:'1_2a',     max:731,  lib:'1 à 2 ans',       c:'#9a3412'},
-  {cle:'plus_2a',  max:1e9,  lib:'plus de 2 ans',   c:'#9a3412'}
+  {cle:'moins_3m', max:92,   lib:'Très récent',        det:'moins de 3 mois', c:'#15803d', rang:4},
+  {cle:'3_6m',     max:184,  lib:'Récent',             det:'3 à 6 mois',      c:'#2563EB', rang:3},
+  {cle:'6_12m',    max:366,  lib:'Moyennement récent', det:'6 à 12 mois',     c:'#b45309', rang:2},
+  {cle:'1_2a',     max:731,  lib:'Ancien',             det:'1 à 2 ans',       c:'#9a3412', rang:1},
+  {cle:'plus_2a',  max:1e9,  lib:'Très ancien',        det:'plus de 2 ans',   c:'#9a3412', rang:0}
 ];
-function fraicheurDe(cle){ for(var i=0;i<FRAICHEURS.length;i++){ if(FRAICHEURS[i].cle===cle) return FRAICHEURS[i]; } return null; }
+/* ⚠️ « INDÉTERMINABLE » EST UNE RÉPONSE, PAS UN VIDE. Didier, 10/08/2026 : « ne réponds pas
+   simplement je ne peux pas trouver la date […] seulement en dernier recours : indéterminable ».
+   Une case vide se lit « on n'a pas cherché » ; « indéterminable » dit qu'on a cherché et que la
+   trace n'existe pas publiquement. Ce n'est pas la même information. */
+var FRAICHEUR_INDET={cle:'indetermine', lib:'Indéterminable', det:'aucune trace publique', c:'#9ca3af', rang:null};
+function fraicheurDe(cle){
+  if(cle==='indetermine') return FRAICHEUR_INDET;
+  for(var i=0;i<FRAICHEURS.length;i++){ if(FRAICHEURS[i].cle===cle) return FRAICHEURS[i]; }
+  return null;
+}
+/* ═══ LA DYNAMIQUE DE RÉPUTATION ═══════════════════════════════════════════════════════════
+   Didier, 10/08/2026 : « l'objectif n'est pas d'obtenir une précision juridique sur la date du
+   dernier avis. L'objectif est d'évaluer la DYNAMIQUE DE RÉPUTATION : reçoit-elle encore des
+   avis ? sa réputation semble-t-elle active ou abandonnée ? »
+
+   ⚠️ ELLE SE CALCULE, ELLE NE SE DEMANDE PAS. Cette conclusion découle mécaniquement des
+   fraîcheurs relevées : la faire produire par le modèle ajouterait une opinion là où une règle
+   suffit — et deux analyses de la même entreprise pourraient conclure l'inverse.
+   ⚠️ ET C'EST LA MEILLEURE PLATEFORME QUI DÉCIDE. Une fiche Google nourrie chaque mois suffit à
+   dire que la réputation vit, même si un annuaire dort depuis quatre ans. L'inverse — faire une
+   moyenne — noierait le seul signal qui compte sous les pages mortes. */
+function dynamiqueAvis(lignes){
+  var vus=(lignes||[]).filter(function(l){ return l.frais && l.frais.rang!=null; });
+  if(!vus.length) return null;
+  var meilleur=vus.reduce(function(a,b){ return (b.frais.rang>a.frais.rang)?b:a; });
+  var r=meilleur.frais.rang;
+  var etat = r>=4 ? {lib:'Active',   c:'#15803d'}
+           : r===3 ? {lib:'Modérée', c:'#2563EB'}
+           : r===2 ? {lib:'Faible',  c:'#b45309'}
+           :         {lib:'Inactive',c:'#9a3412'};
+  var dorment=vus.filter(function(l){ return l.frais.rang<=1; });
+  var pourquoi=(r>=3)
+    ? ('<b>'+esc(meilleur.nom)+'</b> reçoit encore des avis'+(meilleur.frais.rang>=4?' récemment':'')+
+       (dorment.length?' — '+dorment.length+' autre'+(dorment.length>1?'s':'')+' plateforme'+(dorment.length>1?'s':'')+' dorment, mais c\'est là que se joue la réputation actuelle.':'.'))
+    : ('Aucune plateforme n\'a reçu d\'avis depuis longtemps. C\'est l\'endroit où un seul geste se verra le plus : un avis demandé en fin de prestation change la lecture en quelques jours.');
+  return {etat:etat, texte:pourquoi};
+}
 /* Depuis une date mesurée : le calcul est exact, la tranche l'est donc aussi. */
 function fraicheurDepuisDate(x){
   if(!x) return null;
@@ -5099,14 +5135,18 @@ function fraicheurDepuisDate(x){
   for(var i=0;i<FRAICHEURS.length;i++){ if(jours<=FRAICHEURS[i].max) return FRAICHEURS[i]; }
   return FRAICHEURS[FRAICHEURS.length-1];
 }
-function fraicheurHtml(f, sur){
+function fraicheurHtml(f, estime){
   if(!f) return '<span style="color:#c7ccd3;">—</span>';
   /* ⚠️ AU-DELÀ D'UN AN, ON LE SIGNALE — SANS LE DIRE MÉCHAMMENT. Une page sans avis récent
      n'est pas une faute : c'est l'endroit où un seul geste se verra le plus. */
   var alerte=(f.cle==='1_2a'||f.cle==='plus_2a');
-  return '<span style="color:'+f.c+';font-weight:'+(alerte?'700':'600')+';white-space:nowrap;">'
-    +esc(f.lib)+(alerte?' <i class="ti ti-alert-triangle" title="Un avis récent se verrait tout de suite"></i>':'')+'</span>'
-    +(sur||'');
+  return '<div style="line-height:1.35;">'
+    +'<span style="color:'+f.c+';font-weight:'+(alerte?'800':'700')+';white-space:nowrap;">'
+      +esc(f.lib)+(alerte?' <i class="ti ti-alert-triangle" title="Un avis récent se verrait tout de suite"></i>':'')+'</span>'
+    +'<div style="font-size:10px;color:#9ca3af;white-space:nowrap;">'+esc(f.det)
+      /* Didier : « ne présente jamais une estimation comme une date certaine ». */
+      +(estime?' · <span style="color:#b45309;">estimé</span>':'')+'</div>'
+  +'</div>';
 }
 function avisTableau(d){
   var lignes=[];
@@ -5169,7 +5209,7 @@ function avisTableau(d){
                     (« il y a 3 mois ») : elle encaisse l'imprécision sans mentir, là où une date
                     exacte se trompait de quatorze mois. Elle reste marquée ° — reportée, pas
                     mesurée. */
-                 frais:fraicheurDe(p.fraicheur), fraisMesure:false,
+                 frais:fraicheurDe(p.fraicheur), fraisMesure:false, fraisEstime:!!p.recence_estimee,
                  resume:avisTexteSansChiffres(p.resume||p.role||''),
                  mesure:!!p.mesure});
   });
@@ -5208,24 +5248,26 @@ function avisTableau(d){
            depuis une mesure Google, elle est nette ; reportée par l'analyse, elle porte sa marque.
            Rien du tout : le lien vers la page, qui répond en trois secondes. */
         +'<td style="'+cel+'white-space:nowrap;">'
-          +(l.frais?(fraicheurHtml(l.frais)+(l.fraisMesure?'':marque))
+          +(l.frais?(fraicheurHtml(l.frais,l.fraisEstime)+(l.fraisMesure?'':marque))
                    :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
         +'</td>'
         +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):vide)+'</td>'
       +'</tr>';
     }).join('')
     +'</tbody></table></div>'
-    /* On ne compte pas ce qu'on n'a pas vu : le total ne porte que sur les lignes renseignées. */
     +(function(){
-       var n=0, vus=0;
-       /* ⚠️ UN TOTAL N'ADDITIONNE QUE DU MESURÉ. Mélanger un chiffre lu et un chiffre annoncé
-          produit une somme dont plus personne ne peut dire ce qu'elle vaut — et elle, elle
-          n'aura pas de ° pour prévenir. Le doute se signale ligne par ligne ; il ne se
-          totalise pas. */
-       lignes.forEach(function(l){ if(l.mesure && l.nb!=null){ n+=+l.nb; vus++; } });
-       var tot = vus ? '<div style="font-size:11px;color:#6b7280;margin-top:7px;"><b>'+n+' avis</b> au total sur '
-         +vus+' plateforme'+(vus>1?'s':'')+' mesurée'+(vus>1?'s':'')
-         +(vus<lignes.length?(' — '+(lignes.length-vus)+' non trouvée'+((lignes.length-vus)>1?'s':'')):'')+'.</div>' : '';
+       /* ⚠️ ON N'ADDITIONNE PLUS LES AVIS DE PLATEFORMES DIFFÉRENTES. Règle de collecte de Didier,
+          10/08/2026 : « les avis Google, PagesJaunes, Facebook, Trustpilot sont des ensembles
+          différents. Ne jamais additionner les nombres d'avis de plateformes différentes pour
+          produire un faux total. »
+          Il a raison, et le total que j'affichais était trompeur à deux titres : les mêmes clients
+          peuvent figurer sur deux plateformes, et un « 186 avis » global efface justement ce que
+          le tableau cherche à montrer — OÙ la réputation se joue. À la place, la conclusion qu'il
+          demande : la dynamique. */
+       var dyn=dynamiqueAvis(lignes);
+       var tot = dyn ? ('<div style="display:flex;gap:9px;align-items:flex-start;margin-top:9px;background:#fff;border:1px solid #eef2f5;border-left:3px solid '+dyn.etat.c+';border-radius:8px;padding:8px 11px;">'
+           +'<div style="font-size:11px;font-weight:800;color:'+dyn.etat.c+';white-space:nowrap;">Dynamique : '+esc(dyn.etat.lib)+'</div>'
+           +'<div style="flex:1;font-size:11px;color:#4b5563;line-height:1.5;">'+dyn.texte+'</div></div>') : '';
        /* ⚠️ UNE FICHE D'AVANT LA MISE À JOUR NE PEUT PAS PORTER CES CHAMPS. Sans cette phrase,
           une colonne de tirets se lit comme « ces plateformes n'ont aucun avis » — un contresens
           exactement inverse de la réalité. On dit d'où vient le vide, et quoi faire. */
@@ -5263,8 +5305,11 @@ function avisTableau(d){
            +'<br><span style="color:#9ca3af;">Visible par vous seul.</span></div>';
        }
        var origine=diag+'<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
-         +'<b>Chiffres en noir : mesurés.</b> Google est relevé automatiquement, date du dernier avis comprise.'
-         +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : annoncés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez leur page avant de citer ces chiffres.'):'')
+         +'<b>Chiffres en noir : mesurés.</b> Google est relevé automatiquement, fraîcheur du dernier avis comprise.'
+         +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : relevés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez leur page avant de citer ces chiffres.'):'')
+         /* Règle de Didier : chaque plateforme est un ensemble à part. Le dire évite qu'on refasse
+            l'addition de tête en lisant la colonne. */
+         +'<br>Chaque plateforme est un <b>ensemble distinct</b> : les avis ne s\'additionnent pas d\'une ligne à l\'autre.'
          +'</div>';
        return tot + origine + ((anciennes && anciennes===lignes.length-1)
          ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'
