@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 275';
+var IVE_VERSION='10/08 · 276';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4121,7 +4121,6 @@ function render(d,skipSave){
     </div></div>
 
     ${avisTableau(d)}
-    ${Array.isArray(d.plateformes)?`<div class="sec" data-chap="reputation"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-scale"></i> Plateformes de comparaison du secteur</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où votre réputation se joue aussi — au-delà de Google.</div>${d.plateformes.length?d.plateformes.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;"><span style="font-size:11px;font-weight:700;color:${col};width:14px;">${i+1}</span><div style="flex:1;"><a href="${esc(p.url||'#')}" target="_blank" style="font-weight:600;color:#1f2937;text-decoration:none;">${esc(p.nom)} <i class="ti ti-external-link" style="font-size:11px;"></i></a><div style="font-size:11px;color:#6b7280;">${esc(p.role||'')}</div></div></div>`).join(''):`<div style="font-size:12px;color:#6b7280;padding:4px 0;">Aucune plateforme de comparaison spécialisée pour ce type d\'activité.</div>`}</div>`:''}
 
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
       <div class="grid2" style="font-size:12px;margin-top:8px;">
@@ -4637,7 +4636,18 @@ function openHistory(){
     }).join('')+'<button class="btn btn-ghost" style="margin-top:12px;" onclick="var p=document.getElementById(\'histPanel\');if(p)p.remove();">Fermer</button>';
   }).catch(function(){ var el=document.getElementById('histList'); if(el) el.innerHTML='<div style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> Connexion impossible.</div>'; });
 }
+/* ⚠️ ROUVRIR UNE FICHE ENREGISTRÉE N'EST PAS UN PARCOURS DIRIGEANT. Didier, 10/08/2026 : « quand
+   je clique sur SENTINELLE maintenant, j'ai ça » — « Préparation de votre espace… », en boucle.
+
+   `window.selfServe` dit « ce scan a été lancé par le dirigeant lui-même » : render() remplace
+   alors le rapport par une attente, le temps que son espace prenne le relais. Or sentRelancer()
+   le pose à true et RIEN ne le repose jamais à false. Après une relance réussie, ce drapeau
+   restait donc allumé pour toute la session — et chaque ouverture de SENTINELLE depuis un
+   dossier affichait une préparation d'espace qui n'arrivait jamais, à la place du rapport.
+
+   Ici on lit une fiche DÉJÀ enregistrée, en consultant : aucun espace n'est en préparation. */
 function restoreFiche(url){
+  window.selfServe=false;
   var p=document.getElementById('histPanel'); if(p) p.remove();
   document.getElementById('form').style.display='none';
   var res=document.getElementById('result'); res.innerHTML='<div style="text-align:center;padding:24px;color:#4b5563;font-size:13px;"><div class="spin"></div>Chargement de la fiche…</div>';
