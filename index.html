@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 279';
+var IVE_VERSION='10/08 · 280';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4099,6 +4099,17 @@ function render(d,skipSave){
       : ''
   ].join('');
 
+  /* ⚠️ LE SITE SE CONSULTE EN LISANT, PAS APRÈS. Didier, 10/08/2026 : « le bouton voir le site
+     internet, tu le remontes tout en haut, et tu fais un lien cliquable dans le bandeau
+     supérieur ». Il vivait en bas de fiche, dans la rangée d'après-lecture : on n'y arrivait
+     qu'une fois l'analyse parcourue, alors qu'ouvrir la vitrine est justement ce qu'on fait
+     PENDANT, pour vérifier ce que l'enquête décrit. Il est désormais sous le nom, là où le
+     regard est déjà. « Analyser la concurrence » quitte la rangée du bas : c'est un outil à
+     part entière, avec son propre coût en jetons — pas une suite de lecture.
+
+     ⚠️ ET CETTE EXPLICATION RESTE EN JAVASCRIPT. Écrite en commentaire HTML dans le gabarit,
+     elle partait telle quelle dans la page : le banc l'a vue et a cru que le bouton était
+     toujours là. Un commentaire HTML n'est pas invisible, il est seulement non affiché. */
   $('result').innerHTML = `
   <div class="card">
     <div style="background:${col};color:#fff;padding:16px 18px;">
@@ -4106,6 +4117,7 @@ function render(d,skipSave){
       <div style="font-size:19px;font-weight:600;margin-top:2px;">${esc(d.nom)}</div>
       <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
+      <a href="${siteLink(d.nom,d.ville,d.site)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:9px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;text-decoration:none;font-size:11.5px;font-weight:700;border-radius:20px;padding:5px 12px;"><i class="ti ti-world"></i> Voir le site et les avis <i class="ti ti-external-link" style="font-size:10px;opacity:.8;"></i></a>
     </div>
     ${auraTop}
     ${relanceBtn?`<div style="display:flex;justify-content:flex-end;padding:9px 14px 0;">${relanceBtn}</div>`:''}
@@ -4207,8 +4219,6 @@ function render(d,skipSave){
     ? `<div class="btnrow"><button class="btn btn-primary" onclick="paywallView()"><i class="ti ti-lock-open"></i> Débloquer mes outils IA et mon plan</button>
   <button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button></div>`
     : `<div class="btnrow"><button class="btn btn-primary" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
-  <a class="btn btn-ghost" style="text-decoration:none;" href="${siteLink(d.nom,d.ville,d.site)}" target="_blank"><i class="ti ti-world"></i> Voir le site / les avis</a>
-  <button class="btn btn-ghost" onclick="openConcurrence()"><i class="ti ti-map-2"></i> Analyser la concurrence</button>
   <button class="btn btn-ghost" onclick="iveNav('accueil')"><i class="ti ti-home"></i> Accueil</button></div>`}`;
 
   // Radar
