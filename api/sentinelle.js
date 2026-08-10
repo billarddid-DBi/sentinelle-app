@@ -27,7 +27,12 @@ DIMENSIONS DE PERFORMANCE VISIBLE (impératif, pour l'Index Aura) : note chacune
 
 Tout est HYPOTHÈSE DE PRÉ-AUDIT, jamais un diagnostic. Le vrai diagnostic = BOUSSOLE (entretien).
 
-PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »). N'INVENTE JAMAIS de plateforme ni d'URL.
+PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamais optionnel) : cherche ACTIVEMENT s'il existe des PLATEFORMES / COMPARATEURS / SITES D'AVIS SPÉCIALISÉS du métier du prospect. DÉCOUVRE-les par la recherche web — ne te limite pas aux plus évidentes ; explore vraiment (comparateurs, classements sectoriels, annuaires notés, plateformes d'avis dédiées). Sur beaucoup de métiers (syndic, santé, juridique, artisanat…), la VRAIE réputation se joue LÀ, pas sur Google : signal précieux. Renseigne "plateformes" avec les 5 MEILLEURES trouvées, CLASSÉES de la plus pertinente/fiable à la moins bonne (critères : autorité, taille du jeu d'avis, neutralité vis-à-vis du métier), UNIQUEMENT réelles (vérifiées par la recherche) avec URL réelle. Écarte les acteurs du secteur qui publient leur propre classement (peu neutres). Si le métier n'a VRAIMENT aucune plateforme spécialisée, renvoie [] (le rapport affichera « aucune plateforme pour ce type d'activité »).
+
+CE QU'ON Y TROUVE (pour CHAQUE plateforme retenue, Google compris) : va voir la page de l'entreprise sur la plateforme et relève QUATRE choses — "nb" (combien d'avis y sont publiés), "note" (la moyenne sur 5), "dernier" (la date du DERNIER avis publié) et "resume" (ce que disent ces avis, UNE phrase, en reprenant ce qui revient — jamais un jugement de ta part).
+RÈGLE ABSOLUE, PLUS IMPORTANTE QUE LA COMPLÉTUDE : chacun de ces quatre champs vaut null si tu ne l'as pas VU. Pas d'estimation, pas d'ordre de grandeur, pas de déduction à partir d'une autre plateforme. Un tableau à moitié vide est exploitable ; un tableau plein de chiffres inventés est une bombe à retardement — le dirigeant les vérifiera devant toi.
+LA DATE DU DERNIER AVIS EST LE SIGNAL LE PLUS UTILE DU TABLEAU : elle dit si la page est vivante ou abandonnée. Une note de 4,8 sur trois avis vieux de 2019 ne vaut pas une note de 4,1 nourrie chaque mois. Cherche-la vraiment.
+N'INVENTE JAMAIS de plateforme ni d'URL.
 
 SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
 {
@@ -42,9 +47,10 @@ SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou 
  "imagePercue": "image perçue en ligne",
  "vigilance": [ { "niveau": "🔴|🟠|🟡|🟢", "texte": "…" } ],
  "quickwins": ["action 1","action 2","action 3"],
- "avis": "synthèse des avis (ou 'Non trouvé publiquement')",
+ "avis": "synthèse des avis Google (ou 'Non trouvé publiquement')",
+ "avisDernier": "date du DERNIER avis Google publié, AAAA-MM-JJ (ou AAAA-MM), null si tu ne l'as pas vue",
  "presence": "présence & réseaux",
- "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…" } ] (0 à 5, CLASSÉES meilleure→moins bonne),
+ "plateformes": [ { "nom": "nom exact", "role": "ce qu'elle compare/note (5-8 mots)", "url": "https://…", "nb": nombre d'avis trouvés sur CETTE plateforme (entier) ou null, "note": note moyenne sur 5 (nombre, ex 4.2) ou null, "dernier": date du dernier avis publié au format AAAA-MM-JJ (ou AAAA-MM si le jour est inconnu) ou null, "resume": "ce que disent ces avis, 1 phrase — ou null" } ] (0 à 5, CLASSÉES meilleure→moins bonne),
  "site": "URL du site officiel (https://…) ou '' si introuvable",
  "intel": { "financier": "…", "concurrence": "…", "visibilite": "…", "dirigeant": "…" },
  "agents": [ { "tag": "🔥|🧱", "nom": "…", "benefice": "… (INTERDIT : ne JAMAIS écrire le mot Hypothèse ni de fourchette chiffrée spéculative dans ce champ — décris le bénéfice concret, point. Chaque piste doit pouvoir se justifier par un SIGNAL PUBLIC que tu as observé ; si tu n'en as aucun, n'inscris pas la piste)" } ],

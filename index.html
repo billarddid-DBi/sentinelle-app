@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 271';
+var IVE_VERSION='09/08 · 272';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4105,7 +4105,8 @@ function render(d,skipSave){
       <div><div style="font-weight:600;color:${col};"><i class="ti ti-speakerphone"></i> Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
     </div></div>
 
-    ${Array.isArray(d.plateformes)?`<div class="sec" data-chap="reputation"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-scale"></i> Plateformes de comparaison du secteur</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où votre réputation se joue aussi — au-delà de Google.</div>${d.plateformes.length?d.plateformes.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;"><span style="font-size:11px;font-weight:700;color:${col};width:14px;">${i+1}</span><div style="flex:1;"><a href="${esc(p.url||'#')}" target="_blank" style="font-weight:600;color:#1f2937;text-decoration:none;">${esc(p.nom)} <i class="ti ti-external-link" style="font-size:11px;"></i></a><div style="font-size:11px;color:#6b7280;">${esc(p.role||'')}</div></div></div>`).join(''):`<div style="font-size:12px;color:#6b7280;padding:4px 0;">Aucune plateforme de comparaison spécialisée pour ce type d'activité.</div>`}</div>`:''}
+    ${avisTableau(d)}
+    ${Array.isArray(d.plateformes)?`<div class="sec" data-chap="reputation"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-scale"></i> Plateformes de comparaison du secteur</div><div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où votre réputation se joue aussi — au-delà de Google.</div>${d.plateformes.length?d.plateformes.map((p,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;"><span style="font-size:11px;font-weight:700;color:${col};width:14px;">${i+1}</span><div style="flex:1;"><a href="${esc(p.url||'#')}" target="_blank" style="font-weight:600;color:#1f2937;text-decoration:none;">${esc(p.nom)} <i class="ti ti-external-link" style="font-size:11px;"></i></a><div style="font-size:11px;color:#6b7280;">${esc(p.role||'')}</div></div></div>`).join(''):`<div style="font-size:12px;color:#6b7280;padding:4px 0;">Aucune plateforme de comparaison spécialisée pour ce type d\'activité.</div>`}</div>`:''}
 
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
       <div class="grid2" style="font-size:12px;margin-top:8px;">
@@ -4469,6 +4470,83 @@ function renderConcu(d){
     if(pts.length>1) map.fitBounds(pts,{padding:[30,30]});
     setTimeout(function(){ if(window.cMapObj) window.cMapObj.invalidateSize(); },150);
   }catch(e){ var mm=document.getElementById('cMap'); if(mm) mm.innerHTML='<div style="padding:20px;color:#9ca3af;font-size:12px;">Carte indisponible.</div>'; }
+}
+/* ═══ LES AVIS, PLATEFORME PAR PLATEFORME ═══════════════════════════════════════════════════
+   Didier, 09/08/2026 : « pour tous les avis récoltés en ligne, tu me fais pour chaque
+   plateforme : le nombre d'avis récoltés, la note, le résumé, et la date à laquelle le dernier
+   avis a été écrit. »
+
+   ⚠️ GOOGLE EN PREMIÈRE LIGNE, PARCE QU'IL EST DÉJÀ LÀ. Sa note et son nombre d'avis vivent dans
+   `_auraCalc` depuis toujours : les redemander au modèle serait payer deux fois pour la même
+   information, et risquer deux valeurs différentes pour le même chiffre.
+
+   ⚠️ UNE CASE VIDE SE DIT « — », ELLE NE SE DEVINE PAS. Un tableau à moitié rempli est
+   exploitable ; un tableau plein de chiffres estimés se retourne contre lui au premier
+   rendez-vous, quand le dirigeant ouvre la page devant lui.
+
+   ⚠️ LA DATE DU DERNIER AVIS EST LA COLONNE LA PLUS UTILE : elle dit si la page est vivante ou
+   abandonnée. 4,8 sur trois avis de 2019 ne vaut pas 4,1 nourri chaque mois. On la met donc en
+   évidence quand elle date de plus d'un an. */
+function avisDate(v){
+  if(!v) return {txt:'—', vieux:false};
+  var s=String(v), p=s.split('-');
+  var an=+p[0], mo=p[1]?(+p[1]):1, jo=p[2]?(+p[2]):1;
+  if(!an || isNaN(an)) return {txt:esc(s), vieux:false};
+  var d=new Date(an, mo-1, jo);
+  var mois=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+  var txt=(p[2]?(jo+' '):'')+(mois[mo-1]||'')+' '+an;
+  var jours=Math.round((Date.now()-d.getTime())/864e5);
+  return {txt:txt, vieux:(jours>365), jours:jours};
+}
+function avisTableau(d){
+  var lignes=[];
+  /* Google d'abord : la source que tout le monde regarde, et la seule qu'on ait déjà mesurée. */
+  var g=d && d._auraCalc;
+  if(g && (g.note_google!=null || g.nb_avis!=null)){
+    lignes.push({nom:'Google', url:'', nb:(g.nb_avis!=null?g.nb_avis:null),
+                 note:(g.note_google!=null?g.note_google:null),
+                 dernier:(d.avisDernier||null), resume:(d.avis||'')});
+  }
+  (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
+    lignes.push({nom:p.nom||'', url:p.url||'', nb:(p.nb!=null?p.nb:null),
+                 note:(p.note!=null?p.note:null), dernier:p.dernier||null, resume:p.resume||p.role||''});
+  });
+  if(!lignes.length) return '';
+  var cel='padding:7px 8px;border-top:1px solid #f1f5f9;font-size:12px;vertical-align:top;';
+  return '<div class="sec" data-chap="reputation">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-star"></i> Les avis, plateforme par plateforme</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Ce qui est écrit sur vous, et depuis quand. Une case vide veut dire « non trouvé publiquement » — jamais « zéro ».</div>'
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr style="font-size:11px;color:#6b7280;text-align:left;">'
+      +'<th style="'+cel+'border-top:none;">Plateforme</th>'
+      +'<th style="'+cel+'border-top:none;">Avis</th>'
+      +'<th style="'+cel+'border-top:none;">Note</th>'
+      +'<th style="'+cel+'border-top:none;white-space:nowrap;">Dernier avis</th>'
+      +'<th style="'+cel+'border-top:none;">Ce qu\'ils disent</th>'
+    +'</tr></thead><tbody>'
+    +lignes.map(function(l){
+      var dd=avisDate(l.dernier);
+      return '<tr>'
+        +'<td style="'+cel+'font-weight:700;">'
+          +(l.url?('<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#1f2937;text-decoration:none;">'+esc(l.nom)+' <i class="ti ti-external-link" style="font-size:10px;"></i></a>'):esc(l.nom))
+        +'</td>'
+        +'<td style="'+cel+'">'+(l.nb!=null?('<b>'+l.nb+'</b>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+        +'<td style="'+cel+'white-space:nowrap;">'+(l.note!=null?('<b>'+String(l.note).replace('.',',')+'</b><span style="color:#9ca3af;">/5</span>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+        +'<td style="'+cel+'white-space:nowrap;'+(dd.vieux?'color:#b45309;font-weight:700;':'color:#6b7280;')+'">'
+          +dd.txt+(dd.vieux?' <i class="ti ti-alert-triangle" title="Plus d\'un an sans nouvel avis"></i>':'')+'</td>'
+        +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+      +'</tr>';
+    }).join('')
+    +'</tbody></table></div>'
+    /* On ne compte pas ce qu'on n'a pas vu : le total ne porte que sur les lignes renseignées. */
+    +(function(){
+       var n=0, vus=0;
+       lignes.forEach(function(l){ if(l.nb!=null){ n+=+l.nb; vus++; } });
+       return vus ? '<div style="font-size:11px;color:#6b7280;margin-top:7px;"><b>'+n+' avis</b> au total sur '
+         +vus+' plateforme'+(vus>1?'s':'')+' mesurée'+(vus>1?'s':'')
+         +(vus<lignes.length?(' — '+(lignes.length-vus)+' non trouvée'+((lignes.length-vus)>1?'s':'')):'')+'.</div>' : '';
+     })()
+  +'</div>';
 }
 function siteLink(nom,ville,site){ return (site && /^https?:\/\//i.test(site)) ? site : 'https://www.google.com/search?q='+encodeURIComponent(((nom||'')+' '+(ville||'')).trim()); }
 /* ===== fin CONCURRENCE ===== */
