@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 272';
+var IVE_VERSION='09/08 · 273';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4542,9 +4542,18 @@ function avisTableau(d){
     +(function(){
        var n=0, vus=0;
        lignes.forEach(function(l){ if(l.nb!=null){ n+=+l.nb; vus++; } });
-       return vus ? '<div style="font-size:11px;color:#6b7280;margin-top:7px;"><b>'+n+' avis</b> au total sur '
+       var tot = vus ? '<div style="font-size:11px;color:#6b7280;margin-top:7px;"><b>'+n+' avis</b> au total sur '
          +vus+' plateforme'+(vus>1?'s':'')+' mesurée'+(vus>1?'s':'')
          +(vus<lignes.length?(' — '+(lignes.length-vus)+' non trouvée'+((lignes.length-vus)>1?'s':'')):'')+'.</div>' : '';
+       /* ⚠️ UNE FICHE D'AVANT LA MISE À JOUR NE PEUT PAS PORTER CES CHAMPS. Sans cette phrase,
+          une colonne de tirets se lit comme « ces plateformes n'ont aucun avis » — un contresens
+          exactement inverse de la réalité. On dit d'où vient le vide, et quoi faire. */
+       var anciennes=lignes.filter(function(l,i){ return i>0 && l.nb==null && l.note==null && !l.dernier; }).length;
+       return tot + ((anciennes && anciennes===lignes.length-1)
+         ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'
+           +'<i class="ti ti-info-circle"></i> Cette analyse a été produite avant que le détail par plateforme n\'existe. '
+           +'Relancez la SENTINELLE pour obtenir le nombre d\'avis, la note et la date sur chacune.</div>'
+         : '');
      })()
   +'</div>';
 }
