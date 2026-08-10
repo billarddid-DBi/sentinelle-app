@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 283';
+var IVE_VERSION='10/08 · 284';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5008,10 +5008,20 @@ function avisTableau(d){
        phrase ne contenait QUE ces chiffres, il ne reste rien à dire, et la case affiche « — »
        comme les autres — plutôt qu'un écho. */
     var _res=String(d.avis||'').replace(/^[\s—–-]*\d+[.,]\d+\s*\/\s*5\s*(sur|,)?\s*\d*\s*avis?\s*(google)?\s*[—–:,.-]*\s*/i,'').trim();
+    /* ⚠️ SI LE TEXTE DIT LUI-MÊME QU'IL N'A RIEN TROUVÉ SUR GOOGLE, ON NE GARDE PAS SA SUITE.
+       Didier, 10/08/2026 : la case Google affichait « Avis Google : Non trouvé publiquement.
+       PagesJaunes : 4,5/5 sur 11 avis… Mappy : 5/5 sur 2 avis. » — trois plateformes empilées
+       dans la ligne d'une quatrième. Ce qui suit un « non trouvé » parle forcément d'ailleurs. */
+    if(/non trouv/i.test(_res)) _res='';
     if(_res) _res=_res.charAt(0).toUpperCase()+_res.slice(1);
+    /* ⚠️ LA DATE GOOGLE EST MESURÉE, JAMAIS DÉCLARÉE. Elle vient de Google Places (_auraCalc),
+       relevée par le serveur. `d.avisDernier` était le champ du modèle : c'est par là qu'une
+       date de PagesJaunes (février 2020) s'est affichée dans la ligne Google alors que la page
+       recevait des avis chaque mois. Une case vide se comprend ; une date empruntée à une autre
+       source a l'air vérifiée et ne l'est pas. Il n'y a plus de repli : mesurée, ou rien. */
     lignes.push({nom:'Google', url:'', nb:(g.nb_avis!=null?g.nb_avis:null),
                  note:(g.note_google!=null?g.note_google:null),
-                 dernier:(d.avisDernier||null), resume:_res});
+                 dernier:(g.dernier_avis||null), resume:_res, mesure:true});
   }
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
     lignes.push({nom:p.nom||'', url:p.url||'', nb:(p.nb!=null?p.nb:null),
@@ -5055,7 +5065,14 @@ function avisTableau(d){
           une colonne de tirets se lit comme « ces plateformes n'ont aucun avis » — un contresens
           exactement inverse de la réalité. On dit d'où vient le vide, et quoi faire. */
        var anciennes=lignes.filter(function(l,i){ return i>0 && l.nb==null && l.note==null && !l.dernier; }).length;
-       return tot + ((anciennes && anciennes===lignes.length-1)
+       /* ⚠️ ON DIT D'OÙ VIENT CHAQUE CHIFFRE. Didier, 10/08/2026 : « tu dis que le dernier avis
+          c'est février 2020 et je viens de voir sur Google que c'était il y a trois mois ». La
+          ligne Google est MESURÉE auprès de Google ; les autres sont relevées par l'analyse en
+          parcourant les sites. Ce ne sont pas les mêmes garanties, et le lecteur doit le savoir
+          avant de citer un chiffre devant un dirigeant. */
+       var origine='<div style="font-size:10.5px;color:#9ca3af;margin-top:5px;line-height:1.5;">'
+         +'Ligne Google : chiffres <b>mesurés</b> directement auprès de Google. Autres plateformes : relevées par l\'analyse sur chaque site.</div>';
+       return tot + origine + ((anciennes && anciennes===lignes.length-1)
          ? '<div style="font-size:11px;color:#b45309;margin-top:5px;line-height:1.5;">'
            +'<i class="ti ti-info-circle"></i> Cette analyse a été produite avant que le détail par plateforme n\'existe. '
            +'Relancez la SENTINELLE pour obtenir le nombre d\'avis, la note et la date sur chacune.</div>'

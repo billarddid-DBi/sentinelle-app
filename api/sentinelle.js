@@ -34,6 +34,8 @@ RÈGLE ABSOLUE, PLUS IMPORTANTE QUE LA COMPLÉTUDE : chacun de ces quatre champs
 LA DATE DU DERNIER AVIS EST LE SIGNAL LE PLUS UTILE DU TABLEAU : elle dit si la page est vivante ou abandonnée. Une note de 4,8 sur trois avis vieux de 2019 ne vaut pas une note de 4,1 nourrie chaque mois. Cherche-la vraiment.
 CHAQUE CHIFFRE VA DANS SA LIGNE — INTERDICTION D'ÉCRIRE EN PROSE CE QUI A UNE CASE. Si tu as vu "4,5/5 sur 11 avis" sur PagesJaunes, cela va dans note=4.5 et nb=11 de la LIGNE PagesJaunes ; JAMAIS dans le texte du champ "avis" ni dans le "resume" d'une autre plateforme. Un chiffre noyé dans une phrase n'est ni comparable, ni triable, ni vérifiable — et il oblige le lecteur à le relire pour le comprendre. Le champ "avis" ne parle QUE de Google, et sans citer d'autre plateforme.
 ORDRE DE PRIORITÉ SI LE TEMPS MANQUE : remplis d'abord nb, note et dernier des TROIS PREMIÈRES plateformes (les plus pertinentes), avant d'en chercher une quatrième ou une cinquième. Trois lignes complètes valent mieux que six lignes vides — et si tu ne peux vraiment renseigner aucun chiffre sur une plateforme, garde-la quand même : savoir qu'elle existe et qu'on ne s'y est jamais penché est déjà une information.
+UNE DATE APPARTIENT À LA PLATEFORME OÙ TU L'AS LUE, ET À AUCUNE AUTRE. Ne reporte JAMAIS la date, la note ou le nombre d'avis d'un site sur la ligne d'un autre, même quand les chiffres se ressemblent. Cas réel du 10/08/2026 : la date du dernier avis PagesJaunes (27/02/2020) s'est retrouvée dans la ligne Google, dont la page recevait en réalité des avis chaque mois — le dirigeant l'a vu en trois secondes sur son téléphone. Une case vide se comprend ; une date empruntée à une autre source a l'air vérifiée et ne l'est pas.
+LA LIGNE GOOGLE NE T'APPARTIENT PAS : le nombre d'avis, la note et la date du dernier avis Google sont MESURÉS par l'application auprès de Google, après ta réponse. N'essaie pas de les fournir ni de les deviner. Le champ "avis" décrit uniquement CE QUE DISENT les avis Google, en une phrase, sans aucun chiffre et sans citer d'autre plateforme ; si tu n'as pas pu lire les avis Google, laisse-le vide plutôt que d'y résumer d'autres sites.
 N'INVENTE JAMAIS de plateforme ni d'URL.
 
 SORTIE : réponds UNIQUEMENT avec un objet JSON valide — aucun texte avant ou après, aucune balise de code, AUCUNE citation ni balise <cite>. N'insère jamais de références dans les valeurs. Reste concis dans chaque champ (1 à 3 phrases max). Suis EXACTEMENT ce schéma :
@@ -138,14 +140,35 @@ function pickCanonical(results, nom) {
   const pool = matches.length ? matches : [results[0]];
   return pool.reduce(function (b, r) { return ((r.user_ratings_total || 0) > (b.user_ratings_total || 0)) ? r : b; }, pool[0]);
 }
-async function getWebsite(placeId, key) {
-  if (!placeId || !key) return null;
+/* ⚠️ LA DATE DU DERNIER AVIS GOOGLE SE MESURE, ELLE NE SE DEMANDE PAS. Didier, 10/08/2026 :
+   « tu dis que le dernier avis c'est février 2020 et je viens de voir sur Google que le dernier
+   avis a été posté il y a trois mois. Tu ne vérifies pas ce que tu fais, c'est très dangereux. »
+
+   Il avait raison, et la fiche disait elle-même d'où venait la faute : le texte portait
+   « Avis Google : Non trouvé publiquement. PagesJaunes : … dernier avis 27/02/2020. » Le modèle
+   n'avait PAS trouvé la date Google — il avait rempli le champ avec celle de PagesJaunes, et le
+   tableau l'affichait dans la ligne Google. Une date recopiée d'une source vers une autre est
+   pire qu'une case vide : elle a l'air vérifiée.
+
+   Google Places renvoie les avis avec leur horodatage. On lit donc la vraie date, ici, au lieu
+   de la demander à un modèle qui n'y a pas accès. `reviews_sort=newest` demande le plus récent
+   d'abord ; si le tri est ignoré, le maximum des horodatages reste une mesure, jamais une
+   supposition. */
+async function getDetails(placeId, key) {
+  const vide = { website: null, dernierAvis: null };
+  if (!placeId || !key) return vide;
   try {
-    const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=website&language=fr&key=${key}`);
-    if (!r.ok) return null;
+    const r = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=website,reviews&reviews_sort=newest&language=fr&key=${key}`);
+    if (!r.ok) return vide;
     const d = await r.json();
-    return d.result && d.result.website ? d.result.website : null;
-  } catch (_) { return null; }
+    const res = d.result || {};
+    let dernier = null;
+    if (Array.isArray(res.reviews) && res.reviews.length) {
+      const t = res.reviews.map(x => x && x.time).filter(x => typeof x === "number" && x > 0);
+      if (t.length) dernier = new Date(Math.max.apply(null, t) * 1000).toISOString().slice(0, 10);
+    }
+    return { website: res.website || null, dernierAvis: dernier };
+  } catch (_) { return vide; }
 }
 
 export default async function handler(req, res) {
@@ -223,14 +246,19 @@ export default async function handler(req, res) {
           const gd = await gr.json();
           const p = (gd.results && gd.results.length) ? pickCanonical(gd.results, fiche.nom) : null;
           if (p) {
-            const site = await getWebsite(p.place_id, gkey);
+            const det = await getDetails(p.place_id, gkey);
+            const site = det.website;
             const w = profil(fiche.activite || fiche.secteur || fiche.archetype);
             const _r = (p.rating != null ? p.rating : null);
             const note = Math.max(5, Math.min(97, Math.round(compress((w.q * qScore(_r) + w.v * vScore(p.user_ratings_total || null) * volFactor(_r) + w.s * sScore(!!site)) / 100))));
             fiche.indice = fiche.indice || {};
             fiche.indice.estime = note;
             fiche.indice.potentiel = Math.min(100, note + 18);
-            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w };
+            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis };
+            /* ⚠️ ON EFFACE CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Le champ était sa porte d'entrée
+               pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
+               absente : il n'y a pas de troisième cas. */
+            fiche.avisDernier = det.dernierAvis || null;
           }
         }
       }
