@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 284';
+var IVE_VERSION='10/08 · 285';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4029,7 +4029,12 @@ function rapportOuvrir(i){
 function rapportCourant(){
   var d=window.__sentData;
   if(!d){ alert('Ouvrez une analyse SENTINELLE avant d\'éditer son rapport.'); return; }
-  rapportsCharger().then(function(l){
+  /* ⚠️ ON RELIT LA BASE, ON NE FAIT PAS CONFIANCE AU CACHE. Après une relance faite dans la même
+     session, la liste en mémoire ignore l'analyse qui vient d'être enregistrée : le rapport
+     sortirait numéroté v0 alors qu'il est le v1, et deux documents différents porteraient le
+     même numéro chez le même client. Un numéro de version qui se répète est pire que pas de
+     numéro du tout. */
+  rapportsCharger(true).then(function(l){
     rapportView(d, Math.max(0,l.length-1), (l.length?l[l.length-1].date:Date.now()));
   });
 }
@@ -4736,6 +4741,7 @@ function saveFicheRetour(){
        PRÉCÉDENTE. Rouvrir SENTINELLE rechargeait donc l'ancienne analyse — celle qui affichait
        une autre aura et d'autres chiffres que ce qu'on venait de payer. On l'oublie ici pour
        qu'elle soit relue de la base au prochain besoin. */
+    RAP_CACHE=null;   // une analyse de plus : la liste des rapports doit être relue
     if(window.__relanceDossier){ window.__dossierFaits=null; window.__relanceDossier=false; return; }
     if(window.__etaitRemesure && typeof sentApercu==='function') sentApercu();
     else if(typeof dirigeantSpace==='function') dirigeantSpace();
