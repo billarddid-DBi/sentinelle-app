@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='09/08 · 270';
+var IVE_VERSION='09/08 · 271';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -9376,6 +9376,36 @@ function enterDiagnostic(){
    par identifiant : elles sont reconnues sur nom + ville + adresse. Créer une entreprise sans
    son adresse, puis relancer un scan, DUPLIQUE la fiche — c'est déjà arrivé. On la demande donc
    dès la création, et on le dit. */
+/* ⚠️ LE FORMULAIRE PREND LA PLACE DE LA LIGNE, PRÉ-REMPLI. Corriger, c'est amender ce qui est
+   là — pas ressaisir de mémoire. Et une seule ligne s'ouvre à la fois : deux formulaires côte à
+   côte partageraient les mêmes champs, et on enregistrerait l'un en croyant modifier l'autre. */
+var ENT_MODIF='';
+function entCarteModif(e){
+  var ch=function(id, val, ph, larg){
+    return '<input id="'+id+'" value="'+esc(val||'')+'" placeholder="'+esc(ph)+'" style="'
+      +(larg||'width:100%;')+'box-sizing:border-box;padding:9px;border:1px solid #d7dbe3;'
+      +'border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:6px;">';
+  };
+  return '<div style="flex:1 1 100%;border-left:3px solid #E8541A;padding-left:11px;margin:4px 0 2px;">'
+    +'<div style="font-size:12.5px;font-weight:800;color:#1C1C1C;margin-bottom:7px;">Corriger ce dossier</div>'
+    +ch('entENom', e.nom, 'Nom de l\'entreprise *')
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+      +ch('entEVille', e.ville, 'Ville *', 'flex:2;min-width:120px;')
+      +ch('entECp', e.code_postal, 'Code postal', 'flex:1;min-width:90px;')
+    +'</div>'
+    +ch('entEAdresse', e.adresse, 'Adresse exacte *')
+    +ch('entEEmail', e.email, 'Email du dirigeant')
+    /* ⚠️ ON DIT CE QUE LA CORRECTION ENTRAÎNE. Changer le nom, la ville ou l'adresse change
+       l'établissement que SENTINELLE ira chercher : la fiche déjà produite ne correspond plus. */
+    +'<div class="hint" style="margin:-1px 0 7px;">Si vous corrigez le nom, la ville ou l\'adresse, '
+      +'la SENTINELLE déjà faite ne parle plus du bon établissement — on vous proposera de la relancer.</div>'
+    +'<div id="entEMsg" style="font-size:12px;margin-bottom:7px;"></div>'
+    +'<button type="button" onclick="entEnregistrer(\''+e.id+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;">'
+      +'<i class="ti ti-device-floppy"></i> Enregistrer</button> '
+    +'<button type="button" onclick="entModifier(\'\')" style="border:1px solid #d7dbe3;background:#fff;color:#4b5563;border-radius:9px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;">Annuler</button>'
+  +'</div>';
+}
+function entModifier(id){ ENT_MODIF=id||''; entreprisesView(); }
 function entCarte(e, courante){
   var sous=[e.ville, e.code_postal].filter(Boolean).join(' ');
   return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #eee;flex-wrap:wrap;">'
@@ -9394,10 +9424,20 @@ function entCarte(e, courante){
          Pas d'écran supplémentaire — Didier, 09/08/2026 : « je ne veux pas de cette page du
          tout, je veux voir l'avancement sur la page d'accueil ». */
       : '<button type="button" onclick="entTravailPoser(\''+e.id+'\',\''+escJs(e.nom||'')+'\',\''+escJs(e.ville||'')+'\',\'dossier\',\''+escJs(e.adresse||'')+'\')" style="border:none;background:#E8541A;color:#fff;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Ouvrir</button>')
+    /* ⚠️ CORRIGER UN DOSSIER APRÈS COUP (Didier, 09/08/2026 : « donne-moi la possibilité de
+       modifier des informations une fois que la SENTINELLE a été créée, et ensuite on relance
+       la SENTINELLE »). Jusqu'ici la table ne savait faire que deux choses — créer et archiver.
+       Une faute de frappe sur le nom, une adresse manquante ou un email erroné ne se rattrapaient
+       pas : il fallait retirer le dossier et le recréer, ce qui décrochait les analyses déjà
+       faites. Or ce sont précisément les deux champs qui comptent — l'adresse évite le doublon
+       de fiche SENTINELLE, l'email portera le plan vers l'app du dirigeant. */
+    +'<button type="button" title="Corriger ce dossier" onclick="entModifier(\''+e.id+'\')" style="border:1px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:9px;padding:8px 10px;font-size:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-pencil"></i></button>'
     /* ⚠️ « RETIRER », PAS « DÉTRUIRE ». Le dossier sort de la liste et se restaure depuis la
        console. Le libellé dit ce que le geste fait vraiment — promettre une destruction qu'on
        ne fait pas serait pire que de ne rien promettre. */
     +'<button type="button" title="Retirer de la liste" onclick="entArchiver(\''+e.id+'\',\''+escJs(e.nom||'')+'\')" style="border:1px solid #e5e7eb;background:#fff;color:#6b7280;border-radius:9px;padding:8px 10px;font-size:12px;cursor:pointer;font-family:inherit;"><i class="ti ti-archive"></i></button>'
+    +'<div id="sup'+e.id+'" style="flex:1 1 100%;"></div>'
+    +((typeof ENT_MODIF!=='undefined' && ENT_MODIF===e.id) ? entCarteModif(e) : '')
   +'</div>';
 }
 /* ═══ ARCHIVER UN DOSSIER ═══════════════════════════════════════════════════════════════════
@@ -9414,6 +9454,66 @@ function entCarte(e, courante){
    ⚠️ UN SEUL SENS DES DEUX CÔTÉS. La console fait exactement le même geste, avec son onglet
    « Supprimés ». Deux verbes identiques qui ne feraient pas la même chose seraient pires que
    pas de bouton du tout. */
+/* ═══ ENREGISTRER UNE CORRECTION ════════════════════════════════════════════════════════════
+   ⚠️ MÊMES RÈGLES QU'À LA CRÉATION, et pour les mêmes raisons : nom + ville + adresse forment la
+   clé sur laquelle une fiche SENTINELLE est reconnue, et un email = un dossier, sinon le pont
+   ne saura pas quel compte viser. Deux jeux de règles pour le même objet, c'est un objet qui
+   finit par exister sous deux formes.
+
+   ⚠️ ET LE DOSSIER OUVERT SUIT LA CORRECTION. Sa copie vit dans le navigateur : sans mise à
+   jour, l'application continuerait d'annoncer l'ancien nom en tête de tous les écrans, et le
+   prochain scan repartirait sur l'ancienne adresse. */
+async function entEnregistrer(id){
+  var val=function(i){ var e=$(i); return e?String(e.value||'').trim():''; };
+  var msg=$('entEMsg');
+  var dire=function(t,c){ if(msg){ msg.style.color=c; msg.textContent=t; } };
+  var nom=val('entENom'), ville=val('entEVille'), adresse=val('entEAdresse');
+  var manque=[];
+  if(!nom) manque.push('le nom');
+  if(!ville) manque.push('la ville');
+  if(!adresse) manque.push('l\'adresse');
+  if(manque.length){
+    dire('Il manque '+manque.join(', ')+'. Ces trois-là identifient l\'établissement : '
+        +'sans eux, un nouveau scan créerait une seconde fiche.','#b91c1c');
+    return;
+  }
+  dire('Enregistrement…','#6b7280');
+  var maj={ nom:nom, ville:ville, code_postal:val('entECp')||null,
+            adresse:adresse, email:val('entEEmail').toLowerCase()||null };
+  try{
+    await window.sbReady;
+    var r=await window.sb.from('entreprises').update(maj).eq('id',id);
+    if(r && r.error){
+      var m=String(r.error.message||'');
+      if(/duplicate|unique/i.test(m) && /email/i.test(m))
+        dire('Cet email est déjà rattaché à une autre entreprise. Un email = un dossier, sinon le plan ne saura pas où aller.','#b91c1c');
+      else dire('Correction refusée : '+m,'#b91c1c');
+      return;
+    }
+  }catch(e){ dire('La base n\'a pas répondu. Rien n\'a été corrigé.','#b91c1c'); return; }
+
+  /* Le dossier ouvert porte une copie dans le navigateur : elle suit, sinon l'écran ment. */
+  var t=(typeof entTravail==='function')?entTravail():null;
+  var ouvert=!!(t && t.id===id);
+  if(ouvert){
+    try{ localStorage.setItem(ENT_TRAVAIL_CLE, JSON.stringify({id:id, nom:nom, ville:ville, adresse:adresse})); }catch(e){}
+    window.lastNom=nom; window.lastVille=ville;
+  }
+  ENT_MODIF='';
+  /* ⚠️ ON PROPOSE LA RELANCE, ON NE LA DÉCLENCHE PAS. Un scan coûte des jetons : corriger un
+     code postal ne doit pas en dépenser à son insu. Et on ne la propose que si l'IDENTITÉ a
+     changé — c'est elle, et elle seule, qui rend la fiche obsolète. */
+  var av=(t&&ouvert)?t:null;
+  var identiteChangee = !av || (av.nom!==nom) || (av.ville!==ville) || ((av.adresse||'')!==adresse);
+  if(ouvert && identiteChangee
+     && confirm('« '+nom+' » est corrigé.\n\nL\'établissement a changé : la SENTINELLE déjà faite ne parle plus du bon.\n\nLa relancer maintenant ?')){
+    lancerSentinelleDossier();
+    return;
+  }
+  MSG_ENT='« '+nom+' » est corrigé.'+(identiteChangee&&!ouvert
+    ? ' Ouvrez-le pour relancer sa SENTINELLE : l\'établissement a changé.' : '');
+  entreprisesView();
+}
 async function entArchiver(id, nom){
   if(!confirm('Retirer « '+(nom||'')+' » de la liste ?\n\nRien n\'est détruit : le dossier part dans l\'onglet « Supprimés » de la console, et se restaure d\'un clic.')) return;
   var courant=(typeof entTravail==='function' && entTravail() && entTravail().id===id);
