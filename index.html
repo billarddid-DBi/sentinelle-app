@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 280';
+var IVE_VERSION='10/08 · 281';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3612,7 +3612,15 @@ function iveCarteIdentite(d){
   var idBody='';
   if(d.activite) idBody+='<div style="font-size:12.5px;color:#4b5563;line-height:1.4;">'+esc(d.activite)+'</div>';
   if(d.ville) idBody+='<div style="font-size:12px;color:#6b7280;margin-top:6px;"><i class="ti ti-map-pin" style="color:#E8541A;"></i> '+esc(d.ville)+'</div>';
-  if(d.identite&&!/non trouv/i.test(d.identite)) idBody+='<div style="font-size:11.5px;color:#6b7280;margin-top:9px;line-height:1.5;border-top:1px solid #eef0f3;padding-top:9px;">'+esc(d.identite)+'</div>';
+  /* ⚠️ ON REPREND LA MISE EN FORME RICHE, pas le texte brut. Didier, 10/08/2026 : la carte
+     d'identité était écrite DEUX fois — cette carte-ci, et « LE DÉTAIL DE L'ENQUÊTE » plus bas.
+     En supprimant la seconde on aurait perdu ce qu'elle seule faisait : `identiteHtml` met en
+     gras le SIREN, le code NAF et le nom du dirigeant. Trois repères qu'on cherche du regard
+     dans une phrase de six lignes ; sans eux il faut la relire en entier. */
+  if(d.identite&&!/non trouv/i.test(d.identite)){
+    var idTxt=(typeof identiteHtml==='function')?identiteHtml(d):esc(d.identite);
+    idBody+='<div style="font-size:11.5px;color:#6b7280;margin-top:9px;line-height:1.5;border-top:1px solid #eef0f3;padding-top:9px;">'+idTxt+'</div>';
+  }
   // Toujours dépliée : pas de menu déroulant, pas de chevron.
   return '<div style="background:#f6f8fb;border:1px solid #eef0f3;border-radius:12px;padding:12px 16px;">'
     +'<div style="font-size:9.5px;font-weight:800;color:#2563EB;letter-spacing:.3px;"><i class="ti ti-building"></i> CARTE D\'IDENTITÉ</div>'
@@ -3977,12 +3985,21 @@ function render(d,skipSave){
   const qw = SS
     ? (qwAll.length? `<b>Action offerte :</b> ${esc(qwAll[0])}`+(qwAll.length>1?`<div style="margin-top:7px;color:#94a3b8;"><i class="ti ti-lock"></i> ${qwAll.length-1} autre${qwAll.length>2?'s':''} action${qwAll.length>2?'s':''} rapide${qwAll.length>2?'s':''} identifiée${qwAll.length>2?'s':''} — débloquée${qwAll.length>2?'s':''} avec la BOUSSOLE</div>`:'') : '')
     : `<b>Quick wins :</b> ${qwAll.map((q,i)=>`${i+1}) ${esc(q)}`).join(' · ')}`;
+  /* ⚠️ LES QUICK WINS NE DOIVENT JAMAIS TOMBER DANS LE VIDE. En les déplaçant vers le bloc des
+     leviers chiffrés, ils ont disparu de toutes les fiches SANS correspondance Google : ce bloc
+     n'existe que si `_auraCalc.poids` est là. Le banc l'a vu. Ce drapeau dit s'ils ont trouvé
+     preneur en haut ; sinon la section du bas les reprend. */
+  let qwDansLeviers = false;
   const agents = SS
     ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:12px;color:#7c2d12;line-height:1.5;"><i class="ti ti-lock"></i> <b>${(d.agents||[]).length} piste${(d.agents||[]).length>1?'s':''} d'outils IA</b> — dont une qui vise votre point de vigilance principal. Ce que votre vitrine laisse deviner ; la liste, elle, s'arrête avec la BOUSSOLE.</div>`
     : (d.agents||[]).map(a=>{
     const fire = a.tag && a.tag.indexOf('<i class="ti ti-flame"></i>')>=0;
     const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
-    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${esc(a.tag||'<i class="ti ti-box"></i>')}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
+    /* ⚠️ LE REPLI EST DU HTML, PAS DU TEXTE. Passé dans esc(), il s'affichait en clair —
+       « <i class="ti ti-box"></i> » écrit noir sur blanc à la place de l'icône, dès que le
+       modèle omettait la pastille. On n'échappe que ce qui vient de lui. */
+    const chip = a.tag ? esc(a.tag) : '<i class="ti ti-box"></i>';
+    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${chip}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
   }).join('');
   const r = d.radar||{labels:[],actuel:[],potentiel:[]};
   const sim = d.simulateur||{personnes:2,heures:5,cout:40};
@@ -4017,7 +4034,21 @@ function render(d,skipSave){
         } else {
           progHTML='<div class="sec" style="background:#FBF4EF;"><div style="font-size:12.5px;font-weight:600;color:#cf4712;"><i class="ti ti-target"></i> Où travailler pour monter votre note</div>'
             +_top.map(function(x,i){return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:5px;"><b>'+(i+1)+'. '+x.k+'</b> — '+x.act+' <span style="color:#E8541A;font-weight:600;">(≈ +'+x.gain+' pts)</span></div>';}).join('')
-            +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div></div>';
+            +'<div style="font-size:10.5px;color:#9ca3af;margin-top:7px;">Priorités selon ce qui pèse pour votre métier et votre marge de progression.</div>'
+            /* ⚠️ LES GESTES CONCRETS REJOIGNENT LES LEVIERS CHIFFRÉS. Didier, 10/08/2026 : la
+               page portait DEUX listes de « quoi faire » à quinze lignes d'écart — celle-ci, en
+               points gagnables (« nombre d'avis : +8 pts »), et les quick wins, en gestes
+               (« répondre aux 5 avis récents »). Elles disaient souvent la même chose dans deux
+               langues, et rien ne disait au lecteur qu'elles parlaient du même sujet. Elles se
+               complètent : l'une dit OÙ ça paie, l'autre PAR QUOI commencer. Ensemble, elles
+               forment une consigne ; séparées, elles se répétaient. */
+            +((qwDansLeviers = !!(typeof qwAll!=='undefined' && qwAll.length && !SS))
+               ? '<div style="border-top:1px dashed #fed7aa;margin-top:9px;padding-top:8px;">'
+                 +'<div style="font-size:11px;font-weight:800;color:#9a3412;letter-spacing:.3px;">PAR QUOI COMMENCER</div>'
+                 +qwAll.map(function(q,i){ return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;"><b>'+(i+1)+'.</b> '+esc(q)+'</div>'; }).join('')
+                 +'</div>'
+               : '')
+            +'</div>';
         }
       }
     }
@@ -4094,8 +4125,15 @@ function render(d,skipSave){
      et c'est ce doublon-là qu'on vient de supprimer ailleurs. */
   const uneSeulePage = [
     (typeof iveCarteIdentite==='function') ? iveCarteIdentite(d) : '',
+    /* ⚠️ « PRÉSENCE » DESCEND ICI PLUTÔT QUE DE DISPARAÎTRE. Sa section propre répétait la
+       pastille VISIBILITÉ — mais seulement à moitié : la pastille donne une NOTE, la phrase dit
+       QUELS canaux existent (site vitrine, fiche Google, réseaux). Supprimer la section aurait
+       emporté le seul endroit où on lisait de quoi la note est faite. Elle devient la légende
+       des pastilles, à leur pied. */
     (typeof iveTuilesHtml==='function')
-      ? '<div class="sec"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-layout-grid"></i> VUE D\'ENSEMBLE</div>'+iveTuilesHtml(d)+'</div>'
+      ? '<div class="sec"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-layout-grid"></i> VUE D\'ENSEMBLE</div>'+iveTuilesHtml(d)
+        +(d.presence?'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:9px;border-top:1px solid #eef0f3;padding-top:8px;"><i class="ti ti-speakerphone" style="color:#E8541A;"></i> <b>Canaux repérés :</b> '+esc(d.presence)+'</div>':'')
+        +'</div>'
       : ''
   ].join('');
 
@@ -4134,10 +4172,6 @@ function render(d,skipSave){
       </div>
     </div>
 
-    <div class="sec" data-chap="identite"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-clipboard-text"></i> LE DÉTAIL DE L'ENQUÊTE</div>
-      <div style="font-size:12.5px;line-height:1.6;margin-top:6px;"><b style="color:${col};">Carte d'identité</b> <span style="color:#16a34a;font-size:11px;">🟢</span><br>${identiteHtml(d)}</div>
-    </div>
-
     <div class="sec" data-chap="forces">
       <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:4px;">Radar des 8 piliers <span style="font-weight:400;color:#6b7280;font-size:11px;">— hypothèses de pré-audit</span></div>
       <div style="max-width:430px;margin:0 auto;"><canvas id="radar" height="260"></canvas></div>
@@ -4151,15 +4185,10 @@ function render(d,skipSave){
     </div></div>
 
     <div class="sec" data-chap="forces">
-      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Vigilance & quick wins</div>
+      <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Points de vigilance</div>
       ${vig}
-      <div class="qw">${qw}</div>
+      ${qwDansLeviers?'':`<div class="qw">${qw}</div>`}
     </div>
-
-    <div class="sec" data-chap="reputation"><div class="grid2" style="font-size:12px;">
-      <div><div style="font-weight:600;color:${col};"><i class="ti ti-star"></i> Avis clients</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avis)}</div></div>
-      <div><div style="font-weight:600;color:${col};"><i class="ti ti-speakerphone"></i> Présence</div><div style="color:#4b5563;line-height:1.5;">${esc(d.presence)}</div></div>
-    </div></div>
 
     ${avisTableau(d)}
 
@@ -4562,9 +4591,17 @@ function avisTableau(d){
   /* Google d'abord : la source que tout le monde regarde, et la seule qu'on ait déjà mesurée. */
   var g=d && d._auraCalc;
   if(g && (g.note_google!=null || g.nb_avis!=null)){
+    /* ⚠️ LA LIGNE GOOGLE RÉPÉTAIT SES PROPRES CHIFFRES. Didier, 10/08/2026 : « as-tu repéré des
+       doublons ». Le résumé du modèle commence presque toujours par « 4,9/5 sur 57 avis » — or
+       ces deux nombres sont déjà dans les colonnes Avis et Note, à trois centimètres à gauche.
+       On retire cette amorce pour ne garder que ce qu'elle seule apporte : le jugement. Si la
+       phrase ne contenait QUE ces chiffres, il ne reste rien à dire, et la case affiche « — »
+       comme les autres — plutôt qu'un écho. */
+    var _res=String(d.avis||'').replace(/^[\s—–-]*\d+[.,]\d+\s*\/\s*5\s*(sur|,)?\s*\d*\s*avis?\s*(google)?\s*[—–:,.-]*\s*/i,'').trim();
+    if(_res) _res=_res.charAt(0).toUpperCase()+_res.slice(1);
     lignes.push({nom:'Google', url:'', nb:(g.nb_avis!=null?g.nb_avis:null),
                  note:(g.note_google!=null?g.note_google:null),
-                 dernier:(d.avisDernier||null), resume:(d.avis||'')});
+                 dernier:(d.avisDernier||null), resume:_res});
   }
   (Array.isArray(d&&d.plateformes)?d.plateformes:[]).forEach(function(p){
     lignes.push({nom:p.nom||'', url:p.url||'', nb:(p.nb!=null?p.nb:null),
