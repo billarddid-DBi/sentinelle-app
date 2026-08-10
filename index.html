@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 277';
+var IVE_VERSION='10/08 · 278';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3966,6 +3966,10 @@ function pilierBarresHtml(r){
   }).join('')+'</div>';
 }
 function render(d,skipSave){
+  /* ⚠️ AVANT TOUT LE RESTE, ET AVANT L'ENREGISTREMENT (qui a lieu en bas de cette fonction) :
+     la couleur figée doit partir avec la fiche, sinon la base garderait la couleur du jour et
+     le prochain appareil repartirait sur une autre. */
+  if(typeof auraFiger==='function') auraFiger(d);
   window.lastNom=d.nom; window.lastVille=d.ville; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
@@ -4045,6 +4049,7 @@ function render(d,skipSave){
     <div class="sec" style="background:${au.b};">
       <div style="font-size:12.5px;font-weight:600;color:${au.t};">IVE ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
+      ${d.aura.proposee?`<div style="font-size:11px;color:#6b7280;line-height:1.5;margin-top:6px;border-top:1px dashed #dbe7fb;padding-top:6px;">Cette analyse voyait plutôt une aura <b>${esc(d.aura.proposee)}</b>. La couleur reste celle de votre première SENTINELLE — elle décrit un tempérament, pas un niveau, et n'a pas à changer à chaque mesure. <span onclick="auraAdopter('${esc(d.aura.proposee)}')" style="cursor:pointer;color:#E8541A;font-weight:700;white-space:nowrap;">Adopter ${esc(d.aura.proposee)}</span></div>`:''}
     </div>
     <div class="sec" style="background:#FBF4EF;">
       <div style="font-size:11.5px;color:#cf4712;line-height:1.55;"><b><i class="ti ti-target"></i> Indice de Cohérence</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
@@ -6562,6 +6567,53 @@ function iveAbonnementChip(){
 
    Elle est donc écrite dans la relance. Elle vit par DOSSIER (cpCle) : une précision sur une
    entreprise n'a aucun sens sur une autre. */
+/* ═══ LA COULEUR D'AURA SE FIGE À LA PREMIÈRE ANALYSE ═══════════════════════════════════════
+   Didier, 10/08/2026 : « l'aura de la première SENTINELLE est bleue, et si je relance avec une
+   modification elle est orange, et pas avec la même note… normal ou pas ? » Puis : « figer la
+   couleur à la 1ère analyse ».
+
+   ⚠️ LA COULEUR N'EST PAS UNE MESURE, ET C'EST TOUT LE PROBLÈME. La note, elle, est calculée
+   côté serveur à partir de la note Google, du nombre d'avis et du site : elle a le droit de
+   bouger d'un point. La couleur, non — le modèle la choisit librement parmi quatorze, selon
+   l'impression qu'il retire de l'entreprise. Deux analyses identiques peuvent donc donner Bleu
+   puis Orange sans que rien n'ait changé. Techniquement cohérent, illisible en pratique : on lit
+   deux verdicts opposés et on conclut, à raison, que l'outil se contredit.
+
+   ⚠️ ET ORANGE N'EST PAS « MIEUX » QUE BLEU. Ce ne sont pas des niveaux mais des familles de
+   caractère. La calculer depuis la note aurait transformé un tempérament en échelle de valeur —
+   c'est pour ça qu'on la fige au lieu de la dériver.
+
+   Elle devient donc l'identité du dossier, comme son nom. Les relances continuent de faire
+   bouger la note, les avis, les plateformes ; la couleur ne change que si Didier l'adopte. */
+function auraCle(){ return 'ive_aura_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
+function auraFigee(){ try{ return localStorage.getItem(auraCle())||''; }catch(e){ return ''; } }
+function auraFiger(d){
+  if(!d || !d.aura || !d.aura.couleur) return d;
+  var f=auraFigee();
+  if(!f){ try{ localStorage.setItem(auraCle(), d.aura.couleur); }catch(e){} return d; }
+  if(f===d.aura.couleur) return d;
+  /* On garde la proposition du modèle : masquer qu'il a vu autre chose serait mentir par
+     omission, et c'est elle qu'on adopte si Didier décide de changer. */
+  d.aura.proposee=d.aura.couleur;
+  d.aura.couleur=f;
+  /* ⚠️ LE SENS DOIT SUIVRE LA COULEUR. Le modèle a écrit « la chaleur humaine » en pensant
+     Orange ; l'afficher sous « IVE Bleu » donnerait une phrase qui contredit son propre titre.
+     On reprend le texte canonique de la couleur figée. */
+  var ad=(typeof AURADEF!=='undefined')?AURADEF[f]:null;
+  if(ad){ d.aura.sens=ad.s; d.aura.definition=ad.d; }
+  return d;
+}
+/* Adopter la nouvelle couleur — le seul chemin pour qu'elle bouge, et il est volontaire. */
+function auraAdopter(c){
+  if(!c) return;
+  try{ localStorage.setItem(auraCle(), c); }catch(e){}
+  var d=window.__sentData;
+  if(d && d.aura){ d.aura.couleur=c; delete d.aura.proposee;
+    var ad=(typeof AURADEF!=='undefined')?AURADEF[c]:null;
+    if(ad){ d.aura.sens=ad.s; d.aura.definition=ad.d; }
+    if(typeof render==='function') render(d,true);
+  }
+}
 function precisKey(){ return 'ive_precis_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function precisLire(){ try{ return localStorage.getItem(precisKey())||''; }catch(e){ return ''; } }
 function precisEnregistrer(){
