@@ -2955,7 +2955,27 @@ async function jetCharger(){
 var ESPACE_CLES=['ive_conc_v1_','ive_conc_kw_','ive_maj_v1_','ive_simu_v1_','ive_faits_v1_',
                  'ive_detail_v1_','ive_recur_v1_','ive_recurdec_v1_','ive_ident_v1_',
                  'ive_coffre_v1_','ive_rep_v1_'];
-function espaceSuffixe(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return (((a&&a.email)||'anon')+'').toLowerCase(); }
+/* ⚠️ LE SUFFIXE DOIT ÊTRE CELUI DU DOSSIER, PAS CELUI DU COMPTE. Didier, 10/08/2026 : « j'ai
+   l'impression que la carte de la concurrence n'est pas sauvegardée — vérifie. » Elle ne l'était
+   pas, et pas seulement elle : les ONZE magasins de cette liste.
+
+   Le 09/08, `cpCle()` a reçu un suffixe de dossier — « email|id » — pour qu'un chiffre relevé
+   chez CERIBE ne s'affiche pas chez un autre client. Mais la synchronisation, elle, est restée
+   sur l'email seul. Résultat : `espacePrefixe('ive_conc_v1_email|d9')` ne reconnaissait plus rien,
+   l'interception de setItem ne marquait rien, et la carte payée 4 jetons ne partait jamais en
+   base. Elle vivait dans le navigateur, et nulle part ailleurs : vidage du cache, autre appareil,
+   et elle disparaissait sans un mot.
+
+   ⚠️ ET LA LECTURE ÉTAIT FAUSSE AUSSI : au moment de pousser, on relisait `p + email` — la clé
+   d'un autre contexte. Une correction sur le seul marquage aurait donc envoyé en base le contenu
+   du mauvais dossier. Les trois usages — marquer, pousser, restaurer — doivent bouger ensemble.
+
+   Sur son propre compte, sans dossier ouvert, cpCle() vaut l'email : rien ne change. */
+function espaceSuffixe(){
+  if(typeof cpCle==='function') return cpCle();
+  var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+  return (((a&&a.email)||'anon')+'').toLowerCase();
+}
 function espacePrefixe(k){
   var s=espaceSuffixe();
   for(var i=0;i<ESPACE_CLES.length;i++){ if(k===ESPACE_CLES[i]+s) return ESPACE_CLES[i]; }
@@ -3608,7 +3628,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 299';
+var IVE_VERSION='10/08 · 300';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
