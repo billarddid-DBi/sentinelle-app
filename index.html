@@ -3603,7 +3603,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 281';
+var IVE_VERSION='10/08 · 282';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4078,10 +4078,6 @@ function render(d,skipSave){
     <div class="sec" style="background:${au.b};">
       <div style="font-size:12.5px;font-weight:600;color:${au.t};">IVE ${esc(d.aura.couleur)} — ${esc(d.aura.sens)} <span style="font-weight:400;color:#6b7280;font-size:11px;">· éclat ${esc(d.aura.eclat)}</span></div>
       <div style="font-size:12px;color:#334155;line-height:1.5;margin-top:3px;">${esc(d.aura.definition)}</div>
-      ${d.aura.proposee?`<div style="font-size:11px;color:#6b7280;line-height:1.5;margin-top:6px;border-top:1px dashed #dbe7fb;padding-top:6px;">Cette analyse voyait plutôt une aura <b>${esc(d.aura.proposee)}</b>. La couleur reste celle de votre première SENTINELLE — elle décrit un tempérament, pas un niveau, et n'a pas à changer à chaque mesure. <span onclick="auraAdopter('${esc(d.aura.proposee)}')" style="cursor:pointer;color:#E8541A;font-weight:700;white-space:nowrap;">Adopter ${esc(d.aura.proposee)}</span></div>`:''}
-    </div>
-    <div class="sec" style="background:#FBF4EF;">
-      <div style="font-size:11.5px;color:#cf4712;line-height:1.55;"><b><i class="ti ti-target"></i> Indice de Cohérence</b> — cette note est votre <b>image publique</b> (le regard extérieur, ${est}/100). En <b>BOUSSOLE</b>, on mesure la <b>réalité interne</b> : l'écart entre les deux dit si la réputation voit juste. <span style="color:#9ca3af;">Se révèle à l'étape suivante.</span></div>
     </div>
     <div class="sec" style="background:#f0fdf4;">
       <div style="font-size:12.5px;font-weight:600;color:#15803d;"><i class="ti ti-heart"></i> Ce que votre IVE raconte déjà</div>
@@ -4247,8 +4243,7 @@ function render(d,skipSave){
   ${SS
     ? `<div class="btnrow"><button class="btn btn-primary" onclick="paywallView()"><i class="ti ti-lock-open"></i> Débloquer mes outils IA et mon plan</button>
   <button class="btn btn-ghost" onclick="dirigeantSpace()"><i class="ti ti-user-heart"></i> Aller à mon espace</button></div>`
-    : `<div class="btnrow"><button class="btn btn-primary" onclick="goBoussole()"><i class="ti ti-compass"></i> Poursuivre en BOUSSOLE →</button>
-  <button class="btn btn-ghost" onclick="iveNav('accueil')"><i class="ti ti-home"></i> Accueil</button></div>`}`;
+    : `<div class="btnrow"><button class="btn btn-ghost" onclick="iveNav('accueil')"><i class="ti ti-home"></i> Accueil</button></div>`}`;
 
   // Radar
   try{
@@ -6640,8 +6635,12 @@ function auraFiger(d){
   var f=auraFigee();
   if(!f){ try{ localStorage.setItem(auraCle(), d.aura.couleur); }catch(e){} return d; }
   if(f===d.aura.couleur) return d;
-  /* On garde la proposition du modèle : masquer qu'il a vu autre chose serait mentir par
-     omission, et c'est elle qu'on adopte si Didier décide de changer. */
+  /* ⚠️ LA PROPOSITION EST GARDÉE, MAIS PLUS AFFICHÉE. Didier, 10/08/2026 : « tu supprimes ? Cette
+     analyse voyait plutôt une aura Bleu… ». J'avais mis une ligne d'explication sous l'aura : à
+     l'usage, elle raconte un débat interne dont il n'a rien à faire — il a tranché une fois, la
+     couleur est figée, point. Le champ reste posé et `auraAdopter` reste appelable : c'est la
+     porte de sortie si une couleur se révélait franchement fausse, et la rouvrir sera alors une
+     décision, pas un bandeau permanent. */
   d.aura.proposee=d.aura.couleur;
   d.aura.couleur=f;
   /* ⚠️ LE SENS DOIT SUIVRE LA COULEUR. Le modèle a écrit « la chaleur humaine » en pensant
