@@ -3605,7 +3605,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 274';
+var IVE_VERSION='10/08 · 275';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4067,6 +4067,9 @@ function render(d,skipSave){
      Il est en HAUT : c'est là qu'on décide de remesurer, pas après avoir tout relu. */
   const relanceBtn = (typeof jetBouton==='function' && typeof sentRelancer==='function')
     ? jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()') : '';
+  /* Les précisions se tiennent JUSTE À CÔTÉ de la relance : on corrige, puis on remesure. Séparer
+     les deux gestes obligerait à se souvenir du second — et la correction resterait lettre morte. */
+  const precisBloc = (typeof precisBlocHtml==='function') ? precisBlocHtml() : '';
 
   $('result').innerHTML = `
   <div class="card">
@@ -4077,6 +4080,7 @@ function render(d,skipSave){
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
     </div>
     ${relanceBtn?`<div style="display:flex;justify-content:flex-end;padding:9px 14px 0;">${relanceBtn}</div>`:''}
+    ${precisBloc}
     <div style="background:#fef3c7;border-left:4px solid #d97706;padding:9px 14px;font-size:12px;color:#7c4a03;line-height:1.5;">
       <b>Votre premier niveau d'analyse</b>, fondé sur des données publiques vérifiables. Rapide, objectif et en toute autonomie.
     </div>
@@ -6507,6 +6511,43 @@ function iveAbonnementChip(){
   // Cliquable : mène à l'offre — changer de formule ou racheter des jetons.
   return '<span onclick="offreView()" title="Voir les formules et les jetons" style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.18);border:1px solid rgba(134,239,172,.5);color:#86efac;font-size:10.5px;font-weight:700;border-radius:9px;padding:4px 9px;white-space:nowrap;"><i class="ti ti-rosette-discount-check" style="font-size:12px;"></i> '+(t?'Abonnement '+t:'Accès complet')+'</span>';
 }
+/* ═══ MES PRÉCISIONS — ce que je sais et que l'enquête publique ne peut pas savoir ═══════════
+   Didier, 10/08/2026 : « ajoute le fait que je puisse rajouter un petit commentaire, si je veux
+   rectifier deux ou trois informations dans le SENTINELLE qui a été fait ».
+
+   ⚠️ CE N'EST PAS UN PENSE-BÊTE, C'EST UNE SOURCE. Le champ existait DÉJÀ au moment de créer la
+   fiche (« infos terrain », envoyé à l'API sous `fieldInfo`) — mais nulle part après. Or c'est
+   APRÈS avoir lu le rapport qu'on voit ce qui cloche : une activité mal comprise, une ville
+   erronée, un service qui n'existe plus. Une note qui ne servirait qu'à l'œil laisserait la
+   prochaine analyse refaire exactement la même erreur, pour 4 jetons de plus.
+
+   Elle est donc écrite dans la relance. Elle vit par DOSSIER (cpCle) : une précision sur une
+   entreprise n'a aucun sens sur une autre. */
+function precisKey(){ return 'ive_precis_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
+function precisLire(){ try{ return localStorage.getItem(precisKey())||''; }catch(e){ return ''; } }
+function precisEnregistrer(){
+  var z=document.getElementById('sentPrecis'), m=document.getElementById('sentPrecisMsg');
+  if(!z) return;
+  var v=(z.value||'').trim();
+  try{ if(v) localStorage.setItem(precisKey(),v); else localStorage.removeItem(precisKey()); }
+  catch(e){ if(m) m.innerHTML='<span style="color:#991b1b;">Enregistrement impossible sur cet appareil.</span>'; return; }
+  /* On dit ce qui va se passer, pas « enregistré » : la précision ne corrige RIEN toute seule,
+     elle n'agit qu'à la prochaine relance. Laisser croire l'inverse ferait attendre en vain. */
+  if(m) m.innerHTML = v
+    ? '<span style="color:#15803d;"><i class="ti ti-check"></i> Gardé. Le rapport actuel ne change pas — c\'est la prochaine relance qui en tiendra compte.</span>'
+    : '<span style="color:#6b7280;">Précision effacée.</span>';
+}
+function precisBlocHtml(){
+  var v=precisLire();
+  return '<div class="sec" style="border-top:1px solid #eef0f3;">'
+    +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;"><i class="ti ti-pencil" style="color:#2563EB;"></i> MES PRÉCISIONS</div>'
+    +'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin:5px 0 8px;">Ce que vous savez et que l\'enquête publique ne peut pas voir — une activité mal comprise, une ville erronée, un service qui n\'existe plus. <b>Repris à la prochaine relance</b>, pour que l\'erreur ne se répète pas.</div>'
+    +'<textarea id="sentPrecis" rows="3" placeholder="Ex. : ils ont arrêté le dépannage 24h/24 · le siège est à Metz, pas à Marly" style="width:100%;box-sizing:border-box;border:1px solid #d7dbe3;border-radius:10px;padding:9px 11px;font-size:13px;font-family:inherit;color:#1C1C1C;resize:vertical;">'+esc(v)+'</textarea>'
+    +'<div style="display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;">'
+      +'<button type="button" onclick="precisEnregistrer()" style="border:1px solid #d7dbe3;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Garder cette précision</button>'
+      +'<span id="sentPrecisMsg" style="font-size:11.5px;line-height:1.4;flex:1;min-width:140px;"></span>'
+    +'</div></div>';
+}
 // Date à laquelle l'analyse a été faite (le bandeau, lui, porte la date du jour).
 // Relance volontaire de SENTINELLE — les jetons sont déjà décomptés par jetBouton().
 function sentRelancer(){
@@ -6533,7 +6574,14 @@ function sentRelancer(){
      fiche de Didier — deux lignes « Feu Vert Metz Marly », l'orpheline sans adresse.
      remesurer() le faisait déjà (cf. __scanAdresse) ; ce chemin-ci l'avait oublié. */
   window.__scanAdresse=(k.adresse||null);
-  run({ text:q });
+  /* ⚠️ ON LIT LE CHAMP À L'ÉCRAN AVANT LE STOCKAGE. Taper une précision puis cliquer « Relancer »
+     sans avoir cliqué « Garder » est le geste le plus naturel du monde — et il coûterait 4 jetons
+     pour une analyse qui ignore ce qu'on vient d'écrire. Ce qui est visible fait foi ; on le garde
+     au passage, pour que la relance suivante l'ait aussi. */
+  var _z=document.getElementById('sentPrecis');
+  var _fi=(_z && (_z.value||'').trim()) || (typeof precisLire==='function'?precisLire():'');
+  if(_z && typeof precisKey==='function'){ try{ if(_fi) localStorage.setItem(precisKey(),_fi); }catch(e){} }
+  run({ text:q, fieldInfo:_fi });
 }
 function iveDateAnalyse(){
   var d=window.__sentDern||((window.__lastGet)?new Date(window.__lastGet.dernier||window.__lastGet.date):null);
@@ -6643,7 +6691,16 @@ function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || 
 // Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
 // ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
 // la fiche par la clé mémorisée sur le compte (sentNom/sentVille), sinon on retombe sur le nom saisi.
-function sentKey(acc){ acc=acc||currentAccount()||{};
+/* ⚠️ LE DOSSIER OUVERT FAIT AUTORITÉ, ICI AUSSI. Didier, 10/08/2026 : relance lancée depuis le
+   rapport d'un dossier, et l'enquête est partie sur « Le test de Bibi » — le nom de SON PROPRE
+   compte. `currentAccount()` décrit le compte connecté ; quand un dossier de travail est ouvert,
+   ce n'est plus lui qu'on mesure. Sans ce garde, la relance dépense 4 jetons pour analyser une
+   autre entreprise que celle qu'on a sous les yeux, et écrit le résultat sous une autre clé.
+   Même règle que iveIdentRestaurer : le dossier passe devant toute mémoire de compte. */
+function sentKey(acc){
+  var t=(typeof entTravail==='function')?entTravail():null;
+  if(t && t.nom){ return { texte: t.nom+(t.ville?', '+t.ville:''), adresse: t.adresse||'' }; }
+  acc=acc||currentAccount()||{};
   if(acc.sentNom){ return { texte: acc.sentNom+(acc.sentVille?', '+acc.sentVille:''), adresse: acc.sentAdr||'' }; }
   return { texte:(acc.name||'')+(acc.ville?', '+acc.ville:''), adresse:'' };
 }
