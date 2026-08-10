@@ -3608,7 +3608,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 297';
+var IVE_VERSION='10/08 · 298';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3838,9 +3838,12 @@ function planActionHtml(v){
     {cle:'positionnement', nom:'Positionnement',      val:v.posi},
     {cle:'confiance',      nom:'Confiance',           val:v.conf}
   ];
-  return '<div class="sec" style="border-top:2px solid #1C1C1C;">'
-    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-lock"></i> PLAN D\'ACTION — CONSULTANT</div>'
-    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 9px;">Une consigne par pastille, calculée sur la note. <b>Ne figure pas dans le rapport remis.</b></div>'
+  /* ⚠️ NI CADENAS NI « NE FIGURE PAS DANS LE RAPPORT REMIS » : le bandeau noir juste au-dessus le
+     dit déjà, pour tout le bloc. Le répéter sur chaque section apprend à ne plus le lire — et le
+     jour où une section aurait vraiment un statut à part, l'avertissement serait devenu du décor. */
+  return '<div class="sec">'
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-target"></i> PLAN D\'ACTION</div>'
+    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 9px;">Une consigne par pastille, calculée sur la note.</div>'
     +lignes.map(function(x){
       var a=planAction(x.cle,x.val); if(!a) return '';
       var c=a.tenir?{f:'#f0fdf4',b:'#bbf7d0',t:'#15803d',l:'À ENTRETENIR'}
@@ -4764,6 +4767,7 @@ function render(d,skipSave){
      avec un simple bandeau conditionnel l'aurait affiché à tout le monde — un cloisonnement qui
      ne cloisonne rien est pire que pas de cloisonnement : on croit la porte fermée. */
   const blocConsultant = !_conf ? '' : (confOuvre + `
+    ${(typeof planActionHtml==='function' && typeof synthVals==='function') ? planActionHtml(synthVals(d)) : ''}
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
       <div style="margin-top:8px;">${agents}</div>
     </div>
@@ -4818,17 +4822,13 @@ function render(d,skipSave){
         +(d.presence?'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:9px;border-top:1px solid #eef0f3;padding-top:8px;"><i class="ti ti-speakerphone" style="color:#E8541A;"></i> <b>Canaux repérés :</b> '+esc(d.presence)+'</div>':'')
         +'</div>'
       : '',
-    /* ⚠️ LE PLAN D'ACTION SE LIT SOUS LES PASTILLES, ET NULLE PART AILLEURS. Didier, 10/08/2026 :
-       « c'est moi le plan d'action par rapport à la vue d'ensemble, et tu l'écris en dessous. »
-       Il est collé aux cinq notes qu'il commente : une consigne séparée du chiffre qui la
-       justifie oblige à faire l'aller-retour, et on cesse de la lire.
-       ⚠️ ET IL EST SOUMIS AU MÊME VERROU QUE LE RESTE : construit uniquement pour
-       l'administrateur. Un non-admin n'en reçoit pas même la trace. */
-    /* ⚠️ MÊME SOURCE QUE LES PASTILLES : synthVals(d). Recalculer les notes autrement ferait dire
-       « 73 » à la pastille et « 76 » à la consigne juste en dessous — et le lecteur ne saurait
-       plus laquelle croire. Une seule fonction produit les deux. */
-    (_conf && typeof planActionHtml==='function' && typeof synthVals==='function')
-      ? planActionHtml(synthVals(d)) : ''
+    /* ⚠️ LE PLAN D'ACTION N'EST PLUS ICI. Didier, 10/08/2026 : « tu mets ça dans le truc
+       confidentiel du consultant. » Posé sous les pastilles, il était bien au contact des notes
+       qu'il commente — mais il vivait HORS du cadre confidentiel, avec son seul petit cadenas
+       pour le distinguer. Deux endroits pour une même règle, c'est un endroit de trop : le jour
+       où l'on partage l'écran en rendez-vous, on se souvient d'un cadre noir, pas de deux
+       niveaux de confidentialité. Il a rejoint le bloc, en tête. */
+    ''
   ].join('');
 
   /* ⚠️ LE SITE SE CONSULTE EN LISANT, PAS APRÈS. Didier, 10/08/2026 : « le bouton voir le site
