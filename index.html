@@ -3608,7 +3608,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 298';
+var IVE_VERSION='10/08 · 299';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4845,7 +4845,15 @@ function render(d,skipSave){
   $('result').innerHTML = `
   <div class="card">
     <div style="background:${col};color:#fff;padding:16px 18px;">
-      <div style="font-size:12px;letter-spacing:1px;opacity:.85;"><i class="ti ti-antenna-bars-5"></i> SENTINELLE · DBi360</div>
+      <!-- ⚠️ LA SORTIE EST EN HAUT, PAS SEULEMENT EN BAS. Didier, 10/08/2026 : « ajoute un retour
+           vers accueil dans le bandeau ». Le bouton « Accueil » existait déjà — au pied d'une
+           fiche qui fait plusieurs écrans de haut. Y revenir demandait de faire défiler tout le
+           rapport, ou de remonter au menu : on quitte rarement un document par sa dernière page.
+           Il est ici, sur la ligne du titre, là où le regard part quand on a fini de lire. -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;font-size:12px;letter-spacing:1px;opacity:.85;"><i class="ti ti-antenna-bars-5"></i> SENTINELLE · DBi360</div>
+        <button type="button" onclick="iveNav('accueil')" style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:5px 12px;cursor:pointer;font-family:inherit;"><i class="ti ti-home"></i> Accueil</button>
+      </div>
       <div style="font-size:19px;font-weight:600;margin-top:2px;">${esc(d.nom)}</div>
       <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
