@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 305';
+var IVE_VERSION='11/08 · 306';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3977,35 +3977,104 @@ function planAction(cle, val){
   for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i]; }
   return l[l.length-1];
 }
-function planActionHtml(v){
-  var lignes=[
-    {cle:'reputation',     nom:'Réputation en ligne', val:(v.ng!=null?Math.round(v.ng/5*100):v.est)},
-    {cle:'visibilite',     nom:'Visibilité',          val:v.visib},
-    {cle:'sentiment',      nom:'Sentiment global',    val:v.senti},
-    {cle:'positionnement', nom:'Positionnement',      val:v.posi},
-    {cle:'confiance',      nom:'Confiance',           val:v.conf}
-  ];
-  /* ⚠️ NI CADENAS NI « NE FIGURE PAS DANS LE RAPPORT REMIS » : le bandeau noir juste au-dessus le
-     dit déjà, pour tout le bloc. Le répéter sur chaque section apprend à ne plus le lire — et le
-     jour où une section aurait vraiment un statut à part, l'avertissement serait devenu du décor. */
+/* ═══ LE PLAN SÉQUENCÉ : ORDRE, ÉCHÉANCE, OBJECTIF ═════════════════════════════════════════
+   Didier, 11/08/2026 : « tu me mets le plan d'action dans l'ordre d'importance avec des dates et
+   des objectifs. Peu importe les sujets qu'il va falloir traiter, c'est surtout dans quel ordre
+   il faudra les traiter. En premier lieu les quick wins. Et ensuite un petit topo par tâche. »
+
+   ⚠️ CE PLAN REMPLACE LE PRÉCÉDENT, IL NE S'AJOUTE PAS. Deux plans côte à côte — l'un par
+   indicateur, l'autre par échéance — porteraient les mêmes consignes dans deux ordres différents,
+   et personne ne saurait lequel suivre. Les directives sont les mêmes ; ce qui change, c'est
+   qu'elles ont désormais un rang, une date et une cible.
+
+   ⚠️ LES QUICK WINS D'ABORD, ET SANS OBJECTIF CHIFFRÉ. Ils se mesurent en « fait / pas fait » :
+   leur donner une cible en points laisserait croire qu'un geste de dix minutes déplace une note,
+   alors qu'il ouvre seulement la voie. Ce qu'ils rapportent vraiment, c'est de la crédibilité au
+   rendez-vous suivant — la preuve que le dirigeant a bougé.
+
+   ⚠️ ET L'OBJECTIF CHIFFRÉ EST LA BANDE SUIVANTE, PAS UN NOMBRE INVENTÉ. Passer de 73 à « 75,
+   Solide » se justifie : c'est le seuil qui change le mot affiché. « Viser 90 » ne se justifierait
+   par rien, et un objectif qu'on ne peut pas défendre ne s'atteint jamais. */
+function planEcheance(base, jours){
+  var t=new Date(base||Date.now()); t.setDate(t.getDate()+jours);
+  return t.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+}
+/* Le seuil de la bande supérieure : 73 → 75, 62 → 75, 48 → 60. C'est un objectif défendable. */
+function planCible(val){
+  for(var i=RAP_BANDES.length-1;i>=0;i--){ if(val<RAP_BANDES[i].s) return RAP_BANDES[i]; }
+  return null;
+}
+function planSequence(d, v, dateRef){
+  var etapes=[];
+  /* PHASE 1 — les quick wins, filtrés du même passé non mesuré que partout ailleurs. */
+  var qw=((d&&d.quickwins)||[]).map(function(q){
+    return (typeof conseilSansPasse==='function')?conseilSansPasse(q):q; }).filter(Boolean).slice(0,3);
+  qw.forEach(function(q,i){
+    etapes.push({phase:1, rang:etapes.length+1, jours:7, titre:q,
+      objectif:'Fait, tout simplement — ces gestes se comptent en « oui / non », pas en points.',
+      pourquoi:'Aucun outil, aucun budget, aucune compétence nouvelle : c\'est ce qui peut être engagé le jour même, et ce qui rend crédible tout ce qui suivra.',
+      preuve:'La page concernée porte la modification.'});
+  });
+  /* PHASES 2 et 3 — les indicateurs, du plus grand écart au plus petit. Ceux au-dessus de 95 ne
+     produisent pas de tâche : ils produisent une consigne de maintien, listée à part. */
+  var ind=[{cle:'reputation',nom:'Réputation en ligne',val:(v.ng!=null?Math.round(v.ng/5*100):v.est)},
+           {cle:'visibilite',nom:'Visibilité',val:v.visib},
+           {cle:'sentiment',nom:'Sentiment',val:v.senti},
+           {cle:'positionnement',nom:'Positionnement',val:v.posi},
+           {cle:'confiance',nom:'Confiance',val:v.conf}]
+          .filter(function(x){ return x.val!=null; });
+  var aFaire=ind.filter(function(x){ return x.val<95; }).sort(function(a,b){ return a.val-b.val; });
+  var aTenir=ind.filter(function(x){ return x.val>=95; });
+  aFaire.forEach(function(x,i){
+    var dir=planAction(x.cle,x.val); if(!dir) return;
+    var cible=planCible(x.val);
+    etapes.push({phase:(i<2?2:3), rang:etapes.length+1, jours:(i<2?30:90), titre:dir.txt, indic:x.nom, note:x.val,
+      objectif:cible?('Faire passer « '+x.nom+' » de '+x.val+' à <b>'+cible.s+'</b> — le seuil où l\'indicateur bascule en « '+cible.l+' ».')
+                    :('Consolider « '+x.nom+' », déjà au plus haut de sa bande.'),
+      pourquoi:'C\'est l\'indicateur où l\'écart mesuré est le plus grand : à effort égal, c\'est là que le mouvement se verra le plus vite.',
+      preuve:'La prochaine SENTINELLE remesure ce chiffre sur les mêmes bases.'});
+  });
+  return {etapes:etapes, tenir:aTenir};
+}
+function planActionHtml(v, d, dateRef){
+  var p=planSequence(d||window.__sentData||{}, v, dateRef);
+  if(!p.etapes.length && !p.tenir.length) return '';
+  var PH={1:{lib:'D\'ABORD — cette semaine',c:'#9a3412',f:'#fffaf6',b:'#fed7aa'},
+          2:{lib:'ENSUITE — sous un mois',c:'#b45309',f:'#fffbeb',b:'#fde68a'},
+          3:{lib:'PUIS — sous trois mois',c:'#2563EB',f:'#f5f8ff',b:'#dbe7fb'}};
+  var vue='', phase=0;
+  p.etapes.forEach(function(e){
+    if(e.phase!==phase){
+      phase=e.phase;
+      vue+='<div style="display:flex;align-items:baseline;gap:8px;margin:14px 0 2px;">'
+        +'<span style="font-size:9.5px;font-weight:800;letter-spacing:.9px;color:'+PH[phase].c+';">'+PH[phase].lib+'</span>'
+        +'<span style="flex:1;height:1px;background:'+PH[phase].b+';"></span>'
+        +'<span style="font-size:9.5px;color:#9ca3af;">échéance : '+esc(planEcheance(dateRef,e.jours))+'</span></div>';
+    }
+    vue+='<div style="background:'+PH[e.phase].f+';border:1px solid '+PH[e.phase].b+';border-radius:9px;padding:9px 12px;margin-top:7px;">'
+      +'<div style="display:flex;gap:8px;align-items:baseline;">'
+        +'<span style="font-size:12px;font-weight:800;color:'+PH[e.phase].c+';">'+e.rang+'.</span>'
+        +'<span style="flex:1;font-size:11.5px;font-weight:700;color:#1C1C1C;line-height:1.45;">'+esc(e.titre)+'</span>'
+        +(e.note!=null?'<span style="font-size:10px;font-weight:800;color:#9ca3af;white-space:nowrap;">'+esc(e.indic)+' '+e.note+'</span>':'')
+      +'</div>'
+      +'<div style="font-size:10.5px;color:#4b5563;line-height:1.55;margin-top:5px;"><b style="color:'+PH[e.phase].c+';">Objectif —</b> '+e.objectif+'</div>'
+      +'<div style="font-size:10.5px;color:#6b7280;line-height:1.55;margin-top:3px;"><b>Pourquoi maintenant —</b> '+esc(e.pourquoi)+'</div>'
+      +'<div style="font-size:10.5px;color:#6b7280;line-height:1.55;margin-top:3px;"><b>On saura que c\'est fait —</b> '+esc(e.preuve)+'</div>'
+    +'</div>';
+  });
+  /* ⚠️ CE QUI EST DÉJÀ HAUT NE DEVIENT PAS UNE TÂCHE. Le glisser dans la liste ferait un plan de
+     huit lignes dont trois n'appellent aucun geste — et on cesse de lire un plan qui se répète. */
+  if(p.tenir.length){
+    vue+='<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:8px 11px;margin-top:12px;">'
+      +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.7px;color:#15803d;"><i class="ti ti-shield-check"></i> À TENIR, SANS ÉCHÉANCE</div>'
+      +'<div style="font-size:10.5px;color:#4b5563;line-height:1.55;margin-top:3px;">'
+      +p.tenir.map(function(x){ var a=planAction(x.cle,x.val); return '<b>'+esc(x.nom)+' ('+x.val+')</b> — '+esc(a?a.txt:''); }).join('<br>')
+      +'</div></div>';
+  }
   return '<div class="sec">'
-    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-target"></i> PLAN D\'ACTION</div>'
-    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 9px;">Une consigne par pastille, calculée sur la note.</div>'
-    +lignes.map(function(x){
-      var a=planAction(x.cle,x.val); if(!a) return '';
-      var c=a.tenir?{f:'#f0fdf4',b:'#bbf7d0',t:'#15803d',l:'À ENTRETENIR'}
-                   :{f:'#fffaf6',b:'#fed7aa',t:'#9a3412',l:'À FAIRE'};
-      return '<div style="background:'+c.f+';border:1px solid '+c.b+';border-radius:9px;padding:8px 11px;margin-top:7px;">'
-        +'<div style="display:flex;align-items:baseline;gap:7px;">'
-          +'<span style="font-size:11px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+'</span>'
-          +'<span style="font-size:11px;font-weight:800;color:'+c.t+';">'+x.val+'</span>'
-          +'<span style="flex:1;"></span>'
-          +'<span style="font-size:9px;font-weight:800;letter-spacing:.6px;color:'+c.t+';">'+c.l+'</span>'
-        +'</div>'
-        +'<div style="font-size:11px;color:#4b5563;line-height:1.55;margin-top:3px;">'+esc(a.txt)+'</div>'
-      +'</div>';
-    }).join('')
-  +'</div>';
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-list-numbers"></i> PLAN D\'ACTION</div>'
+    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 4px;">Par ordre de priorité, avec une échéance et un objectif vérifiable. L\'ordre compte plus que la liste.</div>'
+    +vue+'</div>';
 }
 /* ═══ LA CHAÎNE DE RAISONNEMENT — POUR LE CONSULTANT ═══════════════════════════════════════
    Didier, 11/08/2026 : « je veux, dans une logique implacable, que tu me présentes les
@@ -4930,12 +4999,13 @@ function render(d,skipSave){
                langues, et rien ne disait au lecteur qu'elles parlaient du même sujet. Elles se
                complètent : l'une dit OÙ ça paie, l'autre PAR QUOI commencer. Ensemble, elles
                forment une consigne ; séparées, elles se répétaient. */
-            +((qwDansLeviers = !!(typeof qwAll!=='undefined' && qwAll.length && !SS))
-               ? '<div style="border-top:1px dashed #fed7aa;margin-top:9px;padding-top:8px;">'
-                 +'<div style="font-size:11px;font-weight:800;color:#9a3412;letter-spacing:.3px;">PAR QUOI COMMENCER</div>'
-                 +qwAll.map(function(q,i){ return '<div style="font-size:12px;color:#4b5563;line-height:1.5;margin-top:4px;"><b>'+(i+1)+'.</b> '+esc(q)+'</div>'; }).join('')
-                 +'</div>'
-               : '')
+            /* ⚠️ LES QUICK WINS ONT QUITTÉ CETTE PLACE LE 11/08/2026. Ils vivent désormais dans le
+               PLAN SÉQUENCÉ du bloc consultant, en première phase. Les laisser ici les affichait
+               deux fois pour Didier — et, plus grave, une fois pour le dirigeant : c'est
+               exactement le plan qu'on avait décidé de ne plus donner le matin même. Un garde-fou
+               posé sur le rapport imprimé ne garde rien si l'écran, lui, continue de livrer.
+               Ce qui reste ici est un CONSTAT : où l'écart est le plus grand, et combien il pèse. */
+            +((qwDansLeviers = true) ? '' : '')
             +'</div>';
         }
       }
@@ -5028,7 +5098,7 @@ function render(d,skipSave){
      avec un simple bandeau conditionnel l'aurait affiché à tout le monde — un cloisonnement qui
      ne cloisonne rien est pire que pas de cloisonnement : on croit la porte fermée. */
   const blocConsultant = !_conf ? '' : (confOuvre + `
-    ${(typeof planActionHtml==='function' && typeof synthVals==='function') ? planActionHtml(synthVals(d)) : ''}
+    ${(typeof planActionHtml==='function' && typeof synthVals==='function') ? planActionHtml(synthVals(d),d,Date.now()) : ''}
     ${/* Le plan dit QUOI ; la chaîne dit POURQUOI, et ce qu'il faut demander avant d'y croire.
          Dans cet ordre : en rendez-vous on ouvre sur la consigne, on la démontre ensuite. */''}
     ${(typeof chaineConsultantHtml==='function' && typeof synthVals==='function') ? chaineConsultantHtml(d,synthVals(d)) : ''}
@@ -5157,7 +5227,8 @@ function render(d,skipSave){
     <div class="sec" data-chap="forces">
       <div style="font-size:12.5px;font-weight:600;color:${col};margin-bottom:6px;"><i class="ti ti-alert-triangle"></i> Points de vigilance</div>
       ${vig}
-      ${qwDansLeviers?'':`<div class="qw">${qw}</div>`}
+      ${/* Plus de repli vers les quick wins ici : ils sont dans le plan consultant, et cette
+           section n'a jamais eu vocation à porter des gestes — elle porte des observations. */''}
     </div>
 
     ${avisTableau(d)}
@@ -5740,7 +5811,18 @@ function avisTableau(d){
                     (« il y a 3 mois ») : elle encaisse l'imprécision sans mentir, là où une date
                     exacte se trompait de quatorze mois. Elle reste marquée ° — reportée, pas
                     mesurée. */
-                 frais:fraicheurDe(p.fraicheur), fraisMesure:false, fraisEstime:!!p.recence_estimee,
+                 /* ⚠️ LA FRAÎCHEUR ANNONCÉE NE S'AFFICHE PLUS. Didier, 11/08/2026 : « tu continues
+                    à dire n'importe quoi. Là tu dis que c'est très récent, et quand je regarde
+                    PagesJaunes le dernier avis est du 6 avril 2021. »
+                    Troisième échec du même mécanisme en une journée : date empruntée, puis date
+                    fausse à sa place, puis tranche fausse. J'avais rouvert la porte parce que la
+                    tranche « encaisse l'imprécision » — elle encaisse cinq ans d'écart aussi.
+                    ⚠️ ET LE ° NE SUFFISAIT PAS. « Très récent », en vert, se lit comme un relevé :
+                    la couleur affirme ce que l'exposant nuance, et c'est la couleur qui gagne. Un
+                    chiffre douteux se marque ; un VERDICT douteux se retire. Le nombre d'avis et
+                    la note restent — Didier les a demandés — mais la fraîcheur, non : elle est la
+                    seule à changer entièrement la lecture d'une plateforme. */
+                 frais:null, fraisMesure:false, fraisEstime:false,
                  resume:avisTexteSansChiffres(p.resume||p.role||''),
                  mesure:!!p.mesure});
   });

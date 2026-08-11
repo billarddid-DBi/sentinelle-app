@@ -40,7 +40,8 @@ POUR CHAQUE PLATEFORME TROUVÉE, récupère autant que possible : la note moyenn
 
 ⚠️ LA RÉCENCE : ON NE DEMANDE PAS UNE DATE EXACTE. L'objectif est de savoir si l'entreprise reçoit ENCORE des avis. Accepte donc les indications relatives ou approximatives : « il y a 2 semaines », « il y a 3 mois », « il y a 8 mois », « mars 2026 », « il y a un an ». Convertis-les approximativement — nous sommes en août 2026, donc « il y a 4 mois » ≈ avril 2026. Une précision d'un mois n'est PAS nécessaire.
 
-⚠️ CLASSIFICATION OBLIGATOIRE. Le champ "fraicheur" prend UNE de ces six valeurs, jamais autre chose :
+⚠️ ARRÊTÉ LE 11/08/2026 : NE RENSEIGNE PLUS "fraicheur" DU TOUT. Trois tentatives, trois erreurs — une date empruntée à une autre plateforme, une date fausse à sa place, puis une tranche « moins de 3 mois » pour un dernier avis d'avril 2021. Ces pages ne te sont pas lisibles : tout ce que tu écris ici est une déduction présentée comme un relevé, et elle est retirée avant affichage. La fraîcheur n'est affichée que pour Google, où l'application la MESURE.
+(Consigne conservée pour mémoire, sans effet : le champ est ignoré.) Le champ "fraicheur" prenait UNE de ces six valeurs :
   "moins_3m"    → Très récent, moins de 3 mois
   "3_6m"        → Récent, entre 3 et 6 mois
   "6_12m"       → Moyennement récent, entre 6 et 12 mois
