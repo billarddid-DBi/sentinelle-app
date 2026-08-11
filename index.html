@@ -1644,7 +1644,11 @@ function runMiroir(forcer){
   // LE QUOTIDIEN : la 3e vue, la seule qui se constate au lieu de se raconter. Aucun appel
   // supplémentaire — on relit la détection déjà payée (cf. miroirQuotidien).
   var _qt=(typeof miroirQuotidien==='function')?miroirQuotidien():null;
-  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc, outils:_ou, quotidien:_qt});
+  /* L'ÉTAT DES LIEUX — ce qui est DÉJÀ en place. Sans lui, le MIROIR proposait des outils dans
+     le vide : un suivi de devis à qui venait d'acheter un CRM. Aucun appel supplémentaire, aucun
+     jeton de plus : on relit ce que le dirigeant a dicté sur l'écran du questionnaire. */
+  var _el=null; try{ _el=(typeof etatPourMiroir==='function')?etatPourMiroir():null; }catch(e){}
+  var payload=Object.assign({},b,{ah:(window.lastAH&&window.lastAH.iat!=null)?window.lastAH:null, concurrence:_cc, outils:_ou, quotidien:_qt, etatLieux:_el});
   fetch('/api/miroir',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)})
     .then(function(r){ if(r.status===504||r.status===408||r.status===502) throw new Error('timeout'); return r.json(); })
     .then(function(m){ if(!m||m.error){ $('miroir').innerHTML='<div class="panel" style="color:#991b1b;font-size:13px;"><i class="ti ti-alert-triangle"></i> '+esc((m&&m.error)||'MIROIR indisponible')+'</div><button class="btn btn-ghost" onclick="runMiroir()"><i class="ti ti-refresh"></i> Réessayer</button><button class="btn btn-ghost" onclick="showView(\'bGrille\')"><i class="ti ti-arrow-left"></i> Retour</button>'; return; } window.miroirData=m; window.miroirAud='externe'; window.miroirPerime=false; renderMiroir(); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); saveMiroir(m); miroirStore.save(m,(window.lastMiroir&&window.lastMiroir.nom)||''); })
@@ -1959,6 +1963,32 @@ function etatRecapHtml(){
     h+='<div style="font-size:11px;color:#9ca3af;line-height:1.5;margin-top:6px;">Rien ne ressort encore de ces réponses. C\'est une information aussi : pas d\'outil central, pas de rupture visible.</div>';
   }
   return h+'</div>';
+}
+/* ═══ CE QUE LE MIROIR REÇOIT DE L'ÉTAT DES LIEUX ════════════════════════════════════════════
+   Didier, 11/08/2026 : « pour faire le lien avec la suite, il faut relancer BOUSSOLE ou
+   MIROIR ? » — la BOUSSOLE, jamais : sa note ne repose que sur les critères notés. Le MIROIR,
+   oui : c'est lui qui croise le dehors, le dedans et le quotidien, et c'est lui qui écrit le
+   plan. Sans ce branchement, l'état des lieux restait un écran qu'on lit et qu'on oublie.
+   ⚠️ ON N'ENVOIE QUE DU RELEVÉ. Pas la lecture qu'on en fait à l'écran : le modèle doit tirer
+   ses conclusions des faits, pas des nôtres — sinon on lui souffle la réponse et il la rend en
+   la reformulant, ce qui donne l'illusion d'un accord. */
+function etatPourMiroir(){
+  var e=etatCharger(), f=ETAT_FAMILLES[e.famille]; if(!f) return null;
+  var lignes=etatLignes(), out=[], x=etatRecap();
+  var court=function(s,n){ s=String(s||'').trim(); return s.length>n?s.slice(0,n):s; };
+  lignes.forEach(function(m){
+    var r=e.r[m.id]||{}; if(r.ou==null && r.etat==null) return;
+    var rep=(r.ou===-1) ? court(r.autre,90) : (r.ou!=null?etatOuL(m.ou[r.ou]):'');
+    out.push({ t:court(m.t,40), r:court(rep,90),
+               outil:court((r.ou!=null && r.ou>-1 && etatOuS(m.ou[r.ou]))?(r.nom||''):'',40),
+               recent:(r.age===0), etat:(r.etat!=null?ETAT_ETATS[r.etat].l:'') });
+  });
+  if(!out.length) return null;
+  return { famille:f.n, lignes:out.slice(0,12), note:court(e.note,220),
+           /* Les trois relevés qui changent une décision — comptés, pas interprétés. */
+           pivots:(x?x.pivots.map(function(p){ return {nom:court(p.nom,40), n:p.ou.length}; }):[]),
+           recents:(x?x.recents.map(function(r){ return court(r.nom||r.t,40); }).filter(Boolean):[]),
+           coince:(x?x.coincent.map(function(t){ return court(t,40); }):[]) };
 }
 function etatBlocHtml(){
   return '<div class="panel" style="margin-bottom:10px;">'
@@ -3940,7 +3970,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 314';
+var IVE_VERSION='11/08 · 315';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).

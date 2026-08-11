@@ -7,11 +7,11 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-02-07";
+const MIROIR_VERSION = "2026-08-11-08";
 
 const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
-DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité. Parfois s'ajoute le VOLET HUMAIN (Questionnaire aux salariés) : l'IAT — Indice d'Acceptabilité de la Transformation /100 et sa zone (Blocage/Vigilance/Appui), l'IDC (Indice de Dynamique Collective), 8 indices humains et les craintes détectées. C'est la « tension & le pouls » humain de l'organisation. Parfois s'ajoute enfin LE QUOTIDIEN : les sujets qui REVIENNENT dans les tâches que le dirigeant a dictées lui-même sur 30 jours (un sujet = au moins 5 tâches semblables), avec ce que la répétition lui coûte.
+DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité. Parfois s'ajoute le VOLET HUMAIN (Questionnaire aux salariés) : l'IAT — Indice d'Acceptabilité de la Transformation /100 et sa zone (Blocage/Vigilance/Appui), l'IDC (Indice de Dynamique Collective), 8 indices humains et les craintes détectées. C'est la « tension & le pouls » humain de l'organisation. Parfois s'ajoute CE QUI EST DÉJÀ EN PLACE : le relevé, moment par moment, des outils et des façons de faire que le dirigeant a dictés lui-même en entretien — avec quoi il travaille, ce qui coince selon lui, et depuis quand. C'est du CONSTAT, au même titre que le quotidien : ce n'est ni une note ni une déclaration d'intention. Parfois s'ajoute enfin LE QUOTIDIEN : les sujets qui REVIENNENT dans les tâches que le dirigeant a dictées lui-même sur 30 jours (un sujet = au moins 5 tâches semblables), avec ce que la répétition lui coûte.
 
 PRINCIPES IMPÉRATIFS :
 - CONSTRUCTIF, JAMAIS CRITIQUE — RÈGLE DU DIRIGEANT LUI-MÊME, elle prime sur le style de tout le document : « tu n'es pas là pour être critique, tu dois être là pour être constructif. » Chaque texte que tu écris — "cadre", "verite", "frein", "regards", "synthese" — se termine sur ce qui est POSSIBLE, jamais sur ce qui manque. Un point faible n'est pas un défaut à pointer, c'est L'ENDROIT OÙ L'EFFORT PAIE LE PLUS ; un frein n'est pas un reproche, c'est ce qui se desserre en premier. Reste juste et factuel : on n'invente aucune force. Mais on ne rend PAS de verdict et on ne prédit PAS d'échec — un dirigeant mis sur la défensive n'agit pas, et ce document n'a qu'un but : qu'il agisse. Le champ "frein" nomme la situation, pas une faute : « les devis se rédigent à la main » et non « vous perdez votre temps ».
@@ -19,6 +19,7 @@ PRINCIPES IMPÉRATIFS :
 - LE QUOTIDIEN EST LA SEULE DONNÉE FACTUELLE (quand il est fourni) : SENTINELLE dit l'IMAGE, la BOUSSOLE dit ce que le dirigeant DÉCLARE, le QUOTIDIEN montre ce que ses journées FONT. Un sujet redit 7 fois en 30 jours n'est pas une hypothèse, c'est un fait constaté : tu peux l'AFFIRMER et le CITER mot pour mot entre guillemets. Sers-t'en pour (1) SOURCER une affirmation au lieu de rester au conditionnel, (2) TRANCHER quand un pilier bien noté est démenti par les journées — dis-le sans accuser, jamais comme un mensonge du dirigeant : il décrit ce qu'il vise, ses journées montrent ce qu'il subit, (3) PRIORISER — un frein prouvé par le quotidien passe AVANT un frein seulement déduit d'une note. Quand un levier vient de là, ajoute "origine":"quotidien" et reprends le sujet dans le "frein". Si LE QUOTIDIEN est absent, n'en déduis RIEN et n'invente aucune journée type.
 - LE CHAMP "levier" DESCEND DANS LA LISTE DE TÂCHES DU DIRIGEANT, lue chaque matin. Écris-le donc comme un GESTE, à l'infinitif, court (10 mots max) et immédiatement compréhensible : « Écrire les 3 procédures clés », « Relancer les devis à J+7 ». JAMAIS un titre de rapport ni un nom d'outil (« Analyseur de performance & tableaux de bord » est à proscrire). AUCUN renvoi entre crochets dans "levier" — si tu cites un outil, mets-le dans "mise_en_oeuvre", pas dans le levier. AUCUN sigle ni jargon : ni KPI, ni workflow, ni process, ni scoring, ni ROI, ni « maturité digitale ». Le dirigeant doit pouvoir lire son levier à voix haute sans buter.
 - NEUTRALITÉ COMMERCIALE (absolue, aucune exception) : ne cite JAMAIS un nom de MARQUE, de LOGICIEL, d'ÉDITEUR, de PRESTATAIRE ni d'ORGANISME de formation — ni dans "levier", ni dans "mise_en_oeuvre", ni dans "postes", ni nulle part ailleurs. Pas d'exemple entre parenthèses, pas de « type Machin », pas de « comme Truc ». Décris le TYPE d'outil et CE QU'IL DOIT FAIRE : « un outil de relance automatique par e-mail », « un tableau de suivi partagé par l'équipe », « un modèle de devis réutilisable ». Le choix du fournisseur appartient au dirigeant, et à lui seul : le MIROIR ne vend rien et ne recommande aucune enseigne.
+  ⚠️ UNE SEULE EXCEPTION, ET ELLE NE CONTREDIT PAS LA RÈGLE : un outil que le dirigeant utilise DÉJÀ et qu'il a NOMMÉ lui-même dans « CE QUI EST DÉJÀ EN PLACE » se reprend tel quel, avec son nom. Ce n'est pas une recommandation, c'est son installation — et lui parler de « votre logiciel de devis » quand il vient de te dire son nom donne le sentiment qu'on ne l'a pas écouté. L'interdiction porte sur ce qu'on lui propose d'ACHETER, jamais sur ce qu'il possède. Aucun autre nom que ceux de cette liste.
 - LE CHAMP "type" RÉPOND À UNE SEULE QUESTION : QUI FAIT LE TRAVAIL ? Trois réponses, pas une de plus, et elles ne se mélangent pas :
   • "IA" — un outil fait le gros du travail et le dirigeant valide. Tâches répétitives, textuelles ou calculables : devis, relances, comptes rendus, réponses aux avis, tri, capitalisation du savoir.
   • "equipe" — VOTRE ÉQUIPE le fait, c'est une compétence à tenir chez vous. Aucun logiciel ne le règle et personne n'a besoin de venir : clarifier des rôles, décider d'un cap, tenir une réunion, répondre soi-même. C'est ici que vont TOUS les leviers de management et de climat. L'IA ne règle PAS l'humain.
@@ -110,6 +111,31 @@ PRUDENCE : ${ah.n} réponse(s) seulement. Ce n'est pas la maturité de l'entrepr
 
 ${AURA_REDACTION}`;
     }
+    /* ═══ L'ÉTAT DES LIEUX — CE QUI EST DÉJÀ EN PLACE ═════════════════════════════════════════
+       Didier, 11/08/2026 : « il faut qu'on sache sur quoi travailler quand l'entreprise aura pris
+       l'abonnement, qu'on ne fasse pas le travail deux fois ». Le MIROIR écrivait le plan sans
+       jamais savoir avec QUOI l'entreprise travaille : il pouvait proposer un suivi de devis à
+       une entreprise qui venait d'acheter un CRM. Ces lignes sont dictées par le dirigeant
+       lui-même sur l'écran du questionnaire — c'est du relevé, pas de la déduction. */
+    const el = (b.etatLieux && Array.isArray(b.etatLieux.lignes) && b.etatLieux.lignes.length) ? b.etatLieux : null;
+    let elBlock = "CE QUI EST DÉJÀ EN PLACE : NON RELEVÉ — n'invente aucun outil existant, et ne suppose ni logiciel ni absence de logiciel.";
+    if (el) {
+      const li = el.lignes.map(function (l) {
+        return `• ${l.t} : ${l.r || "?"}${l.outil ? ` — outil nommé : ${l.outil}` : ""}${l.recent ? " (INSTALLÉ DEPUIS MOINS DE 6 MOIS)" : ""}${l.etat ? ` — état déclaré : ${l.etat}` : ""}`;
+      }).join("\n");
+      elBlock = `CE QUI EST DÉJÀ EN PLACE (relevé avec le dirigeant, ses mots — façon de fonctionner : « ${el.famille} ») :
+${li}${el.note ? `\nCe qu'il ajoute : ${el.note}` : ""}
+${el.pivots && el.pivots.length ? `Outil(s) qui servent à plusieurs moments : ${el.pivots.map(function (p) { return `${p.nom} (${p.n} moments)`; }).join(", ")}.` : ""}
+${el.recents && el.recents.length ? `Installé depuis MOINS DE 6 MOIS : ${el.recents.join(", ")}.` : ""}
+${el.coince && el.coince.length ? `Moments qu'il déclare LUI-MÊME bloquants : ${el.coince.join(", ")}.` : ""}
+
+RÈGLES ABSOLUES SUR CE BLOC — elles priment sur tout le reste du plan :
+1. NE PROPOSE JAMAIS un outil qui fait ce que fait déjà un outil nommé ci-dessus. Si ton levier rejoint un outil en place, PARS DE LUI : « depuis <l'outil>, … ». Et dans ce cas n'ajoute AUCUNE entrée dans "outils" — l'outil existe, il n'est pas à acheter.
+2. UN OUTIL INSTALLÉ DEPUIS MOINS DE 6 MOIS NE SE REMPLACE PAS. Interdiction de proposer de le changer, de le doubler ou de « migrer ». On l'exploite : ce qui reste à faire, c'est de finir de le mettre en service, pas d'en choisir un autre. Proposer autre chose reviendrait à jeter ce qui vient d'être payé, et le dirigeant fermerait le document.
+3. COMMENCE PAR CE QU'IL DÉCLARE BLOQUANT. Ces mots sont les siens : un levier posé là est accepté d'avance, un levier posé ailleurs se discute.
+4. QUAND DEUX OUTILS DIFFÉRENTS SE SUCCÈDENT sur des moments qui s'enchaînent, ne conclus pas à la double saisie : formule-le en question à poser en entretien. Tu vois deux noms, tu ne vois pas si l'information passe.
+5. N'ÉCRIS RIEN SUR CE QUI N'EST PAS DANS CETTE LISTE. Une ligne absente veut dire « pas relevé », jamais « inexistant ».`;
+    }
     // LE QUOTIDIEN — 3e source. Ni l'image, ni le déclaratif : ce que les journées du dirigeant montrent.
     // Elle n'arrive que si la détection des sujets récurrents a déjà tourné (elle est payée à part).
     const qt = (b.quotidien && Array.isArray(b.quotidien.sujets) && b.quotidien.sujets.length) ? b.quotidien : null;
@@ -180,6 +206,8 @@ Critères réellement notés faibles/moyens (à CITER ; n'invente RIEN au-delà 
 Couleur/nature IVE : ${b.aura || "?"}
 
 ${ahBlock}
+
+${elBlock}
 
 ${qtBlock}
 
