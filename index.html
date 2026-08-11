@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 302';
+var IVE_VERSION='11/08 · 303';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3780,9 +3780,36 @@ function rapLecture(cle, val){
 
    ⚠️ ET ELLE NE S'AFFICHE QUE SI ELLE EXISTE POUR CE DOSSIER. Pas de section vide, pas de
    « aucune donnée » : une carte absente ne se raconte pas. */
+/* ⚠️ QUAND ELLE N'EST PAS LÀ, ON DIT POURQUOI — À L'ADMINISTRATEUR SEUL. Didier, 11/08/2026 :
+   « non, je ne la vois pas. » Une section qui disparaît en silence ne se diagnostique pas : on
+   ne sait pas si la carte manque, si le rapport l'ignore, ou si le code n'est pas déployé. Ces
+   trois causes se corrigent différemment.
+   ⚠️ ET LE CAS LE PLUS PROBABLE A SA PROPRE RÉPONSE. Le 09/08, la carte a été rattachée au
+   DOSSIER (cpCle) et non plus au compte : une carte produite avant cette date, ou pendant une
+   séance où aucun dossier n'était ouvert, existe toujours — mais sous l'ancienne clé, invisible
+   depuis le dossier. Le dire évite de repayer 4 jetons pour une carte qu'on a déjà. */
+function rapConcAbsente(){
+  if(typeof iveIsAdmin!=='function' || !iveIsAdmin()) return '';
+  var orpheline=null;
+  try{
+    var a=(typeof currentAccount==='function')?currentAccount():window.currentUser;
+    var mail=(((a&&a.email)||'')+'').toLowerCase();
+    var t=(typeof entTravail==='function')?entTravail():null;
+    if(mail && t){
+      var brut=localStorage.getItem('ive_conc_v1_'+mail);
+      if(brut){ var o=JSON.parse(brut); if(o&&o.d&&o.d.concurrents&&o.d.concurrents.length) orpheline=o; }
+    }
+  }catch(e){}
+  return '<div class="cpNoPrint" style="font-size:10.5px;color:#9a3412;background:#fffaf6;border:1px solid #fed7aa;border-radius:9px;padding:8px 11px;margin:0 0 22px;line-height:1.55;">'
+    +'<b><i class="ti ti-info-circle"></i> Aucune carte de la concurrence pour ce dossier</b> — la section n\'apparaît donc pas dans le rapport.'
+    +(orpheline
+       ? '<br>⚠️ Une carte existe pourtant sur votre compte, <b>rattachée à aucun dossier</b> (produite avant le 09/08, ou sans dossier ouvert). Elle ne peut pas être rattachée automatiquement : rien n\'indique de quelle entreprise elle parle. Relancez-la depuis ce dossier.'
+       : '<br>Lancez-la depuis l\'accueil, sur ce dossier : elle rejoindra le rapport à la prochaine édition.')
+    +'<br><span style="color:#9ca3af;">Visible par vous seul — n\'apparaît pas à l\'impression.</span></div>';
+}
 function rapConcurrence(dateAnalyse){
   var s=(typeof concStore!=='undefined')?concStore.load():null;
-  if(!s || !s.d || !Array.isArray(s.d.concurrents) || !s.d.concurrents.length) return '';
+  if(!s || !s.d || !Array.isArray(s.d.concurrents) || !s.d.concurrents.length) return rapConcAbsente();
   var c=s.d, liste=c.concurrents.slice().sort(function(a,b){
     return (a.distance!=null?a.distance:1e9)-(b.distance!=null?b.distance:1e9); });
   var moi=(c.prospect&&c.prospect.aura&&c.prospect.aura.note!=null)?+c.prospect.aura.note:null;
