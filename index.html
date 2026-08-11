@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 310';
+var IVE_VERSION='11/08 · 311';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5074,17 +5074,10 @@ function render(d,skipSave){
      n'existe que si `_auraCalc.poids` est là. Le banc l'a vu. Ce drapeau dit s'ils ont trouvé
      preneur en haut ; sinon la section du bas les reprend. */
   let qwDansLeviers = false;
-  const agents = SS
-    ? `<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:12px;color:#7c2d12;line-height:1.5;"><i class="ti ti-lock"></i> <b>${(d.agents||[]).length} piste${(d.agents||[]).length>1?'s':''} d'outils IA</b> — dont une qui vise votre point de vigilance principal. Ce que votre vitrine laisse deviner ; la liste, elle, s'arrête avec la BOUSSOLE.</div>`
-    : (d.agents||[]).map(a=>{
-    const fire = a.tag && a.tag.indexOf('<i class="ti ti-flame"></i>')>=0;
-    const bg = fire?'#fee2e2':'#e0e7ff', cl = fire?'#991b1b':'#3730a3';
-    /* ⚠️ LE REPLI EST DU HTML, PAS DU TEXTE. Passé dans esc(), il s'affichait en clair —
-       « <i class="ti ti-box"></i> » écrit noir sur blanc à la place de l'icône, dès que le
-       modèle omettait la pastille. On n'échappe que ce qui vient de lui. */
-    const chip = a.tag ? esc(a.tag) : '<i class="ti ti-box"></i>';
-    return `<div class="row"><span class="chip" style="background:${bg};color:${cl};">${chip}</span><div><b>${esc(a.nom)}</b> — ${esc(a.benefice)}</div></div>`;
-  }).join('');
+  /* ⚠️ LA CONSTANTE gents EST RETIREE AVEC SON BLOC. Elle ne servait plus qu'a fabriquer un
+     HTML que personne n'affichait : du code mort qui compile, se relit comme actif, et finit
+     par etre remis en service << puisqu'il existe >>. Le champ d.agents, lui, reste produit et
+     enregistre dans la fiche — c'est la donnee qu'on garde, pas son affichage. */
   const r = d.radar||{labels:[],actuel:[],potentiel:[]};
   const sim = d.simulateur||{personnes:2,heures:5,cout:40};
   const unite = (d.chiffre&&d.chiffre.unite)||'€';
@@ -5229,9 +5222,21 @@ function render(d,skipSave){
     ${/* Le plan dit QUOI ; la chaîne dit POURQUOI, et ce qu'il faut demander avant d'y croire.
          Dans cet ordre : en rendez-vous on ouvre sur la consigne, on la démontre ensuite. */''}
     ${(typeof chaineConsultantHtml==='function' && typeof synthVals==='function') ? chaineConsultantHtml(d,synthVals(d)) : ''}
-    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
-      <div style="margin-top:8px;">${agents}</div>
-    </div>
+    ${/* ⚠️ « AGENTS IA POTENTIELS » EST RETIRÉ. Didier, 11/08/2026, devant ce bloc : « est-ce que
+         ça, c'est toujours d'actualité ? » Non — c'était le dernier survivant, celui qui n'était
+         passé par aucun garde-fou de la journée. Sa capture montrait quatre défauts à la fois :
+         « 147 likes » (chiffre non mesurable, Facebook ferme sa porte), « enrichir la fiche
+         Google My Business » (le doublon exact qu'il avait signalé au point 5), « mettre en place
+         un formulaire de devis » (ils en ont déjà un — l'erreur qui a donné « à vérifier
+         d'abord »), et « réduire le stress du dirigeant débordé » — une affirmation sur
+         l'INTÉRIEUR, dans un outil qui ne voit que la vitrine.
+         Le plan dit désormais quoi faire, dans quel ordre, avec quelle échéance et qui s'en
+         charge ; la chaîne dit pourquoi et quoi demander. Cette liste-ci ne faisait plus que les
+         répéter, en moins rigoureux — et une quatrième liste à relire en rendez-vous coûte de
+         l'attention sans rien ajouter.
+         ⚠️ RIEN N'EST PERDU : le champ `agents` reste produit et enregistré dans la fiche. Le jour
+         où il faudra le rouvrir, il sera là — et il devra passer par les mêmes filtres que le
+         reste avant d'être réaffiché. */''}
 
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-target"></i> LES OPPORTUNITÉS D'AMÉLIORATION</div>
       <div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:8px;">L'analyse met en évidence plusieurs leviers pour réduire les délais, alléger les tâches administratives et renforcer la réactivité commerciale. À titre d'exemple :</div>
