@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 304';
+var IVE_VERSION='11/08 · 305';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4007,6 +4007,115 @@ function planActionHtml(v){
     }).join('')
   +'</div>';
 }
+/* ═══ LA CHAÎNE DE RAISONNEMENT — POUR LE CONSULTANT ═══════════════════════════════════════
+   Didier, 11/08/2026 : « je veux, dans une logique implacable, que tu me présentes les
+   hypothèses, conclusions et actions — ça va être toute la force du rapport. C'est ajuster
+   l'ordre des choses et présenter les choses comme une réponse à certaines failles. »
+
+   ⚠️ QUATRE NIVEAUX, ET ON NE LES CONFOND JAMAIS. Un fait se vérifie, une déduction se discute,
+   une hypothèse s'infirme, une action se décide. Écrits d'affilée sans étiquette, ils se lisent
+   tous avec la même autorité — et c'est exactement comme ça qu'un rendez-vous déraille : le
+   dirigeant conteste l'hypothèse, et emporte le fait avec elle.
+
+   ⚠️ CE N'EST PAS UN PLAN, C'EST UNE PRÉPARATION D'ENTRETIEN. Chaque chaîne finit sur une
+   QUESTION à poser, pas sur une prescription : SENTINELLE ne voit que la vitrine, elle ne peut
+   pas savoir pourquoi une page dort. L'action est écrite au conditionnel, sous réserve que la
+   BOUSSOLE confirme — sans quoi on vendrait une solution à un problème qu'on n'a pas constaté.
+
+   ⚠️ ET ELLES SE CALCULENT. Deux analyses identiques doivent produire la même chaîne : une
+   démonstration qui change d'une fois sur l'autre n'est plus une démonstration. */
+function chaineConsultant(d, v){
+  var ch=[];
+  var g=(d&&d._auraCalc)||{};
+  var plats=Array.isArray(d&&d.plateformes)?d.plateformes:[];
+  var frais=(typeof fraicheurDepuisDate==='function')?fraicheurDepuisDate(g.dernier_avis):null;
+
+  /* 1. La réputation, quand elle est forte : c'est un actif, et un actif se pilote. */
+  if(g.note_google!=null && g.nb_avis!=null && v.ng!=null && v.ng>=4.5 && g.nb_avis>=40){
+    ch.push({poids:5, titre:'Une réputation Google qui porte l\'entreprise',
+      fait:'Note de '+String(g.note_google).replace('.',',')+'/5 sur '+g.nb_avis+' avis, mesurés directement auprès de Google'
+           +(frais?' — dernier avis : '+frais.lib.toLowerCase()+' ('+frais.det+')':'')+'.',
+      implique:'À ce volume, la fiche Google n\'est plus un détail de visibilité : c\'est probablement le premier contact d\'une part importante des nouveaux clients.',
+      hypothese:'Une part significative de l\'acquisition viendrait de la recherche locale et de la recommandation, plutôt que d\'une démarche commerciale active.',
+      question:'Comment un nouveau client vous trouve-t-il, en général ? Et savez-vous ce qui vous en amène le plus ?',
+      action:'Structurer le suivi de la réputation — si la BOUSSOLE confirme que ce canal porte réellement l\'activité.'});
+  }
+  /* 2. La fraîcheur : ce que le public voit du rythme de l'entreprise. */
+  if(frais && (frais.cle==='1_2a'||frais.cle==='plus_2a')){
+    ch.push({poids:6, titre:'Une page qui ne reçoit plus d\'avis récents',
+      fait:'Le dernier avis Google mesuré remonte à '+frais.det+'.',
+      implique:'Une note élevée mais ancienne se lit différemment d\'une note nourrie chaque mois : elle raconte le passé de l\'entreprise, pas son présent.',
+      hypothese:'Le sujet ne serait pas la satisfaction des clients, mais le fait que personne ne leur demande de l\'écrire.',
+      question:'Demandez-vous un avis à vos clients aujourd\'hui ? Si oui, qui s\'en occupe, et à quel moment ?',
+      action:'Mettre un rythme sur la demande d\'avis — si la BOUSSOLE confirme qu\'aucune habitude n\'existe.'});
+  }
+  /* 3. Les plateformes qu'on n'a pas pu mesurer : une zone d'ombre, pas un manque. */
+  var muettes=plats.filter(function(p){ return !p.mesure; }).length;
+  if(muettes>=2){
+    ch.push({poids:3, titre:muettes+' plateformes dont les chiffres n\'ont pas pu être vérifiés',
+      fait:muettes+' des plateformes repérées n\'exposent pas leurs données à une lecture automatique.',
+      implique:'Ce que ces pages racontent de l\'entreprise n\'est donc pas mesurable d\'ici — ni en bien, ni en mal.',
+      hypothese:'Elles pourraient être actives sans que personne ne les suive, ou à l\'inverse dormir depuis longtemps.',
+      question:'Ces pages, quelqu\'un les regarde-t-il ? Y répondez-vous quand un avis tombe ?',
+      action:'Les ouvrir ensemble en entretien : trente secondes par page, et la zone d\'ombre disparaît.'});
+  }
+  /* 4. L'indicateur le plus bas : c'est là que l'écart est le plus grand. */
+  var bas=[{cle:'positionnement',val:v.posi,nom:'positionnement public'},
+           {cle:'confiance',val:v.conf,nom:'signaux de confiance'},
+           {cle:'visibilite',val:v.visib,nom:'visibilité en ligne'}]
+          .filter(function(x){ return x.val!=null; }).sort(function(a,b){ return a.val-b.val; })[0];
+  if(bas && bas.val<75){
+    ch.push({poids:4, titre:'Le '+bas.nom+' ressort en retrait',
+      fait:'L\'indicateur « '+bas.nom+' » est mesuré à '+bas.val+'/100, en dessous des autres.',
+      implique:'Ce que l\'entreprise montre sur ce point est moins lisible que le reste de sa présence — pour un visiteur qui ne la connaît pas.',
+      hypothese:'L\'écart pourrait venir d\'un choix assumé autant que d\'un sujet jamais traité : les données publiques ne le disent pas.',
+      question:'Comment décririez-vous ce que vous faites, et pour qui, en une phrase ? Qui l\'a écrit sur vos pages ?',
+      action:'Reprendre ce point — seulement après avoir entendu la réponse à la question ci-dessus.'});
+  }
+  /* 5. La position dans la concurrence, quand la carte existe. */
+  try{
+    var s=(typeof concStore!=='undefined')?concStore.load():null;
+    if(s&&s.d&&Array.isArray(s.d.concurrents)&&s.d.concurrents.length){
+      var moi=(s.d.prospect&&s.d.prospect.aura&&s.d.prospect.aura.note!=null)?+s.d.prospect.aura.note:null;
+      var n=s.d.concurrents.map(function(x){ return (x.aura&&x.aura.note!=null)?+x.aura.note:null; }).filter(function(x){ return x!=null; });
+      if(moi!=null && n.length){
+        var dessus=n.filter(function(x){ return x>moi; }).length;
+        ch.push({poids:2, titre:'La position parmi les entreprises voisines',
+          fait:'Sur '+(n.length+1)+' entreprises comparées sur les mêmes bases, '+dessus+' obtiennent une note publique supérieure.',
+          implique:dessus? 'Le marché local compte donc des acteurs mieux exposés publiquement, sur des critères purement mesurables.'
+                         : 'Aucune entreprise voisine n\'est mieux exposée publiquement sur ces critères.',
+          hypothese:'Cet écart tient à ce qui se voit — avis, site, présence — et non nécessairement à la qualité du travail : les deux ne se mesurent pas au même endroit.',
+          question:'Vos clients vous comparent-ils à quelqu\'un en particulier ? Que vous disent-ils de ces concurrents ?',
+          action:'Situer l\'entreprise sur les critères qui comptent pour SES clients — la BOUSSOLE les fera dire.'});
+      }
+    }
+  }catch(e){}
+  /* Le plus fort d'abord : une démonstration commence par ce qui frappe, pas par ce qui reste. */
+  return ch.sort(function(a,b){ return b.poids-a.poids; }).slice(0,4);
+}
+function chaineConsultantHtml(d, v){
+  var l=chaineConsultant(d,v); if(!l.length) return '';
+  var etage=function(lib,coul,txt){
+    return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:6px;">'
+      +'<div style="flex:0 0 96px;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+coul+';padding-top:2px;">'+lib+'</div>'
+      +'<div style="flex:1;font-size:11px;color:#4b5563;line-height:1.55;">'+txt+'</div></div>';
+  };
+  return '<div class="sec">'
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-arrow-narrow-right"></i> LA CHAÎNE : FAIT → DÉDUCTION → HYPOTHÈSE → ACTION</div>'
+    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 10px;">Ce qui se démontre en rendez-vous. Chaque chaîne finit sur une <b>question</b> : SENTINELLE voit la vitrine, elle ne sait pas ce qui se passe derrière.</div>'
+    +l.map(function(x){
+      return '<div style="border:1px solid #e5e9ee;border-radius:11px;padding:11px 13px;margin-top:9px;">'
+        +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;line-height:1.35;">'+esc(x.titre)+'</div>'
+        +etage('FAIT','#15803d',esc(x.fait))
+        +etage('DONC','#2563EB',esc(x.implique))
+        +etage('HYPOTHÈSE','#9a3412',esc(x.hypothese))
+        +etage('À DEMANDER','#7c3aed','<i>« '+esc(x.question)+' »</i>')
+        +etage('SI CONFIRMÉ','#6b7280',esc(x.action))
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
 /* Une barre horizontale : la note d'aujourd'hui, et en trait clair ce qui est atteignable. */
 function rapBarre(titre, val, pot, sousTitre, cle){
   val=Math.max(0,Math.min(100,+val||0));
@@ -4920,6 +5029,9 @@ function render(d,skipSave){
      ne cloisonne rien est pire que pas de cloisonnement : on croit la porte fermée. */
   const blocConsultant = !_conf ? '' : (confOuvre + `
     ${(typeof planActionHtml==='function' && typeof synthVals==='function') ? planActionHtml(synthVals(d)) : ''}
+    ${/* Le plan dit QUOI ; la chaîne dit POURQUOI, et ce qu'il faut demander avant d'y croire.
+         Dans cet ordre : en rendez-vous on ouvre sur la consigne, on la démontre ensuite. */''}
+    ${(typeof chaineConsultantHtml==='function' && typeof synthVals==='function') ? chaineConsultantHtml(d,synthVals(d)) : ''}
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-robot"></i> ${SS?'PISTES D\'OUTILS IA — d\'après votre vitrine':'AGENTS IA POTENTIELS — 1ʳᵉ conclusion'}</div>
       <div style="margin-top:8px;">${agents}</div>
     </div>
