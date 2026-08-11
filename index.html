@@ -3147,8 +3147,14 @@ function jetLibere(){
     }
   }catch(e){}
 }
-function jetBoutonBrut(libelle,cout,clic,etat){
-  var c = (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
+/* ⚠️ UNE VARIANTE POUR FOND SOMBRE. Didier, 11/08/2026 : « déplace les deux boutons dans le
+   bandeau supérieur. » Le bandeau est ardoise ; un bouton beige bordé d'orange y devient une
+   tache, et surtout il cesse de ressembler aux autres pastilles de la même ligne. Ce n'est pas
+   du décor : deux boutons voisins qui ne se ressemblent pas se lisent comme deux natures
+   d'action différentes, alors qu'ils font partie du même geste. */
+function jetBoutonBrut(libelle,cout,clic,etat,sombre){
+  var c = sombre               ? {t:'#ffffff',f:'rgba(255,255,255,.16)',b:'rgba(255,255,255,.32)',i:'ti-refresh'}
+        : (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
         :                      {t:'#9a3412',f:'#fffaf6',b:'#fed7aa',i:'ti-refresh'};
   var lib = libelle + ((etat==='gratuit')?'':(' · '+cout+' jeton'+(cout>1?'s':'')));
@@ -3165,10 +3171,10 @@ function jetCoutChip(cle){
   return '<span style="font-size:11px;font-weight:700;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:4px 11px;white-space:nowrap;">'
     +'<i class="ti ti-coins" style="font-size:12px;"></i> coût : '+c+' jeton'+(c>1?'s':'')+'</span>';
 }
-function jetBouton(libelle,cle,action){
+function jetBouton(libelle,cle,action,sombre){
   var c=JETONS_COUT[cle]||1, assez=(jetEtat().reste>=c);
   var clic = assez ? ('jetLancer('+c+',function(){'+action+'},\''+cle+'\')') : 'offreView()';
-  return jetBoutonBrut(libelle,c,clic,'payant');
+  return jetBoutonBrut(libelle,c,clic,'payant',sombre);
 }
 function iveCoffreKey(){ return 'ive_coffre_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function iveCoffreTout(){ try{ var s=localStorage.getItem(iveCoffreKey()); return s?JSON.parse(s):{}; }catch(e){ return {}; } }
@@ -3628,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='10/08 · 300';
+var IVE_VERSION='11/08 · 301';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4747,8 +4753,9 @@ function render(d,skipSave){
      était donc figée pour toujours — alors que remesurer est le geste courant d'un suivi
      (nouveaux avis, site refait) et le seul moyen d'obtenir les colonnes ajoutées depuis.
      Il est en HAUT : c'est là qu'on décide de remesurer, pas après avoir tout relu. */
+  /* Fond ardoise : la variante sombre, pour que les trois pastilles de la ligne se ressemblent. */
   const relanceBtn = (typeof jetBouton==='function' && typeof sentRelancer==='function')
-    ? jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()') : '';
+    ? jetBouton('Relancer SENTINELLE','sentinelle','sentRelancer()',true) : '';
   /* Les précisions se tiennent JUSTE À CÔTÉ de la relance : on corrige, puis on remesure. Séparer
      les deux gestes obligerait à se souvenir du second — et la correction resterait lettre morte. */
   const precisBloc = (typeof precisBlocHtml==='function') ? precisBlocHtml() : '';
@@ -4877,10 +4884,20 @@ function render(d,skipSave){
       <div style="font-size:19px;font-weight:600;margin-top:2px;">${esc(d.nom)}</div>
       <div style="font-size:13px;opacity:.9;">${esc(d.ville)} · ${esc(d.activite)}</div>
       <div style="font-size:11px;opacity:.8;margin-top:3px;">Premier avis public · ${date}</div>
-      <a href="${siteLink(d.nom,d.ville,d.site)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;margin-top:9px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;text-decoration:none;font-size:11.5px;font-weight:700;border-radius:20px;padding:5px 12px;"><i class="ti ti-world"></i> Voir le site et les avis <i class="ti ti-external-link" style="font-size:10px;opacity:.8;"></i></a>
+      <!-- ⚠️ LES TROIS ACTIONS SUR UNE SEULE LIGNE, DANS LE BANDEAU. Didier, 11/08/2026 :
+           « déplace les deux boutons dans le bandeau supérieur. » Ils flottaient sous l'en-tête,
+           alignés à droite, dans une bande claire qui n'appartenait ni au bandeau ni au rapport.
+           Ce sont pourtant les trois gestes qu'on fait AVANT de lire — ouvrir la vitrine, éditer
+           le rapport, remesurer — et ils se décident au moment où l'on identifie l'entreprise.
+           Réunis sous son nom, ils forment une barre d'outils ; séparés, ils formaient un ourlet.
+           Le retour à la ligne automatique évite qu'ils débordent sur un téléphone. -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        <a href="${siteLink(d.nom,d.ville,d.site)}" target="_blank" rel="noopener" style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.32);color:#fff;text-decoration:none;font-size:10.5px;font-weight:800;letter-spacing:.4px;border-radius:20px;padding:5px 12px;white-space:nowrap;"><i class="ti ti-world"></i> Voir le site et les avis <i class="ti ti-external-link" style="font-size:9px;opacity:.8;"></i></a>
+        <button type="button" onclick="rapportCourant()" style="flex:0 0 auto;border:1px solid rgba(255,255,255,.32);border-radius:20px;background:rgba(255,255,255,.16);color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-text"></i> Rapport SENTINELLE</button>
+        ${relanceBtn}
+      </div>
     </div>
     ${auraTop}
-    ${relanceBtn?`<div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding:9px 14px 0;"><button type="button" onclick="rapportCourant()" style="flex:0 0 auto;border:1px solid #d7dbe3;border-radius:20px;background:#fff;color:#374151;font-size:10.5px;font-weight:800;letter-spacing:.4px;padding:5px 12px;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-file-text"></i> Rapport SENTINELLE</button>${relanceBtn}</div>`:''}
     ${precisBloc}
     <div style="background:#fef3c7;border-left:4px solid #d97706;padding:9px 14px;font-size:12px;color:#7c4a03;line-height:1.5;">
       <b>Votre premier niveau d'analyse</b>, fondé sur des données publiques vérifiables. Rapide, objectif et en toute autonomie.
