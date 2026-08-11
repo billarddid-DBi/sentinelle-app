@@ -1776,6 +1776,10 @@ var etatStore={
     if(anc&&anc.r){ for(var k2 in anc.r){ if(anc.r[k2] && (anc.r[k2].ou!=null || anc.r[k2].etat!=null)) ancRempli++; } }
     if(rempli===0 && ancRempli>0 && anc.famille===e.famille) return;
     try{ localStorage.setItem(etatStore.key(), JSON.stringify({famille:e.famille, r:e.r||{}, note:e.note||'', ts:Date.now()})); }catch(e2){}
+    /* ⚠️ ET ON PRÉVIENT LE MIROIR. majPoser ne bouge la date que si l'empreinte a VRAIMENT
+       changé : rouvrir l'écran sans rien toucher n'affiche pas « du nouveau », et ne pousse donc
+       personne à repayer 3 jetons pour la même analyse. */
+    try{ if(typeof majPoser==='function') majPoser('etat', majEmpreinteEtat(e)); }catch(e3){}
   }
 };
 /* ⚠️ LE CACHE PORTE SA CLÉ. Sans cela, ouvrir un second dossier réafficherait l'état des lieux
@@ -2350,7 +2354,12 @@ function toggleNA(id){
    enregistrer dix fois sans rien changer ne périme rien. C'est à ça que sert l'empreinte par
    source — elle ne dit qu'une chose, « cette source a-t-elle changé ? », et le message affiché
    nomme toujours la source. Rien à voir avec l'ancien code global illisible. */
-var MAJ_SOURCES={ dirigeant:'questionnaire dirigeant', salaries:'avis de vos salariés', concurrence:'carte de la concurrence' };
+/* ⚠️ LE TOUR DU PROPRIÉTAIRE EST UNE SOURCE, AU MÊME TITRE QUE LES TROIS AUTRES. Sans cette
+   ligne, remplir l'état des lieux ne réveillait rien : l'écran du MIROIR affichait « Rien de
+   nouveau depuis » en vert, et il fallait aller chercher le petit lien gris « régénérer quand
+   même » — celui que Didier a cherché pendant trois échanges le 31/07. On aurait construit le
+   branchement complet, et personne n'aurait su qu'il fallait cliquer. */
+var MAJ_SOURCES={ dirigeant:'questionnaire dirigeant', salaries:'avis de vos salariés', concurrence:'carte de la concurrence', etat:'tour du propriétaire' };
 function majCle(){ return 'ive_maj_v1_'+((typeof cpCle==='function')?cpCle():'anon'); }
 function majLire(){ try{ return JSON.parse(localStorage.getItem(majCle())||'{}')||{}; }catch(e){ return {}; } }
 function majPoser(cle, empreinte){
@@ -2387,6 +2396,24 @@ function majEmpreinteDirigeant(){
     return e.value; }).join('');
   if(!vus) return '';                                      // la grille n'est plus affichée
   return it.length+':'+v;
+}
+/* L'empreinte du tour du propriétaire. Elle ne sert qu'à comparer : si elle n'a pas bougé, le
+   MIROIR reste à jour et on ne propose pas de le repayer. Elle inclut le nom de l'outil et son
+   ancienneté — corriger « Batigets » en « Batigest », ou cocher « moins de 6 mois », change ce
+   que le MIROIR a le droit de proposer : ce sont bien des modifications. */
+function majEmpreinteEtat(e){
+  e=e||((typeof etatCharger==='function')?etatCharger():null);
+  if(!e || !e.famille) return '';
+  var r=e.r||{}, cles=Object.keys(r).sort(), n=0;
+  var v=cles.map(function(k){
+    var o=r[k]||{};
+    if(o.ou==null && o.etat==null && !o.nom && !o.autre) return '';
+    n++;
+    return k+':'+(o.ou==null?'-':o.ou)+':'+(o.etat==null?'-':o.etat)+':'+(o.age==null?'-':o.age)
+      +':'+String(o.nom||'').trim().toLowerCase()+':'+String(o.autre||'').trim().length;
+  }).filter(Boolean).join('|');
+  if(!n) return '';                       // rien de renseigné = rien à signaler
+  return e.famille+'#'+n+'#'+v+'#'+String(e.note||'').trim().length;
 }
 function majEmpreinteConcurrence(d,kw){
   var l=(d&&Array.isArray(d.concurrents))?d.concurrents:[];
@@ -3970,7 +3997,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 315';
+var IVE_VERSION='11/08 · 316';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
