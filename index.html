@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 301';
+var IVE_VERSION='11/08 · 302';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3763,6 +3763,69 @@ function rapLecture(cle, val){
   for(var i=0;i<l.length;i++){ if(val>=l[i].min) return l[i].txt; }
   return l[l.length-1].txt;
 }
+/* ═══ LA CARTE DE LA CONCURRENCE DANS LE RAPPORT ═══════════════════════════════════════════
+   Didier, 11/08/2026 : « est-il possible de faire apparaître la carte de la concurrence dans le
+   rapport PDF ? »
+
+   Oui, et elle y a sa place : ce sont des notes publiques d'entreprises voisines, relevées sur
+   la même source que la sienne. C'est un CONSTAT — donc partie I, avec les faits — et jamais un
+   conseil : on écrit combien il y en a et où il se situe, jamais « faites mieux que X ».
+
+   ⚠️ ELLE N'EST PAS DANS LA FICHE, ET C'EST UN PIÈGE DE DATE. La carte est produite à part, par
+   un autre appel payé 4 jetons, et rangée dans son propre magasin. Rien ne garantit qu'elle date
+   du même jour que l'analyse. Rééditer le rapport v0 dans trois mois y collerait donc la carte
+   d'aujourd'hui, sous une couverture datée d'il y a trois mois — deux dates dans un même
+   document, dont une fausse. On horodate la carte séparément : elle porte SA date, et le lecteur
+   voit tout de suite si les deux relevés sont contemporains.
+
+   ⚠️ ET ELLE NE S'AFFICHE QUE SI ELLE EXISTE POUR CE DOSSIER. Pas de section vide, pas de
+   « aucune donnée » : une carte absente ne se raconte pas. */
+function rapConcurrence(dateAnalyse){
+  var s=(typeof concStore!=='undefined')?concStore.load():null;
+  if(!s || !s.d || !Array.isArray(s.d.concurrents) || !s.d.concurrents.length) return '';
+  var c=s.d, liste=c.concurrents.slice().sort(function(a,b){
+    return (a.distance!=null?a.distance:1e9)-(b.distance!=null?b.distance:1e9); });
+  var moi=(c.prospect&&c.prospect.aura&&c.prospect.aura.note!=null)?+c.prospect.aura.note:null;
+  var notes=liste.map(function(x){ return (x.aura&&x.aura.note!=null)?+x.aura.note:null; })
+                 .filter(function(x){ return x!=null; });
+  /* Le positionnement se dit en nombre, pas en jugement : « au-dessus de 4 sur 6 » est un fait ;
+     « vous êtes bien placé » est une opinion, et elle n'a pas sa place ici. */
+  var situe='';
+  if(moi!=null && notes.length){
+    var dessous=notes.filter(function(x){ return x<moi; }).length;
+    situe='<div style="font-size:11.5px;color:#374151;line-height:1.6;margin-top:9px;background:#f8fafc;border-radius:9px;padding:9px 12px;">'
+      +'Sur les <b>'+notes.length+'</b> entreprises voisines dont la note publique a pu être relevée, votre note est supérieure à <b>'+dessous+'</b> d\'entre elles.</div>';
+  }
+  var cel='padding:6px 8px;border-top:1px solid #f1f5f9;font-size:11.5px;vertical-align:top;';
+  var ligne=function(nom, note, avis, dist, moiMeme){
+    return '<tr'+(moiMeme?' style="background:#f8fafc;"':'')+'>'
+      +'<td style="'+cel+(moiMeme?'font-weight:800;':'font-weight:600;')+'">'+esc(nom||'')+(moiMeme?' <span style="font-size:9.5px;color:#E8541A;font-weight:800;">VOUS</span>':'')+'</td>'
+      +'<td style="'+cel+'white-space:nowrap;">'+(note!=null?('<b>'+note+'</b><span style="color:#9ca3af;">/100</span>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+      +'<td style="'+cel+'white-space:nowrap;">'+((avis&&avis.note!=null)?(String(avis.note).replace('.',',')+'<span style="color:#9ca3af;">/5</span>'+(avis.nombre?' <span style="color:#9ca3af;font-size:10px;">('+avis.nombre+')</span>':'')):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+      +'<td style="'+cel+'white-space:nowrap;color:#6b7280;">'+(dist!=null?(Math.round(dist*10)/10+' km'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+    +'</tr>';
+  };
+  var quand=s.ts?rapDateLongue(s.ts):'';
+  var memeJour=(s.ts && dateAnalyse) ? (new Date(s.ts).toDateString()===new Date(dateAnalyse).toDateString()) : false;
+  return rapSection(rapTitre('04','Les entreprises voisines',
+      'Relevé sur les mêmes sources publiques que votre propre note'+(c.keyword?(', pour le métier « '+esc(c.keyword)+' »'):'')+'. Les entreprises sont classées de la plus proche à la plus éloignée.')
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr style="font-size:10.5px;color:#6b7280;text-align:left;">'
+      +'<th style="'+cel+'border-top:none;">Entreprise</th><th style="'+cel+'border-top:none;">Note publique</th>'
+      +'<th style="'+cel+'border-top:none;">Avis</th><th style="'+cel+'border-top:none;">Distance</th>'
+    +'</tr></thead><tbody>'
+    +(c.prospect?ligne(c.prospect.nom, moi, c.prospect.avis, null, true):'')
+    +liste.map(function(x){ return ligne(x.nom, (x.aura&&x.aura.note!=null)?x.aura.note:null, x.avis, x.distance, false); }).join('')
+    +'</tbody></table></div>'
+    +situe
+    /* ⚠️ LA DATE DE LA CARTE EST ÉCRITE, TOUJOURS. Sans elle, un rapport réédité présenterait une
+       carte récente sous une couverture ancienne — deux dates dans un même document, dont une
+       fausse. Quand les deux relevés tombent le même jour, on le dit aussi : c'est une garantie,
+       pas une précaution. */
+    +(quand?('<div style="font-size:10px;color:#9ca3af;margin-top:7px;">Carte établie le '+esc(quand)
+       +(memeJour?' — le même jour que cette analyse.':' — cette carte peut être plus récente ou plus ancienne que l\'analyse ci-dessus.')+'</div>'):''));
+}
+
 /* ═══ LES SIGNAUX À APPROFONDIR ════════════════════════════════════════════════════════════
    Ce qui remplace « Par quoi commencer ». La différence tient en un mot : un signal DÉCRIT un
    écart constaté ; une action DIT QUOI FAIRE. « Le positionnement ressort moins nettement que le
@@ -4000,7 +4063,7 @@ function rapAttention(vig){
   var l=(vig||[]).filter(function(v){ return v && v.texte; });
   if(!l.length) return '';
   return rapSection(
-    rapTitre('08','Ce qui mérite votre attention',
+    rapTitre('06','Ce qui mérite votre attention',
       'Aucun de ces points n\'est un défaut de fond : ce sont des endroits où un geste court produit un effet visible, parce que personne ne les a encore traités.')
     +l.map(function(v){
       return '<div style="display:flex;gap:10px;align-items:flex-start;border-left:3px solid #fed7aa;background:#fffaf6;padding:9px 12px;margin-top:7px;page-break-inside:avoid;">'
@@ -4107,11 +4170,15 @@ function rapportHtml(d, version, dateAnalyse){
   if(tab) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
       'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab);
 
+  /* ── 04 · LES ENTREPRISES VOISINES ─────────────────────────────────────────────────────── */
+  /* En partie I : ce sont des relevés publics, au même titre que les avis. Aucun commentaire,
+     aucun classement de valeur — le lecteur situe son chiffre, il n'est pas jugé dessus. */
+  h+=rapConcurrence(dateAnalyse);
   h+=rapPartie('II','Ce que nous en déduisons',
       'À partir des faits ci-dessus, et de rien d\'autre. Chaque note est <b>calculée</b> à partir des relevés de la partie I — aucune n\'est une impression.');
 
   /* ── 04 · LES CINQ INDICATEURS ─────────────────────────────────────────────────────────── */
-  h+=rapSection(rapTitre('04','Vos cinq indicateurs publics',
+  h+=rapSection(rapTitre('05','Vos cinq indicateurs publics',
       'Chacun se lit sur 100 et découle des relevés de la partie I. La barre pleine est la mesure d\'aujourd\'hui ; la barre claire, ce que les mêmes sources permettraient d\'atteindre.')
     +rapBarre('Réputation en ligne', (v.ng!=null?Math.round(v.ng/5*100):est), 100, (v.ng!=null?(String(v.ng).replace('.',',')+'/5 sur '+(v.nbA||0)+' avis'):'Aucune note publique repérée'), 'reputation')
     +rapBarre('Visibilité', v.visib, Math.min(100,v.visib+14), 'Présence et lisibilité sur le web', 'visibilite')
