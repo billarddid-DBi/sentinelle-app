@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 308';
+var IVE_VERSION='11/08 · 309';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3959,9 +3959,9 @@ function rapLectureHtml(cle, val){
   ],
   positionnement:[
     {min:95, tenir:true, txt:'Gardez votre accroche à jour quand votre offre évolue. Ce qui est clair aujourd\'hui devient flou dès qu\'un nouveau service arrive sans être annoncé.'},
-    {min:75, txt:'Dites en une phrase, tout en haut de votre site et de votre fiche, ce que vous faites et pour qui. Le visiteur décide en sept secondes.'},
-    {min:60, txt:'Nommez vos trois prestations principales et vos communes d\'intervention. Un visiteur qui doit deviner s\'en va chez celui qui l\'a écrit.'},
-    {min:0,  txt:'Priorité : écrivez en une phrase votre métier, votre zone et le client que vous visez. Tout le reste de votre communication en découle.'}
+    {min:75, txt:'Écrivez en une phrase, en haut de la page d\'accueil du site ET dans la description de la fiche d\'établissement, ce que vous faites et pour qui. Le visiteur décide en sept secondes.'},
+    {min:60, txt:'Nommez vos trois prestations principales et vos communes d\'intervention — à écrire à deux endroits : la page d\'accueil du site, et le champ « prestations » de la fiche d\'établissement. Un visiteur qui doit deviner s\'en va chez celui qui l\'a écrit.'},
+    {min:0,  txt:'Priorité : écrivez en une phrase votre métier, votre zone et le client que vous visez — d\'abord sur la page d\'accueil du site, puis recopiée à l\'identique sur la fiche d\'établissement. Tout le reste de votre communication en découle.'}
   ],
   confiance:[
     {min:95, tenir:true, txt:'Gardez vos certifications, assurances et mentions à jour et bien visibles. Une qualification périmée affichée fait plus de tort qu\'une absence.'},
@@ -4030,23 +4030,30 @@ function planAction(cle, val){
    sait pas ce qu'il en font. Écrire « mettez un formulaire » quand il en existe déjà un, c'est
    l'erreur du « créez votre fiche Google » sur une fiche à 172 avis. La bonne sortie n'est pas
    une action, c'est une question — et elle se pose avant de dépenser quoi que ce soit. */
+/* ⚠️ « LES DEUX » NE DOIT PAS RESTER UN SEUL MOT. Didier, 11/08/2026 : « quand tu me marques les
+   deux, je veux savoir ce qui incombe à l'interne et ce qui incombe à l'IA. Donc ne me marque pas
+   les deux : tu mets interne ce qu'il doit faire, et IA ce que l'IA peut proposer. »
+   Il a raison, et c'est le même défaut que « en interne » sur « publier » : une étiquette juste
+   mais trop large ne se traduit en rien. « Les deux » ne dit pas qui commence, ni ce qui reste sur
+   le bureau du dirigeant une fois l'outil en place. Deux lignes séparées le disent.
+
+   ⚠️ ET « À VÉRIFIER D'ABORD » RESTE UNE RÉPONSE À PART ENTIÈRE — validée par Didier. Ce n'est pas
+   un partage de travail : c'est une question qui peut annuler la tâche. */
 var PLAN_QUI={
-  reponse:     {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
-                det:'Le geste reste le vôtre — c\'est votre client, votre nom, et la réponse vous engage. Ce qu\'un outil enlève, c\'est le brouillon et l\'oubli : il prépare, vous relisez et vous signez.'},
-  demandeAvis: {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
-                det:'La demande vient de vous, au bon moment — personne ne peut la faire à votre place. L\'envoi et la relance, eux, s\'automatisent une fois pour toutes.'},
-  publication: {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
-                det:'À vous de décider ce que vous montrez et de fournir la matière — photos de chantiers, exemples réels. Un outil peut proposer un plan de publication, des idées de sujets et un premier jet de texte : c\'est l\'idée et la rédaction qui prennent du temps, pas le clic.'},
-  veille:      {lib:'OUTIL IA',            f:'#f4fbf6', b:'#bbf7d0', t:'#15803d',
-                det:'Un outil peut s\'en charger seul et vous prévenir quand il se passe quelque chose. Rien à tenir au quotidien une fois en place.'},
-  fiche:       {lib:'EN INTERNE',          f:'#fffbeb', b:'#fde68a', t:'#b45309',
-                det:'Personne ne peut le faire à votre place, et aucun outil non plus : ce sont vos horaires, vos coordonnées, vos mots. Cela se règle une fois, et c\'est réglé.'},
-  site:        {lib:'PRESTATAIRE',         f:'#f5f3ff', b:'#ddd6fe', t:'#7c3aed',
-                det:'Cela dépasse ce qui se règle en interne ou avec un outil : il faut quelqu\'un dont c\'est le métier.'},
-  canal:       {lib:'À VÉRIFIER D\'ABORD', f:'#fffaf6', b:'#fed7aa', t:'#9a3412',
-                det:'Un formulaire de contact existe déjà sur le site : avant d\'ajouter quoi que ce soit, la question à poser est « les demandes de devis passent-elles par ce formulaire, et qui les traite ? ». Selon la réponse, il n\'y a peut-être rien à créer.'},
-  inconnu:     {lib:'À CLASSER',           f:'#f1f5f9', b:'#e2e8f0', t:'#64748b',
-                det:'À trancher ensemble : la formulation ne dit pas assez qui doit s\'en charger, et deviner serait pire que de le demander.'}
+  reponse:     {interne:'Vous relisez et vous signez : c\'est votre client, votre nom, et la réponse vous engage publiquement.',
+                ia:'Peut préparer un brouillon de réponse pour chaque nouvel avis, et vous prévenir quand il en arrive un.'},
+  demandeAvis: {interne:'Vous décidez à quel moment on la demande — en fin de chantier, à la remise des clés, jamais au hasard.',
+                ia:'Peut envoyer la demande et la relancer une fois, sans que vous ayez à y penser.'},
+  publication: {interne:'Vous choisissez ce que vous montrez et vous fournissez la matière : photos de chantiers, exemples réels, ce dont vous êtes fier.',
+                ia:'Peut proposer un plan de publication sur trois mois, des idées de sujets et un premier jet de texte à corriger.'},
+  veille:      {interne:'Rien à tenir au quotidien — vous décidez seulement ce qui mérite une alerte.',
+                ia:'Peut surveiller en continu et vous prévenir quand quelque chose bouge.'},
+  fiche:       {interne:'Ce sont vos horaires, vos coordonnées, vos prestations : personne ne les connaît à votre place.',
+                ia:null},
+  site:        {interne:'Le choix et le cahier des charges vous appartiennent.',
+                ia:null, presta:'Cela dépasse ce qui se règle en interne ou avec un outil : il faut quelqu\'un dont c\'est le métier.'},
+  canal:       {verifier:'Un moyen de contact existe déjà sur le site. Avant d\'ajouter quoi que ce soit, la question à poser est : « les demandes de devis passent-elles par ce formulaire, et qui les traite ? ». Selon la réponse, il n\'y a peut-être rien à créer.'},
+  inconnu:     {classer:'À trancher ensemble : la formulation ne dit pas assez qui doit s\'en charger, et deviner serait pire que de le demander.'}
 };
 function planQui(txt){
   var t=(txt||'').toLowerCase();
@@ -4062,10 +4069,19 @@ function planQui(txt){
   return 'inconnu';
 }
 function planQuiHtml(txt){
-  var c=PLAN_QUI[planQui(txt)];
-  return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:6px;background:'+c.f+';border:1px solid '+c.b+';border-radius:8px;padding:6px 9px;">'
-    +'<span style="flex:0 0 auto;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+c.t+';padding-top:2px;white-space:nowrap;">'+esc(c.lib)+'</span>'
-    +'<span style="flex:1;font-size:10.5px;color:#4b5563;line-height:1.5;">'+esc(c.det)+'</span></div>';
+  var c=PLAN_QUI[planQui(txt)]||PLAN_QUI.inconnu;
+  var ligne=function(lib,coul,fond,bord,txt2){
+    return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:5px;background:'+fond+';border:1px solid '+bord+';border-radius:8px;padding:6px 9px;">'
+      +'<span style="flex:0 0 62px;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+coul+';padding-top:2px;">'+lib+'</span>'
+      +'<span style="flex:1;font-size:10.5px;color:#4b5563;line-height:1.5;">'+esc(txt2)+'</span></div>';
+  };
+  var h='';
+  if(c.verifier) h+=ligne('À VÉRIFIER','#9a3412','#fffaf6','#fed7aa',c.verifier);
+  if(c.classer)  h+=ligne('À CLASSER','#64748b','#f1f5f9','#e2e8f0',c.classer);
+  if(c.interne)  h+=ligne('INTERNE','#b45309','#fffbeb','#fde68a',c.interne);
+  if(c.ia)       h+=ligne('IA','#15803d','#f4fbf6','#bbf7d0',c.ia);
+  if(c.presta)   h+=ligne('PRESTATAIRE','#7c3aed','#f5f3ff','#ddd6fe',c.presta);
+  return h;
 }function planEcheance(base, jours){
   var t=new Date(base||Date.now()); t.setDate(t.getDate()+jours);
   return t.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
@@ -4096,8 +4112,26 @@ function planSequence(d, v, dateRef){
           .filter(function(x){ return x.val!=null; });
   var aFaire=ind.filter(function(x){ return x.val<95; }).sort(function(a,b){ return a.val-b.val; });
   var aTenir=ind.filter(function(x){ return x.val>=95; });
+  /* ⚠️ LE PLAN NE DOIT JAMAIS DIRE DEUX FOIS LA MÊME CHOSE. Didier, 11/08/2026 : « le point cinq,
+     tu parles de horaires, services… est-ce que ce n'est pas la même chose que la fiche Google
+     My Business ? Tu mets exactement la même chose. Où tu m'expliques, où tu me corriges encore
+     une fois la méthode. »
+     C'était bien la méthode. Les quick wins viennent du modèle, les chantiers de la table des
+     directives : deux sources qui ne se connaissaient pas, et qui tombaient sur le même geste —
+     « complétez votre fiche » d'un côté, « complétez ce qui manque sur votre fiche » de l'autre.
+     Un plan qui répète perd sa crédibilité à la ligne suivante : le lecteur se demande si le reste
+     n'est pas du remplissage.
+     ⚠️ ET ON NE SUPPRIME PAS EN SILENCE : la tâche disparaît, mais le chantier est rappelé sous le
+     point qui le couvre déjà. Sinon on se demanderait pourquoi un indicateur bas n'a pas de suite. */
+  var famillesQw=qw.map(function(q){ return planQui(q); });
+  var absorbes=[];
   aFaire.forEach(function(x,i){
     var dir=planAction(x.cle,x.val); if(!dir) return;
+    var fam=planQui(dir.txt), dejaLa=famillesQw.indexOf(fam);
+    if(dejaLa>-1 && fam!=='inconnu'){
+      absorbes.push({nom:x.nom, val:x.val, rang:dejaLa+1});
+      return;
+    }
     var cible=planCible(x.val);
     etapes.push({phase:(i<2?2:3), rang:etapes.length+1, jours:(i<2?30:90), titre:dir.txt, indic:x.nom, note:x.val,
       objectif:cible?('Faire passer « '+x.nom+' » de '+x.val+' à <b>'+cible.s+'</b> — le seuil où l\'indicateur bascule en « '+cible.l+' ».')
@@ -4105,7 +4139,7 @@ function planSequence(d, v, dateRef){
       pourquoi:'C\'est l\'indicateur où l\'écart mesuré est le plus grand : à effort égal, c\'est là que le mouvement se verra le plus vite.',
       preuve:'La prochaine SENTINELLE remesure ce chiffre sur les mêmes bases.'});
   });
-  return {etapes:etapes, tenir:aTenir};
+  return {etapes:etapes, tenir:aTenir, absorbes:absorbes};
 }
 function planActionHtml(v, d, dateRef){
   var p=planSequence(d||window.__sentData||{}, v, dateRef);
@@ -4134,6 +4168,13 @@ function planActionHtml(v, d, dateRef){
       /* Qui fait le travail : dernière ligne de la tâche, parce que c'est la question qu'on se
          pose une fois qu'on a compris CE QU'IL FAUT faire — pas avant. */
       +planQuiHtml(e.titre)
+      /* Le chantier absorbé se rappelle SOUS le point qui le couvre : sans cela, on se demanderait
+         pourquoi un indicateur bas n'a pas de suite dans le plan. */
+      +(function(){
+         var abs=p.absorbes.filter(function(a){ return a.rang===e.rang; });
+         return abs.length ? ('<div style="font-size:10px;color:#9ca3af;line-height:1.5;margin-top:5px;">Ce point couvre aussi le chantier « '
+           +abs.map(function(a){ return esc(a.nom)+' ('+a.val+')'; }).join(' » et « ')+' » — pas de tâche séparée.</div>') : '';
+       })()
     +'</div>';
   });
   /* ⚠️ CE QUI EST DÉJÀ HAUT NE DEVIENT PAS UNE TÂCHE. Le glisser dans la liste ferait un plan de
