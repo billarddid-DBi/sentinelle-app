@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 306';
+var IVE_VERSION='11/08 · 307';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3995,6 +3995,56 @@ function planAction(cle, val){
    ⚠️ ET L'OBJECTIF CHIFFRÉ EST LA BANDE SUIVANTE, PAS UN NOMBRE INVENTÉ. Passer de 73 à « 75,
    Solide » se justifie : c'est le seuil qui change le mot affiché. « Viser 90 » ne se justifierait
    par rien, et un objectif qu'on ne peut pas défendre ne s'atteint jamais. */
+/* ═══ QUI FAIT LE TRAVAIL, POUR CHAQUE ACTION ══════════════════════════════════════════════
+   Didier, 11/08/2026 : « dans chaque action, tu me mets si ça doit se régler en interne, ou si on
+   peut mettre en place un outil IA, ou est-ce que c'est aussi les deux ? Et dans ce cas-là, tu me
+   détailles ça. »
+
+   ⚠️ ON REPREND LE VOCABULAIRE DÉJÀ ARBITRÉ (31/07/2026), on n'en crée pas un second. L'écran des
+   pistes et le plan du MIROIR disaient la même chose avec des mots différents, et c'est comme ça
+   qu'un « répondre aux avis » s'était retrouvé classé « Externe » sans que rien ne sonne. IA,
+   En interne, Prestataire — plus le quatrième cas que Didier ajoute ici : LES DEUX.
+
+   ⚠️ « LES DEUX » N'EST PAS UN COMPROMIS, C'EST LE CAS LE PLUS FRÉQUENT — et le plus mal compris.
+   Répondre à un avis reste un geste humain : c'est le client de Didier qui parle, la réponse
+   l'engage. Ce qu'un outil enlève, c'est le brouillon et l'oubli, pas la décision. Le dire
+   évite les deux erreurs symétriques : croire qu'un outil fera tout, ou croire qu'il ne sert
+   à rien.
+
+   ⚠️ ET « À CLASSER » RESTE POSSIBLE. Règle du 31/07 : un type inconnu ne devient pas « interne »
+   par défaut. Un classement inventé se relit comme un classement voulu — c'est pire que pas de
+   réponse, parce qu'on ne le rouvre jamais. */
+var PLAN_QUI={
+  ia:        {lib:'OUTIL IA',    f:'#f4fbf6', b:'#bbf7d0', t:'#15803d',
+              det:'Un outil peut s\'en charger seul et vous prévenir quand il se passe quelque chose. Rien à tenir au quotidien une fois en place.'},
+  deux:      {lib:'LES DEUX',    f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
+              det:'Le geste reste le vôtre — c\'est votre client, votre nom. Ce qu\'un outil enlève, c\'est le brouillon et l\'oubli : il prépare, vous relisez et vous signez.'},
+  interne:   {lib:'EN INTERNE',  f:'#fffbeb', b:'#fde68a', t:'#b45309',
+              det:'Personne ne peut le faire à votre place, et aucun outil non plus : ce sont vos mots, vos horaires, votre offre. Cela se règle une fois, et c\'est réglé.'},
+  prestataire:{lib:'PRESTATAIRE',f:'#f5f3ff', b:'#ddd6fe', t:'#7c3aed',
+              det:'Cela dépasse ce qui se règle en interne ou avec un outil : il faut quelqu\'un dont c\'est le métier.'},
+  inconnu:   {lib:'À CLASSER',   f:'#f1f5f9', b:'#e2e8f0', t:'#64748b',
+              det:'À trancher ensemble : la formulation ne dit pas assez qui doit s\'en charger, et deviner serait pire que de le demander.'}
+};
+function planQui(txt){
+  var t=(txt||'').toLowerCase();
+  /* L'ordre compte : « répondre aux avis » contient « avis », mais c'est le VERBE qui décide. */
+  if(/répond|repond|rédig|redig|brouillon|message|relance/.test(t)) return 'deux';
+  /* `demand\w*` et non `demand[ez]?` : « demandER un avis » ne contient ni « demande » ni
+     « demandez » suivis d'un espace. Un motif trop serré ne se voit pas — il classe « à classer »
+     et personne ne se demande pourquoi. */
+  if(/demand\w* .{0,14}avis|solliciter|obtenir des avis|recueillir/.test(t)) return 'deux';
+  if(/surveil|veille|alerte|centralis|suivi|tableau de bord|automatis|synchronis/.test(t)) return 'ia';
+  if(/site (internet|web)|refonte|refondre|développ|developp|créer un site|application/.test(t)) return 'prestataire';
+  if(/horaire|photo|fiche|mention|certificat|assurance|accroche|phrase|décri|decri|nomm|complét|complet|ajout|publi/.test(t)) return 'interne';
+  return 'inconnu';
+}
+function planQuiHtml(txt){
+  var k=planQui(txt), c=PLAN_QUI[k];
+  return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:6px;background:'+c.f+';border:1px solid '+c.b+';border-radius:8px;padding:6px 9px;">'
+    +'<span style="flex:0 0 auto;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+c.t+';padding-top:2px;">'+c.lib+'</span>'
+    +'<span style="flex:1;font-size:10.5px;color:#4b5563;line-height:1.5;">'+esc(c.det)+'</span></div>';
+}
 function planEcheance(base, jours){
   var t=new Date(base||Date.now()); t.setDate(t.getDate()+jours);
   return t.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
@@ -4060,6 +4110,9 @@ function planActionHtml(v, d, dateRef){
       +'<div style="font-size:10.5px;color:#4b5563;line-height:1.55;margin-top:5px;"><b style="color:'+PH[e.phase].c+';">Objectif —</b> '+e.objectif+'</div>'
       +'<div style="font-size:10.5px;color:#6b7280;line-height:1.55;margin-top:3px;"><b>Pourquoi maintenant —</b> '+esc(e.pourquoi)+'</div>'
       +'<div style="font-size:10.5px;color:#6b7280;line-height:1.55;margin-top:3px;"><b>On saura que c\'est fait —</b> '+esc(e.preuve)+'</div>'
+      /* Qui fait le travail : dernière ligne de la tâche, parce que c'est la question qu'on se
+         pose une fois qu'on a compris CE QU'IL FAUT faire — pas avant. */
+      +planQuiHtml(e.titre)
     +'</div>';
   });
   /* ⚠️ CE QUI EST DÉJÀ HAUT NE DEVIENT PAS UNE TÂCHE. Le glisser dans la liste ferait un plan de
