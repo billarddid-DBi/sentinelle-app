@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 303';
+var IVE_VERSION='11/08 · 304';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -3810,49 +3810,80 @@ function rapConcAbsente(){
 function rapConcurrence(dateAnalyse){
   var s=(typeof concStore!=='undefined')?concStore.load():null;
   if(!s || !s.d || !Array.isArray(s.d.concurrents) || !s.d.concurrents.length) return rapConcAbsente();
-  var c=s.d, liste=c.concurrents.slice().sort(function(a,b){
-    return (a.distance!=null?a.distance:1e9)-(b.distance!=null?b.distance:1e9); });
+  var c=s.d;
   var moi=(c.prospect&&c.prospect.aura&&c.prospect.aura.note!=null)?+c.prospect.aura.note:null;
-  var notes=liste.map(function(x){ return (x.aura&&x.aura.note!=null)?+x.aura.note:null; })
-                 .filter(function(x){ return x!=null; });
-  /* Le positionnement se dit en nombre, pas en jugement : « au-dessus de 4 sur 6 » est un fait ;
-     « vous êtes bien placé » est une opinion, et elle n'a pas sa place ici. */
+
+  /* ⚠️ ON RÉUTILISE LES FONCTIONS DE L'ÉCRAN, PAS LEUR APPARENCE. Didier, 11/08/2026 : « j'aimais
+     bien la façon dont c'était présenté avec les couleurs et tout […] tu reprends exactement la
+     même chose. » `avisTxt`, `presBadge` et `auraCell` sont appelées telles quelles : le jour où
+     la pastille d'aura change de forme à l'écran, elle change aussi dans le rapport. Recopier
+     leur HTML aurait donné deux versions qui divergent au premier ajustement, et c'est le
+     document imprimé — celui qu'on ne relit pas — qui garderait l'ancienne. */
+  var lignes=c.concurrents.map(function(x){
+    return {nom:x.nom, site:x.site, commune:x.commune, distance:x.distance,
+            avis:x.avis, presence:x.presence, aura:x.aura,
+            note:(x.aura&&x.aura.note!=null)?+x.aura.note:null, moi:false};
+  });
+  if(c.prospect) lignes.push({nom:c.prospect.nom, site:c.prospect.site, commune:c.prospect.commune,
+                              distance:null, avis:c.prospect.avis, presence:c.prospect.presence,
+                              aura:c.prospect.aura, note:moi, moi:true});
+  /* ⚠️ CLASSÉ PAR NOTE, ET L'ENTREPRISE EST DANS LE CLASSEMENT. Didier, 11/08/2026 : « fais le
+     classement par notes publiques et pas par distance. » La distance répondait à « qui est à
+     côté ? » ; la note répond à « où est-ce que je me situe ? » — c'est la question qu'on se pose
+     devant ce tableau. La laisser en première ligne hors du tri ferait un classement dont le
+     premier nom ne veut rien dire : elle prend son rang, et reste surlignée pour qu'on la trouve.
+     ⚠️ LES NOTES ABSENTES VONT EN FIN DE LISTE, jamais en tête : une note manquante n'est pas un
+     zéro, et un classement qui commence par des cases vides ne se lit plus. */
+  lignes.sort(function(a,b){
+    if(a.note==null && b.note==null) return 0;
+    if(a.note==null) return 1;
+    if(b.note==null) return -1;
+    return b.note-a.note;
+  });
+
+  var notes=lignes.filter(function(x){ return !x.moi && x.note!=null; }).map(function(x){ return x.note; });
   var situe='';
   if(moi!=null && notes.length){
     var dessous=notes.filter(function(x){ return x<moi; }).length;
+    /* Le rang se dit AVEC son dénominateur : « 2e » seul flatte ou accable selon le nombre
+       d'entreprises comparées ; « 2e sur 7 » est un fait que le lecteur vérifie ligne à ligne. */
+    var rangMoi=notes.filter(function(x){ return x>moi; }).length+1;
     situe='<div style="font-size:11.5px;color:#374151;line-height:1.6;margin-top:9px;background:#f8fafc;border-radius:9px;padding:9px 12px;">'
-      +'Sur les <b>'+notes.length+'</b> entreprises voisines dont la note publique a pu être relevée, votre note est supérieure à <b>'+dessous+'</b> d\'entre elles.</div>';
+      +'Sur les <b>'+(notes.length+1)+'</b> entreprises dont la note publique a pu être relevée, la vôtre arrive en <b>'+rangMoi+'<sup>e</sup></b> position — supérieure à <b>'+dessous+'</b> d\'entre elles.</div>';
   }
-  var cel='padding:6px 8px;border-top:1px solid #f1f5f9;font-size:11.5px;vertical-align:top;';
-  var ligne=function(nom, note, avis, dist, moiMeme){
-    return '<tr'+(moiMeme?' style="background:#f8fafc;"':'')+'>'
-      +'<td style="'+cel+(moiMeme?'font-weight:800;':'font-weight:600;')+'">'+esc(nom||'')+(moiMeme?' <span style="font-size:9.5px;color:#E8541A;font-weight:800;">VOUS</span>':'')+'</td>'
-      +'<td style="'+cel+'white-space:nowrap;">'+(note!=null?('<b>'+note+'</b><span style="color:#9ca3af;">/100</span>'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
-      +'<td style="'+cel+'white-space:nowrap;">'+((avis&&avis.note!=null)?(String(avis.note).replace('.',',')+'<span style="color:#9ca3af;">/5</span>'+(avis.nombre?' <span style="color:#9ca3af;font-size:10px;">('+avis.nombre+')</span>':'')):'<span style="color:#c7ccd3;">—</span>')+'</td>'
-      +'<td style="'+cel+'white-space:nowrap;color:#6b7280;">'+(dist!=null?(Math.round(dist*10)/10+' km'):'<span style="color:#c7ccd3;">—</span>')+'</td>'
+
+  var rows=lignes.map(function(x){
+    var sous = x.moi ? ('votre entreprise'+(x.commune?' · '+esc(x.commune):''))
+                     : ((x.commune?esc(x.commune):'')+(x.distance!=null?((x.commune?' · ':'')+(Math.round(x.distance*10)/10)+' km'):''));
+    return '<tr'+(x.moi?' style="background:#FBE7DC;"':'')+'>'
+      +'<td style="padding:6px 8px;font-weight:700;">'
+        +(x.moi?'<i class="ti ti-target"></i> ':'')
+        +'<a href="'+siteLink(x.nom,x.commune,x.site)+'" target="_blank" rel="noopener" style="color:#1f2937;">'+esc(x.nom||'')+' <i class="ti ti-external-link" style="font-size:10px;"></i></a>'
+        +(sous?'<br><span style="font-weight:400;color:#6b7280;font-size:10px;">'+sous+'</span>':'')
+      +'</td>'
+      +'<td style="text-align:center;padding:6px 8px;">'+avisTxt(x.avis)+'</td>'
+      +'<td style="text-align:center;padding:6px 8px;">'+presBadge(x.presence)+'</td>'
+      +'<td style="text-align:center;padding:6px 8px;">'+auraCell(x.aura)+'</td>'
     +'</tr>';
-  };
+  }).join('');
+
   var quand=s.ts?rapDateLongue(s.ts):'';
   var memeJour=(s.ts && dateAnalyse) ? (new Date(s.ts).toDateString()===new Date(dateAnalyse).toDateString()) : false;
   return rapSection(rapTitre('04','Les entreprises voisines',
-      'Relevé sur les mêmes sources publiques que votre propre note'+(c.keyword?(', pour le métier « '+esc(c.keyword)+' »'):'')+'. Les entreprises sont classées de la plus proche à la plus éloignée.')
-    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
-    +'<thead><tr style="font-size:10.5px;color:#6b7280;text-align:left;">'
-      +'<th style="'+cel+'border-top:none;">Entreprise</th><th style="'+cel+'border-top:none;">Note publique</th>'
-      +'<th style="'+cel+'border-top:none;">Avis</th><th style="'+cel+'border-top:none;">Distance</th>'
-    +'</tr></thead><tbody>'
-    +(c.prospect?ligne(c.prospect.nom, moi, c.prospect.avis, null, true):'')
-    +liste.map(function(x){ return ligne(x.nom, (x.aura&&x.aura.note!=null)?x.aura.note:null, x.avis, x.distance, false); }).join('')
-    +'</tbody></table></div>'
+      'Relevé sur les mêmes sources publiques que votre propre note'+(c.keyword?(', pour le métier « '+esc(c.keyword)+' »'):'')+'. Classement par <b>note publique</b>, de la plus haute à la plus basse.')
+    +'<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">'
+    +'<thead><tr style="background:#1C1C1C;color:#fff;">'
+      +'<th style="text-align:left;padding:6px 8px;">Entreprise</th>'
+      +'<th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+    +'<div style="font-size:10px;color:#9ca3af;margin-top:6px;line-height:1.5;"><b>IVE</b> = indice calculé sur les mêmes bases pour toutes : note et nombre d\'avis Google, existence d\'un site.</div>'
     +situe
-    /* ⚠️ LA DATE DE LA CARTE EST ÉCRITE, TOUJOURS. Sans elle, un rapport réédité présenterait une
-       carte récente sous une couverture ancienne — deux dates dans un même document, dont une
-       fausse. Quand les deux relevés tombent le même jour, on le dit aussi : c'est une garantie,
-       pas une précaution. */
+    /* ⚠️ LA DATE DE LA CARTE EST ÉCRITE, TOUJOURS. Elle n'est pas dans la fiche : rééditer un
+       rapport ancien y collerait la carte d'aujourd'hui sous une couverture datée d'avant — deux
+       dates dans un même document, dont une fausse, et personne pour s'en apercevoir. */
     +(quand?('<div style="font-size:10px;color:#9ca3af;margin-top:7px;">Carte établie le '+esc(quand)
        +(memeJour?' — le même jour que cette analyse.':' — cette carte peut être plus récente ou plus ancienne que l\'analyse ci-dessus.')+'</div>'):''));
 }
-
 /* ═══ LES SIGNAUX À APPROFONDIR ════════════════════════════════════════════════════════════
    Ce qui remplace « Par quoi commencer ». La différence tient en un mot : un signal DÉCRIT un
    écart constaté ; une action DIT QUOI FAIRE. « Le positionnement ressort moins nettement que le
@@ -5283,7 +5314,7 @@ function runConcurrence(){
       window.__concFiche=1; iveChargerFiche(function(){ iveIdentSauver(); runConcurrence(); }); return;
     }
   }
-  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
+  fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({nom:window.lastNom,ville:window.lastVille,keyword:kw,archetype:window.lastArchetype||'',activite:window.lastActivite||'',prospectAura:window.lastAura||null,prospectAvis:window.lastAvis||null,prospectSite:window.lastSite||''})})
    .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
    /* ⚠️ ON RELÂCHE LE BOUTON, QUOI QU'IL ARRIVE. Didier, 09/08/2026 : « ça dit aucun concurrent »,
       la pastille bloquée sur « en cours… » — et, avant ça, « si je lance une nouvelle recherche

@@ -225,7 +225,7 @@ function expandKw(kw) {
 export default async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   try {
-    const { nom, ville, radius, keyword, prospectAura, prospectAvis, prospectSite } = req.body || {};
+    const { nom, ville, radius, keyword, activite, prospectAura, prospectAvis, prospectSite } = req.body || {};
     if (!nom) { res.status(400).json({ error: "Nom d'entreprise manquant." }); return; }
     const rad = 40; // biais de recherche large ; on ne filtre PAS par distance, on garde les 8 plus proches
     const kw = (keyword || "").trim();
@@ -289,7 +289,21 @@ export default async function handler(req, res) {
         if (isWide(kw)) rows.sort((a, b) => repScore(b) - repScore(a));
         concurrents = rows.slice(0, 8);
         try {
-          const w = profil(kw);
+          /* ⚠️ LA MÊME PONDÉRATION QUE SENTINELLE, SINON LA COMPARAISON NE VAUT RIEN. Didier,
+         11/08/2026 : « on compare une note faite par SENTINELLE à une note qui n'est pas faite par
+         SENTINELLE — où je me trompe ? »
+
+         Il ne se trompait pas. Les deux fichiers appliquent bien la MÊME formule — qScore, vScore,
+         volFactor, sScore, compress et les bornes sont identiques au caractère près — mais pas
+         forcément les mêmes POIDS : SENTINELLE les tire de l'activité décrite (« installation et
+         dépannage de chaudières gaz »), la carte les tirait du mot-clé tapé (« chauffagiste »).
+         Quand les deux tombent dans la même famille, aucune différence ; quand elles tombent dans
+         deux familles — « pare-brise » et « garage », par exemple — la note du prospect et celle
+         de ses voisins ne pèsent plus les mêmes choses, et le classement compare deux barèmes.
+
+         On prend donc l'activité en priorité, comme SENTINELLE, et le mot-clé en repli. Le calcul
+         lui-même n'est pas touché : c'est son entrée qu'on aligne. */
+      const w = profil(activite || keyword || kw);
           const scoreList = (selfRow ? [selfRow] : []).concat(concurrents);
           const sites = await Promise.all(scoreList.map(function (c) { return getWebsite(c.placeId, gkey); }));
           scoreList.forEach(function (c, i) {
