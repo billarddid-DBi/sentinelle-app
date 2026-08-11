@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 307';
+var IVE_VERSION='11/08 · 308';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4014,38 +4014,59 @@ function planAction(cle, val){
    ⚠️ ET « À CLASSER » RESTE POSSIBLE. Règle du 31/07 : un type inconnu ne devient pas « interne »
    par défaut. Un classement inventé se relit comme un classement voulu — c'est pire que pas de
    réponse, parce qu'on ne le rouvre jamais. */
+/* ⚠️ UNE FAMILLE PAR TYPE DE GESTE, PAS UN SEUL MOT PAR CATÉGORIE. Didier, 11/08/2026, en
+   relisant le plan de CERIBE : « pour le point deux je ne suis pas d'accord. Effectivement, c'est
+   à eux de le faire, mais l'IA peut proposer un plan de communication et des idées de posts. »
+   Publier était rangé avec « compléter les horaires » — les deux touchent à la fiche, donc les
+   deux étaient « en interne ». Or remplir un champ et nourrir une page ne demandent pas la même
+   chose : le premier n'a rien à automatiser, le second attend surtout des IDÉES. Une catégorie
+   trop large donne un conseil faux tout en ayant l'air rangé.
+
+   ⚠️ ET UNE SIXIÈME RÉPONSE : « À VÉRIFIER D'ABORD ». Didier, sur le point trois : « ils ont un
+   formulaire de contact sur leur site, donc on peut faire une demande de devis. Il faut que tu
+   dises : posez-vous la question, est-ce que les demandes de devis peuvent passer par le
+   formulaire ? »
+   Il a raison, et c'est la règle de SENTINELLE appliquée au plan : on VOIT le formulaire, on ne
+   sait pas ce qu'il en font. Écrire « mettez un formulaire » quand il en existe déjà un, c'est
+   l'erreur du « créez votre fiche Google » sur une fiche à 172 avis. La bonne sortie n'est pas
+   une action, c'est une question — et elle se pose avant de dépenser quoi que ce soit. */
 var PLAN_QUI={
-  ia:        {lib:'OUTIL IA',    f:'#f4fbf6', b:'#bbf7d0', t:'#15803d',
-              det:'Un outil peut s\'en charger seul et vous prévenir quand il se passe quelque chose. Rien à tenir au quotidien une fois en place.'},
-  deux:      {lib:'LES DEUX',    f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
-              det:'Le geste reste le vôtre — c\'est votre client, votre nom. Ce qu\'un outil enlève, c\'est le brouillon et l\'oubli : il prépare, vous relisez et vous signez.'},
-  interne:   {lib:'EN INTERNE',  f:'#fffbeb', b:'#fde68a', t:'#b45309',
-              det:'Personne ne peut le faire à votre place, et aucun outil non plus : ce sont vos mots, vos horaires, votre offre. Cela se règle une fois, et c\'est réglé.'},
-  prestataire:{lib:'PRESTATAIRE',f:'#f5f3ff', b:'#ddd6fe', t:'#7c3aed',
-              det:'Cela dépasse ce qui se règle en interne ou avec un outil : il faut quelqu\'un dont c\'est le métier.'},
-  inconnu:   {lib:'À CLASSER',   f:'#f1f5f9', b:'#e2e8f0', t:'#64748b',
-              det:'À trancher ensemble : la formulation ne dit pas assez qui doit s\'en charger, et deviner serait pire que de le demander.'}
+  reponse:     {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
+                det:'Le geste reste le vôtre — c\'est votre client, votre nom, et la réponse vous engage. Ce qu\'un outil enlève, c\'est le brouillon et l\'oubli : il prépare, vous relisez et vous signez.'},
+  demandeAvis: {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
+                det:'La demande vient de vous, au bon moment — personne ne peut la faire à votre place. L\'envoi et la relance, eux, s\'automatisent une fois pour toutes.'},
+  publication: {lib:'LES DEUX',            f:'#eff6ff', b:'#dbeafe', t:'#2563EB',
+                det:'À vous de décider ce que vous montrez et de fournir la matière — photos de chantiers, exemples réels. Un outil peut proposer un plan de publication, des idées de sujets et un premier jet de texte : c\'est l\'idée et la rédaction qui prennent du temps, pas le clic.'},
+  veille:      {lib:'OUTIL IA',            f:'#f4fbf6', b:'#bbf7d0', t:'#15803d',
+                det:'Un outil peut s\'en charger seul et vous prévenir quand il se passe quelque chose. Rien à tenir au quotidien une fois en place.'},
+  fiche:       {lib:'EN INTERNE',          f:'#fffbeb', b:'#fde68a', t:'#b45309',
+                det:'Personne ne peut le faire à votre place, et aucun outil non plus : ce sont vos horaires, vos coordonnées, vos mots. Cela se règle une fois, et c\'est réglé.'},
+  site:        {lib:'PRESTATAIRE',         f:'#f5f3ff', b:'#ddd6fe', t:'#7c3aed',
+                det:'Cela dépasse ce qui se règle en interne ou avec un outil : il faut quelqu\'un dont c\'est le métier.'},
+  canal:       {lib:'À VÉRIFIER D\'ABORD', f:'#fffaf6', b:'#fed7aa', t:'#9a3412',
+                det:'Un formulaire de contact existe déjà sur le site : avant d\'ajouter quoi que ce soit, la question à poser est « les demandes de devis passent-elles par ce formulaire, et qui les traite ? ». Selon la réponse, il n\'y a peut-être rien à créer.'},
+  inconnu:     {lib:'À CLASSER',           f:'#f1f5f9', b:'#e2e8f0', t:'#64748b',
+                det:'À trancher ensemble : la formulation ne dit pas assez qui doit s\'en charger, et deviner serait pire que de le demander.'}
 };
 function planQui(txt){
   var t=(txt||'').toLowerCase();
-  /* L'ordre compte : « répondre aux avis » contient « avis », mais c'est le VERBE qui décide. */
-  if(/répond|repond|rédig|redig|brouillon|message|relance/.test(t)) return 'deux';
-  /* `demand\w*` et non `demand[ez]?` : « demandER un avis » ne contient ni « demande » ni
-     « demandez » suivis d'un espace. Un motif trop serré ne se voit pas — il classe « à classer »
-     et personne ne se demande pourquoi. */
-  if(/demand\w* .{0,14}avis|solliciter|obtenir des avis|recueillir/.test(t)) return 'deux';
-  if(/surveil|veille|alerte|centralis|suivi|tableau de bord|automatis|synchronis/.test(t)) return 'ia';
-  if(/site (internet|web)|refonte|refondre|développ|developp|créer un site|application/.test(t)) return 'prestataire';
-  if(/horaire|photo|fiche|mention|certificat|assurance|accroche|phrase|décri|decri|nomm|complét|complet|ajout|publi/.test(t)) return 'interne';
+  /* L'ORDRE COMPTE, ET LE VERBE DÉCIDE AVANT LE SUJET. « Répondre aux avis » contient « avis »,
+     mais c'est « répondre » qui dit que le geste engage le dirigeant. */
+  if(/formulaire|demande de devis|prise de contact|rendez-vous en ligne|contact/.test(t)) return 'canal';
+  if(/répond|repond|rédig|redig|brouillon/.test(t)) return 'reponse';
+  if(/demand\w* .{0,14}avis|solliciter|obtenir des avis|recueillir/.test(t)) return 'demandeAvis';
+  if(/publi|post\b|posts|réseau|reseau|actualit|contenu|communiqu|photo/.test(t)) return 'publication';
+  if(/surveil|veille|alerte|centralis|suivi|tableau de bord|automatis|synchronis|relance/.test(t)) return 'veille';
+  if(/site (internet|web)|refonte|refondre|développ|developp|créer un site|application/.test(t)) return 'site';
+  if(/horaire|fiche|mention|certificat|assurance|accroche|phrase|décri|decri|nomm|complét|complet|coordonn/.test(t)) return 'fiche';
   return 'inconnu';
 }
 function planQuiHtml(txt){
-  var k=planQui(txt), c=PLAN_QUI[k];
+  var c=PLAN_QUI[planQui(txt)];
   return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:6px;background:'+c.f+';border:1px solid '+c.b+';border-radius:8px;padding:6px 9px;">'
-    +'<span style="flex:0 0 auto;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+c.t+';padding-top:2px;">'+c.lib+'</span>'
+    +'<span style="flex:0 0 auto;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+c.t+';padding-top:2px;white-space:nowrap;">'+esc(c.lib)+'</span>'
     +'<span style="flex:1;font-size:10.5px;color:#4b5563;line-height:1.5;">'+esc(c.det)+'</span></div>';
-}
-function planEcheance(base, jours){
+}function planEcheance(base, jours){
   var t=new Date(base||Date.now()); t.setDate(t.getDate()+jours);
   return t.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
 }
