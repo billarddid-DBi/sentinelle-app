@@ -3634,7 +3634,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 311';
+var IVE_VERSION='11/08 · 312';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4140,6 +4140,101 @@ function planSequence(d, v, dateRef){
       preuve:'La prochaine SENTINELLE remesure ce chiffre sur les mêmes bases.'});
   });
   return {etapes:etapes, tenir:aTenir, absorbes:absorbes};
+}
+/* ═══ « AUJOURD'HUI » / « AVEC L'IA » : CALCULÉS, PLUS RÉDIGÉS ═══════════════════════════════
+   Didier, 11/08/2026 : « tu me gardes le aujourd'hui, en reprenant finalement ce qu'on voit, et
+   avec l'IA ce qu'on peut proposer — c'est un peu le résumé de tout ce qu'on a dit. »
+   Les deux encadrés venaient de d.avantApres, écrit par le modèle : deux paragraphes sur
+   l'intérieur de l'entreprise, dans le bloc dont on vient justement de retirer la dernière phrase
+   du même genre. Les garder tels quels aurait remis par la fenêtre ce qu'on sortait par la porte.
+   On les reconstruit : à gauche ce qui est mesuré, à droite ce que le plan a déjà décidé. Pas un
+   mot nouveau sur l'entreprise — un résumé de ce qui précède, et rien d'autre.
+
+   ⚠️ ET LA SÉPARATION EN DEUX GROUPES N'EST PAS DÉCORATIVE. La note ne repose que sur TROIS
+   entrées : la note Google, le nombre d'avis et l'existence d'un site (formule identique dans
+   api/sentinelle.js et api/concurrents.js — le banc _check-api le vérifie ligne à ligne).
+   Répondre aux avis, compléter la fiche, publier sur les réseaux : rien de tout cela ne la
+   déplace d'un point. Tout annoncer ensemble sous « pour faire grimper la note » promettrait une
+   hausse à des tâches qui n'en produisent aucune — et la prochaine SENTINELLE nous démentirait
+   avec nos propres chiffres. */
+function resumeAujourdhui(d, v){
+  var L=[];
+  /* 1 — la note et son volume : les deux chiffres qui pèsent réellement dans le calcul. */
+  if(v.ng!=null){
+    L.push('<b>'+String(v.ng).replace('.',',')+'/5</b> sur Google'
+      +(v.nbA!=null?(', sur <b>'+v.nbA+'</b> avis') : ', nombre d\'avis non mesuré')+'.');
+  }else{
+    L.push('<b>Aucune note Google mesurée</b> — l\'indice repose alors sur une estimation, pas sur un relevé.');
+  }
+  /* 2 — ce qu'on a pu lire, et ce qu'on n'a pas pu lire. La case vide est une information. */
+  var pl=(Array.isArray(d&&d.plateformes)?d.plateformes:[]);
+  var lues=pl.filter(function(p){ return p&&p.mesure; }).length, fermees=pl.length-lues;
+  L.push(pl.length
+    ? ('<b>'+pl.length+'</b> autre'+(pl.length>1?'s':'')+' plateforme'+(pl.length>1?'s':'')+' repérée'+(pl.length>1?'s':'')+' : '
+       +(lues?('<b>'+lues+'</b> dont les chiffres ont pu être lus'):'aucune dont les chiffres aient pu être lus')
+       +(fermees>0?(', '+fermees+' fermée'+(fermees>1?'s':'')+' à la lecture automatique'):'')+'.')
+    : 'Aucune autre plateforme d\'avis repérée au nom de l\'entreprise.');
+  L.push(v.site
+    ? 'Un <b>site internet</b> a été trouvé — c\'est l\'une des trois entrées du calcul.'
+    : '<b>Aucun site internet trouvé</b> — c\'est l\'une des trois entrées du calcul, et elle manque.');
+  /* 3 — l'indicateur le plus bas : là où le même effort se voit le plus. */
+  var ind=[{n:'Réputation en ligne',x:(v.ng!=null?Math.round(v.ng/5*100):v.est)},
+           {n:'Visibilité',x:v.visib},{n:'Sentiment',x:v.senti},
+           {n:'Positionnement',x:v.posi},{n:'Confiance',x:v.conf}].filter(function(o){ return o.x!=null; });
+  if(ind.length){
+    var bas=ind.reduce(function(a,b){ return (b.x<a.x)?b:a; });
+    L.push('Indicateur le plus bas : <b>'+esc(bas.n)+' ('+bas.x+')</b> — c\'est par là que commence le plan ci-dessus.');
+  }
+  return L;
+}
+function resumeAvecIA(d, v, dateRef){
+  var p=planSequence(d||{}, v, dateRef);
+  var monte=[], autres=[], presta=[];
+  p.etapes.forEach(function(e){
+    var f=planQui(e.titre), c=PLAN_QUI[f]||{};
+    if(f==='site'){ presta.push('Point '+e.rang); return; }
+    if(!c.ia) return;   /* rien qu'un outil puisse porter : on ne l'annonce pas de ce côté-ci */
+    /* ⚠️ ON RENVOIE AU NUMÉRO DU POINT, ON NE RECOPIE PAS SON TITRE. Le plan est juste au-dessus :
+       réécrire « Répondez aux 5 avis les plus récents » quinze lignes plus bas ferait lire deux
+       fois la même consigne, et douter qu'il s'agisse de la même. Le banc _check-parcours compte
+       d'ailleurs les occurrences de chaque geste — il est tombé rouge à la première version. */
+    (f==='demandeAvis'?monte:autres).push({rang:e.rang, t:e.titre, ia:c.ia});
+  });
+  return {monte:monte, autres:autres, presta:presta, cible:planCible(v.est)};
+}
+function resumeAvantApresHtml(d, v, dateRef){
+  var a=resumeAujourdhui(d,v), b=resumeAvecIA(d,v,dateRef);
+  var li=function(t){
+    return '<div style="display:flex;gap:6px;align-items:flex-start;margin-top:5px;">'
+      +'<span style="color:#c7ccd3;flex:0 0 auto;">•</span><span style="flex:1;">'+t+'</span></div>';
+  };
+  var bloc=function(titre, coul, items, sous){
+    if(!items.length) return '';
+    return '<div style="margin-top:8px;">'
+      +'<div style="font-size:9px;font-weight:800;letter-spacing:.7px;color:'+coul+';">'+titre+'</div>'
+      +(sous?('<div style="font-size:9.5px;color:#9ca3af;line-height:1.45;margin-top:1px;">'+sous+'</div>'):'')
+      +items.map(function(x){
+         return li('<b style="color:#1C1C1C;">Point '+x.rang+'</b> — <span style="color:#6b7280;">'+esc(x.ia)+'</span>'); }).join('')
+      +'</div>';
+  };
+  var gauche='<div class="mini">'
+    +'<div style="font-weight:600;color:#6b7280;">Aujourd\'hui</div>'
+    +'<div style="font-size:10px;color:#9ca3af;line-height:1.4;">Ce qui a été mesuré, rien d\'autre.</div>'
+    +'<div style="color:#4b5563;line-height:1.5;font-size:11px;">'+a.map(li).join('')+'</div></div>';
+  var mecanique='La note ne bouge que sur trois entrées : la moyenne, le nombre d\'avis, l\'existence d\'un site.'
+    +(b.cible?(' Palier suivant : <b>'+b.cible.s+'</b> — le seuil de « '+esc(b.cible.l)+' ».'):'');
+  var droite='<div class="mini" style="border:2px solid #d97706;">'
+    +'<div style="font-weight:600;color:#b45309;">Avec l\'IA</div>'
+    +'<div style="font-size:10px;color:#9ca3af;line-height:1.4;">Les tâches du plan ci-dessus qu\'un outil peut porter.</div>'
+    +'<div style="font-size:11px;color:#4b5563;line-height:1.5;">'
+    + bloc('CE QUI FAIT MONTER LA NOTE','#15803d',b.monte,mecanique)
+    + bloc('CE QUE LA NOTE NE MESURE PAS','#2563EB',b.autres,'Visible par le client, sans effet sur le chiffre — à ne jamais vendre comme un gain de points.')
+    + (b.presta.length?('<div style="margin-top:8px;font-size:10px;color:#7c3aed;line-height:1.45;"><b>HORS IA —</b> '
+        +b.presta.map(function(x){ return esc(x); }).join(' · ')+' : cela relève d\'un prestataire, pas d\'un outil.</div>'):'')
+    + ((!b.monte.length&&!b.autres.length)
+        ? '<div style="margin-top:6px;color:#9ca3af;font-size:10.5px;">Aucune tâche du plan ne se délègue à un outil : tout ce qui reste engage le dirigeant lui-même.</div>' : '')
+    +'</div></div>';
+  return '<div class="grid2" style="margin-top:8px;font-size:12px;">'+gauche+droite+'</div>';
 }
 function planActionHtml(v, d, dateRef){
   var p=planSequence(d||window.__sentData||{}, v, dateRef);
@@ -5238,8 +5333,16 @@ function render(d,skipSave){
          où il faudra le rouvrir, il sera là — et il devra passer par les mêmes filtres que le
          reste avant d'être réaffiché. */''}
 
-    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-target"></i> LES OPPORTUNITÉS D'AMÉLIORATION</div>
-      <div style="font-size:12.5px;color:#374151;line-height:1.6;margin-top:8px;">L'analyse met en évidence plusieurs leviers pour réduire les délais, alléger les tâches administratives et renforcer la réactivité commerciale. À titre d'exemple :</div>
+    ${/* ⚠️ « LES OPPORTUNITÉS D'AMÉLIORATION » ET SA PHRASE SONT RETIRÉES. Didier, 11/08/2026 :
+         « j'enlèverai les opportunités d'amélioration avec la petite phrase. »
+         « L'analyse met en évidence plusieurs leviers pour réduire les délais, alléger les tâches
+         administratives et renforcer la réactivité commerciale » était la dernière phrase du
+         rapport à affirmer quelque chose sur l'INTÉRIEUR : ni les délais, ni l'administratif, ni
+         la réactivité ne se voient depuis la vitrine.
+         Le CTA de fin part avec elle, pour la même raison : « vous permettront de respirer et de
+         pérenniser votre activité sans recruter » suppose un dirigeant essoufflé et une question
+         de recrutement — deux choses que SENTINELLE n'a pas vues. */''}
+    <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-calculator"></i> ORDRE DE GRANDEUR — pour ouvrir la discussion</div>
       <div style="background:${col};color:#fff;border-radius:12px;padding:14px 16px;text-align:center;margin-top:10px;">
         <div style="font-size:11px;opacity:.75;letter-spacing:.5px;"><i class="ti ti-calculator"></i> ESTIMATION INDICATIVE</div>
         <div style="font-size:12px;opacity:.85;margin-top:3px;">${esc(d.chiffre?.label)||'Temps récupérable estimé'}</div>
@@ -5254,11 +5357,7 @@ function render(d,skipSave){
         <div class="simrow"><label style="flex:1;margin:0;">Coût horaire</label><input type="range" id="sC" min="20" max="200" step="5" value="${sim.cout}"><span class="val" id="sCv"></span></div>
       </div>
       <div style="font-size:10.5px;color:#92700c;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;margin-top:10px;line-height:1.45;"><i class="ti ti-info-circle"></i> Exemple d'amélioration possible, à titre <b>illustratif et non contractuel</b> — les pistes réelles et chiffrées seront établies avec la <b>BOUSSOLE</b>.</div>
-      <div class="grid2" style="margin-top:8px;font-size:12px;">
-        <div class="mini"><div style="font-weight:600;color:#6b7280;">Aujourd'hui</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.aujourdhui)}</div></div>
-        <div class="mini" style="border:2px solid #d97706;"><div style="font-weight:600;color:#b45309;">Avec l'IA</div><div style="color:#4b5563;line-height:1.5;">${esc(d.avantApres?.avecIA)}</div></div>
-      </div>
-      <div style="background:#eef2ff;border:1px solid #E7DBD1;border-radius:12px;padding:12px 14px;margin-top:10px;text-align:center;font-size:12.5px;color:#312e81;"><b>${esc(d.cta)}</b></div>
+      ${resumeAvantApresHtml(d, synthVals(d), Date.now())}
     </div>
 ` + confFerme);
   /* ═══ UNE SEULE PAGE SENTINELLE ═══════════════════════════════════════════════════════════
