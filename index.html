@@ -1812,6 +1812,13 @@ function etatSet(id, champ, val){
   etatStore.save(); etatMaj();
 }
 function etatNom(id, v){ var e=etatCharger(); e.r[id]=e.r[id]||{}; e.r[id].nom=v; etatStore.save(); }
+/* ⚠️ « AUTRE » EST SUR CHAQUE LIGNE, SANS EXCEPTION. Didier, 11/08/2026 : « dans toutes les
+   questions que tu me proposes, tu me rajoutes une case autre où on peut mettre une autre
+   réponse. » Une liste fermée oblige à choisir la réponse la moins fausse — et c'est cette
+   approximation-là qu'on relirait plus tard comme un fait relevé. Mieux vaut ses mots.
+   Son indice est -1, pas la longueur de la liste : ajouter un choix à une famille ne doit pas
+   déplacer les réponses déjà enregistrées. */
+function etatAutre(id, v){ var e=etatCharger(); e.r[id]=e.r[id]||{}; e.r[id].autre=v; etatStore.save(); }
 function etatNote(v){ var e=etatCharger(); e.note=v; etatStore.save(); }
 function etatMaj(){ var z=$('etatBloc'); if(z) z.innerHTML=etatCorpsHtml(); }
 function etatPuce(txt, actif, coul, fond, bord, onclick){
@@ -1848,7 +1855,12 @@ function etatCorpsHtml(){
     m.ou.forEach(function(o,i){
       h+=etatPuce(etatOuL(o), r.ou===i, '#1d4ed8','#eff6ff','#bfdbfe','etatSet(\''+m.id+'\',\'ou\','+i+')');
     });
+    /* Le dernier choix de CHAQUE ligne, toujours : ce qu'on n'a pas prévu. */
+    h+=etatPuce('Autre…', r.ou===-1, '#1d4ed8','#eff6ff','#bfdbfe','etatSet(\''+m.id+'\',\'ou\',-1)');
     h+='</div>';
+    if(r.ou===-1){
+      h+='<input type="text" value="'+esc(r.autre||'')+'" placeholder="Alors, comment ça se passe ?" oninput="etatAutre(\''+m.id+'\',this.value)" style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:9px;padding:7px 10px;font-size:12px;font-family:inherit;margin-top:7px;">';
+    }
     /* Le nom du logiciel : c'est LUI qui rend la suite concrète — on ne devine plus, on reprend
        le mot qu'il vient de dire. Et son âge, parce qu'un outil de deux mois se termine, il ne
        se remplace pas (le CRM de l'entreprise en cours, Didier, 11/08/2026). */
@@ -1884,6 +1896,10 @@ function etatRecap(){
   var e=etatCharger(), f=ETAT_FAMILLES[e.famille]; if(!f) return null;
   var lignes=etatLignes(), parId={};
   lignes.forEach(function(m){ parId[m.id]=m; });
+  /* ⚠️ UNE RÉPONSE « AUTRE » NE NOURRIT PAS LES DÉDUCTIONS, ET C'EST VOLONTAIRE. Son texte libre
+     peut aussi bien nommer un logiciel que dire « on ne fait pas ça » : le ranger d'office parmi
+     les outils inventerait un fait. Il reste affiché, compté, et lu à l'entretien — ce qui est
+     exactement son rôle. (m.ou[-1] vaut undefined, donc etatOuS le rejette de lui-même.) */
   var nomDe=function(id){ var r=e.r[id]; if(!r||r.ou==null) return ''; var m=parId[id]; if(!m||!etatOuS(m.ou[r.ou])) return ''; return (r.nom||'').trim(); };
   /* L'outil qui revient : sa colonne vertébrale. On compare en minuscules — « Batigest » et
      « batigest » sont le même logiciel, et personne ne tape deux fois pareil. */
@@ -3924,7 +3940,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 313';
+var IVE_VERSION='11/08 · 314';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
