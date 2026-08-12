@@ -3997,7 +3997,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='12/08 · 317';
+var IVE_VERSION='12/08 · 318';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4988,8 +4988,9 @@ function rapportHtml(d, version, dateAnalyse){
 
   /* ── 03 · RÉPUTATION, PLATEFORME PAR PLATEFORME ────────────────────────────────────────── */
   var tab=(typeof avisTableau==='function')?avisTableau(d):'';
-  if(tab) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
-      'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab);
+  var can=(typeof canauxHtml==='function')?canauxHtml(d):'';
+  if(tab||can) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
+      'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+can);
 
   /* ── 04 · LES ENTREPRISES VOISINES ─────────────────────────────────────────────────────── */
   /* En partie I : ce sont des relevés publics, au même titre que les avis. Aucun commentaire,
@@ -5827,6 +5828,10 @@ function render(d,skipSave){
 
     ${avisTableau(d)}
 
+    ${/* Juste après les avis : on vient de dire où les clients écrivent, on dit maintenant où
+         l'entreprise parle. Deux natures voisines, jamais mélangées. */''}
+    ${canauxHtml(d)}
+
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
       <div class="grid2" style="font-size:12px;margin-top:8px;">
         <div class="mini"><b style="color:${col};">Financier</b><div style="color:#4b5563;line-height:1.5;margin-top:2px;">${esc(d.intel?.financier)}</div></div>
@@ -6362,6 +6367,50 @@ function fraicheurHtml(f, estime, dateIso){
 function dateFr(x){
   var t=new Date(x); if(isNaN(t)) return String(x||'');
   return t.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+/* ═══ VOS PAGES PUBLIQUES — CE QUE L'ENTREPRISE ALIMENTE ═════════════════════════════════════
+   Didier, 12/08/2026 : « je vois qu'il y a une actualité très riche sur Facebook, et toi tu ne
+   me mets rien du tout, donc ça ne va pas du tout. »
+   Il a raison, et la faute était dans notre propre consigne : elle n'acceptait Facebook QUE s'il
+   y figurait des avis. Une page très active mais sans recommandations était donc écartée en
+   silence — alors que c'est parfois le seul endroit où l'entreprise parle à ses clients.
+   ⚠️ DEUX LISTES, DEUX NATURES. « plateformes » = là où des CLIENTS écrivent. « canaux » = les
+   pages que l'ENTREPRISE alimente. Les mélanger, c'était compter une page d'actualités comme
+   une source d'avis — ou la faire disparaître faute d'en être une.
+   ⚠️ ET AUCUN CHIFFRE ICI, JAMAIS. Ces pages ne sont pas lisibles automatiquement : « page très
+   active », « 12 publications ce mois-ci », « dernière publication en mars » seraient des
+   déductions présentées comme des relevés — l'erreur qu'on a déjà payée trois fois sur les
+   dates. On donne le LIEN : la page répond mieux que nous, en trois secondes. */
+function canauxHtml(d){
+  var l=(d&&Array.isArray(d.canaux))?d.canaux:[];
+  if(!l.length) return '';
+  /* Une page déjà listée dans le tableau des avis ne se répète pas ici : le doublon ferait
+     douter qu'il s'agisse de la même page. */
+  var deja={};
+  (Array.isArray(d.plateformes)?d.plateformes:[]).forEach(function(p){
+    if(p&&p.url) deja[String(p.url).replace(/\/+$/,'').toLowerCase()]=1;
+  });
+  var vus={}, items=[];
+  l.forEach(function(c){
+    if(!c || !c.url || !/^https?:\/\//i.test(c.url)) return;      // sans lien vérifiable, on n'affiche rien
+    var k=String(c.url).replace(/\/+$/,'').toLowerCase();
+    if(deja[k] || vus[k]) return;
+    vus[k]=1;
+    items.push({nom:String(c.nom||'').trim()||'Page', url:c.url,
+                quoi:(typeof avisTexteSansChiffres==='function')?avisTexteSansChiffres(c.quoi||''):(c.quoi||'')});
+  });
+  if(!items.length) return '';
+  return '<div class="sec" data-chap="canaux">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-speakerphone"></i> Vos pages publiques</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où vous prenez la parole — pas là où vos clients notent. Leur activité ne se lit pas automatiquement : le lien ouvre la page.</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+    +items.map(function(x){
+      return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener" style="flex:1 1 210px;min-width:0;display:block;border:1px solid #e5e7eb;border-radius:10px;padding:9px 11px;text-decoration:none;background:#fff;">'
+        +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+' <i class="ti ti-external-link" style="font-size:10px;color:#2563EB;"></i></div>'
+        +(x.quoi?('<div style="font-size:11px;color:#6b7280;line-height:1.45;margin-top:2px;">'+esc(x.quoi)+'</div>'):'')
+      +'</a>';
+    }).join('')
+    +'</div></div>';
 }
 function avisTableau(d){
   var lignes=[];
