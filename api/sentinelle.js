@@ -391,7 +391,15 @@ async function mesurerPlateforme(url) {
   finally { clearTimeout(minuteur); }
 }
 
+/* MARQUEUR DE DÉPLOIEMENT — à incrémenter à CHAQUE modification de ce fichier.
+   Même convention que api/miroir.js : un GET le renvoie sans appeler l'IA ni Google. Vérifier
+   qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
+   payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
+   deviner. */
+const SENTINELLE_VERSION = "2026-08-12-01";
+
 export default async function handler(req, res) {
+  if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "Clé API manquante (ANTHROPIC_API_KEY non configurée sur Vercel)." }); return; }
