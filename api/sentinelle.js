@@ -332,6 +332,32 @@ function extraireAbonnes(html) {
   if (ja != null && ja > 0) return { abonnes: ja, source: "jaime" };
   return null;
 }
+const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
+/* ⚠️ UNE FONCTION, PAS DIX LIGNES DANS LE HANDLER — POUR QU'ELLE SOIT ESSAYABLE. La leçon du
+   jour : c'est en FAISANT TOURNER extraireAbonnes() que le banc a trouvé l'apostrophe qui la
+   cassait ; aucune relecture ne l'avait vue. Un tri enfoui dans le handler ne s'essaie pas. */
+function descendreReseaux(fiche) {
+  const plats = Array.isArray(fiche.plateformes) ? fiche.plateformes : [];
+  const restent = [], descendent = [];
+  plats.forEach(p => {
+    const u = (p && p.url) ? String(p.url) : "";
+    /* Une page qui porte de VRAIS avis mesurés reste dans le tableau, à sa place. */
+    const aDesAvis = !!(p && p.mesure && (p.nb != null || p.note != null));
+    if (u && RESEAUX.test(u) && !aDesAvis) descendent.push({ nom: (p.nom || "Page"), url: p.url, quoi: (p.resume || p.role || "") });
+    else restent.push(p);
+  });
+  if (!descendent.length) return fiche;
+  fiche.plateformes = restent;
+  const cans = Array.isArray(fiche.canaux) ? fiche.canaux : [];
+  const deja = {};
+  cans.forEach(c => { if (c && c.url) deja[String(c.url).replace(/\/+$/, "").toLowerCase()] = 1; });
+  descendent.forEach(c => {
+    const k = String(c.url).replace(/\/+$/, "").toLowerCase();
+    if (!deja[k]) { deja[k] = 1; cans.push(c); }
+  });
+  fiche.canaux = cans;
+  return fiche;
+}
 async function mesurerCanal(url) {
   if (!url || !/^https?:\/\//i.test(url)) return null;
   const stop = new AbortController();
@@ -489,6 +515,21 @@ export default async function handler(req, res) {
         });
       }
     } catch (_) {}
+
+    /* ═══ UNE PAGE DE RÉSEAU SANS AVIS N'EST PAS UNE PLATEFORME D'AVIS ═════════════════════
+       Didier, 12/08/2026, capture de Dronavia : Facebook et LinkedIn occupaient deux lignes du
+       tableau des avis, avec un tiret dans « Avis », un tiret dans « Note » et un tiret dans
+       « Dernier avis ». Trois cases vides sur une ligne ne disent rien à personne — et la page
+       Facebook, elle, était bien vivante.
+       ⚠️ LE TRI SE FAIT ICI, PAS DANS LA TÊTE DU MODÈLE. On lui a demandé de choisir entre deux
+       listes ; il classe Facebook en « plateforme d'avis » parce que Facebook PEUT en porter.
+       C'est défendable, et invérifiable de sa part. Nous, après la lecture, nous SAVONS : si
+       aucun avis n'a pu être mesuré sur cette page, elle n'a rien à faire dans un tableau d'avis.
+       Elle descend donc dans « Vos pages publiques », où le nombre d'abonnés sera tenté juste
+       après — c'est-à-dire là où elle a quelque chose à dire.
+       ⚠️ ET SEULEMENT CELLES-LÀ : une page Facebook qui porte de VRAIS avis mesurés reste dans le
+       tableau, à sa place. */
+    try { descendreReseaux(fiche); } catch (_) {}
 
     /* ═══ LES PAGES PUBLIQUES : ON TENTE LE NOMBRE D'ABONNÉS ═══════════════════════════════
        ⚠️ ON EFFACE D'ABORD CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Même règle que la ligne Google :
