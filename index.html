@@ -3997,7 +3997,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='11/08 · 316';
+var IVE_VERSION='12/08 · 317';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6331,7 +6331,17 @@ function fraicheurDepuisDate(x){
   for(var i=0;i<FRAICHEURS.length;i++){ if(jours<=FRAICHEURS[i].max) return FRAICHEURS[i]; }
   return FRAICHEURS[FRAICHEURS.length-1];
 }
-function fraicheurHtml(f, estime){
+/* ⚠️ UNE TRANCHE MESURÉE S'AFFICHE AVEC SA DATE. Didier, 12/08/2026 : « tu me dis dernier avis
+   inférieur à trois mois, et en fait c'est juillet 2025. Tu ne respectes pas les conditions
+   qu'on s'est données. »
+   Il a raison sur le fond, même si la règle était respectée à la lettre : la tranche EST
+   calculée depuis une date mesurée. Mais « Très récent », en vert, est un VERDICT — et un
+   verdict sans sa pièce justificative ne se vérifie pas. Il se conteste devant un dirigeant,
+   et c'est nous qui n'avons rien à répondre. La date brute change ça : d'un coup d'œil on sait
+   si la tranche est juste, et si elle ne l'est pas on sait quoi chercher.
+   C'est la même règle que partout ailleurs, poussée d'un cran : ce n'est plus « on n'affiche
+   que ce qui est mesuré », c'est « on affiche AVEC QUOI on l'a mesuré ». */
+function fraicheurHtml(f, estime, dateIso){
   if(!f) return '<span style="color:#c7ccd3;">—</span>';
   /* ⚠️ AU-DELÀ D'UN AN, ON LE SIGNALE — SANS LE DIRE MÉCHAMMENT. Une page sans avis récent
      n'est pas une faute : c'est l'endroit où un seul geste se verra le plus. */
@@ -6342,7 +6352,16 @@ function fraicheurHtml(f, estime){
     +'<div style="font-size:10px;color:#9ca3af;white-space:nowrap;">'+esc(f.det)
       /* Didier : « ne présente jamais une estimation comme une date certaine ». */
       +(estime?' · <span style="color:#b45309;">estimé</span>':'')+'</div>'
+    /* La pièce justificative, sous la tranche. Elle n'apparaît QUE si la date a été mesurée :
+       une tranche annoncée par l'analyse n'a rien à produire, et n'affiche donc rien. */
+    +(dateIso?('<div style="font-size:10px;color:#6b7280;white-space:nowrap;">avis du <b>'+esc(dateFr(dateIso))+'</b></div>'):'')
   +'</div>';
+}
+/* Une date ISO en date française, sans dépendance ni bibliothèque. Renvoie la chaîne d'origine
+   si elle n'est pas lisible : mieux vaut une date brute qu'une date inventée. */
+function dateFr(x){
+  var t=new Date(x); if(isNaN(t)) return String(x||'');
+  return t.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 function avisTableau(d){
   var lignes=[];
@@ -6371,6 +6390,8 @@ function avisTableau(d){
                  note:(g.note_google!=null?g.note_google:null),
                  /* La tranche vient du calcul quand la date est mesurée : exacte par construction. */
                  frais:fraicheurDepuisDate(g.dernier_avis), fraisMesure:!!g.dernier_avis,
+                 /* La date brute suit la tranche : c'est elle qui rend le verdict vérifiable. */
+                 fraisDate:(g.dernier_avis||null),
                  resume:_res, mesure:true});
   }
   /* ═══ ⚠️ ON N'AFFICHE PLUS AUCUN CHIFFRE QUE PERSONNE N'A MESURÉ ═══════════════════════════
@@ -6455,7 +6476,7 @@ function avisTableau(d){
            depuis une mesure Google, elle est nette ; reportée par l'analyse, elle porte sa marque.
            Rien du tout : le lien vers la page, qui répond en trois secondes. */
         +'<td style="'+cel+'white-space:nowrap;">'
-          +(l.frais?(fraicheurHtml(l.frais,l.fraisEstime)+(l.fraisMesure?'':marque))
+          +(l.frais?(fraicheurHtml(l.frais,l.fraisEstime,l.fraisDate)+(l.fraisMesure?'':marque))
                    :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
         +'</td>'
         +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):vide)+'</td>'
@@ -6511,7 +6532,33 @@ function avisTableau(d){
            +((d._auraCalc&&d._auraCalc.google_detail)?('<br><span style="color:#b45309;">'+esc(d._auraCalc.google_detail)+'</span>'):'')
            +'<br><span style="color:#9ca3af;">Visible par vous seul.</span></div>';
        }
-       var origine=diag+'<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
+       /* ⚠️ SUR QUELLE FICHE GOOGLE A-T-ON MESURÉ ? Didier, 12/08/2026, sur Dronavia : la ligne
+          annonçait « moins de 3 mois » alors que le dernier avis qu'il voit date de juillet 2025.
+          Tous les chiffres de SENTINELLE — note, nombre d'avis, date, et donc l'indice — sortent
+          d'UN lieu choisi par une recherche « nom + ville ». Si ce choix se trompe
+          d'établissement, tout est faux ENSEMBLE et rien ne le trahit : les chiffres restent
+          cohérents entre eux, ils décrivent simplement une autre entreprise. Le nom et l'adresse
+          retenus règlent la question en une seconde — et le lien ouvre la fiche mesurée.
+          ⚠️ ET ON DIT SI LE TRI PAR DATE A ÉTÉ HONORÉ. Google ne renvoie que cinq avis : triés
+          par date, leur maximum EST le dernier avis ; à défaut ce sont les cinq « plus
+          pertinents », et leur maximum peut être plus ancien que le vrai dernier avis. Deux
+          garanties différentes ne doivent pas s'afficher pareil. Administrateur seulement. */
+       var ga=(d&&d._auraCalc)?d._auraCalc:null;
+       var mesure='';
+       if(ga && (ga.place_nom || ga.avis_lus!=null) && typeof iveIsAdmin==='function' && iveIsAdmin()){
+         var lienG=ga.place_id?('https://www.google.com/maps/place/?q=place_id:'+encodeURIComponent(ga.place_id)):'';
+         mesure='<div style="font-size:10.5px;color:#4b5563;background:#f5f8ff;border:1px solid #dbe7fb;border-radius:8px;padding:7px 9px;margin-top:6px;line-height:1.55;">'
+           +'<b style="color:#2563EB;"><i class="ti ti-map-pin-check"></i> Mesuré sur cette fiche Google</b><br>'
+           +(ga.place_nom?('<b>'+esc(ga.place_nom)+'</b>'):'<span style="color:#9ca3af;">nom non retourné</span>')
+           +(ga.place_adresse?(' — '+esc(ga.place_adresse)):'')
+           +(lienG?(' · <a href="'+esc(lienG)+'" target="_blank" rel="noopener" style="color:#2563EB;font-weight:700;text-decoration:none;">ouvrir <i class="ti ti-external-link" style="font-size:9px;"></i></a>'):'')
+           +'<br>'+(ga.avis_lus?(ga.avis_lus+' avis lu'+(ga.avis_lus>1?'s':'')+' sur les '+(ga.nb_avis!=null?ga.nb_avis:'?')+' annoncés'):'aucun avis renvoyé par Google')
+           +(ga.avis_lus?(ga.avis_tri
+              ? ' · <span style="color:#15803d;font-weight:700;">triés du plus récent</span> — le dernier avis est donc exact.'
+              : ' · <span style="color:#9a3412;font-weight:700;">NON triés par date</span> — Google a refusé le tri : la date affichée est celle du plus récent de ces '+ga.avis_lus+' seulement. Le vrai dernier avis peut être PLUS récent, jamais plus ancien.'):'')
+           +'<br><span style="color:#9ca3af;">Si ce n\'est pas la bonne entreprise, toute l\'analyse porte sur une autre fiche : relancez en précisant l\'adresse. Visible par vous seul.</span></div>';
+       }
+       var origine=diag+mesure+'<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
          +'<b>Chiffres en noir : mesurés.</b> Google est relevé automatiquement, fraîcheur du dernier avis comprise.'
          +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : relevés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez leur page avant de citer ces chiffres.'):'')
          /* Règle de Didier : chaque plateforme est un ensemble à part. Le dire évite qu'on refasse

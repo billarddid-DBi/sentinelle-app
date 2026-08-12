@@ -205,16 +205,25 @@ async function getDetails(placeId, key) {
        l'information qu'on cherchait n'est pas un repli, c'est un abandon.
        On redemande donc les avis SANS le tri avant de renoncer : même non triés, le plus récent
        de leurs horodatages reste une mesure. */
+    /* ⚠️ ON RETIENT LAQUELLE DES TROIS TENTATIVES A RÉPONDU. Sans ça, « moins de 3 mois » a la
+       même allure qu'on ait reçu les avis TRIÉS PAR DATE ou les cinq « plus pertinents » : dans
+       le second cas, le maximum de leurs horodatages n'est pas forcément le dernier avis de la
+       fiche. Ça reste une mesure, mais pas la même — et le lecteur a le droit de le savoir.
+       Didier, 12/08/2026 : « tu me dis dernier avis inférieur à trois mois, et en fait c'est
+       juillet 2025. Tu ne respectes pas les conditions qu'on s'est données. » */
+    let tri = false;
     let res = await lire(`${base}&fields=website,reviews&reviews_sort=newest`);
+    if (res) tri = true;
     if (!res) res = await lire(`${base}&fields=website,reviews`);
     /* Dernier recours : le strict minimum. Un paramètre refusé fait tomber TOUTE la réponse — on
        perdrait alors l'adresse du site, qui entre dans le calcul de la note. Elle baisserait de
        plusieurs points sans que personne sache que c'est une API qui a bougé, pas l'entreprise.
        Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
     if (!res) res = await lire(`${base}&fields=website`);
-    if (!res) return { website: null, dernierAvis: null, statut: statut || "SANS_REPONSE", detail };
-    let dernier = null;
+    if (!res) return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "SANS_REPONSE", detail };
+    let dernier = null, avisLus = 0;
     if (Array.isArray(res.reviews) && res.reviews.length) {
+      avisLus = res.reviews.length;
       const t = res.reviews.map(x => x && x.time).filter(x => typeof x === "number" && x > 0);
       if (t.length) dernier = new Date(Math.max.apply(null, t) * 1000).toISOString().slice(0, 10);
     }
@@ -222,8 +231,8 @@ async function getDetails(placeId, key) {
        c'est le signe que le champ `reviews` n'est pas ouvert sur cette clé, pas que la fiche
        n'a pas d'avis. Les confondre ferait chercher le défaut du mauvais côté. */
     if (!dernier && statut === "OK") statut = "OK_SANS_AVIS";
-    return { website: res.website || null, dernierAvis: dernier, statut: statut || "OK", detail };
-  } catch (_) { return { website: null, dernierAvis: null, statut: statut || "ERREUR_RESEAU", detail }; }
+    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, statut: statut || "OK", detail };
+  } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "ERREUR_RESEAU", detail }; }
 }
 
 /* ═══ LIRE LA NOTE ET LE NOMBRE D'AVIS SUR LA PAGE ELLE-MÊME ═══════════════════════════════
@@ -368,7 +377,16 @@ export default async function handler(req, res) {
             fiche.indice = fiche.indice || {};
             fiche.indice.estime = note;
             fiche.indice.potentiel = Math.min(100, note + 18);
-            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis, google_statut: det.statut || null, google_detail: det.detail || null };
+            /* ⚠️ ON DIT SUR QUELLE FICHE GOOGLE ON A MESURÉ. Tous les chiffres de SENTINELLE —
+               la note, le nombre d'avis, la date du dernier avis, et donc l'indice — viennent
+               d'UN lieu choisi par pickCanonical() à partir d'une recherche « nom + ville ». Si
+               ce choix se trompe d'établissement, tout est faux ensemble et rien à l'écran ne
+               permet de s'en apercevoir : on lit des chiffres cohérents… d'une autre entreprise.
+               Le nom et l'adresse retenus rendent l'erreur visible en une seconde.
+               Didier, 12/08/2026, sur Dronavia : « rebelote pour les avis Google ». */
+            fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis, google_statut: det.statut || null, google_detail: det.detail || null,
+              place_nom: p.name || null, place_adresse: p.formatted_address || null, place_id: p.place_id || null,
+              avis_lus: det.avisLus || 0, avis_tri: !!det.tri };
             /* ⚠️ ON EFFACE CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Le champ était sa porte d'entrée
                pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
                absente : il n'y a pas de troisième cas. */
