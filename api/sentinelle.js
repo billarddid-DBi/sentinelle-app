@@ -34,6 +34,7 @@ PLATEFORMES DU SECTEUR (recherche web SYSTÉMATIQUE, pour TOUT métier — jamai
 Deux listes, deux natures, aucune confusion possible : "plateformes" = là où des CLIENTS écrivent (avis, notes, recommandations) · "canaux" = les pages que l'ENTREPRISE alimente (Facebook, Instagram, LinkedIn, YouTube, TikTok). Une même page Facebook va dans "plateformes" si elle porte des avis, dans "canaux" sinon — JAMAIS dans les deux.
 DANS "canaux" : AUCUN CHIFFRE, AUCUNE DATE, AUCUN JUGEMENT DE VITALITÉ. Ni nombre de publications, ni abonnés, ni « page très active », ni « dernière publication en mars ». Ces pages ne te sont pas lisibles, et l'application retire ces mentions avant affichage. "quoi" dit seulement CE QU'ON Y TROUVE : « chantiers en photos », « nouveautés et horaires », « démonstrations produit ». Si tu ne peux pas le dire sans chiffre, laisse le champ vide.
 L'URL doit être celle de la PAGE de cette entreprise, jamais une recherche, jamais l'accueil du réseau. Si tu n'as pas trouvé de page, renvoie une liste vide : "canaux": []. N'INVENTE JAMAIS une page.
+LE NOMBRE D'ABONNÉS NE T'APPARTIENT PAS — exactement comme la ligne Google. N'écris aucun champ "abonnes" : après ta réponse, l'application ouvre elle-même chaque page et lit ce nombre s'il y est publié. Tout chiffre que tu écrirais là serait effacé avant affichage. Ton apport, ici comme ailleurs, c'est l'URL EXACTE : elle seule permet la mesure.
 ⚠️ RÉPONDRE À UN AVIS : SEULEMENT S'IL EST RÉCENT. On répond dans la semaine, au pire dans le mois. JAMAIS à un avis vieux de plusieurs mois ou de plusieurs années : une réponse tardive ne rassure personne et fait l'effet inverse — elle affiche publiquement qu'on ne regardait pas. Didier, 10/08/2026, sur un quick win qui proposait de répondre à des avis de 2020 : « tu ne réponds pas au bout de six ans, là tu passes pour un abruti. » Quand les avis sont anciens, la bonne action n'est pas de répondre : c'est d'en faire arriver de nouveaux (demander un avis en fin de prestation) et de répondre à ceux-là, vite. N'écris donc JAMAIS un quick win qui invite à répondre à des avis anciens.
 ⚠️ AUCUNE DATE NI DURÉE DU PASSÉ DANS LES QUICK WINS ET LA VIGILANCE. Pas de « dernier avis en 2020 », pas de « 6 ans sans réaction », pas de « depuis mars », pas de « 147 likes » : ces éléments viennent de pages que tu n'as pas lues, et ils seront retirés avant affichage. Décris le GESTE à faire, pas la statistique qui le justifie. Un quick win se juge à ce qu'il fait faire, pas au chiffre qu'il cite.
 ⚠️ L'URL EST LE CHAMP LE PLUS IMPORTANT DE CETTE LISTE — plus important que les chiffres. Après ta réponse, l'application OUVRE elle-même chaque page et y lit la note et le nombre d'avis publiés dans le code du site. Une URL exacte vaut donc un chiffre mesuré ; une URL approximative ne vaut rien, et aucun chiffre ne la rattrape. Donne l'adresse de la PAGE DE CETTE ENTREPRISE sur la plateforme, jamais celle de l'accueil du site ni d'une recherche.
@@ -281,6 +282,71 @@ function extraireNote(html) {
   if (mN || mC) return { note: mN ? nb(mN[1]) : null, nb: mC ? parseInt(mC[1], 10) : null };
   return null;
 }
+/* ═══ LE NOMBRE D'ABONNÉS D'UNE PAGE PUBLIQUE, S'IL SE LAISSE LIRE ═════════════════════════
+   Didier, 12/08/2026 : « as-tu la possibilité de voir le nombre d'abonnés ? »
+   La voie officielle est fermée : lire les abonnés d'une page Facebook qu'on n'administre pas
+   demande une autorisation spéciale de Meta, avec dossier et examen manuel. Reste la carte de
+   visite que le réseau fournit aux moteurs de recherche (`og:description`), où figure parfois
+   « 1 234 J'aime · 1 456 abonnés ». C'est INCONSTANT — souvent un mur de connexion répond à la
+   place — et ça peut cesser du jour au lendemain.
+   ⚠️ D'OÙ LA MÊME RÈGLE QUE PARTOUT : lu, on affiche ; pas lu, on n'écrit rien. Aucun repli sur
+   le modèle, qui ne voit pas ces pages non plus.
+   ⚠️ ET ON PRÉFÈRE LES ABONNÉS AUX « J'AIME » : les mentions J'aime sont un cumul historique
+   qu'une page traîne depuis dix ans ; les abonnés disent qui suit encore. */
+function extraireAbonnes(html) {
+  /* ⚠️ ON NE MÉLANGE PAS LES DEUX GUILLEMETS DANS UNE MÊME CLASSE. Premier essai :
+     content=["']([^"']*)["'] — une classe qui exclut À LA FOIS " et '. La description
+     « 800 mentions J'aime » était donc coupée net sur l'apostrophe, et il ne restait que
+     « 800 mentions J ». Or presque toutes ces pages sont en français, et le français est plein
+     d'apostrophes : la fonction aurait échoué sur la quasi-totalité des cas réels — sans jamais
+     se plaindre, puisque « rien trouvé » est une réponse normale ici. C'est le banc qui l'a vu,
+     en la faisant tourner ; aucune lecture du code ne l'aurait montré.
+     On traite donc chaque guillemet séparément : dans une valeur entre ", l'apostrophe est un
+     caractère ordinaire. */
+  const meta = html.match(/<meta[^>]+(?:property|name)=["'](?:og:description|description)["'][^>]*content="([^"]{0,600})"/i)
+            || html.match(/<meta[^>]+(?:property|name)=["'](?:og:description|description)["'][^>]*content='([^']{0,600})'/i)
+            || html.match(/<meta[^>]*content="([^"]{0,600})"[^>]*(?:property|name)=["'](?:og:description|description)["']/i)
+            || html.match(/<meta[^>]*content='([^']{0,600})'[^>]*(?:property|name)=["'](?:og:description|description)["']/i);
+  if (!meta) return null;
+  /* Ces pages encodent volontiers l'apostrophe en &#039; : sans ce décodage, même problème. */
+  const txt = meta[1].replace(/&nbsp;|&#160;/g, " ").replace(/&#0?39;|&apos;/g, "'")
+                     .replace(/&#8217;/g, "’").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+  /* « 1 234 », « 1,234 », « 1.234 », « 12 K », « 1,2 M » — tous vus sur ces pages. */
+  const enNombre = (brut, suffixe) => {
+    let n = parseFloat(String(brut).replace(/[   ]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
+    if (!isFinite(n)) return null;
+    if (/^k$/i.test(suffixe || "")) n *= 1000;
+    if (/^m$/i.test(suffixe || "")) n *= 1000000;
+    return Math.round(n);
+  };
+  const cherche = (mots) => {
+    const re = new RegExp("([\\d][\\d  \\u202f.,]*)\\s*([KkMm])?\\s*(?:" + mots + ")", "i");
+    const m = txt.match(re);
+    return m ? enNombre(m[1], m[2]) : null;
+  };
+  /* L'apostrophe typographique ’ est celle que ces pages utilisent presque toujours : ne pas
+     l'accepter, c'est ne rien trouver dans 90 % des cas. */
+  const ab = cherche("abonn[ée]s?|followers?|personnes? suivent|s['’]abonnent");
+  if (ab != null && ab > 0) return { abonnes: ab, source: "abonnes" };
+  const ja = cherche("mentions? J['’]aime|J['’]aime|likes?");
+  if (ja != null && ja > 0) return { abonnes: ja, source: "jaime" };
+  return null;
+}
+async function mesurerCanal(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 4000);
+  try {
+    const r = await fetch(url, {
+      signal: stop.signal,
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SENTINELLE/1.0; +https://dbi360.fr)", "Accept-Language": "fr-FR,fr;q=0.9" }
+    });
+    if (!r.ok) return null;
+    const html = (await r.text()).slice(0, 300000);
+    return extraireAbonnes(html);
+  } catch (_) { return null; }
+  finally { clearTimeout(minuteur); }
+}
 async function mesurerPlateforme(url) {
   if (!url || !/^https?:\/\//i.test(url)) return null;
   const stop = new AbortController();
@@ -422,6 +488,28 @@ export default async function handler(req, res) {
           if (m.note != null || m.nb != null) p.mesure = true;
         });
       }
+    } catch (_) {}
+
+    /* ═══ LES PAGES PUBLIQUES : ON TENTE LE NOMBRE D'ABONNÉS ═══════════════════════════════
+       ⚠️ ON EFFACE D'ABORD CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Même règle que la ligne Google :
+       ce champ ne lui appartient pas. Sans cet effacement, un « 800 abonnés » supposé passerait
+       pour une lecture — l'erreur exacte des trois dates fausses, transposée aux réseaux.
+       Quatre pages au maximum, en parallèle, quatre secondes chacune : un mur de connexion ne
+       doit jamais coûter l'analyse entière. */
+    try {
+      const cans = Array.isArray(fiche.canaux) ? fiche.canaux.slice(0, 4) : [];
+      cans.forEach(c => { if (c) { delete c.abonnes; delete c.mesure; } });
+      if (cans.length) {
+        const lus = await Promise.all(cans.map(c => mesurerCanal(c && c.url)));
+        cans.forEach((c, i) => {
+          const m = lus[i];
+          if (!c || !m || m.abonnes == null) return;
+          c.abonnes = m.abonnes;
+          c.abonnesQuoi = m.source;     // « abonnes » ou « jaime » : ce n'est pas la même chose
+          c.mesure = true;              // le drapeau voyage AVEC le chiffre
+        });
+      }
+      if (Array.isArray(fiche.canaux)) fiche.canaux.slice(4).forEach(c => { if (c) { delete c.abonnes; delete c.mesure; } });
     } catch (_) {}
 
     /* ═══ C'EST ICI QUE LA FICHE EST RANGÉE (02/08/2026) ═══════════════════════════════════

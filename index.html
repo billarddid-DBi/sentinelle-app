@@ -1706,7 +1706,14 @@ var ETAT_SOCLE=[
   {id:'mail', t:'Les mails', q:'Les mails qui arrivent pour l\'entreprise, ils arrivent où ?',
    ou:['Une seule boîte, tout le monde la voit','Chacun la sienne','Les deux à la fois','Presque tout passe par le téléphone']},
   {id:'pilotage', t:'Savoir si le mois est bon', q:'Pour savoir si le mois a été bon, vous regardez quoi ?',
-   ou:['Le compte en banque','Un tableau que je tiens moi-même','Ce que dit le comptable',{l:'Un logiciel me le sort',s:1},'Rien de précis, au ressenti']}
+   ou:['Le compte en banque','Un tableau que je tiens moi-même','Ce que dit le comptable',{l:'Un logiciel me le sort',s:1},'Rien de précis, au ressenti']},
+  /* ⚠️ CETTE QUESTION EXISTE PARCE QU'AUCUN ROBOT NE SAIT Y RÉPONDRE. Didier, 12/08/2026 :
+     « il y a une actualité très riche sur Facebook et tu ne me mets rien ». On peut parfois lire
+     le nombre d'abonnés d'une page ; le RYTHME des publications, non — Facebook ne le publie pas
+     et ne le publiera pas. Le dirigeant, lui, répond en cinq secondes, et sa réponse est vérifiée
+     par construction. Trois heures de code ne valent pas cette phrase-là. */
+  {id:'publications', t:'Les publications', q:'Vos pages publiques (Facebook, Instagram…) — qui publie, et à quel rythme ?',
+   ou:['Personne, on ne publie pas','Le dirigeant, quand il y pense','Quelqu\'un en interne, régulièrement','Un prestataire ou une agence','On a une page, mais elle dort','On n\'a pas de page']}
 ];
 var ETAT_FAMILLES={
  commande:{ n:'Il appelle, on chiffre, on intervient', ex:'chauffagiste, électricien, plombier, garage, imprimeur, bureau d\'études',
@@ -3997,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='12/08 · 318';
+var IVE_VERSION='12/08 · 319';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6396,17 +6403,26 @@ function canauxHtml(d){
     var k=String(c.url).replace(/\/+$/,'').toLowerCase();
     if(deja[k] || vus[k]) return;
     vus[k]=1;
-    items.push({nom:String(c.nom||'').trim()||'Page', url:c.url,
+    /* ⚠️ LE NOMBRE D'ABONNÉS NE S'AFFICHE QUE S'IL A ÉTÉ LU. `mesure` est posé par le serveur
+       après avoir ouvert la page ; sans lui, le chiffre vient du modèle, qui ne voit pas ces
+       pages — et on retombe dans l'erreur des trois dates fausses. */
+    var ab=(c.mesure && typeof c.abonnes==='number' && c.abonnes>0)?c.abonnes:null;
+    items.push({nom:String(c.nom||'').trim()||'Page', url:c.url, abonnes:ab,
+                /* « J'aime » est un cumul historique, « abonnés » dit qui suit encore : on ne
+                   présente pas l'un pour l'autre. */
+                abLib:(c.abonnesQuoi==='jaime'?'mentions J\'aime':'abonnés'),
                 quoi:(typeof avisTexteSansChiffres==='function')?avisTexteSansChiffres(c.quoi||''):(c.quoi||'')});
   });
   if(!items.length) return '';
   return '<div class="sec" data-chap="canaux">'
     +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-speakerphone"></i> Vos pages publiques</div>'
-    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où vous prenez la parole — pas là où vos clients notent. Leur activité ne se lit pas automatiquement : le lien ouvre la page.</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où vous prenez la parole — pas là où vos clients notent. Le nombre d\'abonnés s\'affiche quand la page le publie ; le <b>rythme</b> des publications, lui, ne se lit pas de l\'extérieur : le lien ouvre la page.</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
     +items.map(function(x){
       return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener" style="flex:1 1 210px;min-width:0;display:block;border:1px solid #e5e7eb;border-radius:10px;padding:9px 11px;text-decoration:none;background:#fff;">'
         +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+' <i class="ti ti-external-link" style="font-size:10px;color:#2563EB;"></i></div>'
+        +(x.abonnes!=null?('<div style="font-size:11.5px;color:#1C1C1C;font-weight:800;margin-top:2px;">'
+            +String(x.abonnes).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' <span style="font-weight:600;color:#6b7280;">'+esc(x.abLib)+'</span></div>'):'')
         +(x.quoi?('<div style="font-size:11px;color:#6b7280;line-height:1.45;margin-top:2px;">'+esc(x.quoi)+'</div>'):'')
       +'</a>';
     }).join('')
