@@ -63,6 +63,7 @@ LE CRITÈRE MÉTIER PRIORITAIRE : « le dernier avis date-t-il de moins de 6 moi
 
 La ligne Google fait exception à tout ceci : sa note, son nombre d'avis et sa fraîcheur sont MESURÉS par l'application après ta réponse. N'y touche pas.
 N'écris JAMAIS de date en toutes lettres dans "resume", dans les quick wins ni dans la vigilance : elle serait retirée avant affichage.
+⚠️ N'ÉCRIS JAMAIS QU'IL N'Y A PAS D'AVIS — NI DANS "vigilance", NI DANS LES QUICK WINS, NI NULLE PART. Tu réponds AVANT que l'application n'interroge Google : au moment où tu écris, tu n'as pas vu ses avis, et tu ne peux donc pas conclure qu'il n'y en a aucun. Constaté le 13/08/2026 : « Zéro avis clients publics (Google, PagesJaunes, Cylex) : absence totale de réputation en ligne » sur une entreprise qui affichait 11 avis Google à 4,1/5, dont un de la semaine. Ces phrases sont maintenant RETIRÉES automatiquement dès que la mesure les dément — tu perds donc ta place dans le document en les écrivant. Si l'absence d'avis te paraît être le sujet, décris ce que tu as VU (une page d'annuaire sans commentaire, par exemple) en nommant CETTE page, et laisse le total à l'application.
 LA LIGNE GOOGLE NE T'APPARTIENT PAS NON PLUS : son nombre d'avis, sa note et la date de son dernier avis sont mesurés par l'application auprès de Google, après ta réponse. Le champ "avis" décrit uniquement CE QUE DISENT les avis Google, en une phrase, sans aucun chiffre et sans citer d'autre plateforme ; si tu n'as pas pu les lire, laisse-le vide plutôt que d'y résumer d'autres sites.
 CE QUI EST ATTENDU DE TOI SUR CE SUJET, ET QUI A DE LA VALEUR : trouver les BONNES plateformes, leur VRAIE adresse, et dire ce que les clients y expriment. C'est précisément ce qu'aucune API ne donne — et personne d'autre ne peut le faire.
 N'INVENTE JAMAIS de plateforme ni d'URL.
@@ -343,6 +344,41 @@ function extraireAbonnes(html) {
   if (ja != null && ja > 0) return { abonnes: ja, source: "jaime" };
   return null;
 }
+/* ═══ CE QUE LA MESURE DÉMENT NE S'AFFICHE PAS ════════════════════════════════════════════
+   Didier, 13/08/2026, capture de la fiche Dronavia : « Zéro avis clients publics (Google,
+   PagesJaunes, Cylex) : absence totale de réputation en ligne » — alors que la même fiche
+   affiche, trois centimètres plus haut, 11 avis Google à 4,1/5 dont un du 2 août.
+
+   ⚠️ CE N'EST PAS UNE FAUTE DU MODÈLE, C'EST L'ORDRE DES OPÉRATIONS. Il répond AVANT que nous
+   n'interrogions Google : au moment où il écrit, il n'a rien vu de ces 11 avis. Lui interdire
+   d'en parler ne suffit pas — trois durcissements de consigne sur les dates l'ont prouvé. La
+   seule règle qui tienne : quand la mesure arrive et qu'elle dit le contraire, c'est la mesure
+   qui gagne, et la phrase saute.
+
+   ⚠️ ON SUPPRIME, ON NE RÉÉCRIT PAS. Corriger « zéro » en « onze » produirait une phrase que
+   personne n'a écrite et dont le raisonnement ne tient plus. Une observation fausse se retire ;
+   les chiffres justes sont déjà dans le tableau, juste au-dessus. */
+const NIE_AVIS = /(z[ée]ro|aucun[e]?|absence(?:\s+totale)?|pas|sans)\s+(?:de\s+|d['’]\s*)?(avis|r[ée]putation|note)|premi(?:er|ère)s?\s+avis/i;
+const AUTRE_PLATEFORME = /pagesjaunes|cylex|kompass|trustpilot|tripadvisor|facebook|linkedin|instagram|mappy|yelp/i;
+function dementiParLaMesure(txt, nbAvis) {
+  if (!(nbAvis > 0)) return false;                 // rien de mesuré : on ne conteste rien
+  const t = String(txt || "");
+  if (!NIE_AVIS.test(t) && !/\b0\s+avis/i.test(t)) return false;
+  if (/google/i.test(t)) return true;              // il nomme Google : la mesure tranche
+  if (!AUTRE_PLATEFORME.test(t)) return true;      // affirmation globale : la mesure tranche aussi
+  return false;                                    /* ne parle que d'une AUTRE plateforme : « aucun
+                                                      avis sur PagesJaunes » peut être parfaitement
+                                                      vrai, et on n'a pas mesuré celle-là. */
+}
+function retirerCeQueLaMesureDement(fiche) {
+  const nb = (fiche && fiche._auraCalc && fiche._auraCalc.nb_avis != null) ? +fiche._auraCalc.nb_avis : 0;
+  if (!(nb > 0)) return fiche;
+  if (Array.isArray(fiche.vigilance)) fiche.vigilance = fiche.vigilance.filter(v => !dementiParLaMesure(v && v.texte, nb));
+  if (Array.isArray(fiche.quickwins)) fiche.quickwins = fiche.quickwins.filter(q => !dementiParLaMesure(q, nb));
+  if (typeof fiche.avis === "string" && dementiParLaMesure(fiche.avis, nb)) fiche.avis = "";
+  if (typeof fiche.imagePercue === "string" && dementiParLaMesure(fiche.imagePercue, nb)) fiche.imagePercue = "";
+  return fiche;
+}
 const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
 /* ⚠️ UNE FONCTION, PAS DIX LIGNES DANS LE HANDLER — POUR QU'ELLE SOIT ESSAYABLE. La leçon du
    jour : c'est en FAISANT TOURNER extraireAbonnes() que le banc a trouvé l'apostrophe qui la
@@ -407,7 +443,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-02";
+const SENTINELLE_VERSION = "2026-08-13-03";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
@@ -507,6 +543,9 @@ export default async function handler(req, res) {
                pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
                absente : il n'y a pas de troisième cas. */
             fiche.avisDernier = det.dernierAvis || null;
+            /* La mesure vient d'arriver : tout ce qu'elle dément part maintenant, avant que la
+               fiche ne soit enregistrée — donc avant l'écran, le PDF et le MIROIR. */
+            retirerCeQueLaMesureDement(fiche);
           }
         }
       }
