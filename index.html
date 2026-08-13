@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 330';
+var IVE_VERSION='13/08 · 331';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6470,9 +6470,11 @@ function siteVitesseCorps(u){
   if(m.seo!=null)   l.push('Bases du référencement '+siteNote(m.seo));
   return '<div style="font-size:11.5px;color:#4b5563;line-height:1.6;">'+l.join(' · ')+'</div>'
     +((m.premier||m.utilisable)?('<div style="font-size:11px;color:#4b5563;line-height:1.5;margin-top:3px;">'
-      +(m.premier?('Premier affichage : <b>'+esc(m.premier)+'</b>'):'')
+      /* Google écrit « 4.8 s » ; en français, c'est 4,8 s. Un point décimal dans un document remis
+         à un dirigeant, c'est un détail qui trahit que le chiffre vient d'ailleurs. */
+      +(m.premier?('Premier affichage : <b>'+esc(String(m.premier).replace('.',','))+'</b>'):'')
       +((m.premier&&m.utilisable)?' · ':'')
-      +(m.utilisable?('page utilisable : <b>'+esc(m.utilisable)+'</b>'):'')+'</div>'):'')
+      +(m.utilisable?('page utilisable : <b>'+esc(String(m.utilisable).replace('.',','))+'</b>'):'')+'</div>'):'')
     +'<div style="font-size:10px;color:#9ca3af;margin-top:3px;">Mesuré par Google sur un téléphone'
       +(m.ts?(', le '+esc(dateFr(new Date(m.ts).toISOString().slice(0,10)))):'')+'.</div>'
     +((typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton('Remesurer'):'');
