@@ -227,7 +227,12 @@ async function getDetails(placeId, key) {
        diagnostic — alors que le modèle n'a jamais vu cette fiche. Elle pouvait être impeccable.
        Google renvoie pourtant tout cela dans le MÊME appel : photos, horaires, téléphone,
        description. On ne le demandait pas, donc on supposait. Maintenant on regarde. */
-    const CHAMPS = "website,reviews,photos,opening_hours,formatted_phone_number,editorial_summary";
+    /* ⚠️ ET LE RESTE DE CE QUE GOOGLE DONNE DÉJÀ. Didier, 13/08/2026 : « c'est même là que tu dois
+       être proactif et me dire tout ce qu'on peut récupérer. C'est quand même fou de le découvrir
+       que maintenant. » Il a raison : ces champs étaient disponibles depuis le premier jour, dans
+       le même appel, sans un centime de plus. `business_status` surtout — savoir qu'un prospect a
+       fermé définitivement AVANT de préparer un rendez-vous, ça n'a pas de prix. */
+    const CHAMPS = "website,reviews,photos,opening_hours,formatted_phone_number,editorial_summary,price_level,business_status,types,formatted_address";
     let tri = false;
     let res = await lire(`${base}&fields=${CHAMPS}&reviews_sort=newest`);
     if (res) tri = true;
@@ -275,7 +280,14 @@ async function getDetails(placeId, key) {
       horaires: (res.opening_hours && Array.isArray(res.opening_hours.weekday_text) && res.opening_hours.weekday_text.length) ? true
                 : (res.opening_hours ? true : null),
       telephone: res.formatted_phone_number ? true : null,
-      description: (res.editorial_summary && res.editorial_summary.overview) ? true : null
+      description: (res.editorial_summary && res.editorial_summary.overview) ? true : null,
+      /* OPERATIONAL · CLOSED_TEMPORARILY · CLOSED_PERMANENTLY — le mot de Google, tel quel. */
+      statut: res.business_status || null,
+      prix: (typeof res.price_level === "number") ? res.price_level : null,
+      /* Comment Google CLASSE l'entreprise : ce n'est pas ce qu'elle dit d'elle-même, c'est ce que
+         voit quelqu'un qui cherche. Les deux se comparent utilement. */
+      types: Array.isArray(res.types) ? res.types.filter(t => t !== "point_of_interest" && t !== "establishment").slice(0, 4) : null,
+      adresse: res.formatted_address || null
     };
     return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, fiche, statut: statut || "OK", detail };
   } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, fiche: null, statut: statut || "ERREUR_RESEAU", detail }; }
@@ -445,6 +457,77 @@ function retirerCeQueLaMesureDement(fiche) {
   if (typeof fiche.imagePercue === "string" && dementiParLaMesure(fiche.imagePercue, nb)) fiche.imagePercue = "";
   return fiche;
 }
+/* ═══ LES REGISTRES : CE QUE L'ÉTAT SAIT DE L'ENTREPRISE ═════════════════════════════════════
+   Didier, 13/08/2026 : « s'il faut regarder d'autres API, on le fait. »
+   L'annuaire des entreprises (recherche-entreprises.api.gouv.fr) est public, gratuit, sans clé
+   et sans quota gênant. Il donne ce que le modèle SUPPOSAIT jusqu'ici : la date de création —
+   donc l'ancienneté EXACTE, au lieu du « malgré 9 ans d'activité » qu'il écrivait de mémoire —
+   la tranche d'effectif, l'activité déclarée, et l'état administratif.
+   ⚠️ CE DERNIER POINT VAUT À LUI SEUL LE DÉTOUR : une entreprise en cessation, on le sait AVANT
+   de préparer un rendez-vous, pas pendant.
+   ⚠️ ET ON VÉRIFIE QU'ON PARLE BIEN D'ELLE. Une recherche par nom ramène des homonymes — c'est
+   le piège de l'Instagram russe et du profil Facebook « ceribe », en pire : ici les chiffres
+   auraient l'air officiels. On exige donc que le code postal corresponde, ou à défaut que le nom
+   corresponde de très près. Dans le doute, on ne retient rien. */
+const EFFECTIFS = { "NN":null, "00":"aucun salarié", "01":"1 ou 2 salariés", "02":"3 à 5 salariés", "03":"6 à 9 salariés",
+  "11":"10 à 19 salariés", "12":"20 à 49 salariés", "21":"50 à 99 salariés", "22":"100 à 199 salariés",
+  "31":"200 à 249 salariés", "32":"250 à 499 salariés", "41":"500 à 999 salariés", "42":"1 000 à 1 999 salariés",
+  "51":"2 000 à 4 999 salariés", "52":"5 000 à 9 999 salariés", "53":"10 000 salariés ou plus" };
+function memeNom(a, b) {
+  const n = s => (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const x = n(a), y = n(b);
+  if (!x || !y) return false;
+  return x === y || x.indexOf(y) === 0 || y.indexOf(x) === 0;
+}
+async function chercherRegistre(nom, ville, cp) {
+  if (!nom) return null;
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 4000);
+  try {
+    const q = encodeURIComponent(`${nom} ${ville || ""}`.trim());
+    const r = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${q}&per_page=5`, { signal: stop.signal });
+    if (!r.ok) return { statut: String(r.status) };
+    const d = await r.json();
+    const liste = Array.isArray(d.results) ? d.results : [];
+    if (!liste.length) return { statut: "AUCUN_RESULTAT" };
+    /* On ne prend PAS le premier venu : il faut que ce soit la même entreprise. */
+    const memeLieu = e => {
+      const s = (e && e.siege) || {};
+      return (cp && s.code_postal && String(s.code_postal) === String(cp))
+          || (ville && s.libelle_commune && memeNom(s.libelle_commune, ville));
+    };
+    const memeRaison = e => memeNom((e && (e.nom_complet || e.nom_raison_sociale)) || "", nom);
+    let bon = liste.find(e => memeLieu(e) && memeRaison(e)), via = "nom+lieu";
+    /* ⚠️ MON GARDE-FOU AURAIT REJETÉ LE CAS LE PLUS INTÉRESSANT. Vérifié le 13/08/2026 sur CERIBE :
+       le registre la domicilie à CHESNY (57245) depuis son déménagement, quand Google et Facebook
+       affichent encore AUGNY (57685). Exiger que la commune corresponde revenait à écarter
+       l'entreprise précisément parce qu'elle a bougé — et à taire le fait le plus utile qu'on
+       puisse apporter en rendez-vous.
+       Quand la recherche ne ramène QU'UNE entreprise et que sa raison sociale correspond, on la
+       retient — en disant par quoi on l'a rapprochée, pour que le lieu discordant se voie. */
+    if (!bon && liste.length === 1 && memeRaison(liste[0])) { bon = liste[0]; via = "nom"; }
+    if (!bon) return { statut: "SANS_CORRESPONDANCE", vus: liste.length };
+    const s = bon.siege || {};
+    return {
+      statut: "OK",
+      via: via,
+      siren: bon.siren || null,
+      nom: bon.nom_complet || bon.nom_raison_sociale || null,
+      creation: bon.date_creation || null,
+      effectif: (bon.tranche_effectif_salarie != null) ? (EFFECTIFS[String(bon.tranche_effectif_salarie)] || null) : null,
+      activite: bon.activite_principale || null,
+      /* « A » = active, « C » = cessée. On garde le mot brut à côté, sans l'interpréter. */
+      etat: bon.etat_administratif || null,
+      adresse: s.adresse || null,
+      commune: s.libelle_commune || null,
+      cp: s.code_postal || null,
+      dirigeants: Array.isArray(bon.dirigeants)
+        ? bon.dirigeants.slice(0, 3).map(x => [x.prenoms, x.nom].filter(Boolean).join(" ").trim() || x.denomination || "").filter(Boolean)
+        : null
+    };
+  } catch (_) { return { statut: "SANS_REPONSE" }; }
+  finally { clearTimeout(minuteur); }
+}
 const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
 /* ⚠️ UNE LISTE BLANCHE, PAS UNE LISTE NOIRE — ET C'EST MA DEUXIÈME ERREUR SUR LE MÊME SUJET.
    Didier, 13/08/2026 : « j'avais dit qu'on se débarrassait de tous les réseaux sauf Google,
@@ -552,7 +635,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-09";
+const SENTINELLE_VERSION = "2026-08-13-10";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
@@ -701,6 +784,14 @@ export default async function handler(req, res) {
        après — c'est-à-dire là où elle a quelque chose à dire.
        ⚠️ ET SEULEMENT CELLES-LÀ : une page Facebook qui porte de VRAIS avis mesurés reste dans le
        tableau, à sa place. */
+    /* ═══ LES REGISTRES, EN MÊME TEMPS QUE LE RESTE ═══════════════════════════════════════════
+       Gratuit, sans clé, 4 secondes au plus. Un échec n'est jamais fatal : la fiche part sans. */
+    try {
+      const cpG = (fiche._auraCalc && fiche._auraCalc.place_adresse)
+        ? ((String(fiche._auraCalc.place_adresse).match(/\b(\d{5})\b/) || [])[1] || null) : null;
+      fiche._registre = await chercherRegistre(fiche.nom, fiche.ville, cpG);
+    } catch (_) { fiche._registre = null; }
+
     try { descendreReseaux(fiche); } catch (_) {}
 
     /* ═══ LES PAGES PUBLIQUES : ON TENTE LE NOMBRE D'ABONNÉS ═══════════════════════════════

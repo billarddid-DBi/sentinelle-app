@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 327';
+var IVE_VERSION='13/08 · 328';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4997,6 +4997,7 @@ function rapportHtml(d, version, dateAnalyse){
   var tab=(typeof avisTableau==='function')?avisTableau(d):'';
   var can=(typeof canauxHtml==='function')?canauxHtml(d):'';
   var avg=((typeof ficheGoogleHtml==='function')?ficheGoogleHtml(d):'')
+         +((typeof registreHtml==='function')?registreHtml(d):'')
          +((typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'');
   if(tab||can||avg) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
       'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+avg+can);
@@ -5841,6 +5842,7 @@ function render(d,skipSave){
          après leur ligne — c'est là qu'on les cherche. */''}
     ${/* Rendu à part : une fiche peut n'avoir aucun avis et porter quand même douze photos. */''}
     ${ficheGoogleHtml(d)}
+    ${registreHtml(d)}
     ${avisGoogleHtml(d)}
 
     ${/* Puis : on vient de dire où les clients écrivent, on dit maintenant où l'entreprise
@@ -6393,6 +6395,44 @@ function dateFr(x){
    ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
    on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
    personne ne peut les contester. */
+/* ═══ CE QUE DISENT LES REGISTRES ════════════════════════════════════════════════════════════
+   Didier, 13/08/2026 : « s'il faut regarder d'autres API, on le fait. »
+   L'annuaire public des entreprises donne ce que le modèle SUPPOSAIT : la date de création, donc
+   l'ancienneté exacte — au lieu du « malgré 9 ans d'activité » qu'il écrivait de mémoire, et qui
+   se trouvait faux (CERIBE est née le 15/04/2016, soit dix ans). Plus l'effectif, l'activité
+   déclarée et l'état administratif.
+   ⚠️ ET L'ÉCART ENTRE LE REGISTRE ET LA VITRINE EST UNE INFORMATION EN SOI. Le registre domicilie
+   CERIBE à Chesny ; Google et Facebook affichent encore Augny. Ce n'est pas une erreur de notre
+   part, c'est un fait à porter en rendez-vous : la fiche publique n'a pas suivi le déménagement. */
+function registreHtml(d){
+  var r=d&&d._registre; if(!r || r.statut!=='OK') return '';
+  var bouts=[];
+  if(r.creation){
+    var t=new Date(r.creation);
+    if(!isNaN(t)){
+      var ans=Math.floor((Date.now()-t.getTime())/(365.25*86400000));
+      bouts.push('créée le <b>'+esc(dateFr(r.creation))+'</b>'+(ans>0?(' — <b>'+ans+' an'+(ans>1?'s':'')+'</b>'):''));
+    }
+  }
+  if(r.effectif) bouts.push('<b>'+esc(r.effectif)+'</b>');
+  if(r.etat==='C') bouts.push('<b style="color:#9a3412;">cessée administrativement</b>');
+  if(r.siren) bouts.push('SIREN '+esc(r.siren));
+  if(!bouts.length) return '';
+  /* L'adresse du registre n'est montrée que si elle DIFFÈRE de celle de la fiche Google : sinon
+     c'est une redite, et une redite fait douter qu'il s'agisse de la même chose. */
+  var adrG=(d._auraCalc&&d._auraCalc.place_adresse)?String(d._auraCalc.place_adresse):'';
+  var cpG=(adrG.match(/\b(\d{5})\b/)||[])[1]||'';
+  var ecart=(r.cp && cpG && String(r.cp)!==cpG);
+  return '<div class="sec" data-chap="registre">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-building-bank"></i> Ce que disent les registres</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Annuaire public des entreprises. Des faits administratifs, pas des impressions.</div>'
+    +'<div style="font-size:12px;color:#4b5563;line-height:1.6;">'+bouts.join(' · ')+'.</div>'
+    +(ecart?('<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 11px;margin-top:7px;font-size:11.5px;color:#4b5563;line-height:1.55;">'
+        +'<b style="color:#b45309;">L\'adresse officielle a changé, la vitrine non.</b><br>'
+        +'Le registre domicilie l\'entreprise <b>'+esc([r.adresse,r.cp,r.commune].filter(Boolean).join(' '))+'</b>, '
+        +'quand la fiche Google affiche encore <b>'+esc(adrG)+'</b>. Un client qui se déplace se trompe d\'adresse.</div>'):'')
+  +'</div>';
+}
 /* ═══ CE QUE PORTE LA FICHE GOOGLE — CONSTATÉ, PLUS SUPPOSÉ ══════════════════════════════════
    Didier, 13/08/2026 : « comment tu peux estimer que la fiche Google My Business n'est pas
    complètement remplie ? Est-ce une certitude ou une proposition ? »
@@ -6409,11 +6449,24 @@ function ficheGoogleHtml(d){
   if(f.horaires===true) bouts.push('ses horaires');
   if(f.telephone===true) bouts.push('son téléphone');
   if(f.description===true) bouts.push('une description');
-  if(!bouts.length) return '';
-  return '<div style="font-size:11px;color:#4b5563;line-height:1.5;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 10px;margin-top:6px;">'
-    +'<b style="color:#1C1C1C;">La fiche Google porte</b> '+bouts.join(' · ')+'.'
-    +'<div style="font-size:10px;color:#9ca3af;margin-top:2px;">Relevé chez Google. Ce qui n\'est pas listé n\'a pas été renvoyé — ce n\'est pas la preuve que ça manque.</div>'
-  +'</div>';
+  if(f.prix!=null && f.prix>0) bouts.push('un niveau de prix ('+'€'.repeat(Math.min(4,f.prix))+')');
+  /* ⚠️ « DÉFINITIVEMENT FERMÉ » PASSE AVANT TOUT LE RESTE. Le savoir AVANT de préparer un
+     rendez-vous, ce n'est pas un détail de fiche : c'est la seule chose à lire sur cet écran. */
+  var mort=(f.statut==='CLOSED_PERMANENTLY'), pause=(f.statut==='CLOSED_TEMPORARILY');
+  var alerte=(mort||pause)
+    ? ('<div style="background:'+(mort?'#fef2f2':'#fffbeb')+';border:1px solid '+(mort?'#fecaca':'#fde68a')+';border-radius:8px;padding:8px 11px;margin-top:6px;font-size:12px;font-weight:700;color:'+(mort?'#9a3412':'#b45309')+';">'
+       +'<i class="ti ti-alert-triangle"></i> Google indique cet établissement comme <b>'+(mort?'DÉFINITIVEMENT FERMÉ':'temporairement fermé')+'</b>. À vérifier avant toute démarche.</div>')
+    : '';
+  if(!bouts.length && !alerte && !(f.types&&f.types.length)) return '';
+  return alerte
+    +(bouts.length?('<div style="font-size:11px;color:#4b5563;line-height:1.5;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 10px;margin-top:6px;">'
+      +'<b style="color:#1C1C1C;">La fiche Google porte</b> '+bouts.join(' · ')+'.'
+      /* Ce que Google retient comme activité : ce n'est pas ce que l'entreprise dit d'elle-même,
+         c'est ce que voit quelqu'un qui cherche. Les deux se comparent utilement. */
+      +((f.types&&f.types.length)?('<div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Google la classe en : '
+          +f.types.map(function(t){ return esc(String(t).replace(/_/g,' ')); }).join(', ')+'.</div>'):'')
+      +'<div style="font-size:10px;color:#9ca3af;margin-top:2px;">Relevé chez Google. Ce qui n\'est pas listé n\'a pas été renvoyé — ce n\'est pas la preuve que ça manque.</div>'
+    +'</div>'):'');
 }
 /* ═══ LA CADENCE DES AVIS — CALCULÉE, PAS ESTIMÉE ════════════════════════════════════════════
    Didier, 13/08/2026 : « est-ce que tu peux déterminer une fréquence de publication sur les
