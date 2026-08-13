@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 332';
+var IVE_VERSION='13/08 · 333';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6536,6 +6536,68 @@ function siteNote(n){
   var c=(n>=90)?'#15803d':(n>=50?'#b45309':'#9a3412');
   return '<span style="font-weight:800;color:'+c+';">'+n+'</span><span style="color:#9ca3af;">/100</span>';
 }
+/* ═══ TROIS CHIFFRES SANS ÉCHELLE NE VEULENT RIEN DIRE ═══════════════════════════════════════
+   Didier, 13/08/2026 : « je ne sais pas si ces chiffres-là sont bien ou pas. Donne les
+   définitions des trois notes, et ensuite l'interprétation. »
+   Il a raison, et c'est un défaut que je répète : j'affiche une mesure juste et je laisse le
+   lecteur seul avec. Un chiffre n'informe que si l'on sait ce qu'il mesure et où se situe la
+   limite. Les seuils sont ceux de Google, pas les miens : 90 et plus, c'est bon ; entre 50 et
+   89, c'est à travailler ; en dessous de 50, c'est faible. */
+var SITE_DEFS=[
+  {c:'perf',  n:'Vitesse',                 q:'Le temps que le site met à s\'afficher et à répondre, sur un téléphone en 4G.'},
+  {c:'acces', n:'Lisibilité pour tous',    q:'Contrastes, taille du texte, boutons assez grands — ce qui rend le site utilisable par tout le monde, y compris mal voyant ou sur petit écran.'},
+  {c:'seo',   n:'Bases du référencement',  q:'Ce qui permet à Google de comprendre et de classer les pages : titres, descriptions, liens, structure. Ce n\'est pas la position dans les résultats, c\'est la propreté des fondations.'}
+];
+function siteVerdict(n){ return (n>=90)?'bon':((n>=50)?'à travailler':'faible'); }
+function siteSecondes(t){
+  if(!t) return null;
+  var m=String(t).replace(',','.').match(/([\d.]+)\s*s/i);
+  return m?parseFloat(m[1]):null;
+}
+function siteLectureHtml(m){
+  var defs=SITE_DEFS.filter(function(x){ return m[x.c]!=null; });
+  if(!defs.length) return '';
+  var h='<div style="border-top:1px solid #f1f5f9;margin-top:8px;padding-top:8px;">'
+    +'<div style="font-size:9.5px;font-weight:800;letter-spacing:.7px;color:#9ca3af;">CE QUE MESURE CHAQUE NOTE</div>'
+    +defs.map(function(x){
+      var n=m[x.c], c=(n>=90)?'#15803d':(n>=50?'#b45309':'#9a3412');
+      return '<div style="font-size:11px;color:#6b7280;line-height:1.5;margin-top:4px;">'
+        +'<b style="color:#1C1C1C;">'+x.n+'</b> — '+x.q
+        +' <span style="color:'+c+';font-weight:700;">Ici : '+n+'/100, '+siteVerdict(n)+'.</span></div>';
+    }).join('')
+    +'<div style="font-size:10px;color:#9ca3af;margin-top:5px;">Seuils de Google : 90 et plus = bon · 50 à 89 = à travailler · en dessous de 50 = faible.</div>';
+  /* ═══ LA LECTURE — CALCULÉE, ET CONSTRUCTIVE ═══════════════════════════════════════════════
+     Chaque phrase se termine sur ce qui est possible : un chiffre bas n'est pas un reproche,
+     c'est l'endroit où l'effort paie le plus. Règle de Didier, et elle vaut ici plus qu'ailleurs :
+     on parle du site de quelqu'un. */
+  var util=siteSecondes(m.utilisable), prem=siteSecondes(m.premier);
+  var p=m.perf, s=m.seo, phrase='';
+  if(s!=null && s>=90 && p!=null && p<50){
+    phrase='<b>Les fondations sont excellentes, et c\'est la bonne nouvelle</b> : Google comprend parfaitement ce site et l\'envoie à des visiteurs. Le travail de visibilité est déjà fait. Ce qui se perd se perd ensuite, sur la lenteur — et c\'est justement ce qui se corrige sans rien réécrire du contenu.';
+  } else if(p!=null && p>=90){
+    phrase='<b>La vitesse n\'est pas un sujet ici</b> : le site répond vite. L\'effort a plus de valeur ailleurs.';
+  } else if(s!=null && s<50){
+    phrase='<b>Les fondations sont à reprendre en premier</b> : tant que Google comprend mal les pages, la vitesse ne servira à personne — il faut d\'abord être trouvé.';
+  } else if(p!=null && p<50){
+    phrase='<b>La vitesse est le premier levier</b> : c\'est la partie qui se corrige sans toucher au contenu ni au référencement.';
+  } else {
+    phrase='<b>Rien de bloquant</b> : les trois notes sont dans la zone où l\'on améliore par petits gestes, pas par une refonte.';
+  }
+  var temps='';
+  if(util!=null){
+    /* Le chiffre publié par Google lui-même, attribué comme tel — jamais présenté comme le nôtre. */
+    temps='<div style="font-size:11.5px;color:#4b5563;line-height:1.6;margin-top:5px;">'
+      +'Concrètement : quelqu\'un qui arrive sur son téléphone voit apparaître quelque chose au bout de <b>'
+      +esc(String(m.premier||'?').replace('.',','))+'</b>, et peut réellement cliquer au bout de <b>'
+      +esc(String(m.utilisable).replace('.',','))+'</b>. '
+      +(util>7 ? 'Google publie qu\'au-delà de trois secondes, la moitié des visiteurs mobiles abandonnent : ici, l\'écart est large.'
+               : (util>3.8 ? 'Google situe la limite de confort autour de trois secondes.' : 'C\'est dans la zone de confort.'))
+      +'</div>';
+  }
+  return h+'</div>'
+    +'<div style="background:#f5f8ff;border:1px solid #dbe7fb;border-radius:9px;padding:9px 12px;margin-top:8px;font-size:11.5px;color:#4b5563;line-height:1.6;">'
+    +phrase+temps+'</div>';
+}
 function siteVitesseCorps(u){
   var m=siteStore.de(u);
   if(!m){ return (typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton():''; }
@@ -6552,6 +6614,7 @@ function siteVitesseCorps(u){
       +(m.utilisable?('page utilisable : <b>'+esc(String(m.utilisable).replace('.',','))+'</b>'):'')+'</div>'):'')
     +'<div style="font-size:10px;color:#9ca3af;margin-top:3px;">Mesuré par Google sur un téléphone'
       +(m.ts?(', le '+esc(dateFr(new Date(m.ts).toISOString().slice(0,10)))):'')+'.</div>'
+    +siteLectureHtml(m)
     +((typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton('Remesurer'):'');
 }
 function siteVitesseHtml(d){
