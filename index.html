@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 329';
+var IVE_VERSION='13/08 · 330';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6436,7 +6436,12 @@ function siteMesurer(){
         var QUOI={SANS_CLE:'aucune clé Google n\'est configurée côté serveur.',
                   SANS_URL:'l\'adresse du site n\'est pas exploitable.',
                   SANS_REPONSE:'Google n\'a pas répondu dans le délai.',
-                  '403':'l\'API PageSpeed Insights n\'est pas activée sur le projet qui porte la clé.',
+        /* ⚠️ LE 403 A DEUX CAUSES, ET ELLES NE SE CORRIGENT PAS AU MÊME ENDROIT. Constaté le
+           13/08/2026 : « Requests to this API pagespeedonline are blocked » — ce mot-là, blocked,
+           désigne la RESTRICTION DE LA CLÉ, pas l'API éteinte (qui répondrait « has not been used
+           in project… or it is disabled »). Envoyer quelqu'un vérifier le mauvais écran, c'est lui
+           faire perdre le quart d'heure qu'on cherchait à lui épargner. */
+                  '403':'la clé Google n\'autorise pas cette API. Deux réglages à vérifier, dans cet ordre : (1) sur la page « Identifiants », ouvrez la clé et, dans « Restrictions relatives aux API », ajoutez « PageSpeed Insights API » à la liste autorisée ; (2) vérifiez que cette API est bien activée sur LE MÊME projet que la clé.',
                   '429':'quota Google dépassé — réessayez dans quelques minutes.'};
         z.innerHTML='<div style="font-size:11.5px;color:#9a3412;line-height:1.5;">La mesure n\'a pas abouti — '
           +esc(QUOI[m&&m.statut]||('réponse '+((m&&m.statut)||'?')))+'</div>'+siteBouton('Réessayer');
