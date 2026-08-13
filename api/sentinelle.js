@@ -219,16 +219,25 @@ async function getDetails(placeId, key) {
        fiche. Ça reste une mesure, mais pas la même — et le lecteur a le droit de le savoir.
        Didier, 12/08/2026 : « tu me dis dernier avis inférieur à trois mois, et en fait c'est
        juillet 2025. Tu ne respectes pas les conditions qu'on s'est données. » */
+    /* ⚠️ ON DEMANDE AUSSI DE QUOI JUGER LA FICHE ELLE-MÊME. Didier, 13/08/2026 : « comment tu peux
+       estimer que la fiche Google My Business n'est pas complètement remplie ? Est-ce une
+       certitude ou une proposition ? »
+       C'était une PROPOSITION, et rien à l'écran ne le disait. Le plan invitait à « ajouter des
+       photos, les horaires, les services » avec un objectif et une échéance — l'apparence d'un
+       diagnostic — alors que le modèle n'a jamais vu cette fiche. Elle pouvait être impeccable.
+       Google renvoie pourtant tout cela dans le MÊME appel : photos, horaires, téléphone,
+       description. On ne le demandait pas, donc on supposait. Maintenant on regarde. */
+    const CHAMPS = "website,reviews,photos,opening_hours,formatted_phone_number,editorial_summary";
     let tri = false;
-    let res = await lire(`${base}&fields=website,reviews&reviews_sort=newest`);
+    let res = await lire(`${base}&fields=${CHAMPS}&reviews_sort=newest`);
     if (res) tri = true;
-    if (!res) res = await lire(`${base}&fields=website,reviews`);
+    if (!res) res = await lire(`${base}&fields=${CHAMPS}`);
     /* Dernier recours : le strict minimum. Un paramètre refusé fait tomber TOUTE la réponse — on
        perdrait alors l'adresse du site, qui entre dans le calcul de la note. Elle baisserait de
        plusieurs points sans que personne sache que c'est une API qui a bougé, pas l'entreprise.
        Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
     if (!res) res = await lire(`${base}&fields=website`);
-    if (!res) return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "SANS_REPONSE", detail };
+    if (!res) return { website: null, dernierAvis: null, avisLus: 0, tri: false, fiche: null, statut: statut || "SANS_REPONSE", detail };
     let dernier = null, avisLus = 0, textes = [];
     if (Array.isArray(res.reviews) && res.reviews.length) {
       avisLus = res.reviews.length;
@@ -258,8 +267,18 @@ async function getDetails(placeId, key) {
        c'est le signe que le champ `reviews` n'est pas ouvert sur cette clé, pas que la fiche
        n'a pas d'avis. Les confondre ferait chercher le défaut du mauvais côté. */
     if (!dernier && statut === "OK") statut = "OK_SANS_AVIS";
-    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, statut: statut || "OK", detail };
-  } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "ERREUR_RESEAU", detail }; }
+    /* ⚠️ CE QU'ON SAIT DE LA FICHE, ET RIEN DE PLUS. `null` veut dire « pas demandé » ou « pas
+       renvoyé » — jamais « absent ». Un repli qui n'a pas demandé ces champs ne doit surtout pas
+       faire conclure à une fiche vide : ce serait fabriquer le constat qu'on cherchait à éviter. */
+    const fiche = {
+      photos: Array.isArray(res.photos) ? res.photos.length : null,
+      horaires: (res.opening_hours && Array.isArray(res.opening_hours.weekday_text) && res.opening_hours.weekday_text.length) ? true
+                : (res.opening_hours ? true : null),
+      telephone: res.formatted_phone_number ? true : null,
+      description: (res.editorial_summary && res.editorial_summary.overview) ? true : null
+    };
+    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, fiche, statut: statut || "OK", detail };
+  } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, fiche: null, statut: statut || "ERREUR_RESEAU", detail }; }
 }
 
 /* ═══ LIRE LA NOTE ET LE NOMBRE D'AVIS SUR LA PAGE ELLE-MÊME ═══════════════════════════════
@@ -399,7 +418,25 @@ function dementiParLaMesure(txt, nbAvis) {
                                                       avis sur PagesJaunes » peut être parfaitement
                                                       vrai, et on n'a pas mesuré celle-là. */
 }
+/* ⚠️ UNE FICHE GOOGLE DÉJÀ COMPLÈTE NE SE FAIT PAS « ENRICHIR ». Didier, 13/08/2026 : « comment
+   tu peux estimer que la fiche Google My Business n'est pas complètement remplie ? »
+   Il ne le pouvait pas — et nous non plus, jusqu'à maintenant. Le plan proposait d'ajouter des
+   photos, les horaires, les services, avec un objectif et une échéance : l'apparence d'un
+   diagnostic pour un conseil générique. Maintenant qu'on REGARDE la fiche, la tâche disparaît
+   quand elle n'a pas lieu d'être. Trois photos suffisent à considérer qu'il y en a : le seuil
+   n'est pas un jugement esthétique, c'est la limite entre « il n'y en a pas » et « il y en a ». */
+const PARLE_DE_FICHE = /(fiche|page)\s+(google|d['’]?\s*[ée]tablissement)|google\s+my\s+business|google\s+business/i;
+function ficheGoogleComplete(fg) {
+  if (!fg) return false;                       // pas mesuré : on ne conclut rien
+  return (fg.photos != null && fg.photos >= 3) && fg.horaires === true && fg.telephone === true;
+}
 function retirerCeQueLaMesureDement(fiche) {
+  /* La fiche Google d'abord : ce test-là ne dépend pas du nombre d'avis. */
+  const fg = (fiche && fiche._auraCalc) ? fiche._auraCalc.fiche_google : null;
+  if (ficheGoogleComplete(fg)) {
+    if (Array.isArray(fiche.quickwins)) fiche.quickwins = fiche.quickwins.filter(q => !PARLE_DE_FICHE.test(String(q || "")));
+    if (Array.isArray(fiche.vigilance)) fiche.vigilance = fiche.vigilance.filter(v => !PARLE_DE_FICHE.test(String((v && v.texte) || "")));
+  }
   const nb = (fiche && fiche._auraCalc && fiche._auraCalc.nb_avis != null) ? +fiche._auraCalc.nb_avis : 0;
   if (!(nb > 0)) return fiche;
   if (Array.isArray(fiche.vigilance)) fiche.vigilance = fiche.vigilance.filter(v => !dementiParLaMesure(v && v.texte, nb));
@@ -515,7 +552,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-08";
+const SENTINELLE_VERSION = "2026-08-13-09";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
@@ -613,7 +650,9 @@ export default async function handler(req, res) {
               avis_lus: det.avisLus || 0, avis_tri: !!det.tri,
               /* Les avis eux-mêmes : datés, notés, mot pour mot. C'est la seule chose de cette
                  fiche que le dirigeant peut relire ligne à ligne et reconnaître. */
-              avis_recents: Array.isArray(det.textes) ? det.textes : [] };
+              avis_recents: Array.isArray(det.textes) ? det.textes : [],
+              /* Ce que porte la fiche Google elle-même : photos, horaires, téléphone, description. */
+              fiche_google: det.fiche || null };
             /* ⚠️ ON EFFACE CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Le champ était sa porte d'entrée
                pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
                absente : il n'y a pas de troisième cas. */

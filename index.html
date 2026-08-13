@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 326';
+var IVE_VERSION='13/08 · 327';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4996,7 +4996,8 @@ function rapportHtml(d, version, dateAnalyse){
   /* ── 03 · RÉPUTATION, PLATEFORME PAR PLATEFORME ────────────────────────────────────────── */
   var tab=(typeof avisTableau==='function')?avisTableau(d):'';
   var can=(typeof canauxHtml==='function')?canauxHtml(d):'';
-  var avg=(typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'';
+  var avg=((typeof ficheGoogleHtml==='function')?ficheGoogleHtml(d):'')
+         +((typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'');
   if(tab||can||avg) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
       'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+avg+can);
 
@@ -5838,6 +5839,8 @@ function render(d,skipSave){
 
     ${/* Le tableau donne les chiffres, ce bloc donne les mots. Les avis mesurés viennent juste
          après leur ligne — c'est là qu'on les cherche. */''}
+    ${/* Rendu à part : une fiche peut n'avoir aucun avis et porter quand même douze photos. */''}
+    ${ficheGoogleHtml(d)}
     ${avisGoogleHtml(d)}
 
     ${/* Puis : on vient de dire où les clients écrivent, on dit maintenant où l'entreprise
@@ -6390,6 +6393,28 @@ function dateFr(x){
    ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
    on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
    personne ne peut les contester. */
+/* ═══ CE QUE PORTE LA FICHE GOOGLE — CONSTATÉ, PLUS SUPPOSÉ ══════════════════════════════════
+   Didier, 13/08/2026 : « comment tu peux estimer que la fiche Google My Business n'est pas
+   complètement remplie ? Est-ce une certitude ou une proposition ? »
+   C'était une proposition, et rien ne le disait. Le plan invitait à « ajouter des photos, les
+   horaires, les services » avec un objectif et une échéance — l'apparence d'un diagnostic — pour
+   un conseil générique que le modèle sert à presque toutes les TPE. Sa fiche pouvait être
+   impeccable. Google renvoyait pourtant tout cela dans le même appel : on ne le demandait pas.
+   ⚠️ ET « NON RENSEIGNÉ » N'EST PAS « ABSENT ». Un champ que Google ne renvoie pas ne prouve rien :
+   il n'est pas affiché. Seul ce qui est mesuré s'écrit. */
+function ficheGoogleHtml(d){
+  var f=(d&&d._auraCalc)?d._auraCalc.fiche_google:null; if(!f) return '';
+  var bouts=[];
+  if(f.photos!=null) bouts.push(f.photos>0?('<b>'+f.photos+'</b> photo'+(f.photos>1?'s':'')):'<b>aucune photo</b>');
+  if(f.horaires===true) bouts.push('ses horaires');
+  if(f.telephone===true) bouts.push('son téléphone');
+  if(f.description===true) bouts.push('une description');
+  if(!bouts.length) return '';
+  return '<div style="font-size:11px;color:#4b5563;line-height:1.5;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 10px;margin-top:6px;">'
+    +'<b style="color:#1C1C1C;">La fiche Google porte</b> '+bouts.join(' · ')+'.'
+    +'<div style="font-size:10px;color:#9ca3af;margin-top:2px;">Relevé chez Google. Ce qui n\'est pas listé n\'a pas été renvoyé — ce n\'est pas la preuve que ça manque.</div>'
+  +'</div>';
+}
 /* ═══ LA CADENCE DES AVIS — CALCULÉE, PAS ESTIMÉE ════════════════════════════════════════════
    Didier, 13/08/2026 : « est-ce que tu peux déterminer une fréquence de publication sur les
    douze derniers mois ? »
