@@ -308,9 +308,20 @@ function extraireAbonnes(html) {
             || html.match(/<meta[^>]*content="([^"]{0,600})"[^>]*(?:property|name)=["'](?:og:description|description)["']/i)
             || html.match(/<meta[^>]*content='([^']{0,600})'[^>]*(?:property|name)=["'](?:og:description|description)["']/i);
   if (!meta) return null;
-  /* Ces pages encodent volontiers l'apostrophe en &#039; : sans ce décodage, même problème. */
-  const txt = meta[1].replace(/&nbsp;|&#160;/g, " ").replace(/&#0?39;|&apos;/g, "'")
-                     .replace(/&#8217;/g, "’").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+  /* ⚠️ ON DÉCODE TOUTES LES ÉCHAPPES NUMÉRIQUES, PAS UNE LISTE CHOISIE À LA MAIN. Vérifié le
+     12/08/2026 sur la vraie page Facebook de Dronavia, telle que le serveur la reçoit :
+        content="Dronavia, Remiremont. 2&#x202f;432 J&#x2019;aime · 1 en parlent …"
+     Le séparateur de milliers est &#x202f; (espace fine) et l'apostrophe &#x2019; — deux échappes
+     HEXADÉCIMALES. Ma liste ne décodait que quelques échappes décimales : le nombre restait
+     « 2&#x202f;432 », le mot « J&#x2019;aime », et la fonction ne trouvait RIEN. Elle aurait
+     échoué sur la totalité des pages Facebook françaises, en silence — « rien trouvé » étant ici
+     une réponse parfaitement normale.
+     C'est la deuxième fois que cette fonction se casse sur un détail d'écriture invisible à la
+     relecture. On ne devine plus : on décode tout ce qui est numérique, décimal comme hexa. */
+  const txt = meta[1]
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => { try { return String.fromCodePoint(parseInt(h, 16)); } catch (_) { return " "; } })
+    .replace(/&#(\d+);/g, (_, d) => { try { return String.fromCodePoint(parseInt(d, 10)); } catch (_) { return " "; } })
+    .replace(/&nbsp;/g, " ").replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
   /* « 1 234 », « 1,234 », « 1.234 », « 12 K », « 1,2 M » — tous vus sur ces pages. */
   const enNombre = (brut, suffixe) => {
     let n = parseFloat(String(brut).replace(/[   ]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
