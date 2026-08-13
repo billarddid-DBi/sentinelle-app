@@ -424,6 +424,12 @@ function descendreReseaux(fiche) {
   fiche.canaux = cans;
   return fiche;
 }
+/* ⚠️ ON RAPPORTE TOUJOURS CE QUI S'EST PASSÉ, MÊME QUAND ON N'A RIEN TROUVÉ. Didier, 13/08/2026 :
+   Facebook affichait ses 2 432 J'aime, LinkedIn rien du tout — et rien à l'écran ne disait
+   pourquoi. « Page lue mais sans compteur » et « page qui refuse de répondre » sont deux
+   situations opposées : la première se règle en cherchant ailleurs, la seconde ne se règle pas
+   du tout. Confondues, elles ne produisent que des suppositions — et j'en ai déjà fait trois de
+   trop sur les dates. On renvoie donc un compte rendu de lecture, jamais `null` en silence. */
 async function mesurerCanal(url) {
   if (!url || !/^https?:\/\//i.test(url)) return null;
   const stop = new AbortController();
@@ -433,10 +439,16 @@ async function mesurerCanal(url) {
       signal: stop.signal,
       headers: { "User-Agent": "Mozilla/5.0 (compatible; SENTINELLE/1.0; +https://dbi360.fr)", "Accept-Language": "fr-FR,fr;q=0.9" }
     });
-    if (!r.ok) return null;
+    /* Un refus poli (401, 403) et le fameux 999 de LinkedIn disent la même chose : cette page ne
+       se laisse pas lire par un serveur. On garde le nombre : il désigne le réglage, pas nous. */
+    if (!r.ok) return { abonnes: null, statut: String(r.status), meta: false };
     const html = (await r.text()).slice(0, 300000);
-    return extraireAbonnes(html);
-  } catch (_) { return null; }
+    const a = extraireAbonnes(html);
+    if (a) return { abonnes: a.abonnes, source: a.source, statut: "OK", meta: true };
+    /* Page ouverte, mais rien à en tirer : reste à savoir si elle publie une carte de visite
+       (et n'y met pas de compteur) ou si elle n'en publie aucune (mur de connexion). */
+    return { abonnes: null, statut: "OK", meta: /og:description|name=["']description["']/i.test(html) };
+  } catch (_) { return { abonnes: null, statut: "SANS_REPONSE", meta: false }; }
   finally { clearTimeout(minuteur); }
 }
 async function mesurerPlateforme(url) {
@@ -462,7 +474,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-04";
+const SENTINELLE_VERSION = "2026-08-13-05";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
@@ -619,18 +631,22 @@ export default async function handler(req, res) {
        doit jamais coûter l'analyse entière. */
     try {
       const cans = Array.isArray(fiche.canaux) ? fiche.canaux.slice(0, 4) : [];
-      cans.forEach(c => { if (c) { delete c.abonnes; delete c.mesure; } });
+      cans.forEach(c => { if (c) { delete c.abonnes; delete c.mesure; delete c.lecture; } });
       if (cans.length) {
         const lus = await Promise.all(cans.map(c => mesurerCanal(c && c.url)));
         cans.forEach((c, i) => {
           const m = lus[i];
-          if (!c || !m || m.abonnes == null) return;
+          if (!c || !m) return;
+          /* Le compte rendu de lecture voyage TOUJOURS, même quand il n'y a pas de chiffre :
+             c'est lui qui distingue « page vide » de « page qui refuse ». */
+          c.lecture = { statut: m.statut || "?", meta: !!m.meta };
+          if (m.abonnes == null) return;
           c.abonnes = m.abonnes;
           c.abonnesQuoi = m.source;     // « abonnes » ou « jaime » : ce n'est pas la même chose
           c.mesure = true;              // le drapeau voyage AVEC le chiffre
         });
       }
-      if (Array.isArray(fiche.canaux)) fiche.canaux.slice(4).forEach(c => { if (c) { delete c.abonnes; delete c.mesure; } });
+      if (Array.isArray(fiche.canaux)) fiche.canaux.slice(4).forEach(c => { if (c) { delete c.abonnes; delete c.mesure; delete c.lecture; } });
     } catch (_) {}
 
     /* ═══ C'EST ICI QUE LA FICHE EST RANGÉE (02/08/2026) ═══════════════════════════════════

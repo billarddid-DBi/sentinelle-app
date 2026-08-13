@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 320';
+var IVE_VERSION='13/08 · 321';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6428,6 +6428,26 @@ function avisGoogleHtml(d){
    active », « 12 publications ce mois-ci », « dernière publication en mars » seraient des
    déductions présentées comme des relevés — l'erreur qu'on a déjà payée trois fois sur les
    dates. On donne le LIEN : la page répond mieux que nous, en trois secondes. */
+/* ⚠️ POURQUOI CETTE PAGE N'A RIEN DONNÉ. Didier, 13/08/2026 : Facebook affichait ses 2 432
+   J'aime, LinkedIn rien du tout, et rien à l'écran ne disait pourquoi. « Page lue mais sans
+   compteur » et « page qui refuse de répondre » sont deux situations opposées : la première se
+   contourne, la seconde ne se contourne pas. Confondues, elles ne produisent que des
+   suppositions — et j'en ai déjà fait trois de trop sur les dates.
+   Réservé à l'administrateur : c'est un message de réglage, il n'a rien à faire sous les yeux
+   d'un dirigeant. Et il ne s'affiche QUE s'il manque un chiffre : quand le nombre est là, la
+   question ne se pose plus. */
+function canalLecture(x){
+  if(!x || x.abonnes!=null) return '';
+  var L=x.lecture; if(!L) return '';
+  if(typeof iveIsAdmin!=='function' || !iveIsAdmin()) return '';
+  var txt;
+  if(L.statut==='OK' && L.meta) txt='page lue — elle ne publie aucun compteur.';
+  else if(L.statut==='OK')      txt='page ouverte, mais vide pour un serveur : tout est construit après coup, à l\'affichage.';
+  else if(L.statut==='SANS_REPONSE') txt='aucune réponse en 4 secondes.';
+  else txt='lecture refusée par le site (réponse '+esc(L.statut)+') — cette page ne se laisse pas lire par un serveur, seulement par un navigateur.';
+  return '<div style="font-size:10px;color:#9ca3af;line-height:1.4;margin-top:4px;border-top:1px dashed #eef2f5;padding-top:4px;">'
+    +'<i class="ti ti-eye-off" style="font-size:11px;"></i> '+txt+'</div>';
+}
 function canauxHtml(d){
   var l=(d&&Array.isArray(d.canaux))?d.canaux:[];
   if(!l.length) return '';
@@ -6447,7 +6467,7 @@ function canauxHtml(d){
        après avoir ouvert la page ; sans lui, le chiffre vient du modèle, qui ne voit pas ces
        pages — et on retombe dans l'erreur des trois dates fausses. */
     var ab=(c.mesure && typeof c.abonnes==='number' && c.abonnes>0)?c.abonnes:null;
-    items.push({nom:String(c.nom||'').trim()||'Page', url:c.url, abonnes:ab,
+    items.push({nom:String(c.nom||'').trim()||'Page', url:c.url, abonnes:ab, lecture:(c.lecture||null),
                 /* « J'aime » est un cumul historique, « abonnés » dit qui suit encore : on ne
                    présente pas l'un pour l'autre. */
                 abLib:(c.abonnesQuoi==='jaime'?'mentions J\'aime':'abonnés'),
@@ -6464,6 +6484,7 @@ function canauxHtml(d){
         +(x.abonnes!=null?('<div style="font-size:11.5px;color:#1C1C1C;font-weight:800;margin-top:2px;">'
             +String(x.abonnes).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' <span style="font-weight:600;color:#6b7280;">'+esc(x.abLib)+'</span></div>'):'')
         +(x.quoi?('<div style="font-size:11px;color:#6b7280;line-height:1.45;margin-top:2px;">'+esc(x.quoi)+'</div>'):'')
+        +canalLecture(x)
       +'</a>';
     }).join('')
     +'</div></div>';
