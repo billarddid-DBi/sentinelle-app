@@ -41,7 +41,7 @@ LE NOMBRE D'ABONNÉS NE T'APPARTIENT PAS — exactement comme la ligne Google. N
 "nb" ET "note" : renseigne-les seulement si tu les as VUS sur la page, sinon null. Ils ne servent que de secours quand la lecture automatique échoue, et l'écran indique alors qu'ils ne sont pas vérifiés. Vérifié le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021 — une déduction affichée comme un relevé est un mensonge, et le dirigeant la vérifie en trois secondes devant toi.
 ═══ RÈGLE DE COLLECTE DES AVIS PUBLICS (dictée par Didier le 10/08/2026, appliquée mot pour mot) ═══
 OÙ CHERCHER, dans cet ordre de valeur : Google/Google Maps · Facebook · LinkedIn · les plateformes MÉTIER ou sectorielles (comparateurs, classements, annuaires notés du métier) · Trustpilot · TripAdvisor si le métier s'y prête.
-⚠️ LES ANNUAIRES GÉNÉRALISTES NE SONT PLUS UNE PRIORITÉ. Didier, 13/08/2026 : « on va oublier PagesJaunes, il n'y a rien là-dessus. C'est Google, Facebook, LinkedIn et basta. » PagesJaunes, Cylex, Kompass, societe.com et leurs semblables recopient l'immatriculation et n'ont presque jamais d'avis : une ligne de plus dans le tableau, vide, qui fait passer les lignes utiles pour du détail. Ne les cite QUE si tu y as réellement vu des avis. Sinon, ne les mets pas — et l'application les retire de toute façon quand aucun chiffre n'y a été mesuré.
+⚠️ TROIS SOURCES, ET TROIS SEULEMENT, SAUF CHIFFRE RÉELLEMENT LU. Didier, 13/08/2026 : « on se débarrasse de tous les réseaux sauf Google, Facebook et LinkedIn. » PagesJaunes, Cylex, Kompass, Mappy, StarOfService, Vite-un-dépanneur et leurs semblables recopient l'immatriculation et n'ont presque jamais d'avis : une ligne de plus dans le tableau, vide, qui fait passer les lignes utiles pour du détail. N'en cite une QUE si tu y as réellement vu des avis publiés — et l'application retire de toute façon celles dont aucun chiffre n'a pu être mesuré. Une URL exacte de Google, Facebook ou LinkedIn vaut mieux que six annuaires.
 POUR CHAQUE PLATEFORME TROUVÉE, récupère autant que possible : la note moyenne, le nombre total d'avis, et la RÉCENCE du dernier avis publié.
 
 ⚠️ LA RÉCENCE : ON NE DEMANDE PAS UNE DATE EXACTE. L'objectif est de savoir si l'entreprise reçoit ENCORE des avis. Accepte donc les indications relatives ou approximatives : « il y a 2 semaines », « il y a 3 mois », « il y a 8 mois », « mars 2026 », « il y a un an ». Convertis-les approximativement — nous sommes en août 2026, donc « il y a 4 mois » ≈ avril 2026. Une précision d'un mois n'est PAS nécessaire.
@@ -409,9 +409,20 @@ function retirerCeQueLaMesureDement(fiche) {
   return fiche;
 }
 const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
-/* Les annuaires généralistes : ils recopient l'immatriculation de l'entreprise et n'ont, la
-   plupart du temps, aucun avis. Sans chiffre mesuré, ils ne remplissent que du vide. */
-const ANNUAIRES_VIDES = /pagesjaunes\.fr|cylex|kompass|societe\.com|verif\.com|infogreffe|manageo|bilansgratuits|annuaire-entreprises|pappers\.fr|118000\.fr|yellowpages/i;
+/* ⚠️ UNE LISTE BLANCHE, PAS UNE LISTE NOIRE — ET C'EST MA DEUXIÈME ERREUR SUR LE MÊME SUJET.
+   Didier, 13/08/2026 : « j'avais dit qu'on se débarrassait de tous les réseaux sauf Google,
+   Facebook et LinkedIn, et là je vois encore plein d'autres trucs qui traînent. »
+   Il avait dit exactement cela la veille, et j'avais codé l'inverse : une liste des annuaires à
+   retirer (PagesJaunes, Cylex, Kompass…). Résultat, Vite-un-dépanneur, StarOfService et Mappy —
+   que je n'avais pas prévus — sont restés. Une liste noire est toujours en retard d'un nom ;
+   une liste blanche ne l'est jamais. C'est la même leçon que le filtre des tournures, deux
+   heures plus tôt : on ne poursuit pas les cas un par un, on énonce la règle.
+   ⚠️ AVEC UNE SEULE PORTE DE SORTIE : une plateforme dont les chiffres ont été RÉELLEMENT
+   MESURÉS reste, quelle qu'elle soit. Un chiffre lu vaut mieux qu'une règle, et si un
+   comparateur de métier publie sa note en clair, la jeter serait absurde. Un chiffre seulement
+   ANNONCÉ par le modèle, lui, ne retient rien : c'est précisément ce qui remplissait le tableau
+   de « 11° » et de « 4,5/5° » invérifiables. */
+const GARDEES = /google|facebook\.com|fb\.com|linkedin\.com/i;
 /* ⚠️ UNE FONCTION, PAS DIX LIGNES DANS LE HANDLER — POUR QU'ELLE SOIT ESSAYABLE. La leçon du
    jour : c'est en FAISANT TOURNER extraireAbonnes() que le banc a trouvé l'apostrophe qui la
    cassait ; aucune relecture ne l'avait vue. Un tri enfoui dans le handler ne s'essaie pas. */
@@ -430,10 +441,18 @@ function descendreReseaux(fiche) {
        elle reste. On retire le vide, pas la source. Et les plateformes de métier (TripAdvisor
        pour un restaurant, un comparateur sectoriel) ne sont pas concernées : là, il y a
        vraiment quelque chose à lire. */
-    if (u && ANNUAIRES_VIDES.test(u) && !aDesAvis) return;      // ni tableau, ni pages publiques
+    /* Ni Google, ni Facebook, ni LinkedIn, et aucun chiffre mesuré : la ligne n'apprend rien.
+       Une ligne sans nom d'URL non plus — on ne garde pas ce qu'on ne peut pas ouvrir. */
+    if (!aDesAvis && !(u && GARDEES.test(u)) && !/google/i.test(p && p.nom || "")) return;
     if (u && RESEAUX.test(u) && !aDesAvis) descendent.push({ nom: (p.nom || "Page"), url: p.url, quoi: (p.resume || p.role || "") });
     else restent.push(p);
   });
+  /* ⚠️ ON ÉCRIT LA LISTE DÈS QU'ELLE A CHANGÉ, PAS SEULEMENT QUAND UNE PAGE DESCEND. Le premier
+     jet sortait ici quand `descendent` était vide — et une fiche dont on ne RETIRAIT que des
+     annuaires (aucun réseau à déplacer) les gardait tous. C'est exactement le cas d'une fiche
+     sans page Facebook ni LinkedIn, celui où le tableau est déjà le plus pauvre. Trouvé par le
+     banc, jamais par la relecture : la sortie anticipée avait l'air anodine. */
+  if (restent.length !== plats.length) fiche.plateformes = restent;
   if (!descendent.length) return fiche;
   fiche.plateformes = restent;
   const cans = Array.isArray(fiche.canaux) ? fiche.canaux : [];
@@ -496,7 +515,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-07";
+const SENTINELLE_VERSION = "2026-08-13-08";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
