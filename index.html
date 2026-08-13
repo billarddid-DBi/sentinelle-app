@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 334';
+var IVE_VERSION='13/08 · 336';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4437,6 +4437,63 @@ function planQui(txt){
   if(/site (internet|web)|refonte|refondre|développ|developp|créer un site|application/.test(t)) return 'site';
   if(/horaire|fiche|mention|certificat|assurance|accroche|phrase|décri|decri|nomm|complét|complet|coordonn/.test(t)) return 'fiche';
   return 'inconnu';
+}
+/* ═══ LES ANNUAIRES DISPARAISSENT AUSSI DES FICHES DÉJÀ ENREGISTRÉES ═════════════════════════
+   Didier, 13/08/2026 : « et bien sûr, tu as appliqué ça de façon générale, pour ceux qui sont
+   déjà enregistrés et ceux qu'on va intégrer. »
+   Non, et il a bien fait de demander : le nettoyage se faisait au moment de l'analyse, donc
+   uniquement pour les fiches à venir. Toutes celles déjà en base auraient gardé leurs
+   « PagesJaunes » — et il aurait fallu repayer une relance par entreprise pour les en sortir.
+   On nettoie donc aussi À L'AFFICHAGE. La fiche enregistrée n'est pas modifiée : on affiche une
+   copie propre. Rien n'est réécrit dans son dos, et une fiche relancée un jour repartira propre
+   de toute façon.
+   ⚠️ MÊME CODE DES DEUX CÔTÉS. C'est la règle qu'on s'est donnée sur la formule de la note :
+   deux implémentations d'une même règle finissent toujours par diverger, et le banc compare donc
+   les deux textes caractère par caractère. */
+var NOM_ANNUAIRE = "pages\\s*jaunes|pagesjaunes|cylex|kompass|mappy|starofservice|star\\s+of\\s+service|vite-?un-?d[ée]panneur|118\\s*000|yelp|justacot[ée]|eldo|infobel|soci[ée]teinfo|yably";
+function nettoyerAnnuaires(t) {
+  var s = String(t || "");
+  s = s.replace(new RegExp("\\s*(?:,|/|·|et|puis|ou)\\s*(?:" + NOM_ANNUAIRE + ")\\b", "gi"), "");
+  s = s.replace(new RegExp("\\b(?:" + NOM_ANNUAIRE + ")\\s*(?:,|/|·|et|puis|ou)\\s*", "gi"), "");
+  s = s.replace(new RegExp("\\b(?:" + NOM_ANNUAIRE + ")\\b", "gi"), "");
+  return s
+    .replace(/\(\s*[),]?\s*\)/g, "")
+    .replace(/\(\s*,\s*/g, "(").replace(/\s*,\s*\)/g, ")")
+    .replace(/\s*,\s*,+/g, ",")
+    .replace(/\b(sur|dans|dont)\s+(et|ou)\s+/gi, "$1 ")
+    .replace(/\s+(et|ou)\s*([.,;:]|$)/gi, "$2")
+    .replace(/\s+\b(sur|dans|chez|via|par)\b\s*([.,;:]|$)/gi, "$2")
+    .replace(/\s{2,}/g, " ").replace(/\s+([,.;:])/g, "$1")
+    .replace(/^[\s,;:/·-]+/, "").trim();
+}
+/* Une copie propre pour l'affichage. L'objet d'origine — celui qu'on enregistre — n'est jamais
+   touché : nettoyer les données de quelqu'un sans le lui dire serait pire que le défaut. */
+function ficheAffichee(d){
+  if(!d || typeof d!=='object') return d;
+  var c={}; for(var k in d){ if(Object.prototype.hasOwnProperty.call(d,k)) c[k]=d[k]; }
+  ['presence','imagePercue','avis','valeurs','fierte','coutInaction'].forEach(function(x){
+    if(typeof c[x]==='string') c[x]=nettoyerAnnuaires(c[x]);
+  });
+  if(Array.isArray(c.quickwins)) c.quickwins=c.quickwins.map(nettoyerAnnuaires).filter(Boolean);
+  if(Array.isArray(c.vigilance)) c.vigilance=c.vigilance.map(function(v){
+    return (v&&v.texte)?{niveau:v.niveau, texte:nettoyerAnnuaires(v.texte)}:v; }).filter(function(v){ return !v||!v.texte?false:true; });
+  if(c.intel && typeof c.intel==='object'){
+    var i={}; Object.keys(c.intel).forEach(function(k){ i[k]=(typeof c.intel[k]==='string')?nettoyerAnnuaires(c.intel[k]):c.intel[k]; });
+    c.intel=i;
+  }
+  if(Array.isArray(c.agents)) c.agents=c.agents.map(function(a){
+    if(!a) return a;
+    return Object.assign({}, a, {nom:nettoyerAnnuaires(a.nom), benefice:nettoyerAnnuaires(a.benefice)});
+  });
+  /* Le tableau des avis : même règle que le serveur. Ne restent que Google, Facebook, LinkedIn —
+     et toute plateforme dont les chiffres ont été RÉELLEMENT mesurés. */
+  if(Array.isArray(c.plateformes)) c.plateformes=c.plateformes.filter(function(p){
+    if(!p) return false;
+    if(p.mesure && (p.nb!=null || p.note!=null)) return true;
+    return /google|facebook\.com|fb\.com|linkedin\.com/i.test(String(p.url||''))
+        || /google|facebook|linkedin/i.test(String(p.nom||''));
+  });
+  return c;
 }
 /* ═══ SUR QUOI CETTE TÂCHE REPOSE-T-ELLE ? ═══════════════════════════════════════════════════
    Didier, 13/08/2026, sur « mettre à jour les horaires et services sur Google Maps/PagesJaunes » :
@@ -4953,6 +5010,9 @@ function rapDateLongue(x){
 /* Le document lui-même. */
 function rapportHtml(d, version, dateAnalyse){
   d=d||{};
+  /* Le rapport remis au dirigeant passe par le même nettoyage que l'écran : c'est le document
+     qui compte le plus, et une fiche ancienne l'aurait imprimé avec ses annuaires. */
+  if(typeof ficheAffichee==='function') d=ficheAffichee(d);
   var v=(typeof synthVals==='function')?synthVals(d):{est:50,pot:68,coul:'Bleu',hex:'#2563EB'};
   var est=v.est, pot=v.pot, hex=v.hex;
   var adef=(typeof AURADEF!=='undefined'&&AURADEF[v.coul])?AURADEF[v.coul]:null;
@@ -5287,7 +5347,7 @@ function historiqueView(){
 /* Les deux volets d'INFORMATION SUR L'OUTIL, désormais dans Mon compte. */
 function iveAccordeonsInfos(d){
   d=d||((typeof iveFicheMaintenant==='function')?(iveFicheMaintenant()||{}):{});
-  var meth=[['ti-message-2-star','Avis clients','Google, Pages Jaunes'],['ti-users','Réseaux sociaux','LinkedIn, Facebook'],['ti-news','Presse & médias','Articles en ligne'],['ti-world','Annuaire & web','Sites, annuaires'],['ti-building-bank','Données officielles','Entreprises, INPI']];
+  var meth=[['ti-message-2-star','Avis clients','Google'],['ti-users','Réseaux sociaux','Facebook, LinkedIn'],['ti-world','Votre site','Vitesse, contenu'],['ti-building-bank','Registres publics','Entreprises, BODACC'],['ti-news','Presse & web','Articles en ligne']];
   var methSources='<div style="font-size:11px;color:#6b7280;">SENTINELLE analyse en continu plus de 30 sources publiques vérifiées.</div><div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:9px;">'+meth.map(function(m){return '<div style="flex:1;min-width:92px;text-align:center;"><i class="ti '+m[0]+'" style="color:#2563EB;font-size:17px;"></i><div style="font-size:10px;font-weight:700;color:#1C1C1C;margin-top:3px;">'+m[1]+'</div><div style="font-size:9px;color:#9ca3af;line-height:1.2;">'+m[2]+'</div></div>';}).join('')+'</div>';
   var methAcc='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 16px;margin-top:12px;"><div onclick="var b=document.getElementById(\'synthMethBody\'),c=document.getElementById(\'synthMethChev\');if(b){var h=(b.style.display===\'none\');b.style.display=h?\'block\':\'none\';if(c)c.style.transform=h?\'rotate(180deg)\':\'\';}" style="cursor:pointer;display:flex;align-items:center;gap:10px;"><div style="flex:1;"><i class="ti ti-microscope" style="color:#2563EB;"></i> <b style="font-size:12.5px;color:#1C1C1C;">Notre méthodologie</b></div><i id="synthMethChev" class="ti ti-chevron-down" style="color:#9ca3af;font-size:20px;transition:transform .2s;"></i></div><div id="synthMethBody" style="display:none;margin-top:12px;">'+methSources+'</div></div>';
   var aproposBody='<div style="font-size:12px;color:#4b5563;line-height:1.5;">SENTINELLE a analysé plus de 30 sources publiques pour révéler votre image en ligne.</div><div style="display:inline-flex;align-items:center;gap:7px;background:#eef2f7;border:1px solid #dbe3ec;border-radius:9px;padding:7px 11px;margin-top:10px;"><i class="ti ti-shield-check" style="color:#2563EB;font-size:16px;"></i><span style="font-size:11px;color:#4b5563;">100% données publiques — aucune donnée confidentielle utilisée.</span></div>'+((d.sources&&!/non trouv/i.test(d.sources))?'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin-top:12px;border-top:1px solid #eef0f3;padding-top:10px;"><b style="color:#4b5563;"><i class="ti ti-list-search" style="color:#2563EB;"></i> Sources analysées &amp; fiabilité :</b> '+esc(d.sources)+'</div>':'')+'<div style="font-size:9.5px;color:#9ca3af;margin-top:12px;">* Visibilité, Sentiment, Positionnement et Confiance sont des indicateurs <b>estimés</b> à partir de données publiques.</div>';
@@ -5335,7 +5395,7 @@ function synthHtml(d){
   var opps='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:14px 16px;"><div style="font-size:11px;font-weight:800;color:#c2410c;letter-spacing:.3px;">OPPORTUNITÉS DE PROGRESSION</div>'
     +'<div style="display:flex;align-items:center;gap:12px;margin-top:8px;"><div style="width:46px;height:46px;border-radius:50%;background:#fff;border:1px solid #fed7aa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><span style="font-size:22px;font-weight:800;color:#E8541A;">'+nbOpp+'</span></div>'
     +'<div style="font-size:12px;color:#7c2d12;line-height:1.5;">Nous avons identifié <b>'+nbOpp+' leviers concrets</b> de progression. <i class="ti ti-lock" style="font-size:12px;"></i> Le détail — le <b>comment</b> et les <b>outils IA</b> — fait partie de votre <b>BOUSSOLE</b>.</div></div></div>';
-  var meth=[['ti-message-2-star','Avis clients','Google, Pages Jaunes'],['ti-users','Réseaux sociaux','LinkedIn, Facebook'],['ti-news','Presse & médias','Articles en ligne'],['ti-world','Annuaire & web','Sites, annuaires'],['ti-building-bank','Données officielles','Entreprises, INPI']];
+  var meth=[['ti-message-2-star','Avis clients','Google'],['ti-users','Réseaux sociaux','Facebook, LinkedIn'],['ti-world','Votre site','Vitesse, contenu'],['ti-building-bank','Registres publics','Entreprises, BODACC'],['ti-news','Presse & web','Articles en ligne']];
   var methodo='<div style="background:#f8fafc;border:1px solid #eef0f3;border-radius:12px;padding:12px 14px;"><div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;">NOTRE MÉTHODOLOGIE</div><div style="font-size:11px;color:#6b7280;margin-top:2px;">SENTINELLE analyse en continu plus de 30 sources publiques vérifiées.</div><div style="display:flex;flex-wrap:wrap;gap:9px;margin-top:9px;">'+meth.map(function(m){return '<div style="flex:1;min-width:92px;text-align:center;"><i class="ti '+m[0]+'" style="color:#2563EB;font-size:17px;"></i><div style="font-size:10px;font-weight:700;color:#1C1C1C;margin-top:3px;">'+m[1]+'</div><div style="font-size:9px;color:#9ca3af;line-height:1.2;">'+m[2]+'</div></div>';}).join('')+'</div></div>';
   var adef=(typeof AURADEF!=='undefined'&&AURADEF[coul])?AURADEF[coul]:null;
   var aSens=(d.aura&&d.aura.sens&&!/non trouv/i.test(d.aura.sens))?String(d.aura.sens).trim():(adef&&adef.s?adef.s:'');
@@ -5569,6 +5629,14 @@ function render(d,skipSave){
      la couleur figée doit partir avec la fiche, sinon la base garderait la couleur du jour et
      le prochain appareil repartirait sur une autre. */
   if(typeof auraFiger==='function') auraFiger(d);
+  /* ⚠️ ON ENREGISTRE L'ORIGINAL, ON AFFICHE UNE COPIE PROPRE. `__ficheBrute` garde la fiche telle
+     qu'elle est arrivée — c'est elle qui part en base. Tout ce qui suit travaille sur la copie
+     nettoyée. Une fiche analysée avant le 13/08/2026 s'affiche donc sans ses annuaires, sans
+     qu'on ait touché à ce qui est enregistré, et sans repayer une relance par entreprise.
+     ⚠️ ET ON NE RÉÉCRIT RIEN DANS SON DOS : si le nettoyage se trompait un jour, il n'aurait
+     abîmé qu'un affichage, jamais des données. */
+  window.__ficheBrute=d;
+  d=(typeof ficheAffichee==='function')?ficheAffichee(d):d;
   window.lastNom=d.nom; window.lastVille=d.ville; if(typeof iveIdentSauver==='function') iveIdentSauver(); window.lastActivite=d.activite||''; window.lastArchetype=d.archetype||''; window.lastAura=(d.aura&&d.indice&&d.indice.estime!=null)?{note:d.indice.estime,couleur:d.aura.couleur,eclat:d.aura.eclat}:null; window.lastAvis=(d._auraCalc&&d._auraCalc.note_google!=null)?{note:d._auraCalc.note_google,nombre:d._auraCalc.nb_avis||null}:null; window.lastSite=d.site||'';
   const col = SECTEURS[d.secteur] || '#374151';
   const date = new Date().toLocaleDateString('fr-FR');
@@ -5957,7 +6025,10 @@ function render(d,skipSave){
   ['sP','sH','sC'].forEach(function(id){ var e=$(id); if(e) e.addEventListener('input',sim2); });
   sim2();
   window.scrollTo(0,0);
-  if(!skipSave) setTimeout(function(){ saveFiche(d); }, 700);
+  /* ⚠️ ON ENREGISTRE LA FICHE BRUTE, PAS LA COPIE D'AFFICHAGE. `d` a été remplacé plus haut par
+     la version nettoyée : sauver celle-ci réécrirait en base ce que le serveur a produit, et un
+     défaut de nettoyage deviendrait alors une perte de données. */
+  if(!skipSave) setTimeout(function(){ saveFiche(window.__ficheBrute||d); }, 700);
   // Dirigeant : on ne montre JAMAIS le scan brut ; on prépare son espace (cockpit) qui prendra le relais.
   if(SS){ $('result').innerHTML='<div class="card" style="text-align:center;padding:34px 20px;color:#6b7280;"><span class="spin"></span><div style="margin-top:10px;font-size:13px;">Préparation de votre espace…</div></div>'; }
 }
@@ -7222,7 +7293,10 @@ function avisTableau(d){
        }
        var origine=diag+mesure+'<div style="font-size:10.5px;color:#6b7280;margin-top:6px;line-height:1.55;background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 9px;">'
          +'<b>Chiffres en noir : mesurés.</b> Google est relevé automatiquement, fraîcheur du dernier avis comprise.'
-         +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : relevés par l\'analyse, <b>non vérifiés</b>. PagesJaunes, Trustpilot et Facebook refusent la lecture automatique — ouvrez leur page avant de citer ces chiffres.'):'')
+         /* ⚠️ LE NOM DES ANNUAIRES A DISPARU JUSQUE DANS NOS PROPRES LÉGENDES. Didier, 13/08/2026 :
+           « nulle part » — et cette phrase-ci en citait trois pour expliquer le °. Elle disait
+           vrai, mais elle remettait sous ses yeux exactement ce qu'il ne veut plus lire. */
+        +(douteux?('<br><b style="color:#9ca3af;">En gris, suivis de °</b> : relevés par l\'analyse, <b>non vérifiés</b>. Ces pages refusent la lecture automatique — ouvrez-les avant de citer ces chiffres.'):'')
          /* Règle de Didier : chaque plateforme est un ensemble à part. Le dire évite qu'on refasse
             l'addition de tête en lisant la colonne. */
          +'<br>Chaque plateforme est un <b>ensemble distinct</b> : les avis ne s\'additionnent pas d\'une ligne à l\'autre.'
