@@ -228,17 +228,36 @@ async function getDetails(placeId, key) {
        Chercher une information de plus ne doit jamais coûter celle qu'on avait déjà. */
     if (!res) res = await lire(`${base}&fields=website`);
     if (!res) return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "SANS_REPONSE", detail };
-    let dernier = null, avisLus = 0;
+    let dernier = null, avisLus = 0, textes = [];
     if (Array.isArray(res.reviews) && res.reviews.length) {
       avisLus = res.reviews.length;
       const t = res.reviews.map(x => x && x.time).filter(x => typeof x === "number" && x > 0);
       if (t.length) dernier = new Date(Math.max.apply(null, t) * 1000).toISOString().slice(0, 10);
+      /* ⚠️ ON GARDAIT L'HORODATAGE ET ON JETAIT LE RESTE. Didier, 13/08/2026 : « pourquoi je n'ai
+         plus la synthèse des avis dans "ce qu'ils disent" ? »
+         Cette colonne était remplie par le MODÈLE — qui ne lit pas les avis Google. Elle décrivait
+         donc ce qu'il supposait qu'ils disent. Or Google nous renvoie leur TEXTE, avec leur note et
+         leur date, dans la même réponse que nous payons déjà : on le prenait, on ne le lisait pas.
+         Désormais on les garde. Ce ne sont plus des suppositions à résumer, ce sont des avis à
+         relire — datés, notés, mot pour mot. */
+      textes = res.reviews
+        .filter(x => x && typeof x.time === "number" && x.time > 0)
+        .sort((a, b) => b.time - a.time)
+        .slice(0, 5)
+        .map(x => ({
+          date: new Date(x.time * 1000).toISOString().slice(0, 10),
+          note: (typeof x.rating === "number" ? x.rating : null),
+          /* Le nom de l'auteur ne sert à rien au consultant, et nous n'avons aucune raison de
+             ranger des noms de tiers dans la base d'un client. La date et la note suffisent. */
+          texte: String(x.text || "").replace(/\s+/g, " ").trim().slice(0, 400)
+        }))
+        .filter(x => x.texte || x.note != null);
     }
     /* ⚠️ « OK SANS AVIS » N'EST PAS « OK ». Google peut répondre OK et ne renvoyer aucun avis :
        c'est le signe que le champ `reviews` n'est pas ouvert sur cette clé, pas que la fiche
        n'a pas d'avis. Les confondre ferait chercher le défaut du mauvais côté. */
     if (!dernier && statut === "OK") statut = "OK_SANS_AVIS";
-    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, statut: statut || "OK", detail };
+    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, statut: statut || "OK", detail };
   } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, statut: statut || "ERREUR_RESEAU", detail }; }
 }
 
@@ -443,7 +462,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-03";
+const SENTINELLE_VERSION = "2026-08-13-04";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
@@ -538,7 +557,10 @@ export default async function handler(req, res) {
                Didier, 12/08/2026, sur Dronavia : « rebelote pour les avis Google ». */
             fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis, google_statut: det.statut || null, google_detail: det.detail || null,
               place_nom: p.name || null, place_adresse: p.formatted_address || null, place_id: p.place_id || null,
-              avis_lus: det.avisLus || 0, avis_tri: !!det.tri };
+              avis_lus: det.avisLus || 0, avis_tri: !!det.tri,
+              /* Les avis eux-mêmes : datés, notés, mot pour mot. C'est la seule chose de cette
+                 fiche que le dirigeant peut relire ligne à ligne et reconnaître. */
+              avis_recents: Array.isArray(det.textes) ? det.textes : [] };
             /* ⚠️ ON EFFACE CE QUE LE MODÈLE AURAIT ÉCRIT LÀ. Le champ était sa porte d'entrée
                pour glisser la date d'une autre plateforme dans la ligne Google. Mesurée ou
                absente : il n'y a pas de troisième cas. */

@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='12/08 · 319';
+var IVE_VERSION='13/08 · 320';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4996,8 +4996,9 @@ function rapportHtml(d, version, dateAnalyse){
   /* ── 03 · RÉPUTATION, PLATEFORME PAR PLATEFORME ────────────────────────────────────────── */
   var tab=(typeof avisTableau==='function')?avisTableau(d):'';
   var can=(typeof canauxHtml==='function')?canauxHtml(d):'';
-  if(tab||can) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
-      'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+can);
+  var avg=(typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'';
+  if(tab||can||avg) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
+      'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+avg+can);
 
   /* ── 04 · LES ENTREPRISES VOISINES ─────────────────────────────────────────────────────── */
   /* En partie I : ce sont des relevés publics, au même titre que les avis. Aucun commentaire,
@@ -5835,8 +5836,12 @@ function render(d,skipSave){
 
     ${avisTableau(d)}
 
-    ${/* Juste après les avis : on vient de dire où les clients écrivent, on dit maintenant où
-         l'entreprise parle. Deux natures voisines, jamais mélangées. */''}
+    ${/* Le tableau donne les chiffres, ce bloc donne les mots. Les avis mesurés viennent juste
+         après leur ligne — c'est là qu'on les cherche. */''}
+    ${avisGoogleHtml(d)}
+
+    ${/* Puis : on vient de dire où les clients écrivent, on dit maintenant où l'entreprise
+         parle. Deux natures voisines, jamais mélangées. */''}
     ${canauxHtml(d)}
 
     <div class="sec" data-chap="opportunites"><div class="ktitle" style="color:#E8541A;"><i class="ti ti-brain"></i> INTELLIGENCE STRATÉGIQUE</div>
@@ -6374,6 +6379,41 @@ function fraicheurHtml(f, estime, dateIso){
 function dateFr(x){
   var t=new Date(x); if(isNaN(t)) return String(x||'');
   return t.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'});
+}
+/* ═══ LES DERNIERS AVIS GOOGLE, MOT POUR MOT ═════════════════════════════════════════════════
+   Didier, 13/08/2026 : « pourquoi je n'ai plus la synthèse des avis dans "ce qu'ils disent" ? »
+   Cette colonne était remplie par le MODÈLE, qui ne lit pas les avis Google : elle décrivait ce
+   qu'il supposait qu'ils disent. Quand la mesure a commencé à contredire ses suppositions, elle
+   s'est vidée — et c'était juste, mais ça laissait un tiret à la place d'une information.
+   Or Google nous renvoie le TEXTE des avis, avec leur note et leur date, dans la réponse que
+   nous payons déjà. On la prenait, on n'en gardait que l'horodatage.
+   ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
+   on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
+   personne ne peut les contester. */
+function avisGoogleHtml(d){
+  var g=(d&&d._auraCalc)?d._auraCalc:null;
+  var l=(g&&Array.isArray(g.avis_recents))?g.avis_recents.filter(function(a){ return a && (a.texte||a.note!=null); }):[];
+  if(!l.length) return '';
+  var etoiles=function(n){
+    if(n==null) return '';
+    var s=''; for(var i=1;i<=5;i++) s+='<i class="ti ti-star'+(i<=n?'-filled':'')+'" style="font-size:11px;color:'+(i<=n?'#f59e0b':'#e5e7eb')+';"></i>';
+    return s;
+  };
+  return '<div class="sec" data-chap="avisgoogle">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-message-2"></i> Les derniers avis Google</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Relevés chez Google, mot pour mot. Google en renvoie cinq au maximum'
+      +((g.nb_avis!=null&&g.nb_avis>l.length)?(' — l\'entreprise en compte <b>'+g.nb_avis+'</b> en tout.'):'.')+'</div>'
+    +l.map(function(a){
+      return '<div style="border-left:3px solid #f1f5f9;padding:6px 0 6px 10px;margin-top:8px;">'
+        +'<div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;">'
+          +(a.note!=null?('<span style="white-space:nowrap;">'+etoiles(a.note)+'</span>'):'')
+          +(a.date?('<span style="font-size:10.5px;color:#9ca3af;">'+esc(dateFr(a.date))+'</span>'):'')
+        +'</div>'
+        +(a.texte?('<div style="font-size:11.5px;color:#4b5563;line-height:1.5;margin-top:3px;">'+esc(a.texte)+'</div>')
+                 :'<div style="font-size:11px;color:#9ca3af;margin-top:3px;">Note sans commentaire.</div>')
+      +'</div>';
+    }).join('')
+  +'</div>';
 }
 /* ═══ VOS PAGES PUBLIQUES — CE QUE L'ENTREPRISE ALIMENTE ═════════════════════════════════════
    Didier, 12/08/2026 : « je vois qu'il y a une actualité très riche sur Facebook, et toi tu ne
