@@ -635,11 +635,59 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-10";
+const SENTINELLE_VERSION = "2026-08-13-11";
+
+/* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
+   Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
+   le bouton ».
+   Jusqu'ici, dans le calcul de la note, le site valait OUI ou NON. Un site qui met neuf secondes
+   à s'afficher sur un téléphone recevait donc exactement les mêmes points qu'un site impeccable —
+   alors qu'il fait fuir plus de clients qu'il n'en garde. On mesurait une présence, pas une
+   qualité.
+   ⚠️ CETTE MESURE PREND 10 À 30 SECONDES, et une analyse SENTINELLE n'en a que 60 en tout. La
+   glisser dans le même appel ferait courir le risque de tout perdre pour un chiffre de confort.
+   Elle a donc sa propre porte, déclenchée à la demande — et comme le dossier api/ contient déjà
+   les DOUZE fonctions que Vercel autorise, c'est une porte dans ce fichier, pas un treizième. */
+async function mesurerSite(url) {
+  const key = process.env.GOOGLE_PLACES_KEY;
+  if (!url || !/^https?:\/\//i.test(url)) return { ok: false, statut: "SANS_URL" };
+  if (!key) return { ok: false, statut: "SANS_CLE" };
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 45000);
+  try {
+    const u = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=" + encodeURIComponent(url)
+      + "&strategy=mobile&category=performance&category=accessibility&category=seo&key=" + key;
+    const r = await fetch(u, { signal: stop.signal });
+    if (!r.ok) {
+      const t = await r.text();
+      /* Le mot de Google, tel quel : c'est lui qui désigne le réglage à corriger. */
+      return { ok: false, statut: String(r.status), detail: (t || "").slice(0, 200) };
+    }
+    const d = await r.json();
+    const lh = d.lighthouseResult || {};
+    const cat = lh.categories || {}, aud = lh.audits || {};
+    const note = c => (cat[c] && typeof cat[c].score === "number") ? Math.round(cat[c].score * 100) : null;
+    const val = a => (aud[a] && aud[a].displayValue) ? String(aud[a].displayValue) : null;
+    return {
+      ok: true, statut: "OK",
+      perf: note("performance"), acces: note("accessibility"), seo: note("seo"),
+      /* Les deux durées que le dirigeant comprend sans traduction : quand quelque chose apparaît,
+         et quand la page est réellement utilisable. */
+      premier: val("first-contentful-paint"), utilisable: val("interactive"),
+      teste: lh.finalUrl || url
+    };
+  } catch (_) { return { ok: false, statut: "SANS_REPONSE" }; }
+  finally { clearTimeout(minuteur); }
+}
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
+  /* La porte du contrôle technique, AVANT tout le reste : elle n'a besoin ni du modèle, ni de la
+     clé Anthropic, ni d'un jeton — l'appel est gratuit chez Google. */
+  if (req.body && req.body.pagespeed) {
+    res.status(200).json(await mesurerSite(String(req.body.pagespeed))); return;
+  }
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key) { res.status(500).json({ error: "Clé API manquante (ANTHROPIC_API_KEY non configurée sur Vercel)." }); return; }
 
@@ -730,6 +778,9 @@ export default async function handler(req, res) {
                Didier, 12/08/2026, sur Dronavia : « rebelote pour les avis Google ». */
             fiche._auraCalc = { note_google: (p.rating != null ? p.rating : null), nb_avis: (p.user_ratings_total || 0), site: !!site, poids: w, dernier_avis: det.dernierAvis, google_statut: det.statut || null, google_detail: det.detail || null,
               place_nom: p.name || null, place_adresse: p.formatted_address || null, place_id: p.place_id || null,
+              /* L'adresse du site telle que GOOGLE la connaît : c'est elle qu'on mesurera, pas
+                 celle que le modèle a pu recopier de travers. */
+              site_url: site || null,
               avis_lus: det.avisLus || 0, avis_tri: !!det.tri,
               /* Les avis eux-mêmes : datés, notés, mot pour mot. C'est la seule chose de cette
                  fiche que le dirigeant peut relire ligne à ligne et reconnaître. */

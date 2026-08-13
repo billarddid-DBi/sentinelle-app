@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 328';
+var IVE_VERSION='13/08 · 329';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4996,8 +4996,12 @@ function rapportHtml(d, version, dateAnalyse){
   /* ── 03 · RÉPUTATION, PLATEFORME PAR PLATEFORME ────────────────────────────────────────── */
   var tab=(typeof avisTableau==='function')?avisTableau(d):'';
   var can=(typeof canauxHtml==='function')?canauxHtml(d):'';
+  /* Dans le rapport imprimé : le RÉSULTAT s'il existe, jamais le bouton — on n'imprime pas une
+     action. siteVitesseCorps ne rend le bouton qu'à l'administrateur, et rapportHtml sert au
+     dirigeant : la distinction se fait donc toute seule. */
   var avg=((typeof ficheGoogleHtml==='function')?ficheGoogleHtml(d):'')
          +((typeof registreHtml==='function')?registreHtml(d):'')
+         +((typeof siteVitesseHtml==='function')?siteVitesseHtml(d):'')
          +((typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'');
   if(tab||can||avg) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
       'Le relevé brut, avant toute interprétation. Une case vide signifie « non trouvé publiquement » — jamais « zéro ». Une plateforme où vous êtes absent est une place encore libre.')+tab+avg+can);
@@ -5843,6 +5847,7 @@ function render(d,skipSave){
     ${/* Rendu à part : une fiche peut n'avoir aucun avis et porter quand même douze photos. */''}
     ${ficheGoogleHtml(d)}
     ${registreHtml(d)}
+    ${siteVitesseHtml(d)}
     ${avisGoogleHtml(d)}
 
     ${/* Puis : on vient de dire où les clients écrivent, on dit maintenant où l'entreprise
@@ -6395,6 +6400,86 @@ function dateFr(x){
    ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
    on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
    personne ne peut les contester. */
+/* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
+   Didier, 13/08/2026 : « c'est activé, fais le bouton. »
+   Dans le calcul de la note, le site valait OUI ou NON. Un site qui met neuf secondes à
+   s'afficher sur un téléphone recevait donc les mêmes points qu'un site impeccable — alors qu'il
+   fait fuir plus de clients qu'il n'en garde. On mesurait une présence, pas une qualité.
+   ⚠️ LA MESURE EST DÉCLENCHÉE À LA MAIN, et c'est voulu : elle prend 10 à 30 secondes, quand une
+   analyse complète n'en a que 60. Elle ne coûte aucun jeton — l'appel est gratuit chez Google.
+   ⚠️ ET ELLE PORTE SA DATE. Un site refait le mois prochain rendra ce relevé faux ; sans date,
+   personne ne saurait qu'il a vieilli. */
+var siteStore={
+  cle:function(){ return 'ive_site_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
+  lire:function(){ try{ return JSON.parse(localStorage.getItem(siteStore.cle())||'{}')||{}; }catch(e){ return {}; } },
+  de:function(u){ var o=siteStore.lire(); return o[releveStore.norm(u)]||null; },
+  poser:function(u,v){ var o=siteStore.lire(); o[releveStore.norm(u)]=v;
+    try{ localStorage.setItem(siteStore.cle(), JSON.stringify(o)); }catch(e){} }
+};
+function siteUrlDe(d){
+  var g=(d&&d._auraCalc)?d._auraCalc:null;
+  /* L'adresse que GOOGLE connaît prime sur celle que le modèle a pu recopier de travers. */
+  var u=(g&&g.site_url)?g.site_url:((d&&d.site)?d.site:'');
+  return (/^https?:\/\//i.test(u||''))?u:'';
+}
+function siteMesurer(){
+  var d=window.__sentData||{}, u=siteUrlDe(d);
+  var z=$('siteVit'); if(!z) return;
+  if(!u){ z.innerHTML='<div style="font-size:11.5px;color:#9a3412;">Aucune adresse de site connue : rien à mesurer.</div>'; return; }
+  z.innerHTML='<div style="display:flex;gap:8px;align-items:center;font-size:11.5px;color:#4b5563;">'
+    +'<span class="spin" style="width:14px;height:14px;border-width:2px;display:inline-block;"></span>'
+    +'Google ouvre le site sur un téléphone et chronomètre… 10 à 30 secondes.</div>';
+  fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pagespeed:u})})
+    .then(function(r){ return r.json(); })
+    .then(function(m){
+      if(!m || !m.ok){
+        var QUOI={SANS_CLE:'aucune clé Google n\'est configurée côté serveur.',
+                  SANS_URL:'l\'adresse du site n\'est pas exploitable.',
+                  SANS_REPONSE:'Google n\'a pas répondu dans le délai.',
+                  '403':'l\'API PageSpeed Insights n\'est pas activée sur le projet qui porte la clé.',
+                  '429':'quota Google dépassé — réessayez dans quelques minutes.'};
+        z.innerHTML='<div style="font-size:11.5px;color:#9a3412;line-height:1.5;">La mesure n\'a pas abouti — '
+          +esc(QUOI[m&&m.statut]||('réponse '+((m&&m.statut)||'?')))+'</div>'+siteBouton('Réessayer');
+        return;
+      }
+      m.ts=Date.now(); siteStore.poser(u,m);
+      z.innerHTML=siteVitesseCorps(u);
+    })
+    .catch(function(){ z.innerHTML='<div style="font-size:11.5px;color:#9a3412;">La mesure n\'a pas abouti.</div>'+siteBouton('Réessayer'); });
+}
+function siteBouton(lib){
+  return '<button type="button" onclick="siteMesurer()" style="border:1px solid #dbe7fb;background:#f5f8ff;color:#2563EB;font-size:11.5px;font-weight:700;border-radius:9px;padding:7px 12px;cursor:pointer;font-family:inherit;margin-top:6px;">'
+    +'<i class="ti ti-gauge"></i> '+esc(lib||'Mesurer la vitesse du site')+' <span style="font-weight:500;color:#9ca3af;">· gratuit</span></button>';
+}
+function siteNote(n){
+  if(n==null) return '';
+  var c=(n>=90)?'#15803d':(n>=50?'#b45309':'#9a3412');
+  return '<span style="font-weight:800;color:'+c+';">'+n+'</span><span style="color:#9ca3af;">/100</span>';
+}
+function siteVitesseCorps(u){
+  var m=siteStore.de(u);
+  if(!m){ return (typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton():''; }
+  var l=[];
+  if(m.perf!=null)  l.push('Vitesse '+siteNote(m.perf));
+  if(m.acces!=null) l.push('Lisibilité pour tous '+siteNote(m.acces));
+  if(m.seo!=null)   l.push('Bases du référencement '+siteNote(m.seo));
+  return '<div style="font-size:11.5px;color:#4b5563;line-height:1.6;">'+l.join(' · ')+'</div>'
+    +((m.premier||m.utilisable)?('<div style="font-size:11px;color:#4b5563;line-height:1.5;margin-top:3px;">'
+      +(m.premier?('Premier affichage : <b>'+esc(m.premier)+'</b>'):'')
+      +((m.premier&&m.utilisable)?' · ':'')
+      +(m.utilisable?('page utilisable : <b>'+esc(m.utilisable)+'</b>'):'')+'</div>'):'')
+    +'<div style="font-size:10px;color:#9ca3af;margin-top:3px;">Mesuré par Google sur un téléphone'
+      +(m.ts?(', le '+esc(dateFr(new Date(m.ts).toISOString().slice(0,10)))):'')+'.</div>'
+    +((typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton('Remesurer'):'');
+}
+function siteVitesseHtml(d){
+  var u=siteUrlDe(d); if(!u) return '';
+  var corps=siteVitesseCorps(u); if(!corps) return '';
+  return '<div class="sec" data-chap="sitevitesse">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-gauge"></i> La vitesse de votre site</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Le contrôle technique du site, fait par Google : il l\'ouvre sur un téléphone et chronomètre.</div>'
+    +'<div id="siteVit">'+corps+'</div></div>';
+}
 /* ═══ CE QUE DISENT LES REGISTRES ════════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « s'il faut regarder d'autres API, on le fait. »
    L'annuaire public des entreprises donne ce que le modèle SUPPOSAIT : la date de création, donc
