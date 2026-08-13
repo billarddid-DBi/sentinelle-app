@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 323';
+var IVE_VERSION='13/08 · 324';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6508,7 +6508,11 @@ function canalLecture(x){
 var releveStore={
   cle:function(){ return 'ive_releve_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
   lire:function(){ try{ var s=localStorage.getItem(releveStore.cle()); return s?JSON.parse(s):{}; }catch(e){ return {}; } },
-  norm:function(u){ return String(u||'').replace(/\/+$/,'').toLowerCase(); },
+  /* ⚠️ « facebook.com/x » ET « www.facebook.com/x » SONT LA MÊME PAGE. L'analyse renvoie tantôt
+     l'une, tantôt l'autre, et un relevé rangé sous une forme serait invisible sous l'autre — la
+     carte resterait vide sans que rien ne l'explique. On ramène donc l'adresse à son os :
+     minuscules, sans protocole, sans « www. », sans barre finale. */
+  norm:function(u){ return String(u||'').toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/+$/,''); },
   de:function(u){ var o=releveStore.lire(); return o[releveStore.norm(u)]||null; },
   poser:function(u,champ,val){
     var o=releveStore.lire(), k=releveStore.norm(u); if(!k) return;
@@ -6522,6 +6526,35 @@ var releveStore={
     var z=$('rel_'+releveClef(u)); if(z) z.innerHTML=releveCorps(u);
   }
 };
+/* ═══ LES RELEVÉS QUE J'AI FAITS MOI-MÊME, SEMÉS DANS L'APPLICATION ══════════════════════════
+   Didier, 13/08/2026 : « je ne comprends toujours pas pourquoi tu ne m'écris pas les infos pour
+   Facebook alors que tu les as. C'est incompréhensible. »
+   La raison était bête, et elle ne valait pas explication : ces relevés vivent dans SON
+   navigateur, et je n'ai aucun moyen d'y écrire. Je peux écrire dans le code, pas dans son
+   écran. Donc je passe par le code : ce que j'ai lu de mes yeux sur une page publique est posé
+   ici, avec sa date, et l'application le sème dans le relevé au premier affichage.
+   ⚠️ IL RESTE LE SIEN. Semé une seule fois par compte : s'il le corrige ou l'efface, on ne le
+   réécrit jamais par-dessus — sinon l'application discuterait avec lui.
+   ⚠️ ET CE N'EST PAS UNE BASE DE DONNÉES. Trois entreprises tiennent ici ; trente n'y tiendraient
+   pas, et ces chiffres vieilliront. C'est un carnet de consultant : ce que j'ai vu, le jour où je
+   l'ai vu. La saisie à la main reste le chemin normal. */
+var RELEVES_SEMES={
+  'https://facebook.com/dronavia': {avis:'8', pct:'90', post:'2026-08-03', le:'2026-08-13'}
+};
+function releveSemes(){ try{ return JSON.parse(localStorage.getItem('ive_releve_semes_'+((typeof cpCle==='function')?cpCle():'anon'))||'[]')||[]; }catch(e){ return []; } }
+function releveSemer(){
+  var faits=releveSemes(), neuf=faits.slice(), change=false;
+  Object.keys(RELEVES_SEMES).forEach(function(u){
+    var k=releveStore.norm(u);
+    if(faits.indexOf(k)>-1) return;              // déjà semé : on ne repasse jamais dessus
+    if(releveStore.de(u)) { neuf.push(k); change=true; return; }   // il a déjà mis le sien
+    var s=RELEVES_SEMES[u], o=releveStore.lire();
+    o[k]={avis:s.avis, pct:s.pct, post:s.post, ts:new Date(s.le+'T12:00:00').getTime()};
+    try{ localStorage.setItem(releveStore.cle(), JSON.stringify(o)); }catch(e){}
+    neuf.push(k); change=true;
+  });
+  if(change){ try{ localStorage.setItem('ive_releve_semes_'+((typeof cpCle==='function')?cpCle():'anon'), JSON.stringify(neuf)); }catch(e){} }
+}
 function releveClef(u){ return String(u||'').replace(/[^a-z0-9]/gi,'').slice(-24); }
 function releveCorps(u){
   var r=releveStore.de(u)||{};
@@ -6560,6 +6593,8 @@ function releveHtml(u){
 function canauxHtml(d){
   var l=(d&&Array.isArray(d.canaux))?d.canaux:[];
   if(!l.length) return '';
+  /* Les relevés que j'ai faits moi-même arrivent ici, une fois, avant le premier affichage. */
+  try{ releveSemer(); }catch(e){}
   /* Une page déjà listée dans le tableau des avis ne se répète pas ici : le doublon ferait
      douter qu'il s'agisse de la même page. */
   var deja={};
