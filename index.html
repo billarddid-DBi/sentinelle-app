@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 331';
+var IVE_VERSION='13/08 · 332';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5001,6 +5001,8 @@ function rapportHtml(d, version, dateAnalyse){
      dirigeant : la distinction se fait donc toute seule. */
   var avg=((typeof ficheGoogleHtml==='function')?ficheGoogleHtml(d):'')
          +((typeof registreHtml==='function')?registreHtml(d):'')
+         +((typeof bodaccHtml==='function')?bodaccHtml(d):'')
+         +((typeof siteVuHtml==='function')?siteVuHtml(d):'')
          +((typeof siteVitesseHtml==='function')?siteVitesseHtml(d):'')
          +((typeof avisGoogleHtml==='function')?avisGoogleHtml(d):'');
   if(tab||can||avg) h+=rapSection(rapTitre('03','Votre réputation, plateforme par plateforme',
@@ -5847,6 +5849,8 @@ function render(d,skipSave){
     ${/* Rendu à part : une fiche peut n'avoir aucun avis et porter quand même douze photos. */''}
     ${ficheGoogleHtml(d)}
     ${registreHtml(d)}
+    ${bodaccHtml(d)}
+    ${siteVuHtml(d)}
     ${siteVitesseHtml(d)}
     ${avisGoogleHtml(d)}
 
@@ -6400,6 +6404,77 @@ function dateFr(x){
    ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
    on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
    personne ne peut les contester. */
+/* ═══ CE QUE LE SITE MONTRE DU FONCTIONNEMENT ════════════════════════════════════════════════
+   Didier, 13/08/2026 : « as-tu d'autres pistes pour scruter depuis l'extérieur l'intérieur de
+   l'entreprise ? »
+   Un formulaire de devis ou pas, une prise de rendez-vous en ligne ou un agenda tenu à la main,
+   un espace client ou tout par mail : ce sont des faits visibles, et ils remplissent le tour du
+   propriétaire AVANT l'entretien. On arrive en sachant quoi demander.
+   ⚠️ ON NE DIT JAMAIS « ILS N'ONT PAS ». Seule la page d'accueil est lue : un formulaire peut
+   vivre sur une page « contact » qu'on n'a pas ouverte. Ce qui manque est donc rangé sous
+   « pas vu sur la page d'accueil » — une invitation à vérifier, pas un constat d'absence. */
+var SITE_SIGNAUX=[
+  {c:'formulaire',   oui:'un formulaire de contact',        non:'aucun formulaire'},
+  {c:'devis',        oui:'une demande de devis',            non:'aucune demande de devis'},
+  {c:'rendezVous',   oui:'la prise de rendez-vous en ligne',non:'aucune prise de rendez-vous'},
+  {c:'espaceClient', oui:'un espace client',                non:null},
+  {c:'boutique',     oui:'une boutique en ligne',           non:null},
+  {c:'chat',         oui:'un chat en direct',               non:null},
+  {c:'mentions',     oui:'ses mentions légales',            non:'pas de mentions légales'},
+  {c:'rgpd',         oui:'une politique de confidentialité',non:null}
+];
+function siteVuHtml(d){
+  var s=d&&d._siteVu; if(!s || s.statut!=='OK') return '';
+  var oui=[], non=[];
+  SITE_SIGNAUX.forEach(function(x){
+    if(s[x.c]===true) oui.push(x.oui);
+    else if(s[x.c]===false && x.non) non.push(x.non);
+  });
+  if(!oui.length && !non.length && !s.derniere) return '';
+  var vieux=null;
+  if(s.derniere){
+    var t=new Date(s.derniere);
+    if(!isNaN(t)) vieux=Math.floor((Date.now()-t.getTime())/86400000);
+  }
+  return '<div class="sec" data-chap="sitevu">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-world-search"></i> Ce que le site montre de votre fonctionnement</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Lu sur la page d\'accueil. Ce qui n\'y figure pas peut très bien exister ailleurs sur le site — c\'est une question à poser, pas un constat.</div>'
+    +(oui.length?('<div style="font-size:12px;color:#4b5563;line-height:1.6;"><b style="color:#15803d;">On y trouve</b> '+oui.join(' · ')+'.</div>'):'')
+    +(non.length?('<div style="font-size:12px;color:#4b5563;line-height:1.6;margin-top:3px;"><b style="color:#b45309;">Pas vu sur la page d\'accueil</b> — '+non.join(' · ')+'.</div>'):'')
+    +(s.derniere?('<div style="font-size:11.5px;color:#4b5563;line-height:1.55;margin-top:5px;">Dernière page mise à jour le <b>'+esc(dateFr(s.derniere))+'</b>'
+        +((vieux!=null&&vieux>540)?(' — il y a plus de '+Math.floor(vieux/365)+' an'+(vieux>730?'s':'')+'.'):'.')
+        +(s.pages?(' Le plan du site déclare <b>'+s.pages+'</b> page'+(s.pages>1?'s':'')+'.'):'')+'</div>'):'')
+    +(s.https===false?('<div style="font-size:11.5px;color:#9a3412;margin-top:5px;"><i class="ti ti-lock-off"></i> Le site n\'est pas en HTTPS : les navigateurs affichent « non sécurisé » à vos visiteurs.</div>'):'')
+  +'</div>';
+}
+/* ═══ LES ANNONCES LÉGALES ═══════════════════════════════════════════════════════════════════
+   ⚠️ ON PUBLIE LE FAIT, JAMAIS LA CONCLUSION. « Dernière annonce : dépôt des comptes, le
+   09/11/2023 » est un relevé. « Ils ne déposent plus leurs comptes » serait une déduction — une
+   société peut déposer avec déclaration de confidentialité. C'est la différence entre un fait
+   qu'on pose sur la table et une accusation qu'un dirigeant démonte en dix secondes. */
+function bodaccHtml(d){
+  var b=d&&d._bodacc; if(!b) return '';
+  if(b.statut==='AUCUNE'){
+    return '<div class="sec" data-chap="bodacc">'
+      +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-gavel"></i> Annonces légales</div>'
+      +'<div style="font-size:12px;color:#4b5563;line-height:1.55;">Aucune annonce publiée au BODACC sous ce numéro. C\'est le cas le plus courant : pas d\'événement notable, ou une forme juridique qui n\'y donne pas lieu.</div></div>';
+  }
+  if(b.statut!=='OK' || !Array.isArray(b.annonces) || !b.annonces.length) return '';
+  var p=b.procedure;
+  return '<div class="sec" data-chap="bodacc">'
+    +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-gavel"></i> Annonces légales</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Publications officielles au BODACC. Des faits enregistrés, rien d\'interprété.</div>'
+    +(p?('<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:9px;padding:9px 12px;margin-bottom:7px;font-size:12px;color:#9a3412;line-height:1.55;">'
+        +'<b><i class="ti ti-alert-triangle"></i> Une procédure collective a été publiée</b> le '+esc(dateFr(p.date))+' — <b>'+esc(p.famille||'')+'</b>.<br>'
+        +'<span style="color:#7c2d12;">À vérifier avant toute démarche commerciale : cela peut être ancien et résolu, comme en cours.</span></div>'):'')
+    +'<div style="font-size:11.5px;color:#4b5563;line-height:1.7;">'
+    +b.annonces.slice(0,4).map(function(a){
+       return '<div><span style="color:#9ca3af;">'+esc(dateFr(a.date))+'</span> — '+esc(a.famille||'annonce')+'</div>';
+     }).join('')
+    +'</div>'
+    +((b.total>4)?('<div style="font-size:10.5px;color:#9ca3af;margin-top:3px;">'+b.total+' annonces en tout ; les 4 plus récentes sont listées.</div>'):'')
+  +'</div>';
+}
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « c'est activé, fais le bouton. »
    Dans le calcul de la note, le site valait OUI ou NON. Un site qui met neuf secondes à

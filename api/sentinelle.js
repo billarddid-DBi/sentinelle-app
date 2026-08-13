@@ -528,6 +528,102 @@ async function chercherRegistre(nom, ville, cp) {
   } catch (_) { return { statut: "SANS_REPONSE" }; }
   finally { clearTimeout(minuteur); }
 }
+/* ═══ LE SITE LU COMME UN ÉTAT DES LIEUX ═════════════════════════════════════════════════════
+   Didier, 13/08/2026 : « as-tu d'autres pistes pour scruter depuis l'extérieur l'intérieur de
+   l'entreprise ? »
+   Le site en dit long sur le fonctionnement, sans qu'on ait rien à deviner : un formulaire de
+   devis ou pas, une prise de rendez-vous en ligne ou un agenda tenu à la main, un espace client
+   ou tout par mail. Ce sont des FAITS visibles, et ils remplissent le tour du propriétaire AVANT
+   l'entretien — on arrive en sachant quoi demander.
+   ⚠️ ON NE DIT JAMAIS « ILS N'ONT PAS ». On lit la page d'accueil, rien d'autre : un formulaire
+   peut vivre sur une page « contact » qu'on n'a pas ouverte. Trouvé = constaté ; pas trouvé =
+   « pas vu sur la page d'accueil », et c'est écrit comme ça. */
+async function lireSite(url) {
+  if (!url || !/^https?:\/\//i.test(url)) return null;
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 5000);
+  try {
+    const r = await fetch(url, {
+      signal: stop.signal,
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; SENTINELLE/1.0; +https://dbi360.fr)", "Accept-Language": "fr-FR,fr;q=0.9" }
+    });
+    if (!r.ok) return { statut: String(r.status) };
+    const h = (await r.text()).slice(0, 400000);
+    const a = (re) => re.test(h);
+    return {
+      statut: "OK",
+      https: /^https:/i.test(r.url || url),
+      /* Un vrai formulaire : une balise <form> ET un champ de contact. Le seul mot « contact »
+         ne prouve rien — toutes les pages en ont un dans leur menu. */
+      formulaire: /<form[\s>]/i.test(h) && /type=["']?(?:email|tel)|name=["']?(?:email|mail|telephone|tel|message)/i.test(h),
+      devis: a(/devis\s+(?:en\s+ligne|gratuit|imm[ée]diat)|demande\s+de\s+devis|obtenir\s+un\s+devis/i),
+      rendezVous: a(/calendly|doctolib|planity|resalib|rendez-?vous\s+en\s+ligne|prendre\s+rendez-?vous|r[ée]server\s+en\s+ligne/i),
+      espaceClient: a(/espace\s+client|mon\s+compte|se\s+connecter|suivi\s+de\s+commande/i),
+      chat: a(/crisp\.chat|tawk\.to|intercom|livechat|smartsupp|messenger\/js|zendesk|hubspot.*conversations/i),
+      boutique: a(/woocommerce|shopify|prestashop|panier|ajouter\s+au\s+panier/i),
+      mentions: a(/mentions[\s-]l[ée]gales/i),
+      rgpd: a(/politique\s+de\s+confidentialit[ée]|cookies?\s*(?:consent|banner)|tarteaucitron|axeptio|didomi/i),
+      analytics: a(/googletagmanager|google-analytics|gtag\(|matomo|plausible/i)
+    };
+  } catch (_) { return { statut: "SANS_REPONSE" }; }
+  finally { clearTimeout(minuteur); }
+}
+/* La date de la dernière page mise à jour, lue dans le plan du site — le fichier que les moteurs
+   utilisent pour savoir quoi réindexer. Quand il existe, c'est une mesure ; quand il n'existe
+   pas, on ne conclut rien. */
+async function dateSite(url) {
+  if (!url) return null;
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 4000);
+  try {
+    const base = url.replace(/\/+$/, "").replace(/(https?:\/\/[^/]+).*/, "$1");
+    const r = await fetch(base + "/sitemap.xml", { signal: stop.signal, headers: { "User-Agent": "Mozilla/5.0 (compatible; SENTINELLE/1.0)" } });
+    if (!r.ok) return null;
+    const x = (await r.text()).slice(0, 300000);
+    const dates = (x.match(/<lastmod>\s*([^<]{4,40})\s*<\/lastmod>/gi) || [])
+      .map(m => (m.match(/>([^<]+)</) || [])[1])
+      .map(s => new Date(String(s).trim()))
+      .filter(t => !isNaN(t) && t.getTime() < Date.now() + 86400000);
+    if (!dates.length) return null;
+    const max = new Date(Math.max.apply(null, dates.map(t => t.getTime())));
+    const pages = (x.match(/<loc>/gi) || []).length || null;
+    return { derniere: max.toISOString().slice(0, 10), pages };
+  } catch (_) { return null; }
+  finally { clearTimeout(minuteur); }
+}
+
+/* ═══ LES ANNONCES LÉGALES — BODACC ══════════════════════════════════════════════════════════
+   Publications officielles, gratuites, sans clé. Créations, modifications, ventes, dépôts des
+   comptes et — surtout — PROCÉDURES COLLECTIVES.
+   ⚠️ ON PUBLIE LE FAIT, JAMAIS LA CONCLUSION. « Dernière annonce : dépôt des comptes, le
+   09/11/2023 » est un relevé. « Ils ne déposent plus leurs comptes » serait une déduction : une
+   société peut déposer avec déclaration de confidentialité, ou relever d'un régime différent.
+   La nuance n'est pas un détail : c'est la différence entre un fait qu'on pose sur la table et
+   une accusation qu'un dirigeant démonte en dix secondes. */
+async function chercherAnnonces(siren) {
+  if (!siren) return null;
+  const stop = new AbortController();
+  const minuteur = setTimeout(() => stop.abort(), 5000);
+  try {
+    const u = "https://bodacc-datadila.opendatasoft.com/api/explore/v2.1/catalog/datasets/annonces-commerciales/records"
+      + "?where=" + encodeURIComponent(`registre like "${String(siren).replace(/[^0-9]/g, "")}"`)
+      + "&limit=20&order_by=" + encodeURIComponent("dateparution desc");
+    const r = await fetch(u, { signal: stop.signal });
+    if (!r.ok) return { statut: String(r.status) };
+    const d = await r.json();
+    const l = Array.isArray(d.results) ? d.results : [];
+    if (!l.length) return { statut: "AUCUNE", total: 0 };
+    const annonces = l.slice(0, 8).map(x => ({
+      date: x.dateparution || null,
+      famille: x.familleavis_lib || x.familleavis || null,
+      ville: x.ville || null
+    })).filter(x => x.date);
+    /* Une procédure collective est la seule annonce qui change tout : on la remonte à part. */
+    const proc = annonces.find(x => /proc[ée]dure|collective|sauvegarde|redressement|liquidation/i.test(x.famille || ""));
+    return { statut: "OK", total: d.total_count || l.length, annonces, procedure: proc || null };
+  } catch (_) { return { statut: "SANS_REPONSE" }; }
+  finally { clearTimeout(minuteur); }
+}
 const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
 /* ⚠️ UNE LISTE BLANCHE, PAS UNE LISTE NOIRE — ET C'EST MA DEUXIÈME ERREUR SUR LE MÊME SUJET.
    Didier, 13/08/2026 : « j'avais dit qu'on se débarrassait de tous les réseaux sauf Google,
@@ -635,7 +731,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-11";
+const SENTINELLE_VERSION = "2026-08-13-12";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -842,6 +938,22 @@ export default async function handler(req, res) {
         ? ((String(fiche._auraCalc.place_adresse).match(/\b(\d{5})\b/) || [])[1] || null) : null;
       fiche._registre = await chercherRegistre(fiche.nom, fiche.ville, cpG);
     } catch (_) { fiche._registre = null; }
+
+    /* ═══ LE SITE ET LES ANNONCES LÉGALES, EN PARALLÈLE ═══════════════════════════════════════
+       Trois lectures indépendantes, lancées ensemble : en série elles ajouteraient quatorze
+       secondes à une analyse qui en a soixante. Aucune n'est fatale — la fiche part sans. */
+    try {
+      const urlSite = (fiche._auraCalc && fiche._auraCalc.site_url) ? fiche._auraCalc.site_url : null;
+      const siren = (fiche._registre && fiche._registre.siren) ? fiche._registre.siren : null;
+      const [vu, quand, bod] = await Promise.all([
+        urlSite ? lireSite(urlSite) : Promise.resolve(null),
+        urlSite ? dateSite(urlSite) : Promise.resolve(null),
+        siren ? chercherAnnonces(siren) : Promise.resolve(null)
+      ]);
+      fiche._siteVu = vu || null;
+      if (quand && fiche._siteVu) { fiche._siteVu.derniere = quand.derniere; fiche._siteVu.pages = quand.pages; }
+      fiche._bodacc = bod || null;
+    } catch (_) {}
 
     try { descendreReseaux(fiche); } catch (_) {}
 
