@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 324';
+var IVE_VERSION='13/08 · 325';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6539,7 +6539,12 @@ var releveStore={
    pas, et ces chiffres vieilliront. C'est un carnet de consultant : ce que j'ai vu, le jour où je
    l'ai vu. La saisie à la main reste le chemin normal. */
 var RELEVES_SEMES={
-  'https://facebook.com/dronavia': {avis:'8', pct:'90', post:'2026-08-03', le:'2026-08-13'}
+  'https://facebook.com/dronavia': {avis:'8', pct:'90', post:'2026-08-03', le:'2026-08-13'},
+  /* CERIBE, relevé le 13/08/2026 sur facebook.com/ceribe57 : 151 abonnés, recommandé par 92 %
+     sur 9 avis, et plus rien de publié depuis le 2 janvier 2026 — sept mois de silence sur une
+     page qui compte 151 abonnés. C'est le genre de fait qu'aucun serveur ne verra jamais, et
+     qui change entièrement la lecture d'un « Facebook peu actif ». */
+  'https://facebook.com/ceribe57': {avis:'9', pct:'92', post:'2026-01-02', le:'2026-08-13'}
 };
 function releveSemes(){ try{ return JSON.parse(localStorage.getItem('ive_releve_semes_'+((typeof cpCle==='function')?cpCle():'anon'))||'[]')||[]; }catch(e){ return []; } }
 function releveSemer(){
