@@ -40,7 +40,8 @@ LE NOMBRE D'ABONNÉS NE T'APPARTIENT PAS — exactement comme la ligne Google. N
 ⚠️ L'URL EST LE CHAMP LE PLUS IMPORTANT DE CETTE LISTE — plus important que les chiffres. Après ta réponse, l'application OUVRE elle-même chaque page et y lit la note et le nombre d'avis publiés dans le code du site. Une URL exacte vaut donc un chiffre mesuré ; une URL approximative ne vaut rien, et aucun chiffre ne la rattrape. Donne l'adresse de la PAGE DE CETTE ENTREPRISE sur la plateforme, jamais celle de l'accueil du site ni d'une recherche.
 "nb" ET "note" : renseigne-les seulement si tu les as VUS sur la page, sinon null. Ils ne servent que de secours quand la lecture automatique échoue, et l'écran indique alors qu'ils ne sont pas vérifiés. Vérifié le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021 — une déduction affichée comme un relevé est un mensonge, et le dirigeant la vérifie en trois secondes devant toi.
 ═══ RÈGLE DE COLLECTE DES AVIS PUBLICS (dictée par Didier le 10/08/2026, appliquée mot pour mot) ═══
-OÙ CHERCHER, systématiquement : Google/Google Maps · PagesJaunes · Facebook · Trustpilot · TripAdvisor si pertinent · les plateformes métier ou sectorielles · toute autre source publique pertinente.
+OÙ CHERCHER, dans cet ordre de valeur : Google/Google Maps · Facebook · LinkedIn · les plateformes MÉTIER ou sectorielles (comparateurs, classements, annuaires notés du métier) · Trustpilot · TripAdvisor si le métier s'y prête.
+⚠️ LES ANNUAIRES GÉNÉRALISTES NE SONT PLUS UNE PRIORITÉ. Didier, 13/08/2026 : « on va oublier PagesJaunes, il n'y a rien là-dessus. C'est Google, Facebook, LinkedIn et basta. » PagesJaunes, Cylex, Kompass, societe.com et leurs semblables recopient l'immatriculation et n'ont presque jamais d'avis : une ligne de plus dans le tableau, vide, qui fait passer les lignes utiles pour du détail. Ne les cite QUE si tu y as réellement vu des avis. Sinon, ne les mets pas — et l'application les retire de toute façon quand aucun chiffre n'y a été mesuré.
 POUR CHAQUE PLATEFORME TROUVÉE, récupère autant que possible : la note moyenne, le nombre total d'avis, et la RÉCENCE du dernier avis publié.
 
 ⚠️ LA RÉCENCE : ON NE DEMANDE PAS UNE DATE EXACTE. L'objectif est de savoir si l'entreprise reçoit ENCORE des avis. Accepte donc les indications relatives ou approximatives : « il y a 2 semaines », « il y a 3 mois », « il y a 8 mois », « mars 2026 », « il y a un an ». Convertis-les approximativement — nous sommes en août 2026, donc « il y a 4 mois » ≈ avril 2026. Une précision d'un mois n'est PAS nécessaire.
@@ -399,6 +400,9 @@ function retirerCeQueLaMesureDement(fiche) {
   return fiche;
 }
 const RESEAUX = /facebook\.com|fb\.com|instagram\.com|linkedin\.com|youtube\.com|tiktok\.com|twitter\.com|\/\/(?:www\.)?x\.com/i;
+/* Les annuaires généralistes : ils recopient l'immatriculation de l'entreprise et n'ont, la
+   plupart du temps, aucun avis. Sans chiffre mesuré, ils ne remplissent que du vide. */
+const ANNUAIRES_VIDES = /pagesjaunes\.fr|cylex|kompass|societe\.com|verif\.com|infogreffe|manageo|bilansgratuits|annuaire-entreprises|pappers\.fr|118000\.fr|yellowpages/i;
 /* ⚠️ UNE FONCTION, PAS DIX LIGNES DANS LE HANDLER — POUR QU'ELLE SOIT ESSAYABLE. La leçon du
    jour : c'est en FAISANT TOURNER extraireAbonnes() que le banc a trouvé l'apostrophe qui la
    cassait ; aucune relecture ne l'avait vue. Un tri enfoui dans le handler ne s'essaie pas. */
@@ -409,6 +413,15 @@ function descendreReseaux(fiche) {
     const u = (p && p.url) ? String(p.url) : "";
     /* Une page qui porte de VRAIS avis mesurés reste dans le tableau, à sa place. */
     const aDesAvis = !!(p && p.mesure && (p.nb != null || p.note != null));
+    /* ⚠️ LES ANNUAIRES VIDES NE MÉRITENT PAS UNE LIGNE. Didier, 13/08/2026 : « on va oublier
+       PagesJaunes, il n'y a rien là-dessus. C'est Google, Facebook, LinkedIn et basta. »
+       Trois lignes de tirets donnaient au tableau l'air d'un relevé fourni alors qu'elles
+       n'apprenaient rien — et faisaient passer les deux lignes utiles pour du détail.
+       ⚠️ MAIS ON NE LES INTERDIT PAS : si l'une d'elles porte un jour de VRAIS avis mesurés,
+       elle reste. On retire le vide, pas la source. Et les plateformes de métier (TripAdvisor
+       pour un restaurant, un comparateur sectoriel) ne sont pas concernées : là, il y a
+       vraiment quelque chose à lire. */
+    if (u && ANNUAIRES_VIDES.test(u) && !aDesAvis) return;      // ni tableau, ni pages publiques
     if (u && RESEAUX.test(u) && !aDesAvis) descendent.push({ nom: (p.nom || "Page"), url: p.url, quoi: (p.resume || p.role || "") });
     else restent.push(p);
   });
@@ -474,7 +487,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-05";
+const SENTINELLE_VERSION = "2026-08-13-06";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }

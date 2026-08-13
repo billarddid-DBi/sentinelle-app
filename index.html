@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 321';
+var IVE_VERSION='13/08 · 322';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6390,6 +6390,48 @@ function dateFr(x){
    ⚠️ ON NE LES RÉSUME PAS. Un résumé est une interprétation de plus, et c'est exactement ce dont
    on sortait. Cinq avis datés et notés, tels qu'ils sont écrits : le dirigeant les reconnaît, et
    personne ne peut les contester. */
+/* ═══ LA CADENCE DES AVIS — CALCULÉE, PAS ESTIMÉE ════════════════════════════════════════════
+   Didier, 13/08/2026 : « est-ce que tu peux déterminer une fréquence de publication sur les
+   douze derniers mois ? »
+   Oui pour Google, et sans rien supposer : nous avons les DATES des avis relevés. Le nombre
+   d'avis divisé par l'intervalle qu'ils couvrent est une mesure, pas une projection.
+   ⚠️ MAIS ON DIT SUR QUOI ELLE PORTE. Google ne renvoie que cinq avis : la cadence obtenue est
+   celle des CINQ DERNIERS, donc celle de la période récente — jamais la moyenne des dix ans de
+   l'entreprise. Les confondre transformerait une mesure juste en affirmation fausse. Quand la
+   fiche compte cinq avis ou moins, on les a tous, et la phrase change.
+   ⚠️ ET ON NE CALCULE RIEN SOUS DEUX DATES : entre un seul avis et lui-même, il n'y a pas
+   d'intervalle. Une cadence tirée d'un point unique serait une invention déguisée en division. */
+function cadenceAvis(l, g){
+  var dates=(l||[]).map(function(a){ return a && a.date ? new Date(a.date) : null; })
+                   .filter(function(t){ return t && !isNaN(t); })
+                   .sort(function(a,b){ return a-b; });
+  if(dates.length<2) return null;
+  var jours=Math.round((dates[dates.length-1]-dates[0])/86400000);
+  if(jours<1) return null;                       // tous le même jour : aucun rythme à en tirer
+  var n=dates.length;
+  var mois=jours/30.44;
+  var parMois=n/mois;
+  var tout=!!(g && g.nb_avis!=null && g.nb_avis<=n);   // on les a tous
+  return {n:n, jours:jours, mois:mois, parMois:parMois, tout:tout,
+          debut:dates[0].toISOString().slice(0,10), fin:dates[dates.length-1].toISOString().slice(0,10)};
+}
+function cadenceAvisHtml(l, g){
+  var c=cadenceAvis(l,g); if(!c) return '';
+  /* Une cadence se dit dans l'unité où elle se compte : « 1 tous les 2 mois » se comprend, pas
+     « 0,45 avis par mois ». */
+  var rythme;
+  if(c.parMois>=1) rythme='environ <b>'+Math.round(c.parMois)+'</b> par mois';
+  else {
+    var tous=Math.round(1/c.parMois);
+    rythme=(tous<=1)?'environ <b>1 par mois</b>':('environ <b>1 tous les '+tous+' mois</b>');
+  }
+  var duree=(c.mois>=1.5)?(Math.round(c.mois)+' mois'):(c.jours+' jours');
+  return '<div style="background:#f8fafc;border:1px solid #eef2f5;border-radius:8px;padding:7px 10px;margin-top:4px;font-size:11px;color:#4b5563;line-height:1.5;">'
+    +'<b style="color:#1C1C1C;">Cadence — '+rythme+'.</b> '
+    +(c.tout?('Les <b>'+c.n+'</b> avis de la fiche s\'étalent sur '+duree+'.')
+            :('Les <b>'+c.n+'</b> avis relevés couvrent '+duree+' : c\'est le rythme de la période récente, pas la moyenne de l\'entreprise.'))
+    +'</div>';
+}
 function avisGoogleHtml(d){
   var g=(d&&d._auraCalc)?d._auraCalc:null;
   var l=(g&&Array.isArray(g.avis_recents))?g.avis_recents.filter(function(a){ return a && (a.texte||a.note!=null); }):[];
@@ -6403,6 +6445,7 @@ function avisGoogleHtml(d){
     +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-message-2"></i> Les derniers avis Google</div>'
     +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Relevés chez Google, mot pour mot. Google en renvoie cinq au maximum'
       +((g.nb_avis!=null&&g.nb_avis>l.length)?(' — l\'entreprise en compte <b>'+g.nb_avis+'</b> en tout.'):'.')+'</div>'
+    +cadenceAvisHtml(l, g)
     +l.map(function(a){
       return '<div style="border-left:3px solid #f1f5f9;padding:6px 0 6px 10px;margin-top:8px;">'
         +'<div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;">'
@@ -6448,6 +6491,72 @@ function canalLecture(x){
   return '<div style="font-size:10px;color:#9ca3af;line-height:1.4;margin-top:4px;border-top:1px dashed #eef2f5;padding-top:4px;">'
     +'<i class="ti ti-eye-off" style="font-size:11px;"></i> '+txt+'</div>';
 }
+/* ═══ LE RELEVÉ À LA MAIN — CE QU'AUCUN SERVEUR NE VERRA JAMAIS ══════════════════════════════
+   Didier, 13/08/2026 : « Facebook, tu m'avais trouvé toutes ces informations. Pourquoi tu ne me
+   les remets pas dans le tableau ? Je t'ai demandé de le faire. »
+   Il a raison, et mon erreur de raisonnement est nette : la règle « on n'affiche que ce qui est
+   mesuré » a été posée contre les chiffres INVENTÉS par le modèle. Or ces chiffres-là, quelqu'un
+   les a VUS — 8 avis, 90 % de recommandation, dernière publication le 3 août. Les écarter au nom
+   d'une règle faite pour les inventions, c'est jeter la meilleure information qu'on ait.
+   Il manquait simplement l'endroit où la poser. Le voici : trois champs, sur la carte de la page
+   concernée, avec la date du relevé. Un troisième état apparaît donc — mesuré par la machine
+   (noir), relevé par un humain (daté, signé), annoncé par le modèle (gris, °) — et les trois ne
+   se confondent jamais.
+   ⚠️ ET C'EST BIEN CE QUE FACEBOOK NE DONNERA JAMAIS : ses avis, son taux de recommandation et
+   la date de sa dernière publication n'existent pas dans ce qu'un serveur reçoit. On l'a vérifié
+   sur les 474 940 caractères de la vraie page. Ce n'est pas un pis-aller, c'est le seul chemin. */
+var releveStore={
+  cle:function(){ return 'ive_releve_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
+  lire:function(){ try{ var s=localStorage.getItem(releveStore.cle()); return s?JSON.parse(s):{}; }catch(e){ return {}; } },
+  norm:function(u){ return String(u||'').replace(/\/+$/,'').toLowerCase(); },
+  de:function(u){ var o=releveStore.lire(); return o[releveStore.norm(u)]||null; },
+  poser:function(u,champ,val){
+    var o=releveStore.lire(), k=releveStore.norm(u); if(!k) return;
+    o[k]=o[k]||{};
+    if(val==='' || val==null) delete o[k][champ]; else o[k][champ]=val;
+    /* Un relevé vidé de tous ses champs disparaît : sinon sa date de relevé survivrait seule,
+       et daterait un relevé qui n'existe plus. */
+    var reste=false; ['avis','pct','post'].forEach(function(c){ if(o[k][c]!=null && o[k][c]!=='') reste=true; });
+    if(!reste) delete o[k]; else o[k].ts=Date.now();
+    try{ localStorage.setItem(releveStore.cle(), JSON.stringify(o)); }catch(e){}
+    var z=$('rel_'+releveClef(u)); if(z) z.innerHTML=releveCorps(u);
+  }
+};
+function releveClef(u){ return String(u||'').replace(/[^a-z0-9]/gi,'').slice(-24); }
+function releveCorps(u){
+  var r=releveStore.de(u)||{};
+  var bouts=[];
+  if(r.avis!=null && r.avis!=='') bouts.push('<b>'+esc(r.avis)+'</b> avis');
+  if(r.pct!=null && r.pct!=='')   bouts.push('<b>'+esc(r.pct)+' %</b> de recommandation');
+  if(r.post)                      bouts.push('dernière publication le <b>'+esc(dateFr(r.post))+'</b>');
+  var vu=bouts.length
+    ? ('<div style="font-size:11.5px;color:#1C1C1C;line-height:1.5;margin-top:3px;">'+bouts.join(' · ')+'</div>'
+       +'<div style="font-size:9.5px;color:#7c3aed;margin-top:1px;"><i class="ti ti-hand-finger" style="font-size:10px;"></i> relevé à la main'
+       +(r.ts?(' le '+esc(dateFr(new Date(r.ts).toISOString().slice(0,10)))):'')+'</div>')
+    : '';
+  if(typeof iveIsAdmin!=='function' || !iveIsAdmin()) return vu;   // le dirigeant voit le relevé, pas les champs
+  var champ=function(c,lib,type,ph){
+    var v=(r[c]!=null?r[c]:'');
+    return '<label style="display:flex;align-items:center;gap:5px;font-size:10px;color:#9ca3af;">'
+      +'<span style="flex:0 0 78px;">'+lib+'</span>'
+      +'<input type="'+type+'" value="'+esc(v)+'" placeholder="'+esc(ph||'')+'" oninput="releveStore.poser(\''+esc(u)+'\',\''+c+'\',this.value)" '
+      +'style="flex:1;min-width:0;border:1px solid #e5e7eb;border-radius:7px;padding:4px 6px;font-size:11px;font-family:inherit;"></label>';
+  };
+  return vu
+    +'<div style="margin-top:5px;border-top:1px dashed #eef2f5;padding-top:5px;display:flex;flex-direction:column;gap:4px;">'
+    +'<div style="font-size:9px;font-weight:800;letter-spacing:.6px;color:#7c3aed;">CE QUE VOUS VOYEZ SUR LA PAGE</div>'
+    /* ⚠️ « 8 » ET « 90 » EN EXEMPLE SE LISAIENT COMME DES VALEURS DÉJÀ SAISIES — et identiques
+       d'une carte à l'autre, ce qui donnait deux relevés jumeaux qui n'existaient pas. Vu sur la
+       capture avant de livrer. Un exemple doit s'annoncer comme tel. */
+    +champ('avis','Avis','number','ex. 8')
+    +champ('pct','Recommandé %','number','ex. 90')
+    +champ('post','Dernier post','date','')
+    +'</div>';
+}
+function releveHtml(u){
+  var corps=releveCorps(u);
+  return corps ? ('<div id="rel_'+releveClef(u)+'">'+corps+'</div>') : '';
+}
 function canauxHtml(d){
   var l=(d&&Array.isArray(d.canaux))?d.canaux:[];
   if(!l.length) return '';
@@ -6479,13 +6588,18 @@ function canauxHtml(d){
     +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Là où vous prenez la parole — pas là où vos clients notent. Le nombre d\'abonnés s\'affiche quand la page le publie ; le <b>rythme</b> des publications, lui, ne se lit pas de l\'extérieur : le lien ouvre la page.</div>'
     +'<div style="display:flex;flex-wrap:wrap;gap:8px;">'
     +items.map(function(x){
-      return '<a href="'+esc(x.url)+'" target="_blank" rel="noopener" style="flex:1 1 210px;min-width:0;display:block;border:1px solid #e5e7eb;border-radius:10px;padding:9px 11px;text-decoration:none;background:#fff;">'
-        +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+' <i class="ti ti-external-link" style="font-size:10px;color:#2563EB;"></i></div>'
+      /* La carte n'est plus un lien : elle contient un lien, et — côté consultant — un relevé
+         qu'on saisit. Des champs de saisie à l'intérieur d'une balise <a> se déclenchent au
+         moindre clic et emportent la page. */
+      return '<div style="flex:1 1 210px;min-width:0;border:1px solid #e5e7eb;border-radius:10px;padding:9px 11px;background:#fff;">'
+        +'<a href="'+esc(x.url)+'" target="_blank" rel="noopener" style="text-decoration:none;">'
+          +'<div style="font-size:12px;font-weight:800;color:#1C1C1C;">'+esc(x.nom)+' <i class="ti ti-external-link" style="font-size:10px;color:#2563EB;"></i></div></a>'
         +(x.abonnes!=null?('<div style="font-size:11.5px;color:#1C1C1C;font-weight:800;margin-top:2px;">'
             +String(x.abonnes).replace(/\B(?=(\d{3})+(?!\d))/g,' ')+' <span style="font-weight:600;color:#6b7280;">'+esc(x.abLib)+'</span></div>'):'')
         +(x.quoi?('<div style="font-size:11px;color:#6b7280;line-height:1.45;margin-top:2px;">'+esc(x.quoi)+'</div>'):'')
+        +releveHtml(x.url)
         +canalLecture(x)
-      +'</a>';
+      +'</div>';
     }).join('')
     +'</div></div>';
 }
