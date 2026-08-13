@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 322';
+var IVE_VERSION='13/08 · 323';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6621,6 +6621,26 @@ function avisTableau(d){
        dans la ligne d'une quatrième. Ce qui suit un « non trouvé » parle forcément d'ailleurs. */
     if(/non trouv/i.test(_res)) _res='';
     if(_res) _res=_res.charAt(0).toUpperCase()+_res.slice(1);
+    /* ⚠️ LA COLONNE « CE QU'ILS DISENT » SE REMPLIT AVEC CE QU'ILS DISENT VRAIMENT. Didier,
+       13/08/2026 : « tu ne m'as toujours rien mis dans ce qu'ils disent. C'est agaçant à la fin. »
+       Il a raison, et j'ai mis trop longtemps à voir l'évidence : cette case attendait un résumé
+       du MODÈLE — qui ne lit pas les avis Google — et se vidait donc dès qu'on retirait ses
+       suppositions. Or nous avons maintenant les avis eux-mêmes, relevés chez Google.
+       On y met le PLUS RÉCENT, entre guillemets, avec sa date. Ce n'est pas un résumé : c'est une
+       citation. Elle ne peut donc être ni fausse, ni contestée — et elle dit littéralement ce que
+       la colonne promet. Le résumé du modèle, quand il existe et qu'il a survécu au filtre, garde
+       la priorité : c'est une vue d'ensemble, la citation n'en est qu'un exemple. */
+    var _cite='';
+    if(!_res && Array.isArray(g.avis_recents) && g.avis_recents.length){
+      var _a=g.avis_recents.slice().sort(function(x,y){ return String(y.date||'').localeCompare(String(x.date||'')); })
+                           .filter(function(x){ return x && x.texte; })[0];
+      if(_a){
+        var _t=String(_a.texte).trim();
+        if(_t.length>120) _t=_t.slice(0,117).replace(/\s+\S*$/,'')+'…';
+        _cite='<span style="font-style:italic;">«&nbsp;'+esc(_t)+'&nbsp;»</span>'
+          +(_a.date?('<div style="font-size:10px;color:#9ca3af;margin-top:2px;">le plus récent, du '+esc(dateFr(_a.date))+(_a.note!=null?(' · '+_a.note+'/5'):'')+'</div>'):'');
+      }
+    }
     /* ⚠️ LA DATE GOOGLE EST MESURÉE, JAMAIS DÉCLARÉE. Elle vient de Google Places (_auraCalc),
        relevée par le serveur. `d.avisDernier` était le champ du modèle : c'est par là qu'une
        date de PagesJaunes (février 2020) s'est affichée dans la ligne Google alors que la page
@@ -6632,7 +6652,8 @@ function avisTableau(d){
                  frais:fraicheurDepuisDate(g.dernier_avis), fraisMesure:!!g.dernier_avis,
                  /* La date brute suit la tranche : c'est elle qui rend le verdict vérifiable. */
                  fraisDate:(g.dernier_avis||null),
-                 resume:_res, mesure:true});
+                 /* La citation est du HTML déjà échappé : elle ne repasse pas par esc(). */
+                 resume:_res, resumeHtml:_cite, mesure:true});
   }
   /* ═══ ⚠️ ON N'AFFICHE PLUS AUCUN CHIFFRE QUE PERSONNE N'A MESURÉ ═══════════════════════════
      Didier, 10/08/2026, après deux dates fausses de suite : « je vais sur PagesJaunes, le
@@ -6719,7 +6740,11 @@ function avisTableau(d){
           +(l.frais?(fraicheurHtml(l.frais,l.fraisEstime,l.fraisDate)+(l.fraisMesure?'':marque))
                    :(l.url?'<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="color:#2563EB;font-size:10.5px;font-weight:700;text-decoration:none;white-space:nowrap;">voir la page <i class="ti ti-external-link" style="font-size:9px;"></i></a>':vide))
         +'</td>'
-        +'<td style="'+cel+'color:#4b5563;line-height:1.45;">'+(l.resume?esc(l.resume):vide)+'</td>'
+        /* ⚠️ UNE LARGEUR MINIMALE, SINON LA CITATION TOMBE EN COLONNE D'UN MOT. Vu sur la capture
+           avant de livrer : sur un écran étroit, « Installation de mon parachute… » s'affichait
+           verticalement, un mot par ligne — illisible. Le tableau défile déjà horizontalement
+           quand il ne tient pas ; mieux vaut faire défiler que faire deviner. */
+        +'<td style="'+cel+'color:#4b5563;line-height:1.45;min-width:190px;">'+(l.resumeHtml?l.resumeHtml:(l.resume?esc(l.resume):vide))+'</td>'
       +'</tr>';
     }).join('')
     +'</tbody></table></div>'

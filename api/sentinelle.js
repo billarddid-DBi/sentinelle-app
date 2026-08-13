@@ -378,7 +378,16 @@ function extraireAbonnes(html) {
    ⚠️ ON SUPPRIME, ON NE RÉÉCRIT PAS. Corriger « zéro » en « onze » produirait une phrase que
    personne n'a écrite et dont le raisonnement ne tient plus. Une observation fausse se retire ;
    les chiffres justes sont déjà dans le tableau, juste au-dessus. */
-const NIE_AVIS = /(z[ée]ro|aucun[e]?|absence(?:\s+totale)?|pas|sans)\s+(?:de\s+|d['’]\s*)?(avis|r[ée]putation|note)|premi(?:er|ère)s?\s+avis/i;
+/* ⚠️ ON DÉTECTE SUR UNE FENÊTRE, PAS SUR L'ADJACENCE — ET C'EST LA LEÇON DU 13/08/2026. Premier
+   motif : « absence (totale)? de avis », des mots collés. Le modèle a écrit « Absence
+   quasi-totale d'avis clients publics » et il est passé au travers, sur la MÊME entreprise, à la
+   relance suivante. Didier : « tu m'as remis la même merde. Mais arrête. »
+   Il a raison. Poursuivre les tournures une par une est perdu d'avance : il y en a toujours une
+   de plus. On cherche donc un mot de négation ET le sujet « avis » dans un voisinage court, sans
+   franchir la ponctuation forte. Ce n'est plus une liste de phrases interdites, c'est une idée
+   interdite — celle d'affirmer qu'il n'y a pas d'avis alors que nous venons d'en compter. */
+/* « peu de » et « peu d'avis » : l'apostrophe est le piège habituel, on accepte les deux. */
+const NIE_AVIS = /(z[ée]ro|aucun|absence|manque|sans|peu\s+d|quasi|d[ée]pourvu|inexistant|invisible|n[ée]ant|premi[eè]r)[^.;!?]{0,45}(avis|r[ée]putation|t[ée]moignage)/i;
 const AUTRE_PLATEFORME = /pagesjaunes|cylex|kompass|trustpilot|tripadvisor|facebook|linkedin|instagram|mappy|yelp/i;
 function dementiParLaMesure(txt, nbAvis) {
   if (!(nbAvis > 0)) return false;                 // rien de mesuré : on ne conteste rien
@@ -487,7 +496,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-06";
+const SENTINELLE_VERSION = "2026-08-13-07";
 
 export default async function handler(req, res) {
   if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
