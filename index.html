@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 325';
+var IVE_VERSION='13/08 · 326';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6544,7 +6544,13 @@ var RELEVES_SEMES={
      sur 9 avis, et plus rien de publié depuis le 2 janvier 2026 — sept mois de silence sur une
      page qui compte 151 abonnés. C'est le genre de fait qu'aucun serveur ne verra jamais, et
      qui change entièrement la lecture d'un « Facebook peu actif ». */
-  'https://facebook.com/ceribe57': {avis:'9', pct:'92', post:'2026-01-02', le:'2026-08-13'}
+  'https://facebook.com/ceribe57': {avis:'9', pct:'92', post:'2026-01-02', le:'2026-08-13'},
+  /* Dronavia sur LinkedIn, relevé le 13/08/2026 : la page elle-même est fermée sans compte, mais
+     ses publications sont indexées par les moteurs de recherche, avec leur ancienneté. La
+     dernière — « #EP6 | Les règles de l'air » — datait d'« il y a 4 semaines », la précédente
+     d'« il y a 4 mois ». D'où la date APPROCHÉE, marquée comme telle : ni avis ni recommandation
+     sur LinkedIn, c'est le rythme seul qui se relève. */
+  'https://linkedin.com/company/dronavia': {post:'2026-07-16', approx:1, le:'2026-08-13'}
 };
 function releveSemes(){ try{ return JSON.parse(localStorage.getItem('ive_releve_semes_'+((typeof cpCle==='function')?cpCle():'anon'))||'[]')||[]; }catch(e){ return []; } }
 function releveSemer(){
@@ -6554,7 +6560,7 @@ function releveSemer(){
     if(faits.indexOf(k)>-1) return;              // déjà semé : on ne repasse jamais dessus
     if(releveStore.de(u)) { neuf.push(k); change=true; return; }   // il a déjà mis le sien
     var s=RELEVES_SEMES[u], o=releveStore.lire();
-    o[k]={avis:s.avis, pct:s.pct, post:s.post, ts:new Date(s.le+'T12:00:00').getTime()};
+    o[k]={avis:s.avis, pct:s.pct, post:s.post, approx:(s.approx?1:0), ts:new Date(s.le+'T12:00:00').getTime()};
     try{ localStorage.setItem(releveStore.cle(), JSON.stringify(o)); }catch(e){}
     neuf.push(k); change=true;
   });
@@ -6566,7 +6572,10 @@ function releveCorps(u){
   var bouts=[];
   if(r.avis!=null && r.avis!=='') bouts.push('<b>'+esc(r.avis)+'</b> avis');
   if(r.pct!=null && r.pct!=='')   bouts.push('<b>'+esc(r.pct)+' %</b> de recommandation');
-  if(r.post)                      bouts.push('dernière publication le <b>'+esc(dateFr(r.post))+'</b>');
+  /* ⚠️ « VERS LE » N'EST PAS « LE ». Un relevé pris sur la page donne la date exacte ; un relevé
+     tiré d'un « il y a 4 semaines » ne donne qu'un environ. Les afficher pareil ferait passer une
+     approximation pour un relevé — l'erreur des trois dates fausses, en plus discret. */
+  if(r.post)                      bouts.push('dernière publication '+(r.approx?'vers le':'le')+' <b>'+esc(dateFr(r.post))+'</b>');
   var vu=bouts.length
     ? ('<div style="font-size:11.5px;color:#1C1C1C;line-height:1.5;margin-top:3px;">'+bouts.join(' · ')+'</div>'
        +'<div style="font-size:9.5px;color:#7c3aed;margin-top:1px;"><i class="ti ti-hand-finger" style="font-size:10px;"></i> relevé à la main'
