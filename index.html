@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 333';
+var IVE_VERSION='13/08 · 334';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -4438,6 +4438,43 @@ function planQui(txt){
   if(/horaire|fiche|mention|certificat|assurance|accroche|phrase|décri|decri|nomm|complét|complet|coordonn/.test(t)) return 'fiche';
   return 'inconnu';
 }
+/* ═══ SUR QUOI CETTE TÂCHE REPOSE-T-ELLE ? ═══════════════════════════════════════════════════
+   Didier, 13/08/2026, sur « mettre à jour les horaires et services sur Google Maps/PagesJaunes » :
+   « tu écris ça, mais ce sont des certitudes ou des hypothèses ? » Il avait posé exactement la
+   même question la veille sur la fiche Google. Deux fois la même question, c'est que le document
+   ne répond pas.
+   Il a raison : une tâche née d'une mesure et une tâche née d'un conseil courant s'affichent à
+   l'identique — même encadré, même objectif, même échéance. Le lecteur ne peut pas faire la part,
+   et il découvre l'écart au pire moment : devant le dirigeant qui répond « mes horaires sont à
+   jour depuis toujours ».
+   ⚠️ ON NE SUPPRIME PAS LES SUPPOSITIONS : un conseil courant du métier a sa valeur, c'est même
+   souvent le bon. On le MARQUE, et il devient une question à poser au lieu d'une affirmation. */
+function tacheOrigine(txt, d){
+  var t=String(txt||'').toLowerCase();
+  var g=(d&&d._auraCalc)?d._auraCalc:null, f=(g&&g.fiche_google)?g.fiche_google:null;
+  /* La fiche Google : c'est la seule famille où nous savons vraiment ce qu'elle porte. */
+  if(/fiche|google my business|horaire|photo|coordonn/.test(t) && f){
+    var vus=[];
+    if(f.photos!=null) vus.push(f.photos>0?(f.photos+' photo'+(f.photos>1?'s':'')):'aucune photo');
+    if(f.horaires===true) vus.push('ses horaires');
+    if(f.telephone===true) vus.push('son téléphone');
+    if(vus.length) return {t:'mesure', txt:'La fiche Google porte '+vus.join(', ')+'. Ce qui s\'y trouve est vérifié ; ce qui s\'y trouve est-il À JOUR, seul le dirigeant peut le dire.'};
+  }
+  if(/demand\w* .{0,14}avis|solliciter|obtenir des avis|recueillir/.test(t) && g && g.nb_avis!=null){
+    return {t:'mesure', txt:g.nb_avis+' avis Google comptés'+(g.dernier_avis?(', le dernier du '+dateFr(g.dernier_avis)):'')+'.'};
+  }
+  if(/site (internet|web)|refonte|refondre/.test(t)){
+    var m=(typeof siteStore!=='undefined' && typeof siteUrlDe==='function')?siteStore.de(siteUrlDe(d||{})):null;
+    if(m && m.perf!=null) return {t:'mesure', txt:'Vitesse du site mesurée à '+m.perf+'/100'+(m.utilisable?(', page utilisable en '+String(m.utilisable).replace('.',',')):'')+'.'};
+  }
+  return {t:'supposition', txt:'Conseil courant du métier, pas une observation sur cette entreprise. À confirmer en entretien avant de l\'inscrire au plan.'};
+}
+function tacheOrigineHtml(txt, d){
+  var o=tacheOrigine(txt,d), mes=(o.t==='mesure');
+  return '<div style="display:flex;gap:8px;align-items:flex-start;margin-top:5px;background:'+(mes?'#f0fdf4':'#f8fafc')+';border:1px solid '+(mes?'#bbf7d0':'#e5e7eb')+';border-radius:8px;padding:6px 9px;">'
+    +'<span style="flex:0 0 62px;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:'+(mes?'#15803d':'#6b7280')+';padding-top:2px;">'+(mes?'MESURÉ':'SUPPOSÉ')+'</span>'
+    +'<span style="flex:1;font-size:10.5px;color:#4b5563;line-height:1.5;">'+esc(o.txt)+'</span></div>';
+}
 function planQuiHtml(txt){
   var c=PLAN_QUI[planQui(txt)]||PLAN_QUI.inconnu;
   var ligne=function(lib,coul,fond,bord,txt2){
@@ -4632,6 +4669,9 @@ function planActionHtml(v, d, dateRef){
       +'<div style="font-size:10.5px;color:#6b7280;line-height:1.55;margin-top:3px;"><b>On saura que c\'est fait —</b> '+esc(e.preuve)+'</div>'
       /* Qui fait le travail : dernière ligne de la tâche, parce que c'est la question qu'on se
          pose une fois qu'on a compris CE QU'IL FAUT faire — pas avant. */
+      /* Sur quoi ça repose, AVANT qui s'en charge : on décide de garder une tâche avant de
+         décider qui la fait. */
+      +tacheOrigineHtml(e.titre, d||window.__sentData||{})
       +planQuiHtml(e.titre)
       /* Le chantier absorbé se rappelle SOUS le point qui le couvre : sans cela, on se demanderait
          pourquoi un indicateur bas n'a pas de suite dans le plan. */

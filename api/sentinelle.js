@@ -41,6 +41,7 @@ LE NOMBRE D'ABONNÉS NE T'APPARTIENT PAS — exactement comme la ligne Google. N
 "nb" ET "note" : renseigne-les seulement si tu les as VUS sur la page, sinon null. Ils ne servent que de secours quand la lecture automatique échoue, et l'écran indique alors qu'ils ne sont pas vérifiés. Vérifié le 10/08/2026 : le dernier avis PagesJaunes annoncé au 27/02/2020 datait en réalité du 06/04/2021 — une déduction affichée comme un relevé est un mensonge, et le dirigeant la vérifie en trois secondes devant toi.
 ═══ RÈGLE DE COLLECTE DES AVIS PUBLICS (dictée par Didier le 10/08/2026, appliquée mot pour mot) ═══
 OÙ CHERCHER, dans cet ordre de valeur : Google/Google Maps · Facebook · LinkedIn · les plateformes MÉTIER ou sectorielles (comparateurs, classements, annuaires notés du métier) · Trustpilot · TripAdvisor si le métier s'y prête.
+⚠️ N'ÉCRIS LE NOM D'AUCUN ANNUAIRE, NULLE PART. Didier, 13/08/2026 : « je ne veux plus voir apparaître PagesJaunes nulle part, ou autre réseau ou plateforme. Google, Facebook, LinkedIn et c'est tout. » Cela vaut pour TOUS tes champs, pas seulement la liste des plateformes : ni dans les quick wins, ni dans la vigilance, ni dans la présence, ni dans l'image perçue, ni dans l'intelligence stratégique, ni dans les pistes d'outils. PagesJaunes, Cylex, Kompass, Mappy, StarOfService, Vite-un-dépanneur, Yelp, Justacoté, Eldo, Infobel : ces noms sont retirés automatiquement de ta réponse, et une phrase amputée se lit plus mal qu'une phrase qui ne les cite pas. Écris directement « votre fiche Google », « votre page Facebook », « votre page LinkedIn ».
 ⚠️ TROIS SOURCES, ET TROIS SEULEMENT, SAUF CHIFFRE RÉELLEMENT LU. Didier, 13/08/2026 : « on se débarrasse de tous les réseaux sauf Google, Facebook et LinkedIn. » PagesJaunes, Cylex, Kompass, Mappy, StarOfService, Vite-un-dépanneur et leurs semblables recopient l'immatriculation et n'ont presque jamais d'avis : une ligne de plus dans le tableau, vide, qui fait passer les lignes utiles pour du détail. N'en cite une QUE si tu y as réellement vu des avis publiés — et l'application retire de toute façon celles dont aucun chiffre n'a pu être mesuré. Une URL exacte de Google, Facebook ou LinkedIn vaut mieux que six annuaires.
 POUR CHAQUE PLATEFORME TROUVÉE, récupère autant que possible : la note moyenne, le nombre total d'avis, et la RÉCENCE du dernier avis publié.
 
@@ -442,7 +443,52 @@ function ficheGoogleComplete(fg) {
   if (!fg) return false;                       // pas mesuré : on ne conclut rien
   return (fg.photos != null && fg.photos >= 3) && fg.horaires === true && fg.telephone === true;
 }
+/* ⚠️ UNE TÂCHE NE DOIT PLUS ENVOYER LE DIRIGEANT SUR UNE PLATEFORME QU'ON A RETIRÉE. Didier,
+   13/08/2026 : le plan disait « mettre à jour les horaires sur Google Maps/PagesJaunes » alors
+   qu'on venait de sortir PagesJaunes du tableau, faute d'y avoir jamais rien mesuré. Envoyer
+   quelqu'un travailler sur une page qu'on juge sans valeur, c'est lui faire perdre son temps —
+   et se contredire d'une section à l'autre. On retire le nom, on garde le geste. */
+/* Didier, 13/08/2026 : « je ne veux plus voir apparaître PagesJaunes nulle part, ou autre réseau
+   ou plateforme. Google, Facebook, LinkedIn et c'est tout. »
+   ⚠️ RETIRER UN NOM DANS UNE PHRASE NE SE FAIT PAS EN L'EFFAÇANT. « présent sur PagesJaunes et
+   Google » deviendrait « présent sur et Google » : un texte estropié se remarque plus qu'un nom
+   de trop. On retire donc le nom AVEC le séparateur qui l'accompagne, des deux côtés, puis on
+   recoud ce qui reste — virgules doublées, parenthèses vides, « et » orphelins. */
+const NOM_ANNUAIRE = "pages\\s*jaunes|pagesjaunes|cylex|kompass|mappy|starofservice|star\\s+of\\s+service|vite-?un-?d[ée]panneur|118\\s*000|yelp|justacot[ée]|eldo|infobel|soci[ée]teinfo|yably";
+function nettoyerAnnuaires(t) {
+  let s = String(t || "");
+  s = s.replace(new RegExp("\\s*(?:,|/|·|et|puis|ou)\\s*(?:" + NOM_ANNUAIRE + ")\\b", "gi"), "");
+  s = s.replace(new RegExp("\\b(?:" + NOM_ANNUAIRE + ")\\s*(?:,|/|·|et|puis|ou)\\s*", "gi"), "");
+  s = s.replace(new RegExp("\\b(?:" + NOM_ANNUAIRE + ")\\b", "gi"), "");
+  return s
+    .replace(/\(\s*[),]?\s*\)/g, "")          // parenthèses devenues vides
+    .replace(/\(\s*,\s*/g, "(").replace(/\s*,\s*\)/g, ")")
+    .replace(/\s*,\s*,+/g, ",")
+    .replace(/\b(sur|dans|dont)\s+(et|ou)\s+/gi, "$1 ")
+    .replace(/\s+(et|ou)\s*([.,;:]|$)/gi, "$2")
+    /* ⚠️ ET LA PRÉPOSITION RESTÉE SEULE. « Fiche présente sur Mappy, Cylex et Kompass » devenait
+       « Fiche présente sur. » — le nom avait disparu, la phrase boitait encore. */
+    .replace(/\s+\b(sur|dans|chez|via|par)\b\s*([.,;:]|$)/gi, "$2")
+    .replace(/\s{2,}/g, " ").replace(/\s+([,.;:])/g, "$1")
+    .replace(/^[\s,;:/·-]+/, "").trim();
+}
 function retirerCeQueLaMesureDement(fiche) {
+  /* ⚠️ PARTOUT, PAS SEULEMENT DANS LE TABLEAU. « Nulle part » veut dire nulle part : les quick
+     wins, la vigilance, la présence, l'image perçue, le résumé des avis, les quatre champs
+     d'intelligence, et jusqu'au bénéfice des pistes d'outils. Un nom retiré d'un endroit et
+     laissé dans un autre, c'est la contradiction qu'on cherchait à supprimer. */
+  if (Array.isArray(fiche.quickwins)) fiche.quickwins = fiche.quickwins.map(nettoyerAnnuaires).filter(Boolean);
+  if (Array.isArray(fiche.vigilance)) fiche.vigilance.forEach(v => { if (v && v.texte) v.texte = nettoyerAnnuaires(v.texte); });
+  ["presence", "imagePercue", "avis", "valeurs", "fierte", "coutInaction"].forEach(c => {
+    if (typeof fiche[c] === "string") fiche[c] = nettoyerAnnuaires(fiche[c]);
+  });
+  if (fiche.intel && typeof fiche.intel === "object") {
+    Object.keys(fiche.intel).forEach(k => { if (typeof fiche.intel[k] === "string") fiche.intel[k] = nettoyerAnnuaires(fiche.intel[k]); });
+  }
+  if (Array.isArray(fiche.agents)) fiche.agents.forEach(a => {
+    if (a && typeof a.benefice === "string") a.benefice = nettoyerAnnuaires(a.benefice);
+    if (a && typeof a.nom === "string") a.nom = nettoyerAnnuaires(a.nom);
+  });
   /* La fiche Google d'abord : ce test-là ne dépend pas du nombre d'avis. */
   const fg = (fiche && fiche._auraCalc) ? fiche._auraCalc.fiche_google : null;
   if (ficheGoogleComplete(fg)) {
@@ -731,7 +777,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-12";
+const SENTINELLE_VERSION = "2026-08-13-13";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
