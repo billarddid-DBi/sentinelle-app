@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='13/08 · 336';
+var IVE_VERSION='14/08 · 337';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6638,9 +6638,16 @@ function siteMesurer(){
     })
     .catch(function(){ z.innerHTML='<div style="font-size:11.5px;color:#9a3412;">La mesure n\'a pas abouti.</div>'+siteBouton('Réessayer'); });
 }
+/* Fond rouge, écriture noire — demande de Didier, 13/08/2026, pour les trois boutons d'action de
+   la fiche. Le bleu pâle sur fond blanc se confondait avec un lien ; ces boutons DÉCLENCHENT
+   quelque chose, ils doivent se voir comme tels. Le « · gratuit » reste en retrait : c'est une
+   précision rassurante, pas l'action. */
 function siteBouton(lib){
-  return '<button type="button" onclick="siteMesurer()" style="border:1px solid #dbe7fb;background:#f5f8ff;color:#2563EB;font-size:11.5px;font-weight:700;border-radius:9px;padding:7px 12px;cursor:pointer;font-family:inherit;margin-top:6px;">'
-    +'<i class="ti ti-gauge"></i> '+esc(lib||'Mesurer la vitesse du site')+' <span style="font-weight:500;color:#9ca3af;">· gratuit</span></button>';
+  return '<button type="button" onclick="siteMesurer()" style="border:1px solid #c2410c;background:#E8541A;color:#1C1C1C;font-size:11.5px;font-weight:800;border-radius:9px;padding:7px 12px;cursor:pointer;font-family:inherit;margin-top:6px;">'
+    /* ⚠️ LE « GRATUIT » SE MET EN RETRAIT PAR SON POIDS, PAS PAR SA COULEUR. Premier essai en
+       brun (#7c2d12) sur le rouge : illisible, vu sur la capture avant de livrer. Sur un fond
+       soutenu, seul le noir tient — on joue donc sur la graisse. */
+    +'<i class="ti ti-gauge"></i> '+esc(lib||'Mesurer la vitesse du site')+' <span style="font-weight:500;color:#1C1C1C;">· gratuit</span></button>';
 }
 function siteNote(n){
   if(n==null) return '';
@@ -9343,7 +9350,10 @@ function precisBlocHtml(){
     +'<div style="font-size:12px;color:#6b7280;line-height:1.5;margin:5px 0 8px;">Ce que vous savez et que l\'enquête publique ne peut pas voir — une activité mal comprise, une ville erronée, un service qui n\'existe plus. <b>Repris à la prochaine relance</b>, pour que l\'erreur ne se répète pas.</div>'
     +'<textarea id="sentPrecis" rows="3" placeholder="Ex. : ils ont arrêté le dépannage 24h/24 · le siège est à Metz, pas à Marly" style="width:100%;box-sizing:border-box;border:1px solid #d7dbe3;border-radius:10px;padding:9px 11px;font-size:13px;font-family:inherit;color:#1C1C1C;resize:vertical;">'+esc(v)+'</textarea>'
     +'<div style="display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;">'
-      +'<button type="button" onclick="precisEnregistrer()" style="border:1px solid #d7dbe3;background:#fff;color:#374151;border-radius:20px;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Garder cette précision</button>'
+      /* Fond rouge, écriture noire — demande de Didier, 13/08/2026. Le bouton se perdait en blanc
+         sur fond blanc : c'est pourtant le geste qui décide si une correction part avec la
+         prochaine relance. */
+      +'<button type="button" onclick="precisEnregistrer()" style="border:1px solid #c2410c;background:#E8541A;color:#1C1C1C;border-radius:20px;font-size:11px;font-weight:800;padding:6px 14px;cursor:pointer;font-family:inherit;"><i class="ti ti-device-floppy"></i> Garder cette précision</button>'
       +'<span id="sentPrecisMsg" style="font-size:11.5px;line-height:1.4;flex:1;min-width:140px;"></span>'
     +'</div></div>';
 }
