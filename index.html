@@ -1692,84 +1692,95 @@ function startBoussole(mode){
 
    ⚠️ ET UNE FAMILLE QU'ON N'A JAMAIS RENCONTRÉE RESTE ANNONCÉE, PAS INVENTÉE. Écrire six
    questions sur un métier qu'on n'a jamais vu se sentirait au premier rendez-vous. */
-var ETAT_ETATS=[{l:'Ça marche',c:'#15803d',f:'#f0fdf4',b:'#bbf7d0'},
-                {l:'Ça tient, mais c\'est lourd',c:'#b45309',f:'#fffbeb',b:'#fde68a'},
-                {l:'Ça coince',c:'#9a3412',f:'#fff7ed',b:'#fed7aa'}];
+/* ⚠️ TOUS LES LIBELLÉS DE CE BLOC ONT ÉTÉ RÉÉCRITS LE 20/08/2026, à partir du document de
+   reformulation de Didier. Les IDENTIFIANTS n'ont pas bougé : les relevés déjà saisis restent
+   valides, et les paires `lie` continuent de désigner les mêmes moments. Ce qui change est ce
+   qui se lit ; ce qui compte pour la machine ne change pas.
+   Le principe tenu ligne à ligne : on décrit l'existant, on ne sous-entend jamais qu'une façon
+   de faire vaut mieux qu'une autre, et un métier non concerné doit pouvoir sortir de la question
+   sans se sentir en faute. */
+var ETAT_ETATS=[{l:'🟢 C\'est fluide',       brut:'C\'est fluide',       q:'ça se passe simplement au quotidien.',                                  c:'#15803d',f:'#f0fdf4',b:'#bbf7d0'},
+                {l:'🟠 Ça demande du temps', brut:'Ça demande du temps', q:'ça fonctionne, mais cela demande de l\'attention ou des manipulations.',c:'#b45309',f:'#fffbeb',b:'#fde68a'},
+                {l:'🔴 C\'est compliqué',    brut:'C\'est compliqué',    q:'cela crée régulièrement des difficultés ou des pertes de temps.',       c:'#9a3412',f:'#fff7ed',b:'#fed7aa'}];
 var ETAT_AGES=['Moins de 6 mois','Plus longtemps'];
-function etatOuL(o){ return (o&&o.l!==undefined)?o.l:o; }      // un choix est un texte…
-function etatOuS(o){ return !!(o&&o.s); }                      // …ou un texte qui nomme un logiciel
-/* Les trois questions vraies partout : quel que soit le métier, on range des papiers, on reçoit
-   des mails, et on veut savoir si le mois a été bon. */
+/* Les deux échappatoires universelles, posées sur CHAQUE question. Elles portent des indices
+   NÉGATIFS pour ne jamais entrer en collision avec les réponses d'une liste : ajouter un choix
+   à une famille ne doit pas déplacer ce qui est déjà enregistré. */
+var ETAT_HORS=-2;   // « Ça ne s'applique pas chez nous »
+var ETAT_AUTRE=-1;  // « Autrement… » + champ libre
+function etatOuL(o){ return (o&&o.l!==undefined)?o.l:o; }
+function etatOuS(o){ return !!(o&&o.s); }
 var ETAT_SOCLE=[
-  {id:'doc', t:'Retrouver un document', q:'Une facture ou un devis d\'il y a six mois — vous le retrouvez comment ?',
-   ou:['Dans un classeur papier','Dans mes mails','Dans des dossiers sur l\'ordinateur','Sur un disque partagé ou le cloud',{l:'Dans un logiciel',s:1},'Ça dépend, il faut chercher']},
-  {id:'mail', t:'Les mails', q:'Les mails qui arrivent pour l\'entreprise, ils arrivent où ?',
-   ou:['Une seule boîte, tout le monde la voit','Chacun la sienne','Les deux à la fois','Presque tout passe par le téléphone']},
-  {id:'pilotage', t:'Savoir si le mois est bon', q:'Pour savoir si le mois a été bon, vous regardez quoi ?',
-   ou:['Le compte en banque','Un tableau que je tiens moi-même','Ce que dit le comptable',{l:'Un logiciel me le sort',s:1},'Rien de précis, au ressenti']},
-  /* ⚠️ CETTE QUESTION EXISTE PARCE QU'AUCUN ROBOT NE SAIT Y RÉPONDRE. Didier, 12/08/2026 :
-     « il y a une actualité très riche sur Facebook et tu ne me mets rien ». On peut parfois lire
-     le nombre d'abonnés d'une page ; le RYTHME des publications, non — Facebook ne le publie pas
-     et ne le publiera pas. Le dirigeant, lui, répond en cinq secondes, et sa réponse est vérifiée
-     par construction. Trois heures de code ne valent pas cette phrase-là. */
-  {id:'publications', t:'Les publications', q:'Vos pages publiques (Facebook, Instagram…) — qui publie, et à quel rythme ?',
-   ou:['Personne, on ne publie pas','Le dirigeant, quand il y pense','Quelqu\'un en interne, régulièrement','Un prestataire ou une agence','On a une page, mais elle dort','On n\'a pas de page']}
+  {id:'doc', t:'Retrouver un document', q:'Si vous cherchez un document datant de plusieurs mois — facture, devis, dossier, commande — où allez-vous le chercher ?',
+   ou:['Dans un classeur papier','Dans mes mails','Dans des dossiers sur l\'ordinateur','Sur un espace partagé ou dans le cloud',{l:'Dans un logiciel',s:1},'Ça dépend du document, il faut parfois chercher']},
+  {id:'mail', t:'Les mails de l\'entreprise', q:'Les mails de l\'entreprise, comment sont-ils organisés aujourd\'hui ?',
+   ou:['Une boîte commune que plusieurs personnes utilisent','Chacun a sa propre boîte mail','Nous utilisons les deux','La plupart des échanges passent directement par le téléphone','Quelqu\'un centralise les messages']},
+  {id:'pilotage', t:'Savoir comment se passe le mois', q:'Pour savoir comment se passe le mois pour l\'entreprise, qu\'est-ce que vous regardez en premier ?',
+   ou:['Le compte bancaire','Un tableau que je tiens moi-même','Les informations du comptable',{l:'Un logiciel ou un tableau de bord',s:1},'Plusieurs éléments à la fois','Rien de précis, plutôt mon ressenti']},
+  /* ⚠️ AUCUN ROBOT NE SAIT RÉPONDRE À CELLE-CI. On peut parfois lire le nombre d'abonnés d'une
+     page ; le RYTHME des publications, non — Facebook ne le publie pas et ne le publiera pas. */
+  {id:'publications', t:'La présence sur les réseaux', q:'Pour vos pages publiques — Facebook, Instagram, LinkedIn ou autres — comment gérez-vous les publications ?',
+   ou:['On ne publie pas','Je publie moi-même quand j\'ai quelque chose à partager','Quelqu\'un en interne s\'en occupe régulièrement','Un prestataire ou une agence s\'en charge','Nous avons des pages, mais elles sont peu utilisées','Nous n\'avons pas de page sur les réseaux sociaux']}
 ];
 var ETAT_FAMILLES={
- commande:{ n:'Il appelle, on chiffre, on intervient', ex:'chauffagiste, électricien, plombier, garage, imprimeur, bureau d\'études',
+ commande:{ n:'Il nous contacte, on chiffre, puis on intervient', ex:'chauffagiste, électricien, plombier, garage, imprimeur, bureau d\'études…',
   moments:[
-   {id:'demande', t:'La demande qui arrive', q:'Une demande arrive — par téléphone, par mail, par le formulaire du site. Elle atterrit où ?',
-    ou:['Un carnet ou un papier','Un tableau Excel','La boîte mail, et elle y reste',{l:'Un logiciel',s:1},'Ça dépend de qui la prend']},
-   {id:'devis', t:'Le devis', q:'Le devis se fait avec quoi ?',
-    ou:['À la main, sur place','Un modèle Word ou Excel',{l:'Un logiciel de devis',s:1},'On ne fait pas de devis']},
-   {id:'planning', t:'Qui va où demain', q:'Qui va où demain — c\'est écrit où ?',
-    ou:['Un tableau au mur','Un agenda papier','Excel','Un agenda partagé (Google, Outlook)',{l:'Un logiciel de planning',s:1},'On s\'appelle le matin']},
-   {id:'terrain', t:'Le compte rendu du chantier', q:'Le compte rendu de fin d\'intervention — rapport, photos — il part d\'où ?',
-    ou:['Sur papier, ramené au bureau','Photos par SMS ou WhatsApp','Un formulaire sur le téléphone',{l:'Un logiciel',s:1},'Il n\'y en a pas']},
-   {id:'facture', t:'La facture', q:'La facture se fait avec quoi ?',
-    ou:['Word ou Excel',{l:'Un logiciel de facturation',s:1},{l:'Un logiciel qui reprend le devis',s:1},'Le comptable s\'en occupe']},
-   {id:'impayes', t:'Les impayés', q:'Les factures qui ne sont pas payées — qui les repère, et quand ?',
-    ou:['Personne vraiment','Le dirigeant, de tête','En regardant la banque','Le comptable prévient',{l:'Un logiciel relance tout seul',s:1}]}
+   {id:'demande', t:'L\'arrivée d\'une demande', q:'Quand un client vous contacte pour une demande, où est-ce que vous la notez ou la retrouvez ?',
+    ou:['Sur un carnet ou une feuille','Dans un tableau Excel','Dans la boîte mail',{l:'Dans un logiciel',s:1},'Ça dépend de la personne qui reçoit la demande']},
+   {id:'devis', t:'Le devis', q:'Quand vous devez faire un devis, comment vous vous y prenez aujourd\'hui ?',
+    ou:['Je le fais à la main','Je pars d\'un modèle Word ou Excel',{l:'J\'utilise un logiciel de devis',s:1},'Quelqu\'un d\'autre s\'en charge','Je ne fais pas de devis dans mon activité']},
+   /* Formulation valable pour un chantier, une tournée ou un atelier : ni chantier ni camion, mais
+      « qui fait quoi et où chacun doit être ». */
+   {id:'planning', t:'L\'organisation des interventions', q:'Pour savoir qui fait quoi et où chacun doit être, comment vous vous organisez ?',
+    ou:['Avec un tableau ou un planning affiché','Avec un agenda papier','Avec Excel','Avec un agenda partagé (Google, Outlook…)',{l:'Avec un logiciel de planning',s:1},'On se coordonne directement entre nous']},
+   /* « Compte rendu de chantier » écarté : trop spécifique à certains métiers. */
+   {id:'terrain', t:'La trace du travail réalisé', q:'Après une intervention ou un travail terminé, comment gardez-vous une trace de ce qui a été fait ?',
+    ou:['Sur papier','Avec des photos ou des messages (SMS, WhatsApp…)','Dans un formulaire sur téléphone',{l:'Dans un logiciel',s:1},'On ne garde pas systématiquement de trace']},
+   {id:'facture', t:'La facture', q:'Quand il faut facturer un client, comment faites-vous ?',
+    ou:['Avec Word ou Excel',{l:'Avec un logiciel de facturation',s:1},{l:'Avec un logiciel qui reprend directement le devis',s:1},'Le comptable ou une autre personne s\'en charge','Je ne m\'occupe pas directement de la facturation']},
+   /* « Personne vraiment » écarté : la phrase se lisait comme un reproche. */
+   {id:'impayes', t:'Les paiements en retard', q:'Quand une facture tarde à être payée, comment vous en rendez-vous compte ?',
+    ou:['Je le vois moi-même','En consultant le compte bancaire','Le comptable ou une autre personne me prévient',{l:'Un logiciel me le signale ou relance automatiquement',s:1},'On vérifie de temps en temps','Je ne suis pas directement concerné par les encaissements']}
   ],
   lie:[{a:'devis',b:'facture'},{a:'demande',b:'devis'},{a:'terrain',b:'facture'}] },
- rdv:{ n:'Il prend rendez-vous', ex:'coiffeur, esthétique, kiné, ostéopathe, vétérinaire, auto-école',
+ rdv:{ n:'Il prend rendez-vous', ex:'coiffure, esthétique, santé, auto-école…',
   moments:[
-   {id:'prise', t:'La prise de rendez-vous', q:'Le rendez-vous se prend comment ?',
-    ou:['Le téléphone et un cahier','Le téléphone et un agenda sur l\'ordinateur',{l:'Une appli de réservation en ligne',s:1},'Les messages et les réseaux sociaux',{l:'Un logiciel de caisse avec agenda',s:1}]},
-   {id:'trous', t:'Les créneaux qui se libèrent', q:'Un créneau qui se libère au dernier moment — il se remplit, ou il reste vide ?',
-    ou:['Il reste vide','On appelle deux ou trois clients, de tête','On a une liste d\'attente écrite','L\'appli prévient toute seule']},
-   {id:'fichier', t:'Le fichier client', q:'Vos clients — coordonnées, ce qu\'ils aiment, ce qu\'on leur a fait — c\'est noté où ?',
-    ou:['Rien d\'écrit, c\'est dans la tête','Une fiche papier','Un fichier Excel',{l:'Le logiciel de rendez-vous ou de caisse',s:1}]},
-   {id:'revenus', t:'Ceux qu\'on ne voit plus', q:'Les clients qu\'on ne voit plus depuis un an — vous les repérez ?',
-    ou:['Non','On s\'en rend compte au hasard','On regarde la liste de temps en temps','Le logiciel sait le dire']},
-   {id:'caisse', t:'L\'encaissement', q:'L\'encaissement se fait avec quoi ?',
-    ou:['Une caisse simple ou un carnet','Un terminal bancaire, sans plus',{l:'Un logiciel de caisse',s:1},{l:'Un logiciel de caisse relié à la compta',s:1}]},
-   {id:'produits', t:'Les produits et consommables', q:'Les produits — revente, consommables — le réassort se décide comment ?',
-    ou:['À l\'œil, quand il n\'y en a plus','Une liste sur papier','Excel','Le logiciel déduit les sorties','On ne vend pas de produits']}
+   {id:'prise', t:'La prise de rendez-vous', q:'Quand un client veut prendre rendez-vous, comment ça se passe chez vous ?',
+    ou:['Par téléphone, avec un cahier ou un agenda papier','Par téléphone, avec un agenda sur l\'ordinateur',{l:'Avec une application de réservation en ligne',s:1},'Par messages ou réseaux sociaux',{l:'Avec un logiciel de caisse ou de gestion qui comprend un agenda',s:1}]},
+   {id:'trous', t:'Les créneaux libérés', q:'Quand un rendez-vous se libère au dernier moment, qu\'est-ce qui se passe généralement ?',
+    ou:['Le créneau reste libre','On contacte quelques clients','On utilise une liste d\'attente','L\'application ou le logiciel prévient automatiquement des clients','Ça dépend des jours']},
+   /* On ne suppose pas que tous les métiers notent des préférences ou un historique détaillé. */
+   {id:'fichier', t:'Les informations clients', q:'Les informations utiles sur vos clients — coordonnées, préférences, historique — où les retrouvez-vous ?',
+    ou:['Principalement de mémoire','Sur une fiche papier','Dans un fichier Excel',{l:'Dans le logiciel de rendez-vous, de caisse ou de gestion',s:1},'À plusieurs endroits']},
+   {id:'revenus', t:'Les clients qui ne reviennent plus', q:'Savez-vous repérer les clients qui ne sont pas revenus depuis un certain temps ?',
+    ou:['Pas vraiment','Je m\'en rends compte au fil du temps','Je regarde mes fichiers ou mes listes de temps en temps','Mon logiciel me permet de les retrouver','Ce n\'est pas pertinent dans mon activité']},
+   {id:'caisse', t:'L\'encaissement', q:'Quand un client règle, comment enregistrez-vous son paiement ?',
+    ou:['Avec une caisse simple ou un carnet','Avec un terminal bancaire, sans autre suivi',{l:'Avec un logiciel de caisse',s:1},{l:'Avec un logiciel de caisse relié à la comptabilité',s:1},'Quelqu\'un d\'autre s\'en charge']},
+   {id:'produits', t:'Les produits et consommables', q:'Si vous avez des produits ou consommables à gérer, comment savez-vous quand il faut en recommander ?',
+    ou:['Je regarde ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Le logiciel suit les sorties et le stock',s:1},'Quelqu\'un d\'autre s\'en charge','Je n\'ai pas de produits ou de stock à gérer']}
   ],
   lie:[{a:'prise',b:'fichier'},{a:'caisse',b:'pilotage'}] },
- boutique:{ n:'Il pousse la porte', ex:'commerce, boulangerie, fleuriste, alimentation',
+ boutique:{ n:'Il vient directement chez nous', ex:'commerce, boulangerie, fleuriste, alimentation…',
   moments:[
-   {id:'caisse', t:'La caisse', q:'L\'encaissement se fait avec quoi ?',
-    ou:['Une caisse simple ou un carnet','Un terminal bancaire, sans plus',{l:'Un logiciel de caisse',s:1},{l:'Un logiciel de caisse relié à la compta',s:1}]},
-   {id:'stock', t:'Le stock', q:'Ce qu\'il reste en rayon et en réserve — vous le savez comment ?',
-    ou:['On regarde le rayon','Un cahier','Excel','Le logiciel de caisse le tient à jour']},
-   {id:'fournisseurs', t:'Les commandes fournisseurs', q:'Les commandes aux fournisseurs se passent comment ?',
-    ou:['Au téléphone','Par mail','Le représentant passe','Un portail fournisseur',{l:'Un logiciel',s:1}]},
-   {id:'pertes', t:'Les invendus', q:'Les invendus et la casse — c\'est suivi ?',
-    ou:['Non','On le note sur un cahier','Le logiciel le compte']},
-   {id:'habitues', t:'Les habitués', q:'Vos habitués — vous savez qui ils sont ?',
-    ou:['De vue, sans rien d\'écrit','Une carte de fidélité papier','Une carte dans le logiciel de caisse','Un fichier client']},
-   {id:'heures', t:'Les coups de feu', q:'Les coups de feu et les creux de la journée — vous les connaissez précisément ?',
-    ou:['Au ressenti','On a les relevés de caisse','Le logiciel sort les heures']}
+   {id:'caisse', t:'L\'encaissement', q:'Quand un client règle, comment enregistrez-vous son paiement ?',
+    ou:['Avec une caisse simple ou un carnet','Avec un terminal bancaire, sans autre suivi',{l:'Avec un logiciel de caisse',s:1},{l:'Avec un logiciel de caisse relié à la comptabilité',s:1},'Quelqu\'un d\'autre s\'en charge']},
+   {id:'stock', t:'Le stock', q:'Quand vous avez des produits, pièces ou consommables à gérer, comment savez-vous ce qu\'il vous reste ?',
+    ou:['Je regarde directement ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Mon logiciel le met à jour',s:1},'Quelqu\'un d\'autre s\'en charge','Je n\'ai pas de stock à gérer']},
+   {id:'fournisseurs', t:'Les commandes fournisseurs', q:'Quand vous devez commander chez un fournisseur, comment faites-vous le plus souvent ?',
+    ou:['Par téléphone','Par mail','Le représentant ou le fournisseur passe directement','Sur un portail fournisseur',{l:'Avec un logiciel',s:1},'Quelqu\'un d\'autre s\'en charge']},
+   {id:'pertes', t:'Les invendus, pertes ou casse', q:'Si vous avez des invendus, des pertes ou de la casse, comment les suivez-vous ?',
+    ou:['On ne les suit pas précisément','On les note sur papier','On les note dans un tableau',{l:'Le logiciel les enregistre',s:1},'Quelqu\'un d\'autre s\'en charge','Ça ne concerne pas notre activité']},
+   {id:'habitues', t:'Les clients habituels', q:'Comment identifiez-vous vos clients habituels ou fidèles ?',
+    ou:['Je les connais de vue ou de mémoire','Avec une carte de fidélité papier','Avec la fidélité intégrée au logiciel de caisse','Avec un fichier client','On ne suit pas particulièrement les clients habituels']},
+   {id:'heures', t:'Les moments les plus chargés', q:'Savez-vous quels sont précisément les moments les plus chargés et les plus calmes de votre activité ?',
+    ou:['Principalement au ressenti','Avec les relevés de caisse ou les rendez-vous','Avec un tableau que nous suivons','Le logiciel permet de le voir','Ce n\'est pas utile dans notre activité']}
   ],
   lie:[{a:'caisse',b:'stock'},{a:'caisse',b:'pilotage'}] },
- /* ⚠️ ANNONCÉES, PAS ÉCRITES — et l'écran le dit franchement. On les écrira au retour du premier
-    rendez-vous avec une entreprise qui en relève : six questions inventées sur un métier qu'on
-    n'a jamais vu se sentiraient tout de suite. */
- contrat:{ n:'Il a un contrat chez nous', ex:'maintenance, entretien, ménage, informatique, syndic', aecrire:1 },
- dossier:{ n:'Il nous confie un dossier', ex:'comptable, avocat, architecte, agence', aecrire:1 },
- autre:{ n:'Aucune ne ressemble', ex:'on garde les questions communes et on note ce que vous décrivez', aecrire:1 }
+ /* ⚠️ ANNONCÉES, PAS ÉCRITES. Six questions écrites de mémoire sur un métier qu'on n'a jamais
+    rencontré se sentiraient au premier rendez-vous. */
+ contrat:{ n:'Il a déjà un contrat avec nous', ex:'maintenance, entretien, ménage, informatique, syndic…', aecrire:1 },
+ dossier:{ n:'Il nous confie une mission ou un dossier', ex:'comptable, avocat, architecte, agence…', aecrire:1 },
+ autre:{ n:'Ça fonctionne autrement chez nous', ex:'on conserve les questions communes et on vous demande de décrire votre fonctionnement', aecrire:1 }
 };
 var etatStore={
   key:function(){ return 'ive_etat_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
@@ -1836,6 +1847,11 @@ function etatNom(id, v){ var e=etatCharger(); e.r[id]=e.r[id]||{}; e.r[id].nom=v
 function etatAutre(id, v){ var e=etatCharger(); e.r[id]=e.r[id]||{}; e.r[id].autre=v; etatStore.save(); }
 function etatNote(v){ var e=etatCharger(); e.note=v; etatStore.save(); }
 function etatMaj(){ var z=$('etatBloc'); if(z) z.innerHTML=etatCorpsHtml(); }
+/* Les deux échappatoires : même geste, moins de poids visuel. Bordure pointillée et texte gris —
+   on les trouve quand on en a besoin, elles ne disputent pas le regard aux vraies réponses. */
+function etatPuceMince(txt, actif, onclick){
+  return '<button type="button" onclick="'+onclick+'" style="border:1px dashed '+(actif?'#94a3b8':'#e5e7eb')+';background:'+(actif?'#f1f5f9':'#fff')+';color:'+(actif?'#334155':'#9ca3af')+';font-weight:'+(actif?'700':'500')+';font-size:10.5px;border-radius:999px;padding:5px 10px;cursor:pointer;font-family:inherit;line-height:1.3;">'+esc(txt)+'</button>';
+}
 function etatPuce(txt, actif, coul, fond, bord, onclick){
   return '<button type="button" onclick="'+onclick+'" style="border:1px solid '+(actif?bord:'#e5e7eb')+';background:'+(actif?fond:'#fff')+';color:'+(actif?coul:'#6b7280')+';font-weight:'+(actif?'700':'500')+';font-size:11.5px;border-radius:999px;padding:6px 11px;cursor:pointer;font-family:inherit;line-height:1.3;text-align:left;">'+esc(txt)+'</button>';
 }
@@ -1843,8 +1859,8 @@ function etatCorpsHtml(){
   var e=etatCharger();
   /* PAS ENCORE DE FAMILLE : une seule question, et cinq réponses qu'on donne du tac au tac. */
   if(!e.famille){
-    var h='<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;line-height:1.3;">Chez vous, un client, ça commence comment&nbsp;?</div>'
-      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:4px;">Une seule réponse. C\'est elle qui choisit les questions suivantes — on ne vous demandera rien qui ne vous concerne pas.</div>';
+    var h='<div style="font-size:14.5px;font-weight:800;color:#1C1C1C;line-height:1.3;">Chez vous, comment ça se passe généralement quand un nouveau client arrive&nbsp;?</div>'
+      +'<div style="font-size:11.5px;color:#6b7280;line-height:1.5;margin-top:4px;">Une seule réponse. Elle nous permet de vous poser uniquement les questions qui correspondent à votre activité.</div>';
     Object.keys(ETAT_FAMILLES).forEach(function(k){
       var f=ETAT_FAMILLES[k];
       h+='<button type="button" onclick="etatChoisir(\''+k+'\')" style="display:block;width:100%;text-align:left;border:1px solid #e5e7eb;background:#fff;border-radius:11px;padding:10px 12px;margin-top:7px;cursor:pointer;font-family:inherit;">'
@@ -1870,11 +1886,19 @@ function etatCorpsHtml(){
     m.ou.forEach(function(o,i){
       h+=etatPuce(etatOuL(o), r.ou===i, '#1d4ed8','#eff6ff','#bfdbfe','etatSet(\''+m.id+'\',\'ou\','+i+')');
     });
-    /* Le dernier choix de CHAQUE ligne, toujours : ce qu'on n'a pas prévu. */
-    h+=etatPuce('Autre…', r.ou===-1, '#1d4ed8','#eff6ff','#bfdbfe','etatSet(\''+m.id+'\',\'ou\',-1)');
     h+='</div>';
-    if(r.ou===-1){
-      h+='<input type="text" value="'+esc(r.autre||'')+'" placeholder="Alors, comment ça se passe ?" oninput="etatAutre(\''+m.id+'\',this.value)" style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:9px;padding:7px 10px;font-size:12px;font-family:inherit;margin-top:7px;">';
+    /* ⚠️ LES DEUX ÉCHAPPATOIRES SONT SECONDAIRES, ET C'EST VOULU. Elles doivent rester
+       accessibles sur chaque question sans alourdir les réponses principales : mêlées aux
+       autres, elles se seraient disputé le regard avec les vraies réponses, et sur un écran de
+       téléphone c'est la première qui gagne. Elles vivent donc en dessous, en plus petit.
+       « Ça ne s'applique pas chez nous » est une RÉPONSE, pas un abandon : un métier non
+       concerné doit pouvoir sortir de la question sans se sentir en faute. */
+    h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;">'
+      +etatPuceMince('Ça ne s\'applique pas chez nous', r.ou===ETAT_HORS, 'etatSet(\''+m.id+'\',\'ou\','+ETAT_HORS+')')
+      +etatPuceMince('Autrement…', r.ou===ETAT_AUTRE, 'etatSet(\''+m.id+'\',\'ou\','+ETAT_AUTRE+')')
+    +'</div>';
+    if(r.ou===ETAT_AUTRE){
+      h+='<input type="text" value="'+esc(r.autre||'')+'" placeholder="Alors, comment ça se passe chez vous ?" oninput="etatAutre(\''+m.id+'\',this.value)" style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:9px;padding:7px 10px;font-size:12px;font-family:inherit;margin-top:7px;">';
     }
     /* Le nom du logiciel : c'est LUI qui rend la suite concrète — on ne devine plus, on reprend
        le mot qu'il vient de dire. Et son âge, parce qu'un outil de deux mois se termine, il ne
@@ -1889,14 +1913,21 @@ function etatCorpsHtml(){
       });
       h+='</div>';
     }
+    /* ⚠️ ON N'AFFICHE L'EXPLICATION QUE DE L'ÉTAT CHOISI. Les trois phrases côte à côte
+       tiendraient six lignes sur un téléphone, pour une information dont on n'a besoin qu'au
+       moment de choisir — et une fois choisi, elle confirme qu'on a compris la même chose. */
     h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;">';
     ETAT_ETATS.forEach(function(x,i){
       h+=etatPuce(x.l, r.etat===i, x.c, x.f, x.b, 'etatSet(\''+m.id+'\',\'etat\','+i+')');
     });
-    h+='</div></div>';
+    h+='</div>';
+    if(r.etat!=null && ETAT_ETATS[r.etat]){
+      h+='<div style="font-size:10.5px;color:'+ETAT_ETATS[r.etat].c+';line-height:1.45;margin-top:4px;">'+esc(ETAT_ETATS[r.etat].q)+'</div>';
+    }
+    h+='</div>';
   });
   h+='<div style="border-top:1px solid #f1f5f9;padding-top:10px;margin-top:10px;">'
-    +'<div style="font-size:11.5px;color:#6b7280;line-height:1.45;">Autre chose qui compte dans votre fonctionnement ?</div>'
+    +'<div style="font-size:11.5px;color:#6b7280;line-height:1.45;">Y a-t-il autre chose dans votre façon de travailler qui vous semble important à nous signaler ?</div>'
     +'<textarea oninput="etatNote(this.value)" rows="2" style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:9px;padding:8px 10px;font-size:12px;font-family:inherit;margin-top:5px;" placeholder="En quelques mots, avec vos mots.">'+esc(e.note||'')+'</textarea></div>';
   h+=etatRecapHtml();
   return h;
@@ -1934,14 +1965,18 @@ function etatRecap(){
     var ma=parId[p.a], mb=parId[p.b]; if(!ma||!mb) return;
     ruptures.push({a:ma.t, b:mb.t, na:na, nb:nb});
   });
-  var recents=[], coincent=[];
+  var recents=[], coincent=[], horsSujet=[];
   lignes.forEach(function(m){
     var r=e.r[m.id]||{};
     if(r.age===0){ var n=nomDe(m.id); recents.push({t:m.t, nom:n}); }
     if(r.etat===2) coincent.push(m.t);
+    if(r.ou===ETAT_HORS) horsSujet.push(m.t);
   });
+  /* ⚠️ « ÇA NE S'APPLIQUE PAS » COMPTE COMME UNE RÉPONSE. La question a été posée et elle a
+     trouvé preneur : ne pas la compter donnerait « 4 réponses sur 9 » à un dirigeant qui a
+     répondu neuf fois, et l'écran lui reprocherait un travail qu'il a fait. */
   var repondus=lignes.filter(function(m){ var r=e.r[m.id]||{}; return r.ou!=null || r.etat!=null; }).length;
-  return {pivots:pivots, ruptures:ruptures, recents:recents, coincent:coincent, repondus:repondus, total:lignes.length};
+  return {pivots:pivots, ruptures:ruptures, recents:recents, coincent:coincent, horsSujet:horsSujet, repondus:repondus, total:lignes.length};
 }
 function etatRecapHtml(){
   var x=etatRecap(); if(!x) return '';
@@ -1970,7 +2005,13 @@ function etatRecapHtml(){
     h+=l('#9a3412','#fff7ed','#fed7aa','CE QUI COINCE, DE SA BOUCHE',
       x.coincent.map(function(t){ return esc(t); }).join(' · ')+'. Ce n\'est pas nous qui le disons, c\'est lui.');
   }
-  if(!x.pivots.length && !x.ruptures.length && !x.recents.length && !x.coincent.length){
+  /* ⚠️ CE QUI NE LE CONCERNE PAS EST UNE INFORMATION, PAS UN TROU. Le dire évite qu'on revienne
+     lui proposer, trois écrans plus loin, un outil pour un besoin qu'il n'a pas. */
+  if(x.horsSujet && x.horsSujet.length){
+    h+=l('#6b7280','#f8fafc','#e5e7eb','HORS SUJET CHEZ LUI',
+      x.horsSujet.map(function(t){ return esc(t); }).join(' · ')+'. La question a été posée : ces sujets n\'existent pas dans son activité, on n\'y reviendra pas.');
+  }
+  if(!x.pivots.length && !x.ruptures.length && !x.recents.length && !x.coincent.length && !(x.horsSujet&&x.horsSujet.length)){
     h+='<div style="font-size:11px;color:#9ca3af;line-height:1.5;margin-top:6px;">Rien ne ressort encore de ces réponses. C\'est une information aussi : pas d\'outil central, pas de rupture visible.</div>';
   }
   return h+'</div>';
@@ -1989,10 +2030,19 @@ function etatPourMiroir(){
   var court=function(s,n){ s=String(s||'').trim(); return s.length>n?s.slice(0,n):s; };
   lignes.forEach(function(m){
     var r=e.r[m.id]||{}; if(r.ou==null && r.etat==null) return;
-    var rep=(r.ou===-1) ? court(r.autre,90) : (r.ou!=null?etatOuL(m.ou[r.ou]):'');
+    /* ⚠️ « ÇA NE S'APPLIQUE PAS CHEZ NOUS » PART EN CLAIR, ET C'EST UNE INFORMATION. Le MIROIR
+       doit savoir qu'on a POSÉ la question et que le métier n'était pas concerné — sinon il lit
+       un silence là où il y a une réponse, et il proposera un outil pour un besoin qui n'existe
+       pas. Ce n'est ni un vide, ni un manque. */
+    var rep=(r.ou===ETAT_AUTRE) ? court(r.autre,90)
+          : (r.ou===ETAT_HORS)  ? 'ne s\'applique pas à cette activité'
+          : (r.ou!=null ? etatOuL(m.ou[r.ou]) : '');
     out.push({ t:court(m.t,40), r:court(rep,90),
                outil:court((r.ou!=null && r.ou>-1 && etatOuS(m.ou[r.ou]))?(r.nom||''):'',40),
-               recent:(r.age===0), etat:(r.etat!=null?ETAT_ETATS[r.etat].l:'') });
+               /* Le libellé BRUT, sans la pastille de couleur : une puce verte dans un prompt
+                  n'apporte rien et se transforme en caractère illisible dans la moitié des
+                  chaînes de traitement. */
+               recent:(r.age===0), etat:(r.etat!=null?(ETAT_ETATS[r.etat].brut||ETAT_ETATS[r.etat].l):'') });
   });
   if(!out.length) return null;
   return { famille:f.n, lignes:out.slice(0,12), note:court(e.note,220),
@@ -4004,7 +4054,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='20/08 · 338';
+var IVE_VERSION='20/08 · 339';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
