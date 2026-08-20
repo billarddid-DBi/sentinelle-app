@@ -1720,7 +1720,7 @@ var ETAT_SOCLE=[
   /* ⚠️ AUCUN ROBOT NE SAIT RÉPONDRE À CELLE-CI. On peut parfois lire le nombre d'abonnés d'une
      page ; le RYTHME des publications, non — Facebook ne le publie pas et ne le publiera pas. */
   {id:'publications', t:'La présence sur les réseaux', q:'Pour vos pages publiques — Facebook, Instagram, LinkedIn ou autres — comment gérez-vous les publications ?',
-   ou:['On ne publie pas','Je publie moi-même quand j\'ai quelque chose à partager','Quelqu\'un en interne s\'en occupe régulièrement','Un prestataire ou une agence s\'en charge','Nous avons des pages, mais elles sont peu utilisées','Nous n\'avons pas de page sur les réseaux sociaux']}
+   ou:['On ne publie pas','Je publie moi-même quand j\'ai quelque chose à partager','Quelqu\'un en interne s\'en occupe régulièrement','Un prestataire ou une agence s\'en charge','Nous avons des pages, mais elles sont peu utilisées']}
 ];
 var ETAT_FAMILLES={
  commande:{ n:'Il nous contacte, on chiffre, puis on intervient', ex:'chauffagiste, électricien, plombier, garage, imprimeur, bureau d\'études…',
@@ -1728,7 +1728,7 @@ var ETAT_FAMILLES={
    {id:'demande', t:'L\'arrivée d\'une demande', q:'Quand un client vous contacte pour une demande, où est-ce que vous la notez ou la retrouvez ?',
     ou:['Sur un carnet ou une feuille','Dans un tableau Excel','Dans la boîte mail',{l:'Dans un logiciel',s:1},'Ça dépend de la personne qui reçoit la demande']},
    {id:'devis', t:'Le devis', q:'Quand vous devez faire un devis, comment vous vous y prenez aujourd\'hui ?',
-    ou:['Je le fais à la main','Je pars d\'un modèle Word ou Excel',{l:'J\'utilise un logiciel de devis',s:1},'Quelqu\'un d\'autre s\'en charge','Je ne fais pas de devis dans mon activité']},
+    ou:['Je le fais à la main','Je pars d\'un modèle Word ou Excel',{l:'J\'utilise un logiciel de devis',s:1},'Quelqu\'un d\'autre s\'en charge']},
    /* Formulation valable pour un chantier, une tournée ou un atelier : ni chantier ni camion, mais
       « qui fait quoi et où chacun doit être ». */
    {id:'planning', t:'L\'organisation des interventions', q:'Pour savoir qui fait quoi et où chacun doit être, comment vous vous organisez ?',
@@ -1740,7 +1740,7 @@ var ETAT_FAMILLES={
     ou:['Avec Word ou Excel',{l:'Avec un logiciel de facturation',s:1},{l:'Avec un logiciel qui reprend directement le devis',s:1},'Le comptable ou une autre personne s\'en charge','Je ne m\'occupe pas directement de la facturation']},
    /* « Personne vraiment » écarté : la phrase se lisait comme un reproche. */
    {id:'impayes', t:'Les paiements en retard', q:'Quand une facture tarde à être payée, comment vous en rendez-vous compte ?',
-    ou:['Je le vois moi-même','En consultant le compte bancaire','Le comptable ou une autre personne me prévient',{l:'Un logiciel me le signale ou relance automatiquement',s:1},'On vérifie de temps en temps','Je ne suis pas directement concerné par les encaissements']}
+    ou:['Je le vois moi-même','En consultant le compte bancaire','Le comptable ou une autre personne me prévient',{l:'Un logiciel me le signale ou relance automatiquement',s:1},'On vérifie de temps en temps']}
   ],
   lie:[{a:'devis',b:'facture'},{a:'demande',b:'devis'},{a:'terrain',b:'facture'}] },
  rdv:{ n:'Il prend rendez-vous', ex:'coiffure, esthétique, santé, auto-école…',
@@ -1753,11 +1753,11 @@ var ETAT_FAMILLES={
    {id:'fichier', t:'Les informations clients', q:'Les informations utiles sur vos clients — coordonnées, préférences, historique — où les retrouvez-vous ?',
     ou:['Principalement de mémoire','Sur une fiche papier','Dans un fichier Excel',{l:'Dans le logiciel de rendez-vous, de caisse ou de gestion',s:1},'À plusieurs endroits']},
    {id:'revenus', t:'Les clients qui ne reviennent plus', q:'Savez-vous repérer les clients qui ne sont pas revenus depuis un certain temps ?',
-    ou:['Pas vraiment','Je m\'en rends compte au fil du temps','Je regarde mes fichiers ou mes listes de temps en temps','Mon logiciel me permet de les retrouver','Ce n\'est pas pertinent dans mon activité']},
+    ou:['Pas vraiment','Je m\'en rends compte au fil du temps','Je regarde mes fichiers ou mes listes de temps en temps','Mon logiciel me permet de les retrouver']},
    {id:'caisse', t:'L\'encaissement', q:'Quand un client règle, comment enregistrez-vous son paiement ?',
     ou:['Avec une caisse simple ou un carnet','Avec un terminal bancaire, sans autre suivi',{l:'Avec un logiciel de caisse',s:1},{l:'Avec un logiciel de caisse relié à la comptabilité',s:1},'Quelqu\'un d\'autre s\'en charge']},
    {id:'produits', t:'Les produits et consommables', q:'Si vous avez des produits ou consommables à gérer, comment savez-vous quand il faut en recommander ?',
-    ou:['Je regarde ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Le logiciel suit les sorties et le stock',s:1},'Quelqu\'un d\'autre s\'en charge','Je n\'ai pas de produits ou de stock à gérer']}
+    ou:['Je regarde ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Le logiciel suit les sorties et le stock',s:1},'Quelqu\'un d\'autre s\'en charge']}
   ],
   lie:[{a:'prise',b:'fichier'},{a:'caisse',b:'pilotage'}] },
  boutique:{ n:'Il vient directement chez nous', ex:'commerce, boulangerie, fleuriste, alimentation…',
@@ -1765,15 +1765,15 @@ var ETAT_FAMILLES={
    {id:'caisse', t:'L\'encaissement', q:'Quand un client règle, comment enregistrez-vous son paiement ?',
     ou:['Avec une caisse simple ou un carnet','Avec un terminal bancaire, sans autre suivi',{l:'Avec un logiciel de caisse',s:1},{l:'Avec un logiciel de caisse relié à la comptabilité',s:1},'Quelqu\'un d\'autre s\'en charge']},
    {id:'stock', t:'Le stock', q:'Quand vous avez des produits, pièces ou consommables à gérer, comment savez-vous ce qu\'il vous reste ?',
-    ou:['Je regarde directement ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Mon logiciel le met à jour',s:1},'Quelqu\'un d\'autre s\'en charge','Je n\'ai pas de stock à gérer']},
+    ou:['Je regarde directement ce qu\'il reste','Je le note sur papier','Je le suis dans Excel',{l:'Mon logiciel le met à jour',s:1},'Quelqu\'un d\'autre s\'en charge']},
    {id:'fournisseurs', t:'Les commandes fournisseurs', q:'Quand vous devez commander chez un fournisseur, comment faites-vous le plus souvent ?',
     ou:['Par téléphone','Par mail','Le représentant ou le fournisseur passe directement','Sur un portail fournisseur',{l:'Avec un logiciel',s:1},'Quelqu\'un d\'autre s\'en charge']},
    {id:'pertes', t:'Les invendus, pertes ou casse', q:'Si vous avez des invendus, des pertes ou de la casse, comment les suivez-vous ?',
-    ou:['On ne les suit pas précisément','On les note sur papier','On les note dans un tableau',{l:'Le logiciel les enregistre',s:1},'Quelqu\'un d\'autre s\'en charge','Ça ne concerne pas notre activité']},
+    ou:['On ne les suit pas précisément','On les note sur papier','On les note dans un tableau',{l:'Le logiciel les enregistre',s:1},'Quelqu\'un d\'autre s\'en charge']},
    {id:'habitues', t:'Les clients habituels', q:'Comment identifiez-vous vos clients habituels ou fidèles ?',
     ou:['Je les connais de vue ou de mémoire','Avec une carte de fidélité papier','Avec la fidélité intégrée au logiciel de caisse','Avec un fichier client','On ne suit pas particulièrement les clients habituels']},
    {id:'heures', t:'Les moments les plus chargés', q:'Savez-vous quels sont précisément les moments les plus chargés et les plus calmes de votre activité ?',
-    ou:['Principalement au ressenti','Avec les relevés de caisse ou les rendez-vous','Avec un tableau que nous suivons','Le logiciel permet de le voir','Ce n\'est pas utile dans notre activité']}
+    ou:['Principalement au ressenti','Avec les relevés de caisse ou les rendez-vous','Avec un tableau que nous suivons','Le logiciel permet de le voir']}
   ],
   lie:[{a:'caisse',b:'stock'},{a:'caisse',b:'pilotage'}] },
  /* ⚠️ ANNONCÉES, PAS ÉCRITES. Six questions écrites de mémoire sur un métier qu'on n'a jamais
@@ -4054,7 +4054,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='20/08 · 339';
+var IVE_VERSION='20/08 · 340';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
