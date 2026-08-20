@@ -1769,7 +1769,7 @@ var ETAT_FAMILLES={
     n'a jamais vu se sentiraient tout de suite. */
  contrat:{ n:'Il a un contrat chez nous', ex:'maintenance, entretien, ménage, informatique, syndic', aecrire:1 },
  dossier:{ n:'Il nous confie un dossier', ex:'comptable, avocat, architecte, agence', aecrire:1 },
- autre:{ n:'Aucune ne ressemble', ex:'on garde les trois questions communes et on note ce que vous décrivez', aecrire:1 }
+ autre:{ n:'Aucune ne ressemble', ex:'on garde les questions communes et on note ce que vous décrivez', aecrire:1 }
 };
 var etatStore={
   key:function(){ return 'ive_etat_v1_'+((typeof cpCle==='function')?cpCle():'anon'); },
@@ -1813,7 +1813,7 @@ function etatChoisir(f){
   /* ⚠️ « CHANGER » DOIT VRAIMENT OUBLIER. save() refuse d'écrire sans famille — c'est ce qui
      protège les réponses — donc revenir au choix ne s'enregistrerait pas, et la famille
      précédente reviendrait au prochain chargement. On efface franchement.
-     Les réponses déjà données sont conservées : les trois questions communes sont les mêmes
+     Les réponses déjà données sont conservées : les questions communes sont les mêmes
      d'une famille à l'autre, et se retrouvent par leur identifiant. */
   if(!f){ try{ localStorage.removeItem(etatStore.key()); }catch(e2){} }
   else etatStore.save();
@@ -1860,7 +1860,7 @@ function etatCorpsHtml(){
   /* ⚠️ UNE FAMILLE NON ÉCRITE LE DIT. Le silence ferait croire à un questionnaire complet. */
   if(f.aecrire){
     h+='<div style="font-size:11.5px;color:#7c2d12;background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:8px 10px;margin-top:7px;line-height:1.5;">'
-      +'<i class="ti ti-pencil"></i> Les questions propres à cette façon de travailler ne sont <b>pas encore écrites</b> : on n\'invente pas six questions sur un métier qu\'on n\'a pas encore rencontré. On garde les trois questions communes, et vous décrivez le reste en bas.</div>';
+      +'<i class="ti ti-pencil"></i> Les questions propres à cette façon de travailler ne sont <b>pas encore écrites</b> : on n\'invente pas six questions sur un métier qu\'on n\'a pas encore rencontré. On garde les questions communes, et vous décrivez le reste en bas.</div>';
   }
   lignes.forEach(function(m){
     var r=e.r[m.id]||{};
@@ -4004,7 +4004,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='14/08 · 337';
+var IVE_VERSION='20/08 · 338';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
