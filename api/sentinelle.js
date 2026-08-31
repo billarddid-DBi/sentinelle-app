@@ -784,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-31-16";
+const SENTINELLE_VERSION = "2026-08-31-18";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -883,6 +883,30 @@ const RE_JOURS    = 30;   // on ne remesure pas une entreprise vue il y a moins 
    par chance, parce que son nom apparaît deux fois dans l'adresse. */
 function villeNue(v) { return norm(v || "").replace(/[0-9]/g, ""); }
 
+/* ═══ LA VILLE NE SUFFIT PAS : IL FAUT DESCENDRE À L'ADRESSE ═══════════════════════════════
+   Mesuré dans la vraie base le 31/08/2026 : CINQ fiches de Feu Vert Chartres pointaient vers
+   un seul et même magasin. Deux d'entre elles sont ailleurs — « 8 rue du Grand Faubourg » et
+   « 45 avenue d'Orléans ». Le garde-fou sur la ville ne pouvait rien voir : les trois magasins
+   sont bien à Chartres. Une courbe fausse et crédible est pire qu'une absence de courbe.
+
+   On compare donc les MOTS de l'adresse, pas la chaîne entière : nos fiches écrivent
+   « Parking CC Carrefour, ZUP de la Madeleine… » là où Google écrit « Parking Carrefour ZUP de
+   la Madeleine… ». Deux mots communs suffisent, dont un qui ne soit pas un nombre — un code
+   postal partagé ne prouve rien, il est le même pour toute la ville.
+   Les mots de liaison et les types de voie sont écartés : « rue », « avenue », « zone » se
+   retrouvent partout et feraient correspondre n'importe quoi avec n'importe quoi. */
+const VOIE = /^(rue|avenue|boulevard|place|route|chemin|allee|impasse|square|quai|cours|zone|cedex|france|lieudit|centre|commercial)$/;
+function motsAdresse(t) {
+  return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    .split(/[^a-z0-9]+/).filter(function (w) { return w.length >= 4 && !VOIE.test(w); });
+}
+function adresseConcorde(fiche, google) {
+  const a = motsAdresse(fiche), b = motsAdresse(google);
+  const communs = a.filter(function (w) { return b.indexOf(w) !== -1; });
+  const lettres = communs.filter(function (w) { return /[a-z]/.test(w); });
+  return communs.length >= 2 && lettres.length >= 1;
+}
+
 /* ⚠️ ON DIT POURQUOI ON A REFUSÉ. Premier essai : la fonction renvoyait `null` dans les cinq cas
    d'échec, et la base n'affichait que « (rien trouvé) » huit fois de suite. Huit refus muets
    n'apprennent rien : impossible de distinguer une clé Google bloquée d'un nom introuvable ou
@@ -905,6 +929,25 @@ async function rattraperPlaceId(c, gkey) {
   const adr = norm(p.formatted_address || "");
   if (ville && adr.indexOf(ville) === -1) {
     return { motif: "ville absente de l adresse Google : " + (p.formatted_address || "?") };
+  }
+  /* L'ADRESSE DE LA FICHE DÉPARTAGE LES ÉTABLISSEMENTS D'UNE MÊME VILLE. */
+  if (c.adresse && !adresseConcorde(c.adresse, p.formatted_address)) {
+    return { motif: "adresse differente — fiche : " + String(c.adresse).slice(0, 60)
+                  + " / Google : " + String(p.formatted_address || "?").slice(0, 60) };
+  }
+  /* ⚠️ SANS ADRESSE DANS LA FICHE, ON N'ACCROCHE QUE S'IL N'Y A QU'UN SEUL CANDIDAT. C'est le
+     cas de la fiche 11 (« Feu Vert Chartres », aucune adresse) : trois magasins portent ce nom
+     dans cette ville, et rien ne permet de choisir. Retenir le plus commenté serait une
+     supposition déguisée en mesure. On préfère le dire. */
+  if (!c.adresse) {
+    const q2 = norm(c.nom);
+    const homonymes = d.results.filter(function (x) {
+      const n2 = norm(x.name || "");
+      return n2 && q2 && (n2.indexOf(q2) !== -1 || q2.indexOf(n2) !== -1);
+    });
+    if (homonymes.length > 1) {
+      return { motif: "fiche sans adresse et " + homonymes.length + " etablissements de ce nom dans la ville" };
+    }
   }
   return { place_id: p.place_id, nom: p.name || null, adresse: p.formatted_address || null };
 }
@@ -977,7 +1020,7 @@ async function remesureMensuelle() {
       /* Google a refusé ou n'a rien : on n'invente pas un point. Un trou dans la courbe se voit
          et se rattrape ; un point faux ne se voit pas et ne se rattrape jamais. */
       if (!det || det.statut !== "OK" || det.note == null) {
-        return { id: c.id, echec: (det && det.statut) || "SANS_REPONSE" };
+        return { place_id: c.place_id, echec: (det && det.statut) || "SANS_REPONSE" };
       }
       const bod = c.siren ? await chercherAnnonces(c.siren) : null;
       const w  = profil(c.activite);
@@ -988,7 +1031,7 @@ async function remesureMensuelle() {
       const ive = Math.max(5, Math.min(97, Math.round(compress(
         (w.q * qScore(det.note) + w.v * vScore(nb) * volFactor(det.note) + w.s * sScore(!!det.website)) / 100))));
       return {
-        id: c.id,
+        place_id: c.place_id,
         point: {
           date: jour,
           ive: ive,
@@ -1004,13 +1047,20 @@ async function remesureMensuelle() {
           source: "remesure"
         }
       };
-    } catch (e) { return { id: c.id, echec: String(e).slice(0, 80) }; }
+    } catch (e) { return { place_id: c.place_id, echec: String(e).slice(0, 80) }; }
   }));
 
+  /* ⚠️ ON POSE LE POINT SUR L'ÉTABLISSEMENT, PAS SUR LA LIGNE. Mesuré dans la vraie base le
+     31/08/2026 : trois établissements y figurent en double sous des noms différents — « La
+     Romana » et « LE ROMANA (PIZZERIA ROMANA) », deux « CERIBE », « Feu Vert » et « Feu Vert
+     Chartres 3 Carrefour ». Même identifiant Google, même adresse : c'est le même commerce.
+     Mesurer ligne par ligne coûterait DEUX appels Google par mois pour un seul commerce, et
+     dessinerait deux fois la même courbe. Le regroupement se fait donc sur l'identifiant —
+     jamais sur le nom, qui est précisément ce qui diverge. */
   let poses = 0, echecs = 0;
   for (const p of points) {
     if (!p || !p.point) { echecs++; continue; }
-    try { await rpc("sentinelle_mesure_poser", { p_id: p.id, p_point: p.point }); poses++; }
+    try { await rpc("sentinelle_mesure_poser", { p_place_id: p.place_id, p_point: p.point }); poses++; }
     catch (_) { echecs++; }
   }
   return { ok: true, traitees: liste.length, poses, echecs, rattrapes, jour };

@@ -40,18 +40,31 @@ create or replace function public.sentinelle_a_remesurer(p_max int default 8, p_
 returns jsonb language sql stable security definer set search_path to 'public' as $function$
   select coalesce(jsonb_agg(x), '[]'::jsonb) from (
     select jsonb_build_object(
-             'id',       s.id,
-             'nom',      s.nom,
-             'place_id', s.fiche->'_auraCalc'->>'place_id',
-             'activite', coalesce(s.fiche->>'activite', s.fiche->>'secteur', s.fiche->>'archetype'),
-             'couleur',  s.fiche->'aura'->>'couleur',
-             'siren',    s.fiche->'_registre'->>'siren'
+             'place_id', g.pid,
+             'nom',      g.nom,
+             'activite', g.activite,
+             'couleur',  g.couleur,
+             'siren',    g.siren
            ) as x
-      from public.sentinelles s
-     where s.fiche->'_auraCalc'->>'place_id' is not null
-       and (s.mesure_le is null or s.mesure_le < now() - make_interval(days => p_jours))
-       and s.maj_le < now() - make_interval(days => p_jours)
-     order by coalesce(s.mesure_le, s.maj_le) asc
+      from (
+        /* UNE LIGNE PAR ÉTABLISSEMENT, pas par fiche. Les valeurs retenues (activité, aura,
+           siren) sont celles de l'analyse la PLUS RÉCENTE du groupe : si deux fiches décrivent
+           le même commerce, c'est la dernière payée qui fait foi. */
+        select coalesce(s.place_id, s.fiche->'_auraCalc'->>'place_id') as pid,
+               max(s.maj_le)    as der_analyse,
+               max(s.mesure_le) as der_mesure,
+               (array_agg(s.nom order by s.maj_le desc))[1] as nom,
+               (array_agg(coalesce(s.fiche->>'activite', s.fiche->>'secteur', s.fiche->>'archetype')
+                          order by s.maj_le desc))[1] as activite,
+               (array_agg(s.fiche->'aura'->>'couleur'      order by s.maj_le desc))[1] as couleur,
+               (array_agg(s.fiche->'_registre'->>'siren'   order by s.maj_le desc))[1] as siren
+          from public.sentinelles s
+         where coalesce(s.place_id, s.fiche->'_auraCalc'->>'place_id') is not null
+         group by 1
+      ) g
+     where (g.der_mesure is null or g.der_mesure < now() - make_interval(days => p_jours))
+       and g.der_analyse < now() - make_interval(days => p_jours)
+     order by coalesce(g.der_mesure, g.der_analyse) asc
      limit greatest(1, least(p_max, 25))
   ) t;
 $function$;
@@ -63,41 +76,49 @@ $function$;
 --    demain, puis après-demain, et occuperait indéfiniment une des huit places du tour.
 -- ⚠️ ON GARDE 60 POINTS AU PLUS : cinq ans d'historique mensuel. Au-delà, la colonne enflerait
 --    sans que personne ne remonte jamais aussi loin dans la courbe.
-create or replace function public.sentinelle_mesure_poser(p_id bigint, p_point jsonb)
+-- ⚠️ LE POINT SE POSE SUR L'ÉTABLISSEMENT, PAS SUR LA LIGNE (31/08/2026, mesuré en vrai).
+--    Trois établissements figuraient en double sous des noms différents — « La Romana » et
+--    « LE ROMANA (PIZZERIA ROMANA) », deux « CERIBE », « Feu Vert » et « Feu Vert Chartres 3
+--    Carrefour ». Même identifiant Google, même adresse : c'est le même commerce. Ligne par
+--    ligne, on paierait DEUX appels Google par mois pour un seul commerce et on dessinerait
+--    deux fois la même courbe. On regroupe donc sur l'identifiant — jamais sur le nom, qui est
+--    précisément ce qui diverge.
+-- ⚠️ ET ON NE SUPPRIME RIEN. Chaque doublon contient une analyse payée : laquelle garder est
+--    une décision de Didier, pas un effet de bord d'un correctif.
+drop function if exists public.sentinelle_mesure_poser(text, jsonb);
+create or replace function public.sentinelle_mesure_poser(p_place_id text, p_point jsonb)
 returns jsonb language plpgsql security definer set search_path to 'public' as $function$
 declare v_j text; v_n int;
 begin
+  if coalesce(trim(p_place_id),'') = '' then
+    return jsonb_build_object('ok', false, 'error', 'identifiant vide');
+  end if;
   if p_point is null or jsonb_typeof(p_point) <> 'object' or (p_point->>'date') is null then
     return jsonb_build_object('ok', false, 'error', 'point invalide');
   end if;
   v_j := p_point->>'date';
 
+  /* Une seule écriture : elle remplace le point du jour s'il existe déjà, range par date, et
+     ne garde que les 60 derniers (cinq ans d'historique mensuel). */
   update public.sentinelles s
      set mesures = (
-           select coalesce(jsonb_agg(u.m order by u.m->>'date'), '[]'::jsonb)
+           select coalesce(jsonb_agg(z.e order by z.e->>'date'), '[]'::jsonb)
              from (
-               select m from jsonb_array_elements(s.mesures) m where m->>'date' <> v_j
-               union all
-               select p_point
-             ) u(m)
+               select u.m as e, row_number() over (order by u.m->>'date' desc) as rn
+                 from (
+                   select m from jsonb_array_elements(s.mesures) m where m->>'date' <> v_j
+                   union all
+                   select p_point
+                 ) u(m)
+             ) z
+            where z.rn <= 60
          ),
          mesure_le = now()
-   where s.id = p_id;
+   where coalesce(s.place_id, s.fiche->'_auraCalc'->>'place_id') = p_place_id;
 
-  if not found then return jsonb_build_object('ok', false, 'error', 'introuvable'); end if;
-
-  -- On rogne la tête si la colonne dépasse 60 points (les plus anciens partent).
-  select jsonb_array_length(mesures) into v_n from public.sentinelles where id = p_id;
-  if v_n > 60 then
-    update public.sentinelles s
-       set mesures = (select coalesce(jsonb_agg(t.m order by t.m->>'date'), '[]'::jsonb)
-                        from jsonb_array_elements(s.mesures) with ordinality t(m, i)
-                       where t.i > v_n - 60)
-     where s.id = p_id;
-    v_n := 60;
-  end if;
-
-  return jsonb_build_object('ok', true, 'points', v_n);
+  get diagnostics v_n = row_count;
+  if v_n = 0 then return jsonb_build_object('ok', false, 'error', 'aucune fiche pour cet identifiant'); end if;
+  return jsonb_build_object('ok', true, 'fiches', v_n);
 end $function$;
 
 
@@ -253,9 +274,9 @@ revoke all on function public.sentinelle_sans_place(int)                from pub
 revoke all on function public.sentinelle_place_poser(bigint, text, text, text, text) from public, anon, authenticated;
 grant execute on function public.sentinelle_sans_place(int)             to service_role;
 grant execute on function public.sentinelle_place_poser(bigint, text, text, text, text) to service_role;
-revoke all on function public.sentinelle_mesure_poser(bigint, jsonb)    from public, anon, authenticated;
+revoke all on function public.sentinelle_mesure_poser(text, jsonb)    from public, anon, authenticated;
 grant execute on function public.sentinelle_a_remesurer(int, int)       to service_role;
-grant execute on function public.sentinelle_mesure_poser(bigint, jsonb) to service_role;
+grant execute on function public.sentinelle_mesure_poser(text, jsonb) to service_role;
 
 -- La lecture ne change pas de régime : les comptes connectés, jamais les visiteurs.
 revoke all on function public.sentinelle_get(text, text) from public, anon;
