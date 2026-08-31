@@ -784,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-31-20";
+const SENTINELLE_VERSION = "2026-08-31-21";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -1193,13 +1193,38 @@ export default async function handler(req, res) {
     try {
       const gkey = process.env.GOOGLE_PLACES_KEY;
       if (gkey && fiche && fiche.nom) {
-        const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
-        const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
-        if (gr.ok) {
-          const gd = await gr.json();
-          const p = (gd.results && gd.results.length) ? pickCanonical(gd.results, fiche.nom) : null;
+        /* ═══ L'ÉTABLISSEMENT CHOISI À L'ÉCRAN FAIT FOI ══════════════════════════════════════
+           Quand le navigateur a envoyé un `place_id`, Didier a vu le nom et l'adresse chez
+           Google et il a cliqué dessus. Il n'y a donc plus RIEN à deviner : on ne relance pas
+           une recherche par nom qui pourrait retomber sur un autre établissement.
+           C'est la correction de fond du 31/08/2026. Auparavant, même après un choix explicite
+           à l'écran, le serveur refaisait sa propre recherche et gardait le résultat le plus
+           commenté : « Feu Vert » (1 155 avis) l'emportait sur « Feu Vert Services » (59) même
+           quand c'est l'atelier qui avait été choisi. Le clic ne servait à rien.
+           Effet secondaire heureux : un appel Google de moins par analyse. */
+        const choisi = (req.body && req.body.place_id) ? String(req.body.place_id) : null;
+        let p = null;
+        if (choisi) {
+          p = { place_id: choisi, name: (req.body.nom || fiche.nom), formatted_address: (req.body.adresse || null), rating: null, user_ratings_total: null };
+        } else {
+          const gq = encodeURIComponent(`${fiche.nom} ${fiche.ville || ""}`.trim());
+          const gr = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${gq}&language=fr&region=fr&key=${gkey}`);
+          if (gr.ok) {
+            const gd = await gr.json();
+            p = (gd.results && gd.results.length) ? pickCanonical(gd.results, fiche.nom) : null;
+          }
+        }
+        {
           if (p) {
             const det = await getDetails(p.place_id, gkey);
+            /* ⚠️ QUAND L'ÉTABLISSEMENT VIENT D'UN CLIC, IL N'Y A PAS EU DE RECHERCHE — donc pas
+               de note ni de compteur d'avis dans `p`. On les prend dans la fiche détaillée, qui
+               est la MÊME source que la re-mesure mensuelle. Sans cette reprise, une analyse
+               lancée depuis le sélecteur repartirait avec une note nulle : la note de l'IVE
+               s'effondrerait, et rien à l'écran ne dirait pourquoi. */
+            if (p.rating == null && det.note != null) p.rating = det.note;
+            if (p.user_ratings_total == null && det.nbAvis != null) p.user_ratings_total = det.nbAvis;
+            if (!p.formatted_address && det.fiche && det.fiche.adresse) p.formatted_address = det.fiche.adresse;
             const site = det.website;
             const w = profil(fiche.activite || fiche.secteur || fiche.archetype);
             const _r = (p.rating != null ? p.rating : null);
@@ -1348,7 +1373,11 @@ export default async function handler(req, res) {
             p_nom: fiche.nom,
             p_ville: fiche.ville || "",
             p_adresse: (req.body && req.body.adresse) || "",
-            p_fiche: fiche
+            p_fiche: fiche,
+            /* L'identifiant choisi à l'écran va DANS SA COLONNE, pas seulement au fond du JSON :
+               c'est lui que la re-mesure lit, et c'est lui qui dit « cette entreprise existe
+               déjà ». Une fiche naît désormais validée — plus rien à rattraper après coup. */
+            p_place_id: (fiche._auraCalc && fiche._auraCalc.place_id) || null
           })
         });
         if (!rp.ok) fiche._saveErr = `HTTP ${rp.status}`;

@@ -2727,11 +2727,21 @@ $('file').onchange = e => {
 
 // Sélecteur d'établissements : dès qu'une enseigne a PLUSIEURS établissements dans la ville, on affiche
 // TOUTE la liste ; ceux déjà étudiés par SENTINELLE sont SURLIGNÉS. L'utilisateur choisit le sien.
+/* ⚠️ « DÉJÀ ÉTUDIÉE ? » SE DEMANDE SUR L'IDENTIFIANT GOOGLE, PLUS SUR LE NOM (31/08/2026).
+   La question se posait en recollant « nom + adresse » et en cherchant une ressemblance de
+   texte. Dans la vraie base, cela a laissé passer « La Romana » et « LE ROMANA (PIZZERIA
+   ROMANA) », deux « CERIBE », « Dronavia » et « DRONAVIA » : dix-sept fiches pour huit
+   commerces. Le nom que tape un dirigeant ne sera jamais deux fois le même ; l'identifiant
+   Google, lui, ne change jamais. « Soit elle n'existe pas, soit elle existe déjà. » */
 async function etabList(q){
   var list=[];
   try{ var r=await fetch('/api/etablissements',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({q:q})}); var j=await r.json(); list=(j&&j.etabs)||[]; }catch(e){}
   for(var i=0;i<list.length;i++){
-    try{ var c=await window.sb.rpc('sentinelle_check',{p_texte:q+', '+list[i].adresse,p_adresse:list[i].adresse}); list[i].pris=!!(c.data&&c.data.found); list[i].prisLe=(c.data&&c.data.date)||null; }catch(e){ list[i].pris=false; }
+    list[i].pris=false; list[i].prisLe=null;
+    try{
+      var c=await window.sb.rpc('sentinelle_par_place',{p_place_id:list[i].place_id});
+      if(c.data&&c.data.found){ list[i].pris=true; list[i].prisLe=c.data.date||null; }
+    }catch(e){}
   }
   return list;
 }
@@ -2768,8 +2778,11 @@ function etabChooser(q, list, dup){
     ov.querySelectorAll('.etabOpt').forEach(function(b){
       b.onclick=function(){
         var x=list[+b.dataset.i];
-        if(x.pris){ done({adresse:x.adresse,afficher:true}); return; }
-        done({adresse:x.adresse,refaire:false});
+        /* Le NOM de Google part avec le choix, pas seulement l'adresse : c'est lui qui devient
+           le nom de la fiche. Sans cela, « La Romana » et « LE ROMANA (PIZZERIA ROMANA) »
+           continueraient de créer deux fiches pour un seul restaurant. */
+        if(x.pris){ done({nom:x.nom,adresse:x.adresse,place_id:x.place_id,afficher:true}); return; }
+        done({nom:x.nom,adresse:x.adresse,place_id:x.place_id,refaire:false});
       };
     });
     ov.querySelector('#etabAutre').onclick=function(){ var a=prompt('Adresse de l\'établissement (ex : 12 rue de la Gare) :'); if(a&&a.trim()) done({adresse:a.trim(),refaire:false}); };
@@ -2963,6 +2976,10 @@ function remesurer(){
   if(window.selfServe && (!acc || !(acc.price>0))){ paywallView(); return; }
   window.__remesure=true;
   window.__scanAdresse=(g.adresse||null);
+  /* Une re-mesure repart de l'identifiant DÉJÀ connu de la fiche : refaire une recherche par
+     nom rouvrirait la porte à un autre établissement, sur une fiche pourtant déjà validée. */
+  try{ window.__scanPlaceId=(g.fiche&&g.fiche._auraCalc&&g.fiche._auraCalc.place_id)||null; }catch(e){ window.__scanPlaceId=null; }
+  window.__scanNom=(g.nom||null);
   var q=(g.nom||'')+(g.ville?', '+g.ville:'')+(g.adresse?', '+g.adresse:'');
   showView('form'); if($('q')) $('q').value=q;
   run({ text:q });
@@ -2974,7 +2991,11 @@ async function run(payload){
   /* On GARDE la trace de la re-mesure : le drapeau est consommé ici, or c'est tout à la fin,
      une fois la fiche produite et rangée, qu'on saura s'il faut ramener à l'accueil. */
   window.__etaitRemesure=remesure;
-  if(!remesure) window.__scanAdresse=null;
+  /* ⚠️ REMIS À ZÉRO À CHAQUE NOUVELLE ANALYSE, SANS EXCEPTION. Ces trois valeurs vivent sur
+     `window` : oubliées, la deuxième entreprise analysée dans la même session hériterait de
+     l'identifiant Google de la première — et rien à l'écran ne le dirait. La fiche porterait
+     un nom juste et des chiffres appartenant à quelqu'un d'autre. */
+  if(!remesure){ window.__scanAdresse=null; window.__scanPlaceId=null; window.__scanNom=null; }
   /* FILET : une re-mesure SANS adresse crée une fiche orpheline que plus personne ne lit
      (cf. sentRelancer). Plutôt que de compter sur chaque appelant pour y penser, on va la
      rechercher ici — dans le compte, puis dans la dernière fiche lue. Un seul oubli suffisait
@@ -2993,31 +3014,40 @@ async function run(payload){
         var dup=(!ck.error&&ck.data)?ck.data:{found:false};
         // SENTINELLE IMMUABLE : le dirigeant a déjà sa fiche → direct à son espace (cockpit), pas de re-scan.
         if(window.selfServe && dup.found){ dirigeantSpace(); return; }
+        /* ⚠️ LE SÉLECTEUR S'OUVRE TOUJOURS, MÊME POUR UN SEUL RÉSULTAT (31/08/2026).
+           Didier : « quand je cherche une nouvelle entreprise, je veux que ce soit toi qui me
+           proposes le nom et l'adresse. Comme ça ce sera toujours la même chose : soit elle
+           n'existe pas, soit elle existe déjà. »
+           Auparavant, un résultat unique était accroché en silence : le nom restait celui qu'il
+           avait tapé, et l'identifiant Google était perdu. C'est de là que viennent les dix-sept
+           fiches pour huit commerces. Un clic de plus vaut mieux qu'un fichier qu'on répare
+           pendant une soirée. */
         var list=await etabList(payload.text);
-        if(list.length>1 || dup.found){
+        if(list.length){
           var choice=await etabChooser(payload.text, list, dup);
           if(choice===null) return;
           if(choice.afficher){
-            var g=await window.sb.rpc('sentinelle_get',{p_texte:payload.text+', '+choice.adresse,p_adresse:choice.adresse});
+            var g=await window.sb.rpc('sentinelle_get',{p_texte:(choice.nom||payload.text)+', '+choice.adresse,p_adresse:choice.adresse});
             if(!g.error && g.data && g.data.found && g.data.fiche){ showArchived(g.data); }
             else alert('Diagnostic archivé introuvable pour cet établissement.');
             return;
           }
           if(choice.adresse){
-            if(!choice.refaire){
-              var ck2=await window.sb.rpc('sentinelle_check',{p_texte:payload.text+', '+choice.adresse,p_adresse:choice.adresse});
+            /* Le verrou anti-doublon interroge l'IDENTIFIANT, plus une ressemblance de texte. */
+            if(!choice.refaire && choice.place_id){
+              var ck2=await window.sb.rpc('sentinelle_par_place',{p_place_id:choice.place_id});
               if(!ck2.error && ck2.data && ck2.data.found){
-                alert('Cet établissement ('+choice.adresse+') a déjà été diagnostiqué le '+new Date(ck2.data.date).toLocaleDateString('fr-FR')+'.');
+                alert(esc(ck2.data.nom||choice.nom||'Cet établissement')+' ('+choice.adresse+') a déjà été diagnostiqué le '+new Date(ck2.data.date).toLocaleDateString('fr-FR')+'.');
                 return;
               }
             }
             window.__scanAdresse=choice.adresse;
-            payload.text=payload.text+', '+choice.adresse;
+            window.__scanPlaceId=choice.place_id||null;
+            window.__scanNom=choice.nom||null;
+            /* C'est le nom de GOOGLE qui part à l'analyse, pas celui qui a été tapé : deux
+               orthographes ne doivent plus donner deux fiches. */
+            payload.text=(choice.nom||payload.text)+', '+choice.adresse;
           }
-        } else if(list.length===1){
-          // Un seul établissement : on attache son adresse (scan plus précis, verrou plus fiable)
-          window.__scanAdresse=list[0].adresse;
-          payload.text=payload.text+', '+list[0].adresse;
         }
       }
     }
@@ -3034,7 +3064,11 @@ async function run(payload){
        et la clé de rangement est (nom, ville, ADRESSE). Le choix de l'établissement se fait ici,
        dans le navigateur (etabChooser) : sans ce passage, le serveur écrirait une fiche sans
        adresse — l'orpheline qu'on a passé la matinée à éliminer. */
-    payload.adresse = window.__scanAdresse || '';
+    payload.adresse  = window.__scanAdresse || '';
+    /* L'identifiant CHOISI part avec la demande : le serveur ne refait alors aucune recherche
+       et ne peut plus retomber sur un autre établissement. */
+    payload.place_id = window.__scanPlaceId || '';
+    payload.nom      = window.__scanNom || '';
     window.__saveSuiteFait=false;   // sinon la 2e analyse d'une même session ne basculerait plus
     const r = await fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     clearInterval(t); $('loading').style.display='none';
@@ -4130,7 +4164,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 342';
+var IVE_VERSION='31/08 · 343';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
