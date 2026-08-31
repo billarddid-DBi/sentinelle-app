@@ -115,6 +115,12 @@ alter table public.sentinelles add column if not exists place_id      text;
 alter table public.sentinelles add column if not exists place_nom     text;
 alter table public.sentinelles add column if not exists place_adresse text;
 alter table public.sentinelles add column if not exists place_le      timestamptz;
+-- ⚠️ LE MOTIF DE L'ÉCHEC (ajouté le 31/08/2026, APRÈS le premier essai en vrai). Les huit
+--    premières fiches ont été refusées et la base affichait huit « rien trouvé » identiques :
+--    impossible de distinguer une clé Google bloquée d'un nom introuvable ou d'un garde-fou
+--    trop strict. C'était le garde-fou. Un échec muet se diagnostique en modifiant le code,
+--    c'est-à-dire trop tard et trop cher.
+alter table public.sentinelles add column if not exists place_motif   text;
 
 create or replace function public.sentinelle_sans_place(p_max int default 8)
 returns jsonb language sql stable security definer set search_path to 'public' as $function$
@@ -132,7 +138,8 @@ returns jsonb language sql stable security definer set search_path to 'public' a
 $function$;
 
 create or replace function public.sentinelle_place_poser(p_id bigint, p_place_id text,
-                                                         p_nom text, p_adresse text)
+                                                         p_nom text, p_adresse text,
+                                                         p_motif text default null)
 returns jsonb language plpgsql security definer set search_path to 'public' as $function$
 begin
   /* ⚠️ UNE RECHERCHE INFRUCTUEUSE SE NOTE AUSSI. Sans cela, les fiches que Google ne sait pas
@@ -141,11 +148,12 @@ begin
      rien produire. On horodate donc la tentative, et `sentinelle_sans_place` la met de côté
      pour 90 jours. */
   if coalesce(trim(p_place_id),'') = '' then
-    update public.sentinelles set place_le = now() where id = p_id;
+    update public.sentinelles set place_le = now(), place_motif = p_motif where id = p_id;
     return jsonb_build_object('ok', false, 'error', 'introuvable chez Google', 'tentative', true);
   end if;
   update public.sentinelles
-     set place_id = p_place_id, place_nom = p_nom, place_adresse = p_adresse, place_le = now()
+     set place_id = p_place_id, place_nom = p_nom, place_adresse = p_adresse,
+         place_le = now(), place_motif = null
    where id = p_id;
   if not found then return jsonb_build_object('ok', false, 'error', 'fiche introuvable'); end if;
   return jsonb_build_object('ok', true);
@@ -242,9 +250,9 @@ end $function$;
 -- un point de courbe.
 revoke all on function public.sentinelle_a_remesurer(int, int)          from public, anon, authenticated;
 revoke all on function public.sentinelle_sans_place(int)                from public, anon, authenticated;
-revoke all on function public.sentinelle_place_poser(bigint, text, text, text) from public, anon, authenticated;
+revoke all on function public.sentinelle_place_poser(bigint, text, text, text, text) from public, anon, authenticated;
 grant execute on function public.sentinelle_sans_place(int)             to service_role;
-grant execute on function public.sentinelle_place_poser(bigint, text, text, text) to service_role;
+grant execute on function public.sentinelle_place_poser(bigint, text, text, text, text) to service_role;
 revoke all on function public.sentinelle_mesure_poser(bigint, jsonb)    from public, anon, authenticated;
 grant execute on function public.sentinelle_a_remesurer(int, int)       to service_role;
 grant execute on function public.sentinelle_mesure_poser(bigint, jsonb) to service_role;

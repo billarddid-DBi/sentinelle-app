@@ -784,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-31-15";
+const SENTINELLE_VERSION = "2026-08-31-16";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -873,20 +873,39 @@ const RE_JOURS    = 30;   // on ne remesure pas une entreprise vue il y a moins 
        Nancy ne sera jamais accroché au « Garage Martin » de Metz.
    Le nom et l'adresse vus chez Google sont enregistrés à côté de l'identifiant : l'erreur reste
    visible en une seconde, et se défait par un UPDATE. */
+/* ⚠️ ON RETIRE LES CHIFFRES DE LA VILLE AVANT DE COMPARER — ET C'EST UNE RÈGLE QUI EXISTAIT
+   DÉJÀ DANS CE PROJET, QUE JE N'AVAIS PAS SUIVIE. `sentinelle_get` fait exactement cela depuis
+   des semaines (`regexp_replace(ville_norm,'[0-9]','','g')`).
+   Ce que ça coûtait, mesuré en vrai le 31/08/2026 : les huit premières fiches ont été refusées,
+   dont Dronavia, qui est évidemment sur Google. La raison tient en une ligne — nos fiches
+   écrivent « Remiremont (88200) », Google écrit « 88200 Remiremont ». Une fois les espaces
+   retirés, `remiremont88200` ne se trouve nulle part dans `88200remiremontfrance`. Augny passait
+   par chance, parce que son nom apparaît deux fois dans l'adresse. */
+function villeNue(v) { return norm(v || "").replace(/[0-9]/g, ""); }
+
+/* ⚠️ ON DIT POURQUOI ON A REFUSÉ. Premier essai : la fonction renvoyait `null` dans les cinq cas
+   d'échec, et la base n'affichait que « (rien trouvé) » huit fois de suite. Huit refus muets
+   n'apprennent rien : impossible de distinguer une clé Google bloquée d'un nom introuvable ou
+   d'un garde-fou trop strict — c'était pourtant le garde-fou. Un échec qui ne dit pas sa cause
+   se diagnostique en modifiant le code, c'est-à-dire trop tard et trop cher. */
 async function rattraperPlaceId(c, gkey) {
   const q = encodeURIComponent(`${c.nom} ${c.ville || ""} ${c.adresse || ""}`.trim());
   const r = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${q}&language=fr&region=fr&key=${gkey}`);
-  if (!r.ok) return null;
+  if (!r.ok) return { motif: "reseau HTTP " + r.status };
   const d = await r.json();
-  if (!d || !Array.isArray(d.results) || !d.results.length) return null;
+  /* Le mot de Google est repris tel quel : REQUEST_DENIED, OVER_QUERY_LIMIT, ZERO_RESULTS…
+     chacun désigne un réglage différent, et aucun ne contient de secret. */
+  if (!d || !Array.isArray(d.results) || !d.results.length) return { motif: "Google : " + ((d && d.status) || "sans reponse") };
   const p = pickCanonical(d.results, c.nom);
-  if (!p || !p.place_id) return null;
+  if (!p || !p.place_id) return { motif: "aucun etablissement retenu" };
   /* LA VILLE DOIT S'Y RETROUVER. Sans cette ligne, une fiche dont la ville est vide ou mal
      orthographiée accrocherait le premier résultat venu — c'est-à-dire le plus populaire du
      pays portant ce nom. */
-  const ville = norm(c.ville || "");
+  const ville = villeNue(c.ville);
   const adr = norm(p.formatted_address || "");
-  if (ville && adr.indexOf(ville) === -1) return null;
+  if (ville && adr.indexOf(ville) === -1) {
+    return { motif: "ville absente de l adresse Google : " + (p.formatted_address || "?") };
+  }
   return { place_id: p.place_id, nom: p.name || null, adresse: p.formatted_address || null };
 }
 
@@ -922,21 +941,24 @@ async function remesureMensuelle() {
       const sans = await rpc("sentinelle_sans_place", { p_max: libres });
       if (Array.isArray(sans) && sans.length) {
         const trouves = await Promise.all(sans.map(async (c) => {
-          try { const t = await rattraperPlaceId(c, gkey); return { id: c.id, t: t || null }; }
-          catch (_) { return { id: c.id, t: null }; }
+          try { return { id: c.id, t: (await rattraperPlaceId(c, gkey)) || { motif: "sans reponse" } }; }
+          catch (e) { return { id: c.id, t: { motif: String(e).slice(0, 90) } }; }
         }));
-        /* ⚠️ ON REMONTE AUSSI LES ÉCHECS. Une fiche que Google ne sait pas retrouver doit être
-           HORODATÉE, sinon elle revient en tête de liste chaque nuit et consomme un appel
-           payant pour rien, indéfiniment. La base la met alors de côté 90 jours. */
+        /* ⚠️ ON REMONTE AUSSI LES ÉCHECS, AVEC LEUR CAUSE. Une fiche que Google ne sait pas
+           retrouver doit être HORODATÉE, sinon elle revient en tête de liste chaque nuit et
+           consomme un appel payant pour rien, indéfiniment ; et le MOTIF doit voyager avec,
+           sinon la base affiche huit « rien trouvé » identiques qui n'apprennent rien. */
         for (const f of trouves) {
+          const ok = !!(f.t && f.t.place_id);
           try {
             await rpc("sentinelle_place_poser", {
               p_id: f.id,
-              p_place_id: f.t ? f.t.place_id : null,
-              p_nom: f.t ? f.t.nom : null,
-              p_adresse: f.t ? f.t.adresse : null
+              p_place_id: ok ? f.t.place_id : null,
+              p_nom: ok ? f.t.nom : null,
+              p_adresse: ok ? f.t.adresse : null,
+              p_motif: ok ? null : ((f.t && f.t.motif) || "sans reponse")
             });
-            if (f.t) rattrapes++;
+            if (ok) rattrapes++;
           } catch (_) {}
         }
       }
