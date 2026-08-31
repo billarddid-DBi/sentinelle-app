@@ -258,8 +258,17 @@ try{
   </div>
 
   <div class="panel" id="form" style="display:none;">
-    <label>Nom de l'entreprise + ville</label>
-    <input type="text" id="q" placeholder="ex : La Romana, restaurant, Maizières-lès-Metz" autocomplete="off">
+    <!-- ⚠️ DEUX CHAMPS, ET LA VILLE EST OBLIGATOIRE (31/08/2026). Didier : « on garde uniquement
+         le champ nom de l'entreprise et le champ de la ville, et toi tu proposes la liste sur
+         laquelle on clique. » Un seul champ libre laissait passer une recherche sans ville — et
+         Google renvoie alors l'établissement le plus connu de FRANCE portant ce nom, pas celui
+         d'à côté. Le champ `q` reste, caché : il porte la recherche assemblée, que plusieurs
+         écrans (re-mesure, dossier ouvert, espace dirigeant) remplissent déjà. -->
+    <label>Nom de l'entreprise</label>
+    <input type="text" id="qNom" placeholder="ex : La Romana" autocomplete="off">
+    <label style="margin-top:12px;">Ville</label>
+    <input type="text" id="qVille" placeholder="ex : Maizières-lès-Metz" autocomplete="off">
+    <input type="hidden" id="q">
     <label style="margin-top:12px;">Infos terrain (facultatif)</label>
     <textarea id="field" placeholder="reprise, affaire familiale, réactivité, projet du dirigeant…"></textarea>
     <button class="btn btn-primary" id="go"><i class="ti ti-activity"></i> Lancer le LIVE</button>
@@ -2709,10 +2718,33 @@ function bFinish(retourMenu){
 }
 /* ===== fin BOUSSOLE ===== */
 
+/* Les deux champs visibles et le champ caché ne se contredisent jamais : tout passe par ces
+   deux fonctions. `qSet` sert aux écrans qui remplissent la recherche à votre place (re-mesure,
+   dossier ouvert, espace dirigeant) — sans elle, ils rempliraient le champ caché et vous
+   verriez deux cases vides au-dessus d'une recherche déjà lancée. */
+function qSet(texte){
+  var t=String(texte||'').trim();
+  var i=t.lastIndexOf(',');
+  if($('qNom'))   $('qNom').value   = (i>0? t.slice(0,i) : t).trim();
+  if($('qVille')) $('qVille').value = (i>0? t.slice(i+1) : '').trim();
+  if($('q'))      $('q').value      = t;
+}
+function qGet(){
+  var n=($('qNom')&&$('qNom').value.trim())||'';
+  var v=($('qVille')&&$('qVille').value.trim())||'';
+  var t=[n,v].filter(Boolean).join(', ');
+  if($('q')) $('q').value=t;
+  return { nom:n, ville:v, texte:t };
+}
 $('go').onclick = () => {
-  const q = $('q').value.trim();
-  if(!q){ $('q').focus(); return; }
-  run({ text:q, fieldInfo:$('field').value.trim() });
+  const f = qGet();
+  if(!f.nom){ $('qNom').focus(); return; }
+  /* ⚠️ LA VILLE EST EXIGÉE, PAS SUGGÉRÉE. Sans elle, la recherche Google remonte l'établissement
+     le plus commenté du pays portant ce nom — et il est parfaitement crédible. C'est la même
+     famille d'erreur que les cinq « Feu Vert » de Chartres, en pire : rien à l'écran ne
+     permettrait de s'en apercevoir. */
+  if(!f.ville){ $('qVille').focus(); return; }
+  run({ text:f.texte, fieldInfo:$('field').value.trim() });
 };
 $('cam').onclick = () => $('file').click();
 $('file').onchange = e => {
@@ -2981,7 +3013,7 @@ function remesurer(){
   try{ window.__scanPlaceId=(g.fiche&&g.fiche._auraCalc&&g.fiche._auraCalc.place_id)||null; }catch(e){ window.__scanPlaceId=null; }
   window.__scanNom=(g.nom||null);
   var q=(g.nom||'')+(g.ville?', '+g.ville:'')+(g.adresse?', '+g.adresse:'');
-  showView('form'); if($('q')) $('q').value=q;
+  showView('form'); qSet(q);
   run({ text:q });
 }
 async function run(payload){
@@ -4164,7 +4196,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 343';
+var IVE_VERSION='31/08 · 344';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8578,7 +8610,7 @@ function lancerSentinelleDossier(){
   window.currentSpace='consultant';
   window.selfServe=false;
   showView('form');
-  if($('q')) $('q').value=q;
+  qSet(q);
   if(typeof run==='function') run({ text:q });
   window.scrollTo(0,0);
 }
@@ -11502,7 +11534,7 @@ function lancerMaSentinelle(){
   window.currentSpace='dirigeant';
   window.selfServe=true; // mode dirigeant autonome : résultat teasé (le constat offert, la prescription verrouillée)
   showView('form');
-  if($('q')) $('q').value=q;
+  qSet(q);
   run({ text:q });
 }
 async function sendSentinelleEmail(){
@@ -12491,9 +12523,7 @@ function enterDiagnostic(){
      entreprise pendant qu'un dossier est ouvert ferait atterrir sa fiche sur le mauvais dossier.
      Le champ reste modifiable (une re-mesure, une correction d'adresse), mais il part juste. */
   var td=(typeof entTravail==='function')?entTravail():null;
-  if(td && $('q') && !$('q').value.trim()){
-    $('q').value=[td.nom, td.adresse, td.ville].filter(Boolean).join(', ');
-  }
+  if(td && !qGet().texte){ qSet([td.nom, td.adresse, td.ville].filter(Boolean).join(', ')); }
   window.scrollTo(0,0);
 }
 /* ═══ MES ENTREPRISES — LA LISTE DE L'ATELIER ══════════════════════════════════════════════
