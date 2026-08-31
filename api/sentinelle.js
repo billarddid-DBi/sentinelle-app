@@ -233,7 +233,13 @@ async function getDetails(placeId, key) {
        que maintenant. » Il a raison : ces champs étaient disponibles depuis le premier jour, dans
        le même appel, sans un centime de plus. `business_status` surtout — savoir qu'un prospect a
        fermé définitivement AVANT de préparer un rendez-vous, ça n'a pas de prix. */
-    const CHAMPS = "website,reviews,photos,opening_hours,formatted_phone_number,editorial_summary,price_level,business_status,types,formatted_address";
+    /* ⚠️ `rating` ET `user_ratings_total` SONT ICI POUR LA RE-MESURE MENSUELLE, ET ILS NE COÛTENT RIEN
+       DE PLUS. L'analyse payante lit la note dans le résultat de la recherche par texte ; la
+       re-mesure gratuite, elle, part directement du `place_id` déjà enregistré et n'a donc PAS ce
+       résultat sous la main. Sans ces deux champs, elle saurait dire la date du dernier avis mais
+       pas la note — une courbe sans son chiffre principal.
+       Le tarif ne bouge pas : `reviews` place déjà cet appel dans la catégorie la plus chère. */
+    const CHAMPS = "rating,user_ratings_total,website,reviews,photos,opening_hours,formatted_phone_number,editorial_summary,price_level,business_status,types,formatted_address";
     let tri = false;
     let res = await lire(`${base}&fields=${CHAMPS}&reviews_sort=newest`);
     if (res) tri = true;
@@ -290,7 +296,8 @@ async function getDetails(placeId, key) {
       types: Array.isArray(res.types) ? res.types.filter(t => t !== "point_of_interest" && t !== "establishment").slice(0, 4) : null,
       adresse: res.formatted_address || null
     };
-    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, fiche, statut: statut || "OK", detail };
+    return { website: res.website || null, dernierAvis: dernier, avisLus, tri, textes, fiche, statut: statut || "OK", detail,
+             note: (res.rating != null ? res.rating : null), nbAvis: (res.user_ratings_total != null ? res.user_ratings_total : null) };
   } catch (_) { return { website: null, dernierAvis: null, avisLus: 0, tri: false, fiche: null, statut: statut || "ERREUR_RESEAU", detail }; }
 }
 
@@ -777,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-13-13";
+const SENTINELLE_VERSION = "2026-08-31-15";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -822,8 +829,191 @@ async function mesurerSite(url) {
   finally { clearTimeout(minuteur); }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+   LA RE-MESURE MENSUELLE — GRATUITE, AUTOMATIQUE, SANS JETON (31/08/2026)
+   ═══════════════════════════════════════════════════════════════════════════════════════════
+   CE QU'ELLE FAIT. Une fois par mois et par entreprise, elle va relire les FAITS EXTÉRIEURS —
+   note Google, nombre d'avis, date du dernier avis, établissement ouvert ou fermé, site
+   présent, annonces légales — et elle range un POINT DE PLUS dans la courbe d'évolution.
+
+   ⚠️ ELLE NE REFAIT PAS L'ANALYSE, ET C'EST TOUT L'INTÉRÊT. Une SENTINELLE complète appelle
+   l'IA : c'est elle qui coûte, et c'est elle qui consomme les jetons du dirigeant. La re-mesure
+   n'appelle QUE des sources gratuites ou déjà payées au forfait :
+     · Google Places sur le `place_id` DÉJÀ enregistré — un appel, pas de recherche préalable ;
+     · le BODACC (annonces légales) — ouvert, sans clé.
+   Aucun appel à Anthropic, aucun jeton débité, aucune ligne de rapport réécrite.
+
+   ⚠️ ELLE NE TOUCHE PAS À LA FICHE. Le texte de l'analyse reste celui du jour où le dirigeant
+   l'a payée. Écraser ses chiffres reviendrait à laisser un paragraphe dire « 23 avis » pendant
+   qu'un encadré en affiche 27 — exactement la contradiction qui a coûté trois dates fausses en
+   août. Le point mesuré vit à part, dans sa propre colonne, avec sa date.
+
+   ⚠️ HUIT ENTREPRISES PAR PASSAGE, TOUS LES JOURS — PAS CINQUANTE UNE FOIS PAR MOIS.
+   La fonction s'arrête à 60 secondes. Cinquante lectures d'affilée ne tiendraient pas, et un
+   dépassement ferait perdre le tour ENTIER, y compris les entreprises déjà lues. En prenant
+   chaque jour les huit plus anciennes, tout le fichier est couvert en une semaine, un échec ne
+   coûte qu'une journée de retard, et la reprise est automatique le lendemain. */
+const RE_PAR_TOUR = 8;    // entreprises par passage — tient largement dans les 60 s
+const RE_JOURS    = 30;   // on ne remesure pas une entreprise vue il y a moins d'un mois
+
+/* ═══ LE RATTRAPAGE : RETROUVER L'IDENTIFIANT GOOGLE DES ANCIENNES FICHES ═══════════════════
+   31/08/2026, mesuré dans la vraie base : 3 fiches sur 17 portent un `place_id`. Les 14 autres
+   datent d'avant qu'on l'enregistre. Sans lui, la re-mesure ne peut RIEN faire : elle part de
+   l'identifiant, justement pour éviter de repayer une recherche chaque mois.
+
+   ⚠️ IL SE GLISSE DANS LES PLACES LIBRES DU TOUR DE NUIT, il n'a pas de tour à lui. Quand moins
+   de huit entreprises sont à remesurer, le temps restant sert à rattraper — le fichier se
+   répare tout seul, sans qu'on ait à déclencher quoi que ce soit à la main.
+
+   ⚠️ ET IL REFUSE DE DEVINER. C'est la leçon du 12/08 (« rebelote pour les avis Google ») : une
+   recherche par nom peut tomber sur un homonyme dans une autre ville, et TOUS les chiffres
+   deviennent alors faux ENSEMBLE, de façon cohérente, donc invisible. Deux garde-fous :
+     · le nom retenu doit ressembler à celui de la fiche (c'est déjà le rôle de pickCanonical) ;
+     · l'adresse renvoyée par Google doit contenir la VILLE de la fiche. Un « Garage Martin » à
+       Nancy ne sera jamais accroché au « Garage Martin » de Metz.
+   Le nom et l'adresse vus chez Google sont enregistrés à côté de l'identifiant : l'erreur reste
+   visible en une seconde, et se défait par un UPDATE. */
+async function rattraperPlaceId(c, gkey) {
+  const q = encodeURIComponent(`${c.nom} ${c.ville || ""} ${c.adresse || ""}`.trim());
+  const r = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${q}&language=fr&region=fr&key=${gkey}`);
+  if (!r.ok) return null;
+  const d = await r.json();
+  if (!d || !Array.isArray(d.results) || !d.results.length) return null;
+  const p = pickCanonical(d.results, c.nom);
+  if (!p || !p.place_id) return null;
+  /* LA VILLE DOIT S'Y RETROUVER. Sans cette ligne, une fiche dont la ville est vide ou mal
+     orthographiée accrocherait le premier résultat venu — c'est-à-dire le plus populaire du
+     pays portant ce nom. */
+  const ville = norm(c.ville || "");
+  const adr = norm(p.formatted_address || "");
+  if (ville && adr.indexOf(ville) === -1) return null;
+  return { place_id: p.place_id, nom: p.name || null, adresse: p.formatted_address || null };
+}
+
+async function remesureMensuelle() {
+  const URL = process.env.SUPABASE_URL, SR = process.env.SUPABASE_SERVICE_ROLE;
+  const gkey = process.env.GOOGLE_PLACES_KEY;
+  if (!URL || !SR) return { ok: false, error: "Supabase non configuré côté serveur" };
+  if (!gkey)       return { ok: false, error: "GOOGLE_PLACES_KEY absente" };
+
+  const rpc = async (nom, corps) => {
+    const r = await fetch(`${URL}/rest/v1/rpc/${nom}`, {
+      method: "POST",
+      headers: { "content-type": "application/json", apikey: SR, Authorization: `Bearer ${SR}` },
+      body: JSON.stringify(corps)
+    });
+    if (!r.ok) throw new Error(nom + " HTTP " + r.status);
+    return r.json();
+  };
+
+  let liste;
+  try { liste = await rpc("sentinelle_a_remesurer", { p_max: RE_PAR_TOUR, p_jours: RE_JOURS }); }
+  catch (e) { return { ok: false, error: String(e).slice(0, 160) }; }
+  if (!Array.isArray(liste)) liste = [];
+
+  /* ═══ LE TEMPS QUI RESTE SERT À RÉPARER LE FICHIER ════════════════════════════════════════
+     Les places non utilisées du tour vont au rattrapage des `place_id` manquants. Un fichier
+     qui se répare tout seul ne demande jamais qu'on pense à lancer quelque chose — et c'est
+     exactement ce qu'on oublie de faire. */
+  let rattrapes = 0;
+  const libres = RE_PAR_TOUR - liste.length;
+  if (libres > 0) {
+    try {
+      const sans = await rpc("sentinelle_sans_place", { p_max: libres });
+      if (Array.isArray(sans) && sans.length) {
+        const trouves = await Promise.all(sans.map(async (c) => {
+          try { const t = await rattraperPlaceId(c, gkey); return { id: c.id, t: t || null }; }
+          catch (_) { return { id: c.id, t: null }; }
+        }));
+        /* ⚠️ ON REMONTE AUSSI LES ÉCHECS. Une fiche que Google ne sait pas retrouver doit être
+           HORODATÉE, sinon elle revient en tête de liste chaque nuit et consomme un appel
+           payant pour rien, indéfiniment. La base la met alors de côté 90 jours. */
+        for (const f of trouves) {
+          try {
+            await rpc("sentinelle_place_poser", {
+              p_id: f.id,
+              p_place_id: f.t ? f.t.place_id : null,
+              p_nom: f.t ? f.t.nom : null,
+              p_adresse: f.t ? f.t.adresse : null
+            });
+            if (f.t) rattrapes++;
+          } catch (_) {}
+        }
+      }
+    } catch (_) {}
+  }
+
+  if (!liste.length) return { ok: true, traitees: 0, rattrapes, rien: "aucune entreprise à remesurer" };
+
+  const jour = new Date().toISOString().slice(0, 10);
+
+  /* Les huit lectures partent ENSEMBLE. En série, huit fois quatre secondes rongeraient la
+     moitié du temps disponible pour rien : elles ne dépendent pas les unes des autres. */
+  const points = await Promise.all(liste.map(async (c) => {
+    try {
+      const det = await getDetails(c.place_id, gkey);
+      /* Google a refusé ou n'a rien : on n'invente pas un point. Un trou dans la courbe se voit
+         et se rattrape ; un point faux ne se voit pas et ne se rattrape jamais. */
+      if (!det || det.statut !== "OK" || det.note == null) {
+        return { id: c.id, echec: (det && det.statut) || "SANS_REPONSE" };
+      }
+      const bod = c.siren ? await chercherAnnonces(c.siren) : null;
+      const w  = profil(c.activite);
+      const nb = (det.nbAvis != null) ? det.nbAvis : 0;
+      /* LA MÊME FORMULE QUE L'ANALYSE PAYANTE, AU CARACTÈRE PRÈS. Si elle divergeait d'un
+         cheveu, la courbe montrerait une marche à chaque re-mesure — une progression qui ne
+         viendrait pas de l'entreprise mais de deux calculs différents. */
+      const ive = Math.max(5, Math.min(97, Math.round(compress(
+        (w.q * qScore(det.note) + w.v * vScore(nb) * volFactor(det.note) + w.s * sScore(!!det.website)) / 100))));
+      return {
+        id: c.id,
+        point: {
+          date: jour,
+          ive: ive,
+          /* L'aura est la PERSONNALITÉ de l'entreprise, pas sa note : elle ne bouge pas parce
+             qu'un avis est arrivé. On reporte donc celle de la dernière analyse. */
+          couleur: c.couleur || null,
+          note: det.note,
+          avis: nb,
+          site: det.website || "",
+          dernier_avis: det.dernierAvis || null,
+          statut_google: (det.fiche && det.fiche.statut) || null,
+          procedure: (bod && bod.procedure) ? bod.procedure : null,
+          source: "remesure"
+        }
+      };
+    } catch (e) { return { id: c.id, echec: String(e).slice(0, 80) }; }
+  }));
+
+  let poses = 0, echecs = 0;
+  for (const p of points) {
+    if (!p || !p.point) { echecs++; continue; }
+    try { await rpc("sentinelle_mesure_poser", { p_id: p.id, p_point: p.point }); poses++; }
+    catch (_) { echecs++; }
+  }
+  return { ok: true, traitees: liste.length, poses, echecs, rattrapes, jour };
+}
+
 export default async function handler(req, res) {
-  if (req.method === "GET") { res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return; }
+  if (req.method === "GET") {
+    /* ═══ LE MINUTEUR DE VERCEL FRAPPE ICI ════════════════════════════════════════════════
+       ⚠️ UNE BRANCHE, PAS UNE FONCTION. Vercel n'en autorise que douze sur ce plan, et les
+          douze sont prises. Une treizième ferait échouer TOUT le déploiement, pas seulement
+          la nouveauté.
+       ⚠️ ET ELLE EST FERMÉE À CLÉ. Sans ce contrôle, n'importe qui sur Internet pourrait
+          déclencher la re-mesure en boucle depuis son navigateur : gratuite pour nous ne veut
+          pas dire gratuite pour Google. Vercel envoie de lui-même `Authorization: Bearer
+          $CRON_SECRET` ; personne d'autre ne connaît cette valeur. Si le secret n'est pas
+          configuré, la porte reste FERMÉE — jamais ouverte « en attendant ». */
+    if (req.query && req.query.remesure) {
+      const secret = process.env.CRON_SECRET;
+      const recu = String(req.headers.authorization || "");
+      if (!secret || recu !== `Bearer ${secret}`) { res.status(401).json({ error: "non autorisé" }); return; }
+      res.status(200).json(await remesureMensuelle());
+      return;
+    }
+    res.status(200).json({ fonction: "sentinelle", version: SENTINELLE_VERSION }); return;
+  }
   if (req.method !== "POST") { res.status(405).json({ error: "Méthode non autorisée" }); return; }
   /* La porte du contrôle technique, AVANT tout le reste : elle n'a besoin ni du modèle, ni de la
      clé Anthropic, ni d'un jeton — l'appel est gratuit chez Google. */

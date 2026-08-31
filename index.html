@@ -1215,7 +1215,7 @@ function renderMiroir(){
      savoir s'il marche encore. */
   var tog=function(a,lbl){return '<button class="btn '+(aud===a?'btn-primary':'btn-ghost')+'" style="margin-top:0;font-size:13px;padding:8px;" onclick="setMiroirAudience(\''+a+'\')">'+lbl+'</button>';};
   var html='<div class="card">'
-    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-sparkles"></i> MIROIR · L\'ORDONNANCE</div>'
+    +'<div style="background:#1C1C1C;color:#fff;padding:16px 18px;"><div style="font-size:11px;letter-spacing:2px;color:#E8A07E;"><i class="ti ti-sparkles"></i> MIROIR · LA MARCHE À SUIVRE</div>'
       +'<div style="font-size:19px;font-weight:600;margin-top:2px;">'+esc(b.nom||'')+'</div>'
       +'<div style="font-size:12.5px;color:#e7dbd1;line-height:1.5;margin-top:6px;"><b>Priorité n°1 :</b> '+esc(m.priorite||'')+'</div>'
       +'<div style="font-size:12px;color:#9ca3af;margin-top:6px;">Gain annuel estimé : <b style="color:#4ade80;">'+eur(m.economie_an)+'</b></div></div>'
@@ -2270,7 +2270,7 @@ function bilanSante(r){
      de l'information sur l'outil, pas sur l'entreprise. La LECTURE passe devant ; la fiabilité
      devient une mention repliable, utile mais secondaire. */
   return '<div class="sec" style="background:'+niv.f+';">'
-    +'<div class="ktitle" style="color:'+niv.c+';"><i class="ti ti-stethoscope"></i> Le bilan de votre questionnaire</div>'
+    +'<div class="ktitle" style="color:'+niv.c+';"><i class="ti ti-clipboard-check"></i> Le bilan de votre questionnaire</div>'
     +bilanLecture(r)
     +'<div style="background:#fff;border:1px solid '+niv.b+';border-radius:11px;margin-top:12px;overflow:hidden;">'
       +'<button type="button" onclick="sentToggle(\'bFiab\')" style="width:100%;display:flex;align-items:center;gap:10px;padding:11px 13px;background:transparent;border:none;cursor:pointer;font-family:inherit;text-align:left;">'
@@ -2781,6 +2781,81 @@ function etabChooser(q, list, dup){
 // CARTE D'ÉVOLUTION MENSUELLE : compare les SENTINELLE du MOIS choisi (faits extérieurs uniquement),
 // navigation ◀ mois ▶ pour revenir en arrière. La note ET sa couleur d'aura évoluent (pastilles colorées).
 var MOIS_FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+/* ═══ « CE QUI A BOUGÉ DEPUIS VOTRE ANALYSE » (31/08/2026) ═════════════════════════════════
+   Chaque mois, le serveur relit gratuitement les faits extérieurs (note Google, avis,
+   ouverture, site, annonces légales) et range un point de plus. Ce bloc met ce point EN FACE
+   des chiffres du jour où l'analyse a été payée.
+
+   ⚠️ IL NE RÉÉCRIT RIEN DANS LA FICHE, ET LES DEUX DATES SONT TOUJOURS AFFICHÉES. C'est la
+   règle qui évite la contradiction qui a coûté trois dates fausses en août : un paragraphe du
+   rapport qui dit « 23 avis » n'est pas faux, il est DATÉ. On ne corrige pas le passé, on
+   montre l'écart.
+   ⚠️ ET ON RESTE CONSTRUCTIF : une note qui baisse n'est pas un verdict, c'est l'endroit où
+   l'effort paie le plus vite. Aucune ligne ne se termine sur un reproche. */
+function bougeVal(a, b){ if(a==null||b==null) return null; var d=(+b)-(+a); return isFinite(d)?d:null; }
+function bougeLigne(icone, titre, avant, apres, sens, mot){
+  var fl='<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>';
+  if(sens>0) fl='<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>';
+  if(sens<0) fl='<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>';
+  return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9;font-size:12.5px;">'
+    +'<i class="ti '+icone+'" style="font-size:15px;color:#6b7280;"></i><span style="flex:1;">'+titre+'</span>'
+    +'<span style="color:#6b7280;font-size:11.5px;">'+avant+' → <b style="color:#1C1C1C;">'+apres+'</b>'+(mot?' <span style="color:#9ca3af;">'+mot+'</span>':'')+'</span>'+fl+'</div>';
+}
+function bougeDepuisHtml(g){
+  if(!g) return '';
+  var ms=(g.mesures||[]).filter(function(m){ return m && m.date; }).sort(function(a,b){ return a.date<b.date?-1:1; });
+  if(!ms.length) return '';
+  var m=ms[ms.length-1];
+  var ac=(g.fiche&&g.fiche._auraCalc)||{};
+  var dAna=g.date?new Date(g.date):null, dMes=new Date(m.date);
+  var fmt=function(d){ return d?d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):''; };
+
+  /* ⚠️ LES ALERTES D'ABORD, ET ELLES SONT RARES PAR CONSTRUCTION. Une alerte qui sort tous les
+     mois n'est plus une alerte : celles-ci ne concernent que ce qui change une vie
+     d'entreprise — l'établissement fermé chez Google, une procédure collective publiée. */
+  var alertes='';
+  if(m.statut_google && /CLOSED_PERMANENTLY/i.test(m.statut_google)){
+    alertes+='<div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:9px;padding:9px 11px;font-size:12px;margin-top:9px;line-height:1.5;"><b><i class="ti ti-alert-triangle"></i> Google affiche votre établissement comme définitivement fermé.</b><br>Vos clients qui vous cherchent voient cette mention avant tout le reste. Elle se corrige depuis votre fiche Google, et l\'effet est immédiat.</div>';
+  } else if(m.statut_google && /CLOSED_TEMPORARILY/i.test(m.statut_google)){
+    alertes+='<div style="background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:9px;padding:9px 11px;font-size:12px;margin-top:9px;line-height:1.5;"><b><i class="ti ti-alert-triangle"></i> Google affiche votre établissement comme temporairement fermé.</b><br>Si ce n\'est plus le cas, le retirer de votre fiche Google vous redonne de la visibilité tout de suite.</div>';
+  }
+  if(m.procedure && m.procedure.date){
+    alertes+='<div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:9px;padding:9px 11px;font-size:12px;margin-top:9px;line-height:1.5;"><b><i class="ti ti-gavel"></i> Une annonce de procédure collective est parue au BODACC le '+esc(String(m.procedure.date))+'.</b><br>C\'est une information publique : vos clients et vos fournisseurs peuvent la lire. Mieux vaut la connaître et en parler soi-même.</div>';
+  }
+
+  var rows='', n=0;
+  var dNote=bougeVal(ac.note_google, m.note);
+  var dAvis=bougeVal(ac.nb_avis, m.avis);
+  if(dNote!==null && (dNote!==0 || (dAvis!==null && dAvis!==0))){
+    n++;
+    rows+=bougeLigne('ti-star','Note Google', (+ac.note_google)+'★ ('+(+ac.nb_avis||0)+' avis)', m.note+'★ ('+(+m.avis||0)+' avis)',
+      (dNote>0||(dNote===0&&dAvis>0))?1:((dNote<0||dAvis<0)?-1:0),
+      (dAvis>0?('+'+dAvis+' avis'):(dAvis<0?(dAvis+' avis'):'')));
+  }
+  if(ac.dernier_avis && m.dernier_avis && String(ac.dernier_avis).slice(0,10)!==String(m.dernier_avis).slice(0,10)){
+    n++;
+    rows+=bougeLigne('ti-message-2','Dernier avis reçu',
+      new Date(ac.dernier_avis).toLocaleDateString('fr-FR'), new Date(m.dernier_avis).toLocaleDateString('fr-FR'), 1, '');
+  }
+  var s0=!!(ac.site_url||g.fiche&&g.fiche.site), s1=!!(m.site&&String(m.site).length);
+  if(s0!==s1){ n++; rows+=bougeLigne('ti-world','Site internet', s0?'présent':'absent', s1?'présent':'absent', s1?1:-1, ''); }
+  var dIve=bougeVal(g.fiche&&g.fiche.indice&&g.fiche.indice.estime, m.ive);
+  if(dIve!==null && dIve!==0){
+    n++;
+    rows+=bougeLigne('ti-gauge','Votre note IVE', (+g.fiche.indice.estime)+'/100', m.ive+'/100', dIve>0?1:-1, (dIve>0?'+':'')+dIve);
+  }
+
+  var corps = n
+    ? rows
+    : '<div style="text-align:center;color:#6b7280;font-size:12.5px;padding:12px 0;">Rien n\'a bougé à l\'extérieur depuis votre analyse. C\'est une base stable : ce qui changera viendra de ce que vous entreprenez.</div>';
+
+  return '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:14px 16px;margin-bottom:12px;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;">'
+    +'<div style="font-size:13px;font-weight:700;color:#1C1C1C;"><i class="ti ti-radar-2" style="color:#E8541A;"></i> Ce qui a bougé depuis votre analyse</div>'
+    +'<div style="font-size:10.5px;color:#9ca3af;white-space:nowrap;">relevé du '+fmt(dMes)+'</div></div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin-top:3px;">Analyse du '+fmt(dAna)+' · relevé automatique, sans jeton</div>'
+    +'<div style="margin-top:6px;">'+corps+'</div>'+alertes+'</div>';
+}
 function evoDot(couleur){
   var h=(typeof AURAS!=='undefined'&&AURAS[couleur]&&AURAS[couleur].h)||'#9ca3af';
   return '<span style="display:inline-block;width:13px;height:13px;border-radius:50%;background:'+h+';vertical-align:-2px;box-shadow:0 0 6px '+h+'88;" title="'+esc(couleur||'')+'"></span>';
@@ -2815,10 +2890,11 @@ function evoCardHtml(serie){
     var mn=Math.min.apply(null,vals), mx=Math.max.apply(null,vals); if(mx===mn){mx=mn+1;}
     var xy=pts.map(function(x,i){ return [pad+i*(W-2*pad)/(pts.length-1), Wtop+(1-(+x.ive-mn)/(mx-mn))*Hplot]; });
     spark='<svg viewBox="0 0 '+W+' '+Htot+'" width="'+W+'" height="'+Htot+'"><polyline points="'+xy.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="none" stroke="'+(d>=0?'#16a34a':'#d97706')+'" stroke-width="2.5" stroke-linejoin="round"/>'
-      +xy.map(function(p,i){ var h=(typeof AURAS!=='undefined'&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+h+'"/>'; }).join('')
+      +xy.map(function(p,i){ var h=(typeof AURAS!=='undefined'&&AURAS[pts[i].couleur]&&AURAS[pts[i].couleur].h)||'#9ca3af'; return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===xy.length-1?4.5:3.5)+'" fill="'+(pts[i].gratuite?'#fff':h)+'" stroke="'+h+'" stroke-width="'+(pts[i].gratuite?2:0)+'"/>'; }).join('')
       +xy.map(function(p,i){ return '<text x="'+p[0]+'" y="'+(p[1]-7)+'" font-size="9" font-weight="700" fill="#1C1C1C" text-anchor="middle">'+(+pts[i].ive)+'</text>'; }).join('')
       +xy.map(function(p,i){ var dt=pts[i].date?new Date(pts[i].date).toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'}):''; return '<text x="'+p[0]+'" y="'+(Htot-3)+'" font-size="7.5" fill="#9ca3af" text-anchor="middle">'+dt+'</text>'; }).join('')+'</svg>';
   }
+  if(spark && pts.some(function(x){return x&&x.gratuite;})) spark='<div>'+spark+'<div style="font-size:9.5px;color:#9ca3af;margin-top:1px;line-height:1.4;"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#fff;border:2px solid #9ca3af;"></span> relevé automatique &nbsp;<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#9ca3af;"></span> analyse complète</div></div>';
   var rows='', facts=0, up=0, down=0;
   var arrow=function(u,same){ return same?'<i class="ti ti-arrow-right" style="color:#9ca3af;font-size:16px;"></i>':(u?'<i class="ti ti-arrow-up-right" style="color:#16a34a;font-size:16px;"></i>':'<i class="ti ti-arrow-down-right" style="color:#d97706;font-size:16px;"></i>'); };
   if(pts.length>1 && first.note!=null && last.note!=null){
@@ -4054,7 +4130,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='20/08 · 340';
+var IVE_VERSION='31/08 · 342';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5334,10 +5410,11 @@ function historiqueView(){
     corps='<div style="font-size:13px;color:#4b5563;line-height:1.6;"><i class="ti ti-chart-line" style="color:#2563EB;"></i> Une seule mesure pour l\'instant, le <b>'+esc(new Date(s[0].date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}))+'</b> — note <b>'+esc(String(s[0].ive))+'/100</b>.<br>Une courbe demande deux points : elle apparaîtra à votre prochaine mesure.</div>';
   }else{
     var courbe=(typeof evoCardHtml==='function')?evoCardHtml(s):'';
+    var bouge=(typeof bougeDepuisHtml==='function')?bougeDepuisHtml(window.__lastGet):'';
     var prem=s[0], der=s[n-1], ecart=(+der.ive)-(+prem.ive);
     var coul=ecart>0?'#15803d':(ecart<0?'#b91c1c':'#6b7280');
     var fleche=ecart>0?'▲ +':(ecart<0?'▼ ':'');
-    corps='<div style="font-size:13px;color:#4b5563;line-height:1.6;">Depuis votre première mesure, votre note est passée de <b>'+esc(String(prem.ive))+'</b> à <b>'+esc(String(der.ive))+'</b> — <b style="color:'+coul+';">'+fleche+(ecart===0?'stable':esc(String(ecart)))+'</b>.</div>'
+    corps=bouge+'<div style="font-size:13px;color:#4b5563;line-height:1.6;">Depuis votre première mesure, votre note est passée de <b>'+esc(String(prem.ive))+'</b> à <b>'+esc(String(der.ive))+'</b> — <b style="color:'+coul+';">'+fleche+(ecart===0?'stable':esc(String(ecart)))+'</b>.</div>'
       +(courbe?('<div id="evoCard" style="margin-top:12px;">'+courbe+'</div>'):'');
   }
   var liste='';
@@ -8141,7 +8218,7 @@ function ahStart(mode){
   // Empreinte de depart : sans elle, on ne peut pas savoir si le dirigeant a saisi quelque chose.
   setTimeout(function(){ try{ window.__ahDepart=ahEmpreinte(); }catch(e){} },0);
   var label = mode==='express'?'Express':'Complet';
-  var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · pouls humain ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> Questionnaire aux salariés '+label+' · acceptabilité du changement ('+take.length+' critères)');
+  var titre = window.ahControleMode ? ('<i class="ti ti-player-play"></i> CONTRÔLE · climat interne ('+take.length+' critères)') : ('<i class="ti ti-users-group"></i> Questionnaire aux salariés '+label+' · acceptabilité du changement ('+take.length+' critères)');
   var html='<div class="panel" style="position:sticky;top:0;z-index:5;background:#1C1C1C;color:#fff;text-align:center;padding:12px;">'
     +'<div style="font-size:11px;color:#E7DBD1;">'+titre+'</div>'
     +'<div style="font-size:30px;font-weight:700;margin:2px 0;"><span id="ahIdx">–</span><span style="font-size:13px;font-weight:400;opacity:.8;">/100 · IAT</span></div>'
@@ -9049,7 +9126,7 @@ function cockpitCompare(){
     +heads
     +'<div class="sec" style="background:#f0fdf4;"><div style="font-size:12.5px;color:#166534;line-height:1.55;"><i class="ti ti-sparkles"></i> '+esc(msg)+'</div></div>'
     +idxTable+crainteRow
-    +'<div class="foot">On compare votre situation actuelle à votre point de départ'+(prev?' et à votre contrôle précédent':'')+'. Lancez un contrôle après chaque vague d\'actions : c\'est ainsi qu\'on voit — et qu\'on prouve — le chemin parcouru. (Le contrôle mesure le pouls humain ; la valeur externe se re-mesure lors d\'un diagnostic complet.)</div></div>'
+    +'<div class="foot">On compare votre situation actuelle à votre point de départ'+(prev?' et à votre contrôle précédent':'')+'. Lancez un contrôle après chaque vague d\'actions : c\'est ainsi qu\'on voit — et qu\'on prouve — le chemin parcouru. (Le contrôle mesure le climat interne ; la valeur externe se re-mesure lors d\'un diagnostic complet.)</div></div>'
     +'<button class="btn btn-primary" onclick="lancerControle()"><i class="ti ti-player-play"></i> Lancer un nouveau contrôle</button>';
   $('compare').innerHTML=card; showView('compare'); window.scrollTo(0,0);
 }
@@ -9063,7 +9140,7 @@ function lancerControle(){
       var next=new Date(lc); next.setDate(next.getDate()+7);
       var today=new Date(pmTodayStr());
       if(today<next){
-        alert('Ton pouls a été mesuré le '+new Date(lc).toLocaleDateString('fr-FR')+'.\n\nUn contrôle par semaine suffit : le prochain sera possible le '+next.toLocaleDateString('fr-FR')+'.\n\nD\'ici là, tes notes et priorités du jour continuent de nourrir l\'analyse.');
+        alert('Le climat a été mesuré le '+new Date(lc).toLocaleDateString('fr-FR')+'.\n\nUn contrôle par semaine suffit : le prochain sera possible le '+next.toLocaleDateString('fr-FR')+'.\n\nD\'ici là, tes notes et priorités du jour continuent de nourrir l\'analyse.');
         return;
       }
     }
@@ -9713,7 +9790,7 @@ async function santeView(){
   var acc=(typeof currentAccount==='function')?currentAccount():null;
   if(!acc){ renderAuth('login'); return; }
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-stethoscope','CHECK BASE','Ce que la base dit de ce compte','accueil')
+    +iveEntete('ti-database-search','CHECK BASE','Ce que la base dit de ce compte','accueil')
     +'<div class="card"><div class="sec" style="text-align:center;padding:26px 16px;"><div class="spin"></div>'
     +'<div style="font-size:13px;color:#4b5563;margin-top:8px;">Lecture en cours…</div></div></div>';
   showView('dirigeant'); window.scrollTo(0,0);
@@ -9864,7 +9941,7 @@ async function santeView(){
     }
   }catch(e){ h+=santeLigne('inconnu','Lecture interrompue.','La base n\'a pas répondu jusqu\'au bout : ce tableau est incomplet.','',P.coupure); }
   $('dirigeant').innerHTML=(typeof adminBar==='function'?adminBar():'')
-    +iveEntete('ti-stethoscope','CHECK BASE','Ce que la base dit de ce compte','accueil')
+    +iveEntete('ti-database-search','CHECK BASE','Ce que la base dit de ce compte','accueil')
     +'<div class="card"><div class="sec">'
       +'<div style="font-size:12px;color:#4b5563;line-height:1.55;">Lecture seule, gratuite. Rien n\'est modifié ici.</div>'
       +h
@@ -9891,7 +9968,7 @@ function adminBar(){
        C'est ICI qu'il devait être : l'écran « Check base » répond pour UN compte, celui-ci pour
        les onze. Didier : « c'était le rôle de mon compte, il faut le remettre. » */
     +'<button type="button" onclick="openConsole()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-users"></i> Mes abonnés</button>'
-    +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-stethoscope"></i> Check base</button>'
+    +'<button type="button" onclick="santeView()" style="border:1px solid #3f3f46;background:transparent;color:#e5e7eb;border-radius:9px;padding:9px 11px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;"><i class="ti ti-database-search"></i> Check base</button>'
     /* ⚠️ « MES ENTREPRISES » A ÉTÉ RETIRÉ DE LA BARRE (Didier, 09/08/2026 : « c'est quoi la
        différence entre mes entreprises et analyser un prospect — si c'est pareil tu gardes
        analyser un prospect »). Il a raison : depuis que « Analyser un prospect » renvoie sur la
@@ -10182,7 +10259,7 @@ function dirigeantSpace(){
          Il n'y avait aucune raison de le réserver. Il ne fait que LIRE, et ce qu'il lit
          appartient au dirigeant : son entreprise, ses tâches, ses réponses de salariés, ses
          analyses. Il remplace la tuile « Mon compte », qui menait à « Bientôt disponible ». */
-      +ivTuile('ti-stethoscope','Contrôle des données','santeView()','vérifier','att',false)
+      +ivTuile('ti-database-search','Contrôle des données','santeView()','vérifier','att',false)
     +'</div>'
     /* Le prix du parcours, annoncé UNE FOIS et en entier (décision du 31/07). Il disparaît dès
        que le parcours est produit : à ce moment-là il n'annonce plus rien. */
@@ -10990,7 +11067,7 @@ function dirigeantSpaceComplet(){
           window.selfServe=true; window.__sentData=dg.fiche; window.__lastGet=dg; window.__evoMois=null; window.__sentDern=dern;
           // Cockpit = slide 1 du carrousel (pastille + évolution + infos), la note n'apparaît qu'UNE fois
           var pastille='<div style="width:150px;height:150px;border-radius:50%;margin:0 auto;background:'+hex+';box-shadow:0 0 30px 6px '+hex+'66;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;border:3px solid rgba(255,255,255,.6);"><span style="font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.9;">MON IVE</span><span style="font-size:44px;font-weight:800;line-height:1;">'+ive+'<span style="font-size:15px;font-weight:400;opacity:.85;">/100</span></span>'+(coul?'<span style="font-size:10px;opacity:.95;">IVE '+esc(coul)+' · '+dern.toLocaleDateString('fr-FR')+'</span>':'')+'</div>';
-          var evo=(serie.length>=2)?'<div id="evoCard" style="margin-top:14px;">'+evoCardHtml(dg.serie)+'</div>':'<div style="margin-top:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:11px 14px;font-size:12px;color:#475569;line-height:1.5;"><i class="ti ti-device-floppy"></i> Première mesure enregistrée. Dès la prochaine, votre <b>courbe d\'évolution</b> apparaîtra ici.</div>';
+          var evo=bougeDepuisHtml(dg)+((serie.length>=2)?'<div id="evoCard" style="margin-top:14px;">'+evoCardHtml(dg.serie)+'</div>':'<div style="margin-top:14px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:11px 14px;font-size:12px;color:#475569;line-height:1.5;"><i class="ti ti-device-floppy"></i> Première mesure enregistrée. Dès la prochaine, votre <b>courbe d\'évolution</b> apparaîtra ici.</div>');
           var inf=(pmLoad().infos||[]);
           var infHtml=inf.length?'<div style="margin-top:12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;"><div style="font-size:11px;font-weight:700;color:#6b7280;"><i class="ti ti-info-circle"></i> VOS INFOS NOTÉES ('+inf.length+')</div>'+inf.map(function(x){return '<div style="font-size:12px;color:#4b5563;margin-top:5px;line-height:1.4;">• '+esc(x.t)+'</div>';}).join('')+'</div>':'';
           var dLong=dern.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
@@ -11032,7 +11109,7 @@ function dirigeantSpaceComplet(){
   var crisis=pmCrisis(); if(crisis) html+=pmCrisisBanner(crisis);
   html+='<div style="display:flex;gap:9px;margin-top:11px;">'
     +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Climat équipe</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetClimat',1,t.climat,'ti-mood-smile','#166534','#dcfce7')+dot('pmSetClimat',2,t.climat,'ti-mood-neutral','#a16207','#fef9c3')+dot('pmSetClimat',3,t.climat,'ti-mood-sad','#991b1b','#fee2e2')+'</div></div>'
-    +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Pouls tréso</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetTreso',1,t.treso,'ti-trending-up','#166534','#dcfce7')+dot('pmSetTreso',2,t.treso,'ti-minus','#a16207','#fef9c3')+dot('pmSetTreso',3,t.treso,'ti-trending-down','#991b1b','#fee2e2')+'</div></div></div>';
+    +'<div class="panel" style="flex:1;padding:11px 12px;margin:0;"><div style="font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:.4px;">Trésorerie</div><div style="display:flex;gap:7px;margin-top:7px;">'+dot('pmSetTreso',1,t.treso,'ti-trending-up','#166534','#dcfce7')+dot('pmSetTreso',2,t.treso,'ti-minus','#a16207','#fef9c3')+dot('pmSetTreso',3,t.treso,'ti-trending-down','#991b1b','#fee2e2')+'</div></div></div>';
   if(!t.prio && t.climat){ pmPrioFetch(); }
   var prioBody;
   if(t.prio){ var gdone=t.geste==='done';
@@ -12709,7 +12786,7 @@ function renderTabbar(v){
   if(v==='home'||v==='auth'||!sp){ tb.className=''; document.body.classList.remove('hastab'); tb.innerHTML=''; return; }
   var tabs = (sp==='dirigeant')
     ? [['dirigeantSpace()','ti-home','Accueil',['dirigeant']],['goFeuille()','ti-list-check','Feuille',['frView']],['cockpitCompare()','ti-activity-heartbeat','Évolution',['compare']],['cockpitBuild()','ti-dashboard','Cockpit',['cockpit']]]
-    : [['goHome()','ti-home','Accueil',['home']],['enterDiagnostic()','ti-stethoscope','Diagnostic',['form','bChoice','bGrille','miroir','ahView']],['openHistory()','ti-folder','Recherches',[]],['openConsole()','ti-dashboard','Console',[]]];
+    : [['goHome()','ti-home','Accueil',['home']],['enterDiagnostic()','ti-clipboard-list','Diagnostic',['form','bChoice','bGrille','miroir','ahView']],['openHistory()','ti-folder','Recherches',[]],['openConsole()','ti-dashboard','Console',[]]];
   tb.innerHTML=tabs.map(function(t){ var on=t[3].indexOf(v)>-1; return '<button type="button" class="tab'+(on?' on':'')+'" onclick="'+t[0]+'"><i class="ti '+t[1]+'"></i>'+t[2]+'</button>'; }).join('');
   tb.className='show'; document.body.classList.add('hastab');
 }

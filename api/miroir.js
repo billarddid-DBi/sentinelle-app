@@ -1,4 +1,4 @@
-// MIROIR — l'ordonnance finale DBi360 : synthèse LIVE + BOUSSOLE -> plan d'action + ROI (2 narrations : externe / interne).
+// MIROIR — la marche à suivre finale DBi360 : synthèse LIVE + BOUSSOLE -> plan d'action + ROI (2 narrations : externe / interne).
 /* Le cadre de rédaction du volet humain vit dans lib/ : il est trop lourd et trop réutilisable
    pour être recopié ici, et un fichier de lib/ n'ajoute AUCUNE fonction Vercel (on est à 12/12). */
 import { AURA_REDACTION } from "../lib/aura-redaction.js";
@@ -7,9 +7,9 @@ const MODEL = "claude-haiku-4-5-20251001";
    Un GET sur /api/miroir le renvoie sans appeler l'IA : vérifier qu'un déploiement a
    réellement pris devient gratuit et instantané (cf. CLAUDE.md §8). Sans lui, on ne
    pouvait le savoir qu'en payant un appel complet de 60 secondes. */
-const MIROIR_VERSION = "2026-08-11-08";
+const MIROIR_VERSION = "2026-08-20-09";
 
-const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : l'ordonnance finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
+const SYS = `Tu rédiges le MIROIR de la méthode DBi360 : la marche à suivre finale d'un pré-audit de maturité IA pour une TPE/PME française. Ce n'est PAS un tableau de bord — c'est un document de RÉUNION, en VOCABULAIRE ENTREPRISE (jamais médical), qui dit la vérité en face : lucide, exigeant, profond, MAIS jamais complaisant ni violent. Termine toujours sur un renversement positif MÉRITÉ (le potentiel attend que la réalité rejoigne l'image), une exigence qui ouvre — jamais un « tout va bien ».
 
 DONNÉES : indice intérieur (BOUSSOLE, la réalité /100), indice extérieur (SENTINELLE, l'image perçue /100, parfois absent), écart de Vérité (intérieur − extérieur : négatif = l'image sur-promet, positif = pépite sous-vendue), potentiel visé, 8 piliers /100, critères faibles, archétype et activité. Parfois s'ajoute le VOLET HUMAIN (Questionnaire aux salariés) : l'IAT — Indice d'Acceptabilité de la Transformation /100 et sa zone (Blocage/Vigilance/Appui), l'IDC (Indice de Dynamique Collective), 8 indices humains et les craintes détectées. C'est la « tension & le pouls » humain de l'organisation. Parfois s'ajoute CE QUI EST DÉJÀ EN PLACE : le relevé, moment par moment, des outils et des façons de faire que le dirigeant a dictés lui-même en entretien — avec quoi il travaille, ce qui coince selon lui, et depuis quand. C'est du CONSTAT, au même titre que le quotidien : ce n'est ni une note ni une déclaration d'intention. Parfois s'ajoute enfin LE QUOTIDIEN : les sujets qui REVIENNENT dans les tâches que le dirigeant a dictées lui-même sur 30 jours (un sujet = au moins 5 tâches semblables), avec ce que la répétition lui coûte.
 

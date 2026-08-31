@@ -1,4 +1,7 @@
 {
+  "crons": [
+    { "path": "/api/sentinelle?remesure=1", "schedule": "0 4 * * *" }
+  ],
   "functions": {
     "api/concurrents.js": { "maxDuration": 60 },
     "api/sentinelle.js": { "maxDuration": 60 },
