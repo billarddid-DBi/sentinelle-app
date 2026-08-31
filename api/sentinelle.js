@@ -784,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-31-19";
+const SENTINELLE_VERSION = "2026-08-31-20";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -888,16 +888,36 @@ function motsAdresse(t) {
    ne comptent jamais — « 8 », « 45 », « 34B » font moins de quatre caractères et tombent avant.
    Si deux candidats concordent malgré tout, on ne tranche pas : la proposition part « à
    départager » et Didier choisit. */
-function adresseConcorde(fiche, google, ville) {
+/* Les mots qui SERVENT à départager : ceux de l'adresse, moins ceux de la ville et moins les
+   nombres. Ce qui reste, c'est le nom de la voie — la seule chose qui distingue deux
+   établissements d'une même commune. */
+function motsUtiles(adresse, ville) {
   const hors = motsAdresse(ville || "");
-  const utile = function (l) {
-    return l.filter(function (w) { return hors.indexOf(w) === -1 && /[a-z]/.test(w); });
-  };
-  const a = utile(motsAdresse(fiche)), b = utile(motsAdresse(google));
-  const communs = a.filter(function (w) { return b.indexOf(w) !== -1; });
-  return communs.length >= 2 || communs.some(function (w) { return w.length >= 6; });
+  return motsAdresse(adresse).filter(function (w) {
+    return hors.indexOf(w) === -1 && /[a-z]/.test(w);
+  });
 }
-/* ═══ LE SERVEUR PROPOSE, DIDIER VALIDE — 31/08/2026 ═══════════════════════════════════════
+/* Renvoie true, false, ou null quand il n'y a RIEN à comparer (adresse vide, ou réduite à la
+   ville et au code postal). null n'est pas false : « je n'ai pas pu vérifier » ne se confond
+   pas avec « ça ne correspond pas », et la décision qui suit n'est pas la même. */
+function adresseConcorde(fiche, google, ville) {
+  const a = motsUtiles(fiche, ville), b = motsUtiles(google, ville);
+  if (!a.length) return null;
+  const communs = a.filter(function (w) { return b.indexOf(w) !== -1; });
+  if (!communs.length) return false;
+  /* ⚠️ « TOUS LES MOTS DISPONIBLES ONT RÉPONDU » VAUT MIEUX QU'UN SEUIL DE LONGUEUR. Défaut
+     trouvé sur les vraies données le 31/08/2026 : « 32 Grand Rue, 57280 Maizières-lès-Metz »
+     est renvoyé MOT POUR MOT par Google, et ma règle le refusait. Une fois la ville et le code
+     postal retirés, il ne restait que « grand » — « Rue » étant écarté comme type de voie — et
+     j'exigeais six lettres. « Grand » en a cinq. Le seuil recalait donc le cas le plus simple
+     qui soit : deux adresses identiques.
+     La bonne question n'est pas « ce mot est-il long ? » mais « reste-t-il quelque chose qui
+     ne corresponde pas ? ». « 8 rue du Grand Faubourg » offre deux mots : si seul « grand »
+     répond, « faubourg » manque toujours à l'appel, et on ne conclut pas. */
+  return communs.length >= 2
+      || communs.length === a.length
+      || communs.some(function (w) { return w.length >= 6; });
+}/* ═══ LE SERVEUR PROPOSE, DIDIER VALIDE — 31/08/2026 ═══════════════════════════════════════
    Ce qui a précédé, et pourquoi on change de principe. Le rattrapage accrochait tout seul un
    établissement Google à chaque fiche. Deux garde-fous ont été ajoutés coup sur coup — la
    ville, puis l'adresse — et à chaque fois les vraies données ont trouvé le trou suivant :
@@ -939,13 +959,21 @@ async function proposerPlaceId(c, gkey) {
   });
   if (!pool.length) return { sur: false, motif: "aucun etablissement de ce nom dans cette ville", candidats: [] };
 
+  /* ⚠️ « AVOIR UNE ADRESSE » NE SUFFIT PAS : ENCORE FAUT-IL QU'ELLE DISE QUELQUE CHOSE. Une
+     fiche dont l'adresse se réduit à « 57685 Augny » ne porte aucun mot capable de départager
+     deux établissements de cette commune. La traiter comme une fiche renseignée reviendrait à
+     refuser tous les candidats faute de correspondance — alors qu'on n'a simplement rien à
+     comparer. On la traite donc comme une fiche SANS adresse : ce n'est sûr que s'il n'existe
+     qu'un seul établissement de ce nom dans la ville. */
+  const verifiable = !!(c.adresse && motsUtiles(c.adresse, c.ville).length);
+
   const cands = pool.map(function (x) {
     return {
       place_id: x.place_id, nom: x.name || null, adresse: x.formatted_address || null,
       avis: x.user_ratings_total || 0,
       /* null (et non false) quand la fiche n'a pas d'adresse : « on n'a pas pu vérifier » n'est
          pas « ça ne correspond pas ». La différence change la décision qu'on propose. */
-      concorde: c.adresse ? adresseConcorde(c.adresse, x.formatted_address, c.ville) : null
+      concorde: verifiable ? adresseConcorde(c.adresse, x.formatted_address, c.ville) : null
     };
   }).sort(function (a, b) {
     return (b.concorde === true) - (a.concorde === true) || b.avis - a.avis;
@@ -953,7 +981,7 @@ async function proposerPlaceId(c, gkey) {
 
   const concordants = cands.filter(function (x) { return x.concorde === true; });
   let sur = false, motif = null;
-  if (c.adresse) {
+  if (verifiable) {
     if (concordants.length === 1) { sur = true; }
     else if (concordants.length === 0) { motif = "aucun candidat ne porte votre adresse"; }
     else { motif = concordants.length + " candidats portent une adresse proche — a departager"; }
