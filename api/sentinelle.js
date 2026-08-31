@@ -784,7 +784,7 @@ async function mesurerPlateforme(url) {
    qu'une mise en ligne a réellement pris devient gratuit et instantané ; sans lui, il fallait
    payer une analyse complète pour le savoir — ou pousser sans vérifier, ce qui revient à
    deviner. */
-const SENTINELLE_VERSION = "2026-08-31-18";
+const SENTINELLE_VERSION = "2026-08-31-19";
 
 /* ═══ LE CONTRÔLE TECHNIQUE DU SITE ══════════════════════════════════════════════════════════
    Didier, 13/08/2026 : « je ne connais pas PageSpeed, c'est quoi ? » puis « c'est activé, fais
@@ -856,100 +856,114 @@ async function mesurerSite(url) {
 const RE_PAR_TOUR = 8;    // entreprises par passage — tient largement dans les 60 s
 const RE_JOURS    = 30;   // on ne remesure pas une entreprise vue il y a moins d'un mois
 
-/* ═══ LE RATTRAPAGE : RETROUVER L'IDENTIFIANT GOOGLE DES ANCIENNES FICHES ═══════════════════
-   31/08/2026, mesuré dans la vraie base : 3 fiches sur 17 portent un `place_id`. Les 14 autres
-   datent d'avant qu'on l'enregistre. Sans lui, la re-mesure ne peut RIEN faire : elle part de
-   l'identifiant, justement pour éviter de repayer une recherche chaque mois.
-
-   ⚠️ IL SE GLISSE DANS LES PLACES LIBRES DU TOUR DE NUIT, il n'a pas de tour à lui. Quand moins
-   de huit entreprises sont à remesurer, le temps restant sert à rattraper — le fichier se
-   répare tout seul, sans qu'on ait à déclencher quoi que ce soit à la main.
-
-   ⚠️ ET IL REFUSE DE DEVINER. C'est la leçon du 12/08 (« rebelote pour les avis Google ») : une
-   recherche par nom peut tomber sur un homonyme dans une autre ville, et TOUS les chiffres
-   deviennent alors faux ENSEMBLE, de façon cohérente, donc invisible. Deux garde-fous :
-     · le nom retenu doit ressembler à celui de la fiche (c'est déjà le rôle de pickCanonical) ;
-     · l'adresse renvoyée par Google doit contenir la VILLE de la fiche. Un « Garage Martin » à
-       Nancy ne sera jamais accroché au « Garage Martin » de Metz.
-   Le nom et l'adresse vus chez Google sont enregistrés à côté de l'identifiant : l'erreur reste
-   visible en une seconde, et se défait par un UPDATE. */
-/* ⚠️ ON RETIRE LES CHIFFRES DE LA VILLE AVANT DE COMPARER — ET C'EST UNE RÈGLE QUI EXISTAIT
-   DÉJÀ DANS CE PROJET, QUE JE N'AVAIS PAS SUIVIE. `sentinelle_get` fait exactement cela depuis
-   des semaines (`regexp_replace(ville_norm,'[0-9]','','g')`).
-   Ce que ça coûtait, mesuré en vrai le 31/08/2026 : les huit premières fiches ont été refusées,
-   dont Dronavia, qui est évidemment sur Google. La raison tient en une ligne — nos fiches
-   écrivent « Remiremont (88200) », Google écrit « 88200 Remiremont ». Une fois les espaces
-   retirés, `remiremont88200` ne se trouve nulle part dans `88200remiremontfrance`. Augny passait
-   par chance, parce que son nom apparaît deux fois dans l'adresse. */
+/* ⚠️ ON RETIRE LES CHIFFRES DE LA VILLE AVANT DE COMPARER — RÈGLE DÉJÀ EN VIGUEUR AILLEURS.
+   `sentinelle_get` fait exactement cela depuis des semaines (regexp_replace sur ville_norm).
+   Ce que ça coûtait, mesuré en vrai le 31/08/2026 : les huit premières fiches refusées, dont
+   Dronavia, qui est évidemment sur Google. Nos fiches écrivent « Remiremont (88200) », Google
+   écrit « 88200 Remiremont » — espaces retirés, `remiremont88200` ne se trouve nulle part dans
+   `88200remiremontfrance`. */
 function villeNue(v) { return norm(v || "").replace(/[0-9]/g, ""); }
 
-/* ═══ LA VILLE NE SUFFIT PAS : IL FAUT DESCENDRE À L'ADRESSE ═══════════════════════════════
-   Mesuré dans la vraie base le 31/08/2026 : CINQ fiches de Feu Vert Chartres pointaient vers
-   un seul et même magasin. Deux d'entre elles sont ailleurs — « 8 rue du Grand Faubourg » et
-   « 45 avenue d'Orléans ». Le garde-fou sur la ville ne pouvait rien voir : les trois magasins
-   sont bien à Chartres. Une courbe fausse et crédible est pire qu'une absence de courbe.
-
-   On compare donc les MOTS de l'adresse, pas la chaîne entière : nos fiches écrivent
-   « Parking CC Carrefour, ZUP de la Madeleine… » là où Google écrit « Parking Carrefour ZUP de
-   la Madeleine… ». Deux mots communs suffisent, dont un qui ne soit pas un nombre — un code
-   postal partagé ne prouve rien, il est le même pour toute la ville.
-   Les mots de liaison et les types de voie sont écartés : « rue », « avenue », « zone » se
-   retrouvent partout et feraient correspondre n'importe quoi avec n'importe quoi. */
+/* ═══ COMPARER DEUX ADRESSES ÉCRITES PAR DEUX MAINS DIFFÉRENTES ════════════════════════════
+   On compare les MOTS, pas la chaîne entière : nos fiches écrivent « Parking CC Carrefour, ZUP
+   de la Madeleine… » là où Google écrit « Parking Carrefour ZUP de la Madeleine… ».
+   Deux mots communs suffisent, dont un qui ne soit pas un nombre — un code postal partagé ne
+   prouve rien, il est le même pour toute la ville.
+   Les types de voie sont écartés : « rue », « avenue », « zone » se retrouvent partout et
+   feraient correspondre n'importe quoi avec n'importe quoi. */
 const VOIE = /^(rue|avenue|boulevard|place|route|chemin|allee|impasse|square|quai|cours|zone|cedex|france|lieudit|centre|commercial)$/;
 function motsAdresse(t) {
   return String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
     .split(/[^a-z0-9]+/).filter(function (w) { return w.length >= 4 && !VOIE.test(w); });
 }
-function adresseConcorde(fiche, google) {
-  const a = motsAdresse(fiche), b = motsAdresse(google);
+/* ⚠️ LA VILLE ET LE CODE POSTAL SONT RETIRÉS DES DEUX CÔTÉS AVANT DE COMPARER — SANS QUOI LA
+   RÈGLE EST VIDE DE SENS. Défaut trouvé par le banc le 31/08/2026, sur la fiche 14 : « 28000 »
+   et « Chartres » figurent dans TOUTES les adresses de Chartres, donc la règle des « deux mots
+   communs » était satisfaite d'office — les trois Feu Vert concordaient avec la fiche du
+   Carrefour. Un garde-fou qui valide tout à l'intérieur d'une ville est précisément inutile là
+   où on en a besoin.
+   Reste ensuite le nom de la voie, qui lui départage : « Grand Faubourg » ne ressemble pas à
+   « Marcel Proust ». On accepte un seul mot commun s'il est long (six lettres ou plus) : « 45
+   avenue d'Orléans » n'a qu'« orleans » à offrir, et c'est pourtant décisif. Les numéros de rue
+   ne comptent jamais — « 8 », « 45 », « 34B » font moins de quatre caractères et tombent avant.
+   Si deux candidats concordent malgré tout, on ne tranche pas : la proposition part « à
+   départager » et Didier choisit. */
+function adresseConcorde(fiche, google, ville) {
+  const hors = motsAdresse(ville || "");
+  const utile = function (l) {
+    return l.filter(function (w) { return hors.indexOf(w) === -1 && /[a-z]/.test(w); });
+  };
+  const a = utile(motsAdresse(fiche)), b = utile(motsAdresse(google));
   const communs = a.filter(function (w) { return b.indexOf(w) !== -1; });
-  const lettres = communs.filter(function (w) { return /[a-z]/.test(w); });
-  return communs.length >= 2 && lettres.length >= 1;
+  return communs.length >= 2 || communs.some(function (w) { return w.length >= 6; });
 }
+/* ═══ LE SERVEUR PROPOSE, DIDIER VALIDE — 31/08/2026 ═══════════════════════════════════════
+   Ce qui a précédé, et pourquoi on change de principe. Le rattrapage accrochait tout seul un
+   établissement Google à chaque fiche. Deux garde-fous ont été ajoutés coup sur coup — la
+   ville, puis l'adresse — et à chaque fois les vraies données ont trouvé le trou suivant :
+     · cinq fiches « Feu Vert » de Chartres sur un seul magasin, dont deux qui sont ailleurs ;
+     · une fiche d'essai, « Fournil Test Verrou », créditée de 2 473 avis.
+   Le défaut n'est pas dans le réglage : un NOM dans un fichier prospects ne suffit pas à
+   désigner un ÉTABLISSEMENT, et aucune règle automatique ne le rendra suffisant. Or SENTINELLE
+   ne vaut que par une chose : ne jamais afficher un chiffre mesuré dont on n'est pas sûr. Une
+   courbe fausse et crédible est pire qu'une absence de courbe.
 
-/* ⚠️ ON DIT POURQUOI ON A REFUSÉ. Premier essai : la fonction renvoyait `null` dans les cinq cas
-   d'échec, et la base n'affichait que « (rien trouvé) » huit fois de suite. Huit refus muets
-   n'apprennent rien : impossible de distinguer une clé Google bloquée d'un nom introuvable ou
-   d'un garde-fou trop strict — c'était pourtant le garde-fou. Un échec qui ne dit pas sa cause
-   se diagnostique en modifiant le code, c'est-à-dire trop tard et trop cher. */
-async function rattraperPlaceId(c, gkey) {
+   Donc : on cherche, on montre ce qu'on a trouvé, et on n'accroche RIEN. La colonne
+   `place_propose` reçoit les candidats ; seul `place_id`, écrit par Didier, fait foi. La
+   re-mesure ne lit que `place_id` — elle ignore les propositions par construction.
+
+   ⚠️ ET ON DIT QUAND ON EST SÛR. Marquer « sûr » seulement quand un seul candidat concorde
+   évite de lui faire relire quatorze lignes évidentes pour en attraper trois douteuses : il
+   valide les sûres d'un coup, et ne lit vraiment que celles qui le méritent. */
+async function proposerPlaceId(c, gkey) {
   const q = encodeURIComponent(`${c.nom} ${c.ville || ""} ${c.adresse || ""}`.trim());
   const r = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${q}&language=fr&region=fr&key=${gkey}`);
-  if (!r.ok) return { motif: "reseau HTTP " + r.status };
+  if (!r.ok) return { sur: false, motif: "reseau HTTP " + r.status, candidats: [] };
   const d = await r.json();
   /* Le mot de Google est repris tel quel : REQUEST_DENIED, OVER_QUERY_LIMIT, ZERO_RESULTS…
      chacun désigne un réglage différent, et aucun ne contient de secret. */
-  if (!d || !Array.isArray(d.results) || !d.results.length) return { motif: "Google : " + ((d && d.status) || "sans reponse") };
-  const p = pickCanonical(d.results, c.nom);
-  if (!p || !p.place_id) return { motif: "aucun etablissement retenu" };
-  /* LA VILLE DOIT S'Y RETROUVER. Sans cette ligne, une fiche dont la ville est vide ou mal
-     orthographiée accrocherait le premier résultat venu — c'est-à-dire le plus populaire du
-     pays portant ce nom. */
-  const ville = villeNue(c.ville);
-  const adr = norm(p.formatted_address || "");
-  if (ville && adr.indexOf(ville) === -1) {
-    return { motif: "ville absente de l adresse Google : " + (p.formatted_address || "?") };
+  if (!d || !Array.isArray(d.results) || !d.results.length) {
+    return { sur: false, motif: "Google : " + ((d && d.status) || "sans reponse"), candidats: [] };
   }
-  /* L'ADRESSE DE LA FICHE DÉPARTAGE LES ÉTABLISSEMENTS D'UNE MÊME VILLE. */
-  if (c.adresse && !adresseConcorde(c.adresse, p.formatted_address)) {
-    return { motif: "adresse differente — fiche : " + String(c.adresse).slice(0, 60)
-                  + " / Google : " + String(p.formatted_address || "?").slice(0, 60) };
+
+  const qn = norm(c.nom), ville = villeNue(c.ville);
+  const memeNom = d.results.filter(function (x) {
+    const n = norm(x.name || "");
+    return n && qn && (n.indexOf(qn) !== -1 || qn.indexOf(n) !== -1);
+  });
+  /* La ville reste un filtre DUR : elle écarte les homonymes d'un autre département, que rien
+     dans la suite ne pourrait rattraper. Ce n'est pas elle qui a échoué à Chartres — les trois
+     magasins y sont bel et bien. */
+  const pool = (memeNom.length ? memeNom : d.results).filter(function (x) {
+    return !ville || norm(x.formatted_address || "").indexOf(ville) !== -1;
+  });
+  if (!pool.length) return { sur: false, motif: "aucun etablissement de ce nom dans cette ville", candidats: [] };
+
+  const cands = pool.map(function (x) {
+    return {
+      place_id: x.place_id, nom: x.name || null, adresse: x.formatted_address || null,
+      avis: x.user_ratings_total || 0,
+      /* null (et non false) quand la fiche n'a pas d'adresse : « on n'a pas pu vérifier » n'est
+         pas « ça ne correspond pas ». La différence change la décision qu'on propose. */
+      concorde: c.adresse ? adresseConcorde(c.adresse, x.formatted_address, c.ville) : null
+    };
+  }).sort(function (a, b) {
+    return (b.concorde === true) - (a.concorde === true) || b.avis - a.avis;
+  }).slice(0, 3);
+
+  const concordants = cands.filter(function (x) { return x.concorde === true; });
+  let sur = false, motif = null;
+  if (c.adresse) {
+    if (concordants.length === 1) { sur = true; }
+    else if (concordants.length === 0) { motif = "aucun candidat ne porte votre adresse"; }
+    else { motif = concordants.length + " candidats portent une adresse proche — a departager"; }
+  } else if (pool.length === 1) {
+    sur = true;
+    motif = "fiche sans adresse, mais un seul etablissement de ce nom dans la ville";
+  } else {
+    motif = "fiche sans adresse et " + pool.length + " etablissements de ce nom dans la ville";
   }
-  /* ⚠️ SANS ADRESSE DANS LA FICHE, ON N'ACCROCHE QUE S'IL N'Y A QU'UN SEUL CANDIDAT. C'est le
-     cas de la fiche 11 (« Feu Vert Chartres », aucune adresse) : trois magasins portent ce nom
-     dans cette ville, et rien ne permet de choisir. Retenir le plus commenté serait une
-     supposition déguisée en mesure. On préfère le dire. */
-  if (!c.adresse) {
-    const q2 = norm(c.nom);
-    const homonymes = d.results.filter(function (x) {
-      const n2 = norm(x.name || "");
-      return n2 && q2 && (n2.indexOf(q2) !== -1 || q2.indexOf(n2) !== -1);
-    });
-    if (homonymes.length > 1) {
-      return { motif: "fiche sans adresse et " + homonymes.length + " etablissements de ce nom dans la ville" };
-    }
-  }
-  return { place_id: p.place_id, nom: p.name || null, adresse: p.formatted_address || null };
+  return { sur: sur, motif: motif, candidats: sur ? [concordants[0] || cands[0]] : cands };
 }
 
 async function remesureMensuelle() {
@@ -973,42 +987,34 @@ async function remesureMensuelle() {
   catch (e) { return { ok: false, error: String(e).slice(0, 160) }; }
   if (!Array.isArray(liste)) liste = [];
 
-  /* ═══ LE TEMPS QUI RESTE SERT À RÉPARER LE FICHIER ════════════════════════════════════════
-     Les places non utilisées du tour vont au rattrapage des `place_id` manquants. Un fichier
-     qui se répare tout seul ne demande jamais qu'on pense à lancer quelque chose — et c'est
-     exactement ce qu'on oublie de faire. */
-  let rattrapes = 0;
+  /* ═══ LE TEMPS QUI RESTE SERT À PRÉPARER LE TRAVAIL DE DIDIER ════════════════════════════
+     Les places non utilisées du tour cherchent les établissements des fiches qui n'en ont pas
+     encore — et se contentent de PROPOSER. Rien n'est accroché ici : seule une validation
+     humaine écrit `place_id`, et la re-mesure ne lit que `place_id`. */
+  let proposes = 0;
   const libres = RE_PAR_TOUR - liste.length;
   if (libres > 0) {
     try {
       const sans = await rpc("sentinelle_sans_place", { p_max: libres });
       if (Array.isArray(sans) && sans.length) {
         const trouves = await Promise.all(sans.map(async (c) => {
-          try { return { id: c.id, t: (await rattraperPlaceId(c, gkey)) || { motif: "sans reponse" } }; }
-          catch (e) { return { id: c.id, t: { motif: String(e).slice(0, 90) } }; }
+          try { return { id: c.id, p: (await proposerPlaceId(c, gkey)) || { sur: false, motif: "sans reponse", candidats: [] } }; }
+          catch (e) { return { id: c.id, p: { sur: false, motif: String(e).slice(0, 90), candidats: [] } }; }
         }));
-        /* ⚠️ ON REMONTE AUSSI LES ÉCHECS, AVEC LEUR CAUSE. Une fiche que Google ne sait pas
-           retrouver doit être HORODATÉE, sinon elle revient en tête de liste chaque nuit et
-           consomme un appel payant pour rien, indéfiniment ; et le MOTIF doit voyager avec,
-           sinon la base affiche huit « rien trouvé » identiques qui n'apprennent rien. */
+        /* ⚠️ ON ENREGISTRE AUSSI LES RECHERCHES SANS RÉSULTAT, AVEC LEUR CAUSE. Sans cela, une
+           fiche que Google ne sait pas retrouver revient en tête de liste chaque nuit et
+           consomme un appel payant pour rien, indéfiniment ; et sans le motif, la base affiche
+           des « rien trouvé » identiques qui n'apprennent rien. */
         for (const f of trouves) {
-          const ok = !!(f.t && f.t.place_id);
           try {
-            await rpc("sentinelle_place_poser", {
-              p_id: f.id,
-              p_place_id: ok ? f.t.place_id : null,
-              p_nom: ok ? f.t.nom : null,
-              p_adresse: ok ? f.t.adresse : null,
-              p_motif: ok ? null : ((f.t && f.t.motif) || "sans reponse")
-            });
-            if (ok) rattrapes++;
+            await rpc("sentinelle_place_proposer", { p_id: f.id, p_propose: f.p });
+            if (f.p && Array.isArray(f.p.candidats) && f.p.candidats.length) proposes++;
           } catch (_) {}
         }
       }
     } catch (_) {}
   }
-
-  if (!liste.length) return { ok: true, traitees: 0, rattrapes, rien: "aucune entreprise à remesurer" };
+  if (!liste.length) return { ok: true, traitees: 0, proposes, rien: "aucune entreprise à remesurer" };
 
   const jour = new Date().toISOString().slice(0, 10);
 
@@ -1063,7 +1069,7 @@ async function remesureMensuelle() {
     try { await rpc("sentinelle_mesure_poser", { p_place_id: p.place_id, p_point: p.point }); poses++; }
     catch (_) { echecs++; }
   }
-  return { ok: true, traitees: liste.length, poses, echecs, rattrapes, jour };
+  return { ok: true, traitees: liste.length, poses, echecs, proposes, jour };
 }
 
 export default async function handler(req, res) {

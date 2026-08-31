@@ -122,27 +122,27 @@ begin
 end $function$;
 
 
--- ── 3 bis. LE RATTRAPAGE DES IDENTIFIANTS GOOGLE MANQUANTS ──────────────────────────────────
--- Mesuré dans la vraie base le 31/08/2026 : 3 fiches sur 17 portent un `place_id`. Les 14
--- autres datent d'avant qu'on l'enregistre, et sans lui la re-mesure ne peut rien faire.
+-- ── 3 bis. LE SERVEUR PROPOSE, DIDIER VALIDE ────────────────────────────────────────────────
+-- Ce qui a précédé, et pourquoi on change de principe (31/08/2026). Le rattrapage accrochait
+-- tout seul un établissement Google à chaque fiche. Deux garde-fous ont été ajoutés coup sur
+-- coup — la ville, puis l'adresse — et à chaque fois les vraies données ont trouvé le trou
+-- suivant : cinq fiches « Feu Vert » de Chartres sur un seul magasin dont deux sont ailleurs,
+-- et une fiche d'essai créditée de 2 473 avis.
+-- Le défaut n'est pas dans le réglage : un NOM dans un fichier prospects ne suffit pas à
+-- désigner un ÉTABLISSEMENT. Or SENTINELLE ne vaut que par une chose — ne jamais afficher un
+-- chiffre mesuré dont on n'est pas sûr. Une courbe fausse et crédible est pire qu'une absence
+-- de courbe.
 --
--- ⚠️ L'IDENTIFIANT VA DANS SA PROPRE COLONNE, PAS DANS `fiche`. Même règle que les relevés : la
---    fiche reste ce qu'elle était le jour où elle a été payée. `sentinelle_a_remesurer` lit donc
---    les deux endroits, la colonne d'abord.
--- ⚠️ ET ON GARDE CE QUE GOOGLE A RÉPONDU. Le nom et l'adresse retenus sont enregistrés à côté :
---    si la recherche est tombée sur un homonyme, l'erreur se voit en une seconde au lieu de
---    produire des chiffres faux mais cohérents. C'est la leçon du 12/08 sur les avis Google.
+-- ⚠️ LA SÉPARATION QUI FAIT TOUT : `place_propose` est ce que la machine a trouvé, `place_id`
+--    est ce que Didier a validé. La re-mesure ne lit QUE `place_id`. Une proposition ne peut
+--    donc jamais produire un relevé, quelle que soit la suite du code.
 alter table public.sentinelles add column if not exists place_id      text;
 alter table public.sentinelles add column if not exists place_nom     text;
 alter table public.sentinelles add column if not exists place_adresse text;
 alter table public.sentinelles add column if not exists place_le      timestamptz;
--- ⚠️ LE MOTIF DE L'ÉCHEC (ajouté le 31/08/2026, APRÈS le premier essai en vrai). Les huit
---    premières fiches ont été refusées et la base affichait huit « rien trouvé » identiques :
---    impossible de distinguer une clé Google bloquée d'un nom introuvable ou d'un garde-fou
---    trop strict. C'était le garde-fou. Un échec muet se diagnostique en modifiant le code,
---    c'est-à-dire trop tard et trop cher.
-alter table public.sentinelles add column if not exists place_motif   text;
+alter table public.sentinelles add column if not exists place_propose jsonb;
 
+-- Les fiches sans établissement VALIDÉ, et pas encore proposées depuis 90 jours.
 create or replace function public.sentinelle_sans_place(p_max int default 8)
 returns jsonb language sql stable security definer set search_path to 'public' as $function$
   select coalesce(jsonb_agg(x), '[]'::jsonb) from (
@@ -150,56 +150,31 @@ returns jsonb language sql stable security definer set search_path to 'public' a
       from public.sentinelles s
      where s.place_id is null
        and s.fiche->'_auraCalc'->>'place_id' is null
-       -- Une fiche déjà cherchée SANS SUCCÈS ne sera pas rejouée tous les soirs : `place_le`
-       -- retient la tentative, même quand elle n'a rien donné.
+       -- `place_le` retient la DATE de la recherche, qu'elle ait abouti ou non : sans cela, une
+       -- fiche introuvable repartirait en tête de liste chaque nuit et brûlerait un appel
+       -- payant, indéfiniment, sans rien produire.
        and (s.place_le is null or s.place_le < now() - interval '90 days')
      order by s.maj_le desc
      limit greatest(1, least(p_max, 25))
   ) t;
 $function$;
 
-create or replace function public.sentinelle_place_poser(p_id bigint, p_place_id text,
-                                                         p_nom text, p_adresse text,
-                                                         p_motif text default null)
+-- ⚠️ CETTE FONCTION N'ÉCRIT JAMAIS `place_id`. C'est sa raison d'être.
+drop function if exists public.sentinelle_place_poser(bigint, text, text, text);
+drop function if exists public.sentinelle_place_poser(bigint, text, text, text, text);
+create or replace function public.sentinelle_place_proposer(p_id bigint, p_propose jsonb)
 returns jsonb language plpgsql security definer set search_path to 'public' as $function$
 begin
-  /* ⚠️ UNE RECHERCHE INFRUCTUEUSE SE NOTE AUSSI. Sans cela, les fiches que Google ne sait pas
-     retrouver — un nom trop générique, un établissement disparu — repartiraient en tête de
-     liste CHAQUE NUIT et consommeraient un appel payant chacune, indéfiniment, sans jamais
-     rien produire. On horodate donc la tentative, et `sentinelle_sans_place` la met de côté
-     pour 90 jours. */
-  if coalesce(trim(p_place_id),'') = '' then
-    update public.sentinelles set place_le = now(), place_motif = p_motif where id = p_id;
-    return jsonb_build_object('ok', false, 'error', 'introuvable chez Google', 'tentative', true);
+  if p_propose is null or jsonb_typeof(p_propose) <> 'object' then
+    return jsonb_build_object('ok', false, 'error', 'proposition invalide');
   end if;
   update public.sentinelles
-     set place_id = p_place_id, place_nom = p_nom, place_adresse = p_adresse,
-         place_le = now(), place_motif = null
+     set place_propose = p_propose || jsonb_build_object('le', current_date::text),
+         place_le = now()
    where id = p_id;
   if not found then return jsonb_build_object('ok', false, 'error', 'fiche introuvable'); end if;
   return jsonb_build_object('ok', true);
 end $function$;
-
--- La sélection à remesurer lit maintenant les DEUX endroits, la colonne d'abord.
-create or replace function public.sentinelle_a_remesurer(p_max int default 8, p_jours int default 30)
-returns jsonb language sql stable security definer set search_path to 'public' as $function$
-  select coalesce(jsonb_agg(x), '[]'::jsonb) from (
-    select jsonb_build_object(
-             'id',       s.id,
-             'nom',      s.nom,
-             'place_id', coalesce(s.place_id, s.fiche->'_auraCalc'->>'place_id'),
-             'activite', coalesce(s.fiche->>'activite', s.fiche->>'secteur', s.fiche->>'archetype'),
-             'couleur',  s.fiche->'aura'->>'couleur',
-             'siren',    s.fiche->'_registre'->>'siren'
-           ) as x
-      from public.sentinelles s
-     where coalesce(s.place_id, s.fiche->'_auraCalc'->>'place_id') is not null
-       and (s.mesure_le is null or s.mesure_le < now() - make_interval(days => p_jours))
-       and s.maj_le < now() - make_interval(days => p_jours)
-     order by coalesce(s.mesure_le, s.maj_le) asc
-     limit greatest(1, least(p_max, 25))
-  ) t;
-$function$;
 
 -- ── 4. LA LECTURE : LA COURBE REÇOIT LES POINTS GRATUITS ────────────────────────────────────
 -- Corps repris à l'identique de docs/sentinelle-verrou.sql, avec DEUX ajouts et rien d'autre :
@@ -271,9 +246,9 @@ end $function$;
 -- un point de courbe.
 revoke all on function public.sentinelle_a_remesurer(int, int)          from public, anon, authenticated;
 revoke all on function public.sentinelle_sans_place(int)                from public, anon, authenticated;
-revoke all on function public.sentinelle_place_poser(bigint, text, text, text, text) from public, anon, authenticated;
+revoke all on function public.sentinelle_place_proposer(bigint, jsonb) from public, anon, authenticated;
 grant execute on function public.sentinelle_sans_place(int)             to service_role;
-grant execute on function public.sentinelle_place_poser(bigint, text, text, text, text) to service_role;
+grant execute on function public.sentinelle_place_proposer(bigint, jsonb) to service_role;
 revoke all on function public.sentinelle_mesure_poser(text, jsonb)    from public, anon, authenticated;
 grant execute on function public.sentinelle_a_remesurer(int, int)       to service_role;
 grant execute on function public.sentinelle_mesure_poser(text, jsonb) to service_role;
