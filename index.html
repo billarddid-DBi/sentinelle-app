@@ -3054,7 +3054,20 @@ async function run(payload){
            avait tapé, et l'identifiant Google était perdu. C'est de là que viennent les dix-sept
            fiches pour huit commerces. Un clic de plus vaut mieux qu'un fichier qu'on répare
            pendant une soirée. */
-        var list=await etabList(payload.text);
+        /* ⚠️ UN CHOIX DÉJÀ FAIT NE SE REDEMANDE PAS. Le formulaire « Nouvelle entreprise » ouvre
+           lui-même le sélecteur pour remplir l'adresse du dossier ; sans ce passage, la liste
+           se rouvrirait aussitôt derrière, et Didier cliquerait deux fois sur le même
+           établissement pour une seule analyse. */
+        var pre=window.__preChoix; window.__preChoix=null;
+        if(pre && pre.place_id){
+          window.__scanAdresse=pre.adresse||null;
+          window.__scanPlaceId=pre.place_id;
+          window.__scanNom=pre.nom||null;
+          payload.text=(pre.nom||payload.text)+(pre.adresse?', '+pre.adresse:'');
+        }
+        /* Aucune liste n'est demandée quand le choix est déjà fait : la garde est ici, en clair,
+           plutôt qu'une sortie de bloc qui masquerait au passage les vraies erreurs. */
+        var list=(pre && pre.place_id) ? [] : await etabList(payload.text);
         if(list.length){
           var choice=await etabChooser(payload.text, list, dup);
           if(choice===null) return;
@@ -4196,7 +4209,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 344';
+var IVE_VERSION='31/08 · 345';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -12769,18 +12782,19 @@ async function entreprisesView(){
       +'<div style="font-size:11.5px;color:#6b7280;margin:6px 0 10px;">Aucun compte n\'est créé pour elle. '
         +'C\'est un dossier d\'audit, il vit ici.</div>'
       +'<input id="entNom" placeholder="Nom de l\'entreprise *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
-      +'<div style="display:flex;gap:7px;flex-wrap:wrap;">'
-        +'<input id="entVille" placeholder="Ville *" style="flex:2;min-width:120px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
-        +'<input id="entCp" placeholder="Code postal" style="flex:1;min-width:90px;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
-      +'</div>'
-      +'<input id="entAdresse" placeholder="Adresse exacte *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
-      /* ⚠️ POURQUOI CES TROIS-LÀ SONT OBLIGATOIRES (Didier, 09/08/2026 : « tu mets un * sur nom
-         de l'entreprise, ville, adresse »). Ce ne sont pas trois champs d'état civil : c'est
-         EXACTEMENT la clé sur laquelle une fiche SENTINELLE est reconnue — `unique(nom_norm,
-         ville_norm, adresse_norm)`. Il en manque un, et le prochain scan crée une SECONDE fiche :
-         l'analyse déjà payée devient invisible. Le piège est déjà tombé une fois. */
-      +'<div class="hint" style="margin:-2px 0 7px;">Nom, ville et adresse identifient l\'établissement. '
-        +'S\'il en manque un, un nouveau scan risque de créer une <b>seconde fiche</b>.</div>'
+      +'<input id="entVille" placeholder="Ville *" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;margin-bottom:7px;">'
+      /* ⚠️ L'ADRESSE ET LE CODE POSTAL NE SE SAISISSENT PLUS (31/08/2026). Didier :
+         « on garde uniquement le champ nom de l'entreprise et le champ de la ville, et toi tu
+         proposes la liste sur laquelle on clique. »
+         Ils étaient obligatoires pour une bonne raison — la fiche est reconnue sur
+         `unique(nom_norm, ville_norm, adresse_norm)`, et une adresse manquante créait une
+         seconde fiche. Mais une adresse TAPÉE À LA MAIN ne correspond presque jamais, mot pour
+         mot, à celle de Google : « Parking CC Carrefour » contre « Parking Carrefour ». C'est
+         ainsi qu'on s'est retrouvé avec dix-sept fiches pour huit commerces.
+         Elle vient donc de l'établissement choisi dans la liste — écrite par Google, identique
+         à celle qui servira ensuite de clé. Le code postal en est extrait. */
+      +'<div class="hint" style="margin:-2px 0 7px;">L\'adresse exacte n\'est plus à saisir : '
+        +'elle vient de l\'établissement que vous choisirez dans la liste Google, à l\'identique.</div>'
       +'<input id="entEmail" type="email" placeholder="Email du dirigeant" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid #d7dbe3;border-radius:9px;font-family:inherit;font-size:13px;">'
       /* ⚠️ ON DIT À QUOI SERT CET EMAIL, SINON IL SERA RENSEIGNÉ AVEC UN contact@ — et le pont
          vers l'app du dirigeant ne trouvera jamais le compte correspondant. */
@@ -12794,29 +12808,50 @@ async function entreprisesView(){
     +'</div></div>';
   window.scrollTo(0,0);
 }
+/* ═══ CRÉER UN DOSSIER : NOM + VILLE, PUIS ON CHOISIT L'ÉTABLISSEMENT ══════════════════════
+   L'adresse ne se tape plus : elle vient de Google, à l'identique de celle qui servira de clé.
+   Une adresse saisie à la main ne correspond presque jamais mot pour mot à la sienne
+   (« Parking CC Carrefour » contre « Parking Carrefour »), et c'est ce décalage qui a produit
+   dix-sept fiches pour huit commerces. */
 async function entCreer(){
   var val=function(id){ var e=$(id); return e?String(e.value||'').trim():''; };
-  var nom=val('entNom'), ville=val('entVille'), adresse=val('entAdresse'), msg=$('entMsg');
+  var nom=val('entNom'), ville=val('entVille'), msg=$('entMsg');
   var dire=function(txt, couleur){ if(msg){ msg.style.color=couleur; msg.textContent=txt; } };
   /* ⚠️ ON NOMME CE QUI MANQUE, ET POURQUOI. « Champs obligatoires » laisse chercher lequel ; et
-     sans la raison, on remplit n'importe quoi pour passer — ce qui produit le doublon qu'on
-     voulait empêcher. */
+     sans la raison, on remplit n'importe quoi pour passer. */
   var manque=[];
   if(!nom) manque.push('le nom');
   if(!ville) manque.push('la ville');
-  if(!adresse) manque.push('l\'adresse');
   if(manque.length){
-    dire('Il manque '+manque.join(', ')+'. Ces trois-là identifient l\'établissement : '
-        +'sans eux, un nouveau scan créerait une seconde fiche.','#b91c1c');
+    dire('Il manque '+manque.join(' et ')+'. La ville est indispensable : sans elle, Google '
+        +'remonte l\'établissement le plus connu de France portant ce nom.','#b91c1c');
     return;
   }
+
+  dire('Recherche de l\'établissement chez Google…','#6b7280');
+  var q=nom+', '+ville;
+  var list=[];
+  try{ await window.sbReady; list=await etabList(q); }catch(e){}
+  if(!list.length){
+    /* ⚠️ ON NE CRÉE PAS UN DOSSIER SANS ADRESSE « EN ATTENDANT ». C'est exactement l'orpheline
+       qu'on a passé la soirée à éliminer : elle s'affiche, elle paraît normale, et le prochain
+       scan en fabrique une seconde. Mieux vaut dire non tout de suite. */
+    dire('Aucun établissement trouvé chez Google pour « '+q+' ». Vérifiez l\'orthographe du nom '
+        +'ou de la ville — sans établissement, la fiche n\'aurait pas d\'adresse fiable.','#b45309');
+    return;
+  }
+
+  var choix=await etabChooser(q, list, {found:false});
+  if(!choix || !choix.place_id){ dire('','#6b7280'); return; }
+
+  var adresse=choix.adresse||'';
+  var cp=(adresse.match(/\b(\d{5})\b/)||[])[1]||null;
   dire('Création…','#6b7280');
   try{
-    await window.sbReady;
     /* `slug` reste vide : la colonne est unique, et deux dossiers créés à la main finiraient par
        se heurter. PostgreSQL accepte autant de valeurs nulles qu'on veut dans un index unique. */
     var r=await window.sb.from('entreprises').insert({
-      nom:nom, ville:ville, code_postal:val('entCp')||null,
+      nom:(choix.nom||nom), ville:ville, code_postal:cp,
       adresse:adresse, email:val('entEmail').toLowerCase()||null
     }).select('id,nom,ville').single();
     if(r.error){
@@ -12831,6 +12866,9 @@ async function entCreer(){
       else dire('Création refusée : '+m,'#b91c1c');
       return;
     }
+    /* ⚠️ LE CHOIX VOYAGE JUSQU'À L'ANALYSE. Sans cela, le scan qui suit rouvrirait la même liste
+       et Didier cliquerait deux fois sur le même établissement pour une seule analyse. */
+    window.__preChoix={ nom:(choix.nom||nom), ville:ville, adresse:adresse, place_id:choix.place_id };
     /* On crée, on ouvre, ET on enchaîne sur le scan : c'est pour ça qu'on crée un dossier. */
     entTravailPoser(r.data.id, r.data.nom, r.data.ville, 'scan', adresse);
   }catch(e){ dire('La base n\'a pas répondu. Rien n\'a été créé.','#b91c1c'); }
