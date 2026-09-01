@@ -4265,7 +4265,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 350';
+var IVE_VERSION='31/08 · 352';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6474,7 +6474,7 @@ var concStore={
    remplacée par concKwGarder() — silencieuse, appelée depuis runConcurrence. */
 function concActionsHtml(){
   var q=concQuand();
-  return '<button class="btn btn-primary" onclick="jetLancer(JETONS_COUT.concurrence,function(){runConcurrence()},\'concurrence\')"><i class="ti ti-search"></i> Chercher les 8 concurrents les plus proches</button>'
+  return '<button class="btn btn-primary" onclick="jetLancer(JETONS_COUT.concurrence,function(){runConcurrence()},\'concurrence\')"><i class="ti ti-search"></i> Chercher les concurrents les plus proches</button>'
     +'<div id="cKwMsg" style="font-size:11.5px;margin-top:7px;"></div>'
     // Une date, rien de plus : ce qui est enregistré et depuis quand se lit en un coup d'œil.
     +(q?('<div style="font-size:11px;color:#6b7280;margin-top:6px;"><i class="ti ti-device-floppy" style="color:#15803d;"></i> Date de la sauvegarde : <b>'+q+'</b></div>'):'');
@@ -6553,14 +6553,38 @@ function renderConcu(d){
      entreprises qui font la même chose que lui, pas celle qui porte ce nom. Un mot de trop et la
      recherche ne peut rien trouver. « Essayez un autre mot-clé » ne le disait pas. */
   if(!d.concurrents||!d.concurrents.length){
+    /* ⚠️ « ESSAYEZ UN RAYON PLUS GRAND » RENVOYAIT À UN RÉGLAGE QUI N'EXISTE PAS. Didier,
+       31/08/2026 : « c'est quoi le rayon des recherches ? » Il n'y en a pas à régler : le
+       serveur pose `rad = 40` en dur, et ce n'est même pas un filtre — c'est un BIAIS donné à
+       Google (« cherche plutôt par ici »). L'application garde ensuite les 8 plus proches, à
+       quelque distance qu'elles soient. Un message qui envoie chercher un bouton absent fait
+       perdre plus de temps qu'un message muet.
+       La vraie cause d'un résultat vide est presque toujours le MOT-CLÉ : deux mots précis ne
+       remontent rien, un mot large remonte des voisins. C'est donc cela qu'on dit. */
+    /* ⚠️ ON NE DEVINE PAS LEQUEL DE SES MOTS EST LE MÉTIER. Première version : je proposais le
+       DERNIER mot. Le banc a essayé « reference pare brise augny » — le dernier mot est la
+       VILLE, c'est-à-dire précisément ce qu'il ne faut pas chercher. Le plus long ne vaut pas
+       mieux : ce serait « reference ». Une suggestion fausse est pire qu'aucune suggestion, car
+       elle coûte 4 jetons pour rien.
+       Donc : à deux mots, on les propose TOUS LES DEUX et il choisit. Au-delà, on ne propose
+       aucun mot — on énonce la règle. */
     var mots=String(d.keyword||'').trim().split(/\s+/).filter(Boolean);
+    var lesDeux=(mots.length===2)
+      ? ('<b>« '+esc(mots[0].toLowerCase())+' »</b> ou <b>« '+esc(mots[1].toLowerCase())+' »</b>, un seul à la fois')
+      : '';
     out.innerHTML='<div class="sec" style="font-size:13px;color:#6b7280;">'
-      +'<b style="color:#1C1C1C;">Aucun concurrent'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' dans ce rayon.</b>'
+      +'<b style="color:#1C1C1C;">Aucune entreprise trouvée'+(d.keyword?' pour « '+esc(d.keyword)+' »':'')+' autour de vous.</b>'
       +(mots.length>2
         ? '<div style="margin-top:6px;color:#b45309;"><i class="ti ti-bulb"></i> Le mot-clé est le <b>métier</b>, '
           +'pas le nom de l\'entreprise ni sa ville — on cherche ceux qui font la MÊME CHOSE qu\'elle. '
-          +'Essayez <b>« pare-brise »</b> seul.</div>'
-        : '<div style="margin-top:6px;">Essayez un mot plus courant, ou un rayon plus grand.</div>')
+          +'Essayez <b>un seul mot</b>, celui du métier.</div>'
+        : (lesDeux
+          ? '<div style="margin-top:6px;">Deux mots, c\'est souvent un de trop. Essayez '+lesDeux+'.</div>'
+          : '<div style="margin-top:6px;">Essayez le mot que vos clients emploieraient pour vous chercher.</div>'))
+      /* On dit comment la recherche fonctionne : sans cela, le dirigeant cherche un réglage. */
+      +'<div style="margin-top:8px;font-size:11.5px;color:#9ca3af;line-height:1.5;">'
+        +'La recherche prend les <b>8 entreprises les plus proches</b> dont le nom ou l\'activité contient ce mot. '
+        +'Il n\'y a pas de rayon à régler&nbsp;: s\'il n\'y en a que trois, on en montre trois.</div>'
     +'</div>';
     return;
   }
@@ -6596,7 +6620,19 @@ function renderConcu(d){
      une recherche faite, plus moyen de changer de mot-clé. L'écran de la BOUSSOLE, lui, n'a
      jamais masqué ce champ — les deux se comportent maintenant pareil. */
   var mapSec='<div class="sec" style="padding-top:0;"><div id="cMap" style="position:relative;z-index:0;isolation:isolate;height:280px;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;"></div><div style="font-size:10.5px;color:#9ca3af;margin-top:6px;text-align:center;"><span style="color:#E8541A;font-size:12px;">●</span> vous · <span style="color:#EAB308;font-size:12px;">●</span> concurrents'+(d.keyword?' « '+esc(d.keyword)+' »':'')+' — 8 plus proches</div></div>';
-  var tableSec='<div class="sec" style="overflow-x:auto;"><div style="font-size:11.5px;color:#6b7280;font-weight:600;margin-bottom:8px;"><i class="ti ti-map-pin" style="color:#E8541A;"></i> Votre entreprise en 1re ligne, puis les concurrents <b>du plus proche au plus loin</b> (par distance).</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table><div class="hint"><b>IVE</b> = indices calculés sur les mêmes bases (note + nombre d\'avis Google + site web).</div></div>';
+  /* ⚠️ LA DISTANCE ÉTAIT CALCULÉE MAIS JAMAIS ANNONCÉE. Didier, 31/08/2026 : « c'est quoi le
+     rayon des recherches ? » Il n'y en a pas — l'application garde les 8 plus proches, quelle
+     que soit leur distance. Tant qu'on ne la dit pas, le dirigeant imagine un rayon et se
+     demande comment le régler. L'écart réel répond à la question sans ajouter de bouton. */
+  var _dk=d.concurrents.map(function(c){ return c.distance; }).filter(function(x){ return x!=null; });
+  var _porte='';
+  if(_dk.length){
+    var _dmin=Math.min.apply(null,_dk), _dmax=Math.max.apply(null,_dk);
+    var _km=function(x){ return String(Math.round(x*10)/10).replace('.',',')+' km'; };
+    _porte=' — '+d.concurrents.length+(d.concurrents.length>1?' entreprises trouvées, ':' entreprise trouvée, ')
+          +(_dmin===_dmax? ('à '+_km(_dmin)) : ('entre '+_km(_dmin)+' et '+_km(_dmax)))+' de chez vous';
+  }
+  var tableSec='<div class="sec" style="overflow-x:auto;"><div style="font-size:11.5px;color:#6b7280;font-weight:600;margin-bottom:8px;"><i class="ti ti-map-pin" style="color:#E8541A;"></i> Votre entreprise en 1re ligne, puis les concurrents <b>du plus proche au plus loin</b>'+_porte+'.</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1C1C1C;color:#fff;"><th style="text-align:left;padding:6px 8px;">Entreprise</th><th style="padding:6px 8px;">Avis</th><th style="padding:6px 8px;">Présence</th><th style="padding:6px 8px;">IVE</th></tr></thead><tbody>'+rows+'</tbody></table><div class="hint"><b>IVE</b> = indices calculés sur les mêmes bases (note + nombre d\'avis Google + site web).</div></div>';
   /* Le lien « Nouvelle recherche » du bas est retiré (Didier, 01/08) : le bouton « Relancer ·
      4 jetons », en haut de l'encadré, fait déjà repartir une recherche — et lui, il annonce ce
      que ça coûte. Celui du bas rouvrait le champ sans rien dire du prix. */
