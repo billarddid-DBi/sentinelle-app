@@ -4258,14 +4258,14 @@ function iveTuilesHtml(d){
     /* La phrase que l'astérisque ne disait pas. Lisible, présente sur téléphone, et placée là où
        on la lit : juste sous les chiffres qu'elle concerne. */
     +'<div style="font-size:10.5px;color:#6b7280;line-height:1.45;margin-top:7px;padding:0 2px;">'
-      +'<b>Les deux premiers chiffres sont lus sur votre fiche Google</b> — vous pouvez les vérifier tout de suite. '
-      +'Les trois <b>repères calculés</b> viennent tous du même calcul : votre note, votre nombre d\'avis, la présence d\'un site. Ils situent votre image d\'ensemble&nbsp;; aucun ne mesure son sujet à lui seul.'
+      +'<b>Les deux premiers chiffres sont lus sur votre fiche Google.</b> Vous pouvez les vérifier tout de suite.<br>'
+      +'<b>Les trois suivants n\'ont pas été mesurés séparément.</b> Ils sont recalculés à partir de votre note et de vos avis&nbsp;: ils disent où regarder, pas ce qui ne va pas.'
     +'</div>';
 }
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 349';
+var IVE_VERSION='31/08 · 350';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5092,7 +5092,7 @@ function chaineConsultant(d, v){
                 visibilite:'Se faire trouver : là où il y a le plus à gagner'};
     ch.push({poids:4, titre:TITRES[bas.cle],
       fait:'C\'est le point le plus bas de vos cinq indicateurs : '+bas.val+' sur 100.',
-      source:'Vos cinq indicateurs viennent d\'un même calcul — votre note globale, le nombre d\'avis, la présence d\'un site. Celui-ci n\'est donc pas mesuré à part : il situe, il ne prouve rien.',
+      source:'Ce chiffre ne vient pas d\'un examen de votre communication. C\'est votre note générale, recalculée autrement. Il dit où regarder, pas ce qui ne va pas.',
       implique:'C\'est l\'indicateur qui laisse le plus de marge : un progrès s\'y verra plus vite qu\'ailleurs.',
       hypothese:'C\'est peut-être voulu, peut-être un sujet que personne n\'a jamais eu le temps de traiter.',
       question:'Comment décririez-vous votre métier en une phrase ? Et qui a écrit vos pages ?',

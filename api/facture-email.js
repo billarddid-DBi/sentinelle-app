@@ -236,7 +236,7 @@ function sentinelleHtml(s) {
          jamais compté les retours positifs : le calcul était note / 5 x 100 - 6, et la tuile
          faisait doublon avec RÉPUTATION. C'est le seul de ces défauts qui QUITTAIT
          l'application — il partait dans la boîte mail du dirigeant. -->
-    <div style="font-size:10px;color:#6b7280;padding:6px 4px 0;line-height:1.45;">Les deux premiers chiffres sont <b>lus sur votre fiche Google</b>. Visibilité, Positionnement et Confiance sont des <b>repères calculés</b> à partir de votre note, de votre nombre d'avis et de la présence d'un site : ils situent votre image d'ensemble, aucun ne mesure son sujet à lui seul.</div>
+    <div style="font-size:10px;color:#6b7280;padding:6px 4px 0;line-height:1.45;"><b>Les deux premiers chiffres sont lus sur votre fiche Google.</b> Vous pouvez les vérifier tout de suite.<br><b>Les trois suivants n'ont pas été mesurés séparément.</b> Ils sont recalculés à partir de votre note et de vos avis : ils disent où regarder, pas ce qui ne va pas.</div>
   </td></tr>
 
   <tr><td style="padding:10px 24px 6px;">
