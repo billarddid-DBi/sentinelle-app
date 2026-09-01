@@ -489,8 +489,16 @@ function bGrilleSortieOk(){
     +'Quitter quand même ?'
   );
 }
+/* ⚠️ LA LISTE DES ÉCRANS N'EXISTE QU'ICI. Elle était recopiée à quatre endroits, et c'est le
+   seul qui l'avait oubliée qui a produit le défaut : quand une analyse RÉUSSIT, le code ne
+   masquait que le formulaire — l'écran précédent restait donc affiché AU-DESSUS du résultat.
+   Didier, 31/08/2026 : « supprime toute cette première partie de SENTINELLE, elle est en
+   double. » Elle ne l'était pas : c'était l'écran d'avant, resté là.
+   L'échec, lui, masquait bien tout — d'où un défaut visible seulement quand tout allait bien. */
+var IVE_ECRANS=['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'];
+function masquerEcrans(){ IVE_ECRANS.forEach(function(id){ var el=$(id); if(el) el.style.display='none'; }); }
 function showView(v){
-  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
+  IVE_ECRANS.forEach(id=>{ var el=$(id); if(el) el.style.display=(id===v)?'block':'none'; });
   var hero=$('hero'); if(hero) hero.style.display=(v==='form'||v==='auth')?'block':'none';
   var hp=$('histPanel'); if(hp&&v!=='form') hp.remove();
   renderTabbar(v);
@@ -2992,7 +3000,7 @@ function showArchived(g){
   // Dirigeant : son espace (cockpit) est LA vue de référence — jamais la fiche brute.
   if(window.selfServe){ dirigeantSpace(); return; }
   // Consultant : vue complète de la fiche
-  ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(function(id){ var el=$(id); if(el) el.style.display='none'; });
+  masquerEcrans();
   var _cf=$('capfab'); if(_cf) _cf.className='';   // le bouton "Que pouvez-vous nous dire…" reste sur l'accueil, pas sur la fiche
   $('err').style.display='none';
   $('loading').style.display='none';
@@ -3116,7 +3124,10 @@ async function run(payload){
   window.__lastScanPayload=payload;   // pour le bouton « Réessayer »
   $('err').style.display='none';
   $('result').innerHTML='';
-  $('form').style.display='none';
+  /* ⚠️ ON MASQUE TOUS LES ÉCRANS, PAS SEULEMENT LE FORMULAIRE. Sinon celui d'où l'on vient
+     — l'aperçu SENTINELLE, l'accueil du consultant — reste affiché au-dessus du résultat, et
+     la fiche paraît écrite deux fois. */
+  masquerEcrans();
   $('loading').style.display='block';
   const msgs=['Enquête publique en cours…','Lecture des sources officielles…','Analyse des avis et de la concurrence…','Choix de l\'archétype et de la posture…','Montage de la carte…'];
   let i=0; const t=setInterval(()=>{ $('loadmsg').textContent=msgs[i%msgs.length]; i++; },2200);
@@ -3149,7 +3160,7 @@ function showErr(m,d){
 function scanFail(title,msg){
   $('loading').style.display='none';
   if(window.selfServe){
-    ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante'].forEach(function(id){ var el=$(id); if(el) el.style.display='none'; });
+    masquerEcrans();
     $('err').style.display='none';
     $('result').style.display='block';
     $('result').innerHTML='<div class="card" style="text-align:center;padding:30px 22px;"><div style="width:60px;height:60px;border-radius:50%;background:#fff0e8;display:inline-flex;align-items:center;justify-content:center;margin:0 auto;"><i class="ti ti-clock-exclamation" style="font-size:30px;color:#E8541A;"></i></div><div style="font-size:15px;font-weight:700;margin-top:12px;color:#1C1C1C;">'+esc(title)+'</div><div style="font-size:12.5px;color:#6b7280;margin-top:6px;line-height:1.5;">'+esc(msg)+'</div><button type="button" onclick="run(window.__lastScanPayload)" style="margin-top:16px;border:none;background:#E8541A;color:#fff;border-radius:12px;padding:13px 26px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Réessayer l\'analyse</button><div style="margin-top:10px;"><button type="button" onclick="dirigeantSpace()" style="background:none;border:none;color:#9ca3af;font-size:12px;cursor:pointer;font-family:inherit;">Retour à mon espace</button></div></div>';
@@ -4225,7 +4236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 346';
+var IVE_VERSION='31/08 · 347';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -8145,8 +8156,7 @@ function repJeton(){
   try{ return (new URLSearchParams(location.search)).get('rep')||''; }catch(e){ return ''; }
 }
 function repVue(html){
-  try{ ['home','form','bChoice','bGrille','miroir','ahView','frView','cockpit','compare','dirigeant','auth','soir','journal','vivante']
-        .forEach(function(id){ var e=$(id); if(e) e.style.display='none'; }); }catch(e){}
+  try{ masquerEcrans(); }catch(e){}
   var h=$('repView');
   if(!h){ h=document.createElement('div'); h.id='repView'; (document.querySelector('.wrap')||document.body).appendChild(h); }
   h.style.display='block'; h.innerHTML=html; window.scrollTo(0,0);
