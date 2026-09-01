@@ -2795,12 +2795,28 @@ function etabChooser(q, list, dup){
         +'<div style="flex:1;"><b>'+esc(x.nom)+'</b><br><span style="font-size:11.5px;color:#6b7280;">'+esc(x.adresse)+'</span></div>'
         +'<i class="ti ti-chevron-right" style="color:#cbd5e1;"></i></button>';
     }).join('') : '<div style="padding:12px 4px;color:#6b7280;font-size:12.5px;">Aucun établissement trouvé automatiquement — utilisez « Autre adresse ».</div>';
-    var titre=list.length>1
-      ? list.length+' établissements trouvés — choisissez le vôtre'
-      : 'Cette enseigne a déjà été diagnostiquée';
+    /* ⚠️ LE TITRE DIT CE QUI EST VRAI, IL NE LE DÉDUIT PAS DE LA TAILLE DE LA LISTE.
+       Didier, 31/08/2026 : « comme tu as tout nettoyé, pourquoi il me dit que l'entreprise
+       existe ? » Elle n'existait pas : la ligne n'était pas surlignée, seul le TITRE mentait.
+       Ce panneau ne s'ouvrait autrefois que dans deux cas — plusieurs établissements, ou une
+       enseigne déjà diagnostiquée — et le titre en tirait sa conclusion : « un seul résultat »
+       ne pouvait vouloir dire que « déjà diagnostiquée ». En le faisant s'ouvrir TOUJOURS
+       (le même soir), ce raccourci est devenu faux sans que personne ne touche au texte.
+       Un écran qui annonce un doublon inexistant est pire qu'un écran muet : il fait renoncer
+       à une analyse qu'on avait le droit de lancer. */
+    var dejaVues=list.filter(function(x){ return x && x.pris; }).length;
+    var titre = dejaVues
+      ? (dejaVues>1 ? dejaVues+' de ces établissements ont déjà été diagnostiqués'
+                    : 'Cet établissement a déjà été diagnostiqué')
+      : (list.length>1 ? list.length+' établissements trouvés — choisissez le vôtre'
+                       : 'Confirmez l\'établissement');
     ov.innerHTML='<div style="background:#fff;width:100%;max-width:720px;border-radius:18px 18px 0 0;padding:16px 16px 20px;max-height:82vh;overflow:auto;">'
       +'<div style="font-size:14px;font-weight:700;color:#1C1C1C;"><i class="ti ti-buildings" style="color:#E8541A;"></i> '+titre+'</div>'
-      +'<div style="font-size:12px;color:#6b7280;margin-top:3px;">Les établissements <span style="color:#E8541A;font-weight:700;">surlignés</span> ont déjà été étudiés par SENTINELLE.</div>'
+      /* La phrase sur le surlignage n'a de sens que s'il y a quelque chose de surligné. Sinon
+         elle installe le doute qu'on vient justement de dissiper. */
+      +'<div style="font-size:12px;color:#6b7280;margin-top:3px;">'
+        +(dejaVues ? 'Les établissements <span style="color:#E8541A;font-weight:700;">surlignés</span> ont déjà été étudiés par SENTINELLE.'
+                   : 'Cliquez sur le vôtre : son nom et son adresse seront repris tels que Google les connaît.')+'</div>'
       +'<div style="margin-top:4px;">'+rows+'</div>'
       +'<button type="button" id="etabAutre" style="width:100%;margin-top:10px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-pencil"></i> Autre adresse…</button>'
       +(dup&&dup.found&&conseiller?'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>':'')
@@ -4209,7 +4225,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 345';
+var IVE_VERSION='31/08 · 346';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
