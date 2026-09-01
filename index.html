@@ -4236,7 +4236,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 347';
+var IVE_VERSION='31/08 · 348';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5019,6 +5019,7 @@ function chaineConsultant(d, v){
   if(g.note_google!=null && g.nb_avis!=null && v.ng!=null && v.ng>=4.5 && g.nb_avis>=40){
     ch.push({poids:5, titre:'Google est votre meilleure vitrine',
       fait:String(g.note_google).replace('.',',')+'/5 sur '+g.nb_avis+' avis'+(frais?', et le dernier date de moins de trois mois':'')+'.',
+      source:'Lu sur votre fiche Google le jour de l\'analyse. Ce sont les chiffres que Google publie, pas une estimation.',
       implique:'Avec autant d\'avis, votre fiche Google est sans doute le premier endroit où un futur client vous découvre.',
       hypothese:'Vos clients viennent peut-être surtout du bouche-à-oreille et de Google, sans que vous alliez les chercher.',
       question:'Comment vos nouveaux clients vous trouvent-ils, en général ?',
@@ -5027,6 +5028,7 @@ function chaineConsultant(d, v){
   if(frais && (frais.cle==='1_2a'||frais.cle==='plus_2a')){
     ch.push({poids:6, titre:'Votre page Google ne bouge plus',
       fait:'Le dernier avis remonte à '+frais.det+'.',
+      source:'La date vient de l\'avis lui-même, lue sur votre fiche Google. Vous pouvez la vérifier en trente secondes.',
       implique:'Une bonne note qui ne bouge plus raconte votre passé, pas ce que vous faites aujourd\'hui.',
       hypothese:'Le problème n\'est probablement pas vos clients : c\'est que personne ne leur demande d\'écrire.',
       question:'Demandez-vous un avis à vos clients ? Si oui, qui le fait, et à quel moment ?',
@@ -5036,6 +5038,7 @@ function chaineConsultant(d, v){
   if(muettes>=2){
     ch.push({poids:3, titre:muettes+' pages qu\'on n\'a pas pu lire',
       fait:muettes+' des sites où vous apparaissez ne laissent pas lire leurs chiffres automatiquement.',
+      source:'Nous avons ouvert chacune de ces pages. Elles existent, mais elles ne publient pas leur note de façon lisible.',
       implique:'On ne sait donc pas ce qu\'on y dit de vous — ni en bien, ni en mal.',
       hypothese:'Elles tournent peut-être toutes seules, ou elles dorment depuis des années.',
       question:'Ces pages, quelqu\'un les regarde de temps en temps ?',
@@ -5046,12 +5049,22 @@ function chaineConsultant(d, v){
            {cle:'visibilite',val:v.visib,nom:'là où on vous trouve'}]
           .filter(function(x){ return x.val!=null; }).sort(function(a,b){ return a.val-b.val; })[0];
   if(bas && bas.val<75){
-    var TITRES={positionnement:'On comprend mal ce que vous faites',
-                confiance:'Peu de choses rassurent avant le premier contact',
-                visibilite:'On vous trouve moins facilement qu\'on ne le croit'};
+    /* ⚠️ CE TITRE AFFIRMAIT UN DIAGNOSTIC QUE PERSONNE N'AVAIT MESURÉ. Didier, 31/08/2026 :
+       « qu'est-ce qui fait dire qu'on comprend mal ce que vous faites, et à partir de quelle
+       base ? » Réponse : rien. Les cinq indicateurs sortent tous du MÊME calcul — la note
+       globale, le nombre d'avis, la présence d'un site (cf. synthVals). « Positionnement »
+       vaut la note globale moins deux points ; il ne mesure pas le positionnement.
+       Le FAIT reste juste — c'est bien le plus bas des cinq. Ce qui était faux, c'était d'en
+       tirer une conclusion sur le métier du dirigeant. Le titre dit donc maintenant ce qu'on
+       sait vraiment : c'est l'indicateur qui laisse le plus de marge. Et la ligne « d'où ça
+       vient » l'écrit en clair, pour qu'il ne soit plus jamais lu comme une mesure. */
+    var TITRES={positionnement:'Votre message : là où il y a le plus à gagner',
+                confiance:'Ce qui rassure avant le premier contact : là où il y a le plus à gagner',
+                visibilite:'Se faire trouver : là où il y a le plus à gagner'};
     ch.push({poids:4, titre:TITRES[bas.cle],
       fait:'C\'est le point le plus bas de vos cinq indicateurs : '+bas.val+' sur 100.',
-      implique:'Quelqu\'un qui ne vous connaît pas met plus de temps à comprendre — et parfois il n\'attend pas.',
+      source:'Vos cinq indicateurs viennent d\'un même calcul — votre note globale, le nombre d\'avis, la présence d\'un site. Celui-ci n\'est donc pas mesuré à part : il situe, il ne prouve rien.',
+      implique:'C\'est l\'indicateur qui laisse le plus de marge : un progrès s\'y verra plus vite qu\'ailleurs.',
       hypothese:'C\'est peut-être voulu, peut-être un sujet que personne n\'a jamais eu le temps de traiter.',
       question:'Comment décririez-vous votre métier en une phrase ? Et qui a écrit vos pages ?',
       action:'Y revenir — mais seulement après avoir entendu votre réponse.'});
@@ -5070,6 +5083,7 @@ function chaineConsultant(d, v){
           titre: dessus? 'Où vous vous situez face aux voisins' : 'Vous êtes le mieux exposé du secteur',
           fait: dessus? (dessus+' entreprise'+(dessus>1?'s':'')+' du coin '+(dessus>1?'ont':'a')+' une note publique plus haute que la vôtre, sur '+(n.length+1)+' comparées.')
                       : ('Aucune des '+n.length+' entreprises voisines n\'a une note publique plus haute que la vôtre.'),
+          source:'Notes publiques des entreprises voisines, relevées le même jour et de la même façon que la vôtre.',
           implique: dessus? 'Elles se montrent mieux sur ce qui se voit de l\'extérieur — pas forcément qu\'elles travaillent mieux.'
                           : 'Sur tout ce qui se voit de l\'extérieur, vous passez devant vos voisins.',
           hypothese:'Ces notes mesurent la vitrine, pas le travail. Les deux ne se voient pas au même endroit.',
@@ -5093,11 +5107,17 @@ function chaineConsultantHtml(d, v){
   };
   return '<div class="sec">'
     +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-arrow-narrow-right"></i> CE QU\'ON PEUT DIRE, ET CE QU\'IL FAUT DEMANDER</div>'
-    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 10px;">Chaque point se termine par une <b>question</b> : on voit la vitrine, on ne sait pas ce qui se passe derrière.</div>'
+    +'<div style="font-size:11px;color:#6b7280;line-height:1.5;margin:3px 0 10px;">Chaque point dit <b>d\'où vient son chiffre</b> et se termine par une <b>question</b> : on voit la vitrine, on ne sait pas ce qui se passe derrière.</div>'
     +l.map(function(x){
       return '<div style="border:1px solid #e5e9ee;border-radius:11px;padding:12px 14px;margin-top:10px;">'
         +'<div style="font-size:13px;font-weight:800;color:#1C1C1C;line-height:1.35;">'+esc(x.titre)+'</div>'
         +etage('CE QU\'ON VOIT','#15803d',esc(x.fait))
+        /* ⚠️ LA SOURCE JUSTE SOUS LE FAIT, JAMAIS EN NOTE DE BAS DE PAGE. Didier, 31/08/2026 :
+           « d'où vient cette information ? comment elle a été trouvée ? » Un chiffre dont on ne
+           dit pas l'origine se lit comme une vérité, y compris quand ce n'est qu'un calcul.
+           C'est ce qui a permis à « on comprend mal ce que vous faites » de s'afficher au-dessus
+           d'un nombre que personne n'avait mesuré. */
+        +(x.source? etage('D\'OÙ ÇA VIENT','#0f766e',esc(x.source)) : '')
         +etage('CE QUE ÇA VEUT DIRE','#2563EB',esc(x.implique))
         +etage('CE QU\'ON NE SAIT PAS','#9a3412',esc(x.hypothese))
         +etage('LA QUESTION À POSER','#7c3aed','« '+esc(x.question)+' »',true)
