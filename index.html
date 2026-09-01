@@ -4166,6 +4166,10 @@ function synthVals(d){
   var ng=(ac.note_google!=null)?+ac.note_google:null;
   var nbA=(ac.nb_avis!=null)?+ac.nb_avis:null;
   var site=!!ac.site;
+  /* La date du dernier avis est MESURÉE depuis toujours — elle n'était simplement pas exposée
+     ici. Elle remplace la tuile « Sentiment », qui affichait la note Google déguisée en
+     pourcentage de retours positifs. */
+  var dern=ac.dernier_avis||null;
   var nbOpp=(d.agents&&d.agents.length)?d.agents.length:6;
   var cl=function(v){return Math.max(0,Math.min(100,Math.round(v)));};
   var visib=cl(est*0.55+(site?22:6)+Math.min(18,(nbA||0)/2));
@@ -4173,7 +4177,7 @@ function synthVals(d){
   var posi=cl(est-2);
   var conf=cl((ng!=null?ng/5*55:35)+Math.min(25,(nbA||0))+(site?18:0));
   var iveTag=est>=75?'Image très positive':est>=60?'Image globalement positive':est>=45?'Image à consolider':'Image encore fragile';
-  return {est:est,pot:pot,gain:gain,coul:coul,hex:hex,ng:ng,nbA:nbA,site:site,nbOpp:nbOpp,visib:visib,senti:senti,posi:posi,conf:conf,iveTag:iveTag};
+  return {est:est,pot:pot,gain:gain,coul:coul,hex:hex,ng:ng,nbA:nbA,site:site,dern:dern,nbOpp:nbOpp,visib:visib,senti:senti,posi:posi,conf:conf,iveTag:iveTag};
 }
 /* Bloc « leviers & potentiel » — SOURCE UNIQUE (aperçu SENTINELLE + slide Votre potentiel).
    On ne donne jamais le NOMBRE de leviers : on dit qu'ils existent, et qu'ils se valident en BOUSSOLE. */
@@ -4214,7 +4218,18 @@ function iveTuilesHtml(d){
   d=d||{};
   var v=synthVals(d), ng=v.ng, nbA=v.nbA;
   var band=function(n){ return n>=75?{l:'Solide',c:'#16a34a'}:n>=60?{l:'Bon niveau',c:'#2563EB'}:n>=45?{l:'À renforcer',c:'#d97706'}:{l:'Fragile',c:'#dc2626'}; };
-  var estTag='<span style="font-size:8px;color:#9ca3af;font-weight:600;" title="Estimé à partir de données publiques">*</span>';
+  /* ⚠️ L'ASTÉRISQUE NE PRÉVENAIT PERSONNE. 8 pixels, et son explication n'apparaissait qu'au
+     SURVOL — c'est-à-dire jamais sur un téléphone. Un avertissement qu'on ne peut pas lire n'est
+     pas un avertissement. Il est remplacé par une phrase entière sous les tuiles. */
+  var estTag='';
+  var dateCourte=function(x){
+    if(!x) return null;
+    var t=new Date(x); if(isNaN(t)) return null;
+    var an=(Date.now()-t.getTime())>330*86400000;
+    return t.toLocaleDateString('fr-FR', an?{month:'short',year:'numeric'}:{day:'numeric',month:'short'});
+  };
+  var dLib=dateCourte(v.dern);
+  var fr=(typeof fraicheurDepuisDate==='function')?fraicheurDepuisDate(v.dern):null;
   var repStars=''; if(ng!=null){ var rn=Math.max(1,Math.min(5,Math.round(ng))); repStars='<div style="font-size:11px;letter-spacing:1px;margin-top:1px;">'; for(var i=1;i<=5;i++){ repStars+='<span style="color:'+(i<=rn?'#f0a500':'#d1d5db')+';">★</span>'; } repStars+='</div>'; }
   var tile=function(icon,icC,icBg,title,big,unit,sub,bTxt,bC,isEst,starsRow){
     return '<div style="flex:1;min-width:108px;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:13px 10px;text-align:center;">'
@@ -4225,18 +4240,32 @@ function iveTuilesHtml(d){
       +'<div style="font-size:10px;color:#6b7280;line-height:1.25;margin-top:4px;">'+sub+'</div>'
       +'<div style="display:inline-block;margin-top:7px;font-size:9.5px;font-weight:700;color:'+bC+';background:'+bC+'18;padding:2px 8px;border-radius:8px;">'+bTxt+'</div></div>';
   };
+  /* ⚠️ « SENTIMENT GLOBAL — 92 % DE RETOURS POSITIFS » ÉTAIT FAUX, ET C'ÉTAIT LE PIRE DES CINQ.
+     Personne n'a jamais compté les retours positifs : le calcul est note ÷ 5 × 100 − 6. La tuile
+     faisait en plus DOUBLON avec « Réputation » — même donnée, deux fois, sous deux noms.
+     Elle est remplacée par la date du dernier avis : mesurée, vérifiable en trente secondes,
+     et absente partout ailleurs de cette vue.
+     ⚠️ « AU-DESSUS DE LA MOYENNE » PARTAIT AUSSI : le seuil est « note ≥ 4 », aucune moyenne
+     n'est calculée. L'écran concurrence, lui, calcule une vraie moyenne des voisins — la même
+     phrase y est honnête. Ici elle ne l'était pas. */
   return '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
-    +tile('ti-star','#2563EB','#eff5ff','RÉPUTATION EN LIGNE',(ng!=null?String(ng).replace('.',','):'n.c.'),(ng!=null?'/5':''),(nbA!=null?nbA+' avis Google':'à construire'),(ng!=null&&ng>=4?'Au-dessus de la moyenne':'À développer'),'#2563EB',false,repStars)
-    +tile('ti-eye','#16a34a','#effaf3','VISIBILITÉ',v.visib,'/100','Présence sur le web',band(v.visib).l,band(v.visib).c,true,'')
-    +tile('ti-heart','#E8541A','#fff4ee','SENTIMENT GLOBAL',v.senti,'%','de retours positifs',(v.senti>=70?'Perception positive':'Perception mitigée'),(v.senti>=70?'#16a34a':'#d97706'),true,'')
-    +tile('ti-building-store','#6366f1','#eef0ff','POSITIONNEMENT',v.posi,'/100','Clarté & différenciation',band(v.posi).l,band(v.posi).c,true,'')
-    +tile('ti-shield-check','#0ea5e9','#e0f2fe','CONFIANCE',v.conf,'/100','Confiance perçue en ligne',band(v.conf).l,band(v.conf).c,true,'')
+    +tile('ti-star','#2563EB','#eff5ff','RÉPUTATION EN LIGNE',(ng!=null?String(ng).replace('.',','):'n.c.'),(ng!=null?'/5':''),(nbA!=null?nbA+' avis Google':'à construire'),(ng!=null&&ng>=4?'Bonne note':'À développer'),'#2563EB',false,repStars)
+    +tile('ti-message-2','#E8541A','#fff4ee','DERNIER AVIS',(dLib||'n.c.'),'',(dLib?'lu sur votre fiche Google':'aucune date trouvée'),(fr?fr.lib:'Non trouvé'),(fr?fr.c:'#9ca3af'),false,'')
+    +tile('ti-eye','#16a34a','#effaf3','VISIBILITÉ',v.visib,'/100','repère calculé',band(v.visib).l,band(v.visib).c,false,'')
+    +tile('ti-building-store','#6366f1','#eef0ff','POSITIONNEMENT',v.posi,'/100','repère calculé',band(v.posi).l,band(v.posi).c,false,'')
+    +tile('ti-shield-check','#0ea5e9','#e0f2fe','CONFIANCE',v.conf,'/100','repère calculé',band(v.conf).l,band(v.conf).c,false,'')
+    +'</div>'
+    /* La phrase que l'astérisque ne disait pas. Lisible, présente sur téléphone, et placée là où
+       on la lit : juste sous les chiffres qu'elle concerne. */
+    +'<div style="font-size:10.5px;color:#6b7280;line-height:1.45;margin-top:7px;padding:0 2px;">'
+      +'<b>Les deux premiers chiffres sont lus sur votre fiche Google</b> — vous pouvez les vérifier tout de suite. '
+      +'Les trois <b>repères calculés</b> viennent tous du même calcul : votre note, votre nombre d\'avis, la présence d\'un site. Ils situent votre image d\'ensemble&nbsp;; aucun ne mesure son sujet à lui seul.'
     +'</div>';
 }
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 348';
+var IVE_VERSION='31/08 · 349';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5612,7 +5641,18 @@ function synthHtml(d){
   var v=synthVals(d);
   var est=v.est,pot=v.pot,gain=v.gain,coul=v.coul,hex=v.hex,ng=v.ng,nbA=v.nbA,site=v.site,nbOpp=v.nbOpp,visib=v.visib,senti=v.senti,posi=v.posi,conf=v.conf,iveTag=v.iveTag;
   var band=function(n){return n>=75?{l:'Solide',c:'#16a34a'}:n>=60?{l:'Bon niveau',c:'#2563EB'}:n>=45?{l:'À renforcer',c:'#d97706'}:{l:'Fragile',c:'#dc2626'};};
-  var estTag='<span style="font-size:8px;color:#9ca3af;font-weight:600;" title="Estimé à partir de données publiques">*</span>';
+  /* ⚠️ L'ASTÉRISQUE NE PRÉVENAIT PERSONNE. 8 pixels, et son explication n'apparaissait qu'au
+     SURVOL — c'est-à-dire jamais sur un téléphone. Un avertissement qu'on ne peut pas lire n'est
+     pas un avertissement. Il est remplacé par une phrase entière sous les tuiles. */
+  var estTag='';
+  var dateCourte=function(x){
+    if(!x) return null;
+    var t=new Date(x); if(isNaN(t)) return null;
+    var an=(Date.now()-t.getTime())>330*86400000;
+    return t.toLocaleDateString('fr-FR', an?{month:'short',year:'numeric'}:{day:'numeric',month:'short'});
+  };
+  var dLib=dateCourte(v.dern);
+  var fr=(typeof fraicheurDepuisDate==='function')?fraicheurDepuisDate(v.dern):null;
   function tile(icon,icC,icBg,title,big,unit,sub,bTxt,bC,isEst,starsRow){
     return '<div style="flex:1;min-width:108px;background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:13px 10px;text-align:center;">'
       +'<div style="width:34px;height:34px;border-radius:50%;background:'+icBg+';display:inline-flex;align-items:center;justify-content:center;"><i class="ti '+icon+'" style="font-size:17px;color:'+icC+';"></i></div>'
@@ -5692,7 +5732,7 @@ function sentSlides(d, targetId, cockpitHtml, banner){
   var pot=Math.min(100,est+gain);   // potentiel = note + gain COHÉRENT avec les leviers affichés
   // Récap mémorisé pour l'envoi email (bouton slide 7)
   var _sv=synthVals(d); // MÊMES chiffres que la page de synthèse (source unique) — le mail doit être identique
-  window.__sentRecap={ nom:d.nom||'', ville:d.ville||'', activite:d.activite||'', ive:_sv.est, potentiel:_sv.pot, gain:_sv.gain, couleur:_sv.coul, note_google:_sv.ng, nb_avis:_sv.nbA, valeurs:d.valeurs||'', image:d.imagePercue||'', nbOpp:_sv.nbOpp, iveTag:_sv.iveTag, visibilite:_sv.visib, sentiment:_sv.senti, positionnement:_sv.posi, confiance:_sv.conf, coutInaction:d.coutInaction||'', auraSens:(d.aura&&d.aura.sens)||'', sources:d.sources||'' };
+  window.__sentRecap={ nom:d.nom||'', ville:d.ville||'', activite:d.activite||'', ive:_sv.est, potentiel:_sv.pot, gain:_sv.gain, couleur:_sv.coul, note_google:_sv.ng, nb_avis:_sv.nbA, dernier_avis:_sv.dern, valeurs:d.valeurs||'', image:d.imagePercue||'', nbOpp:_sv.nbOpp, iveTag:_sv.iveTag, visibilite:_sv.visib, sentiment:_sv.senti, positionnement:_sv.posi, confiance:_sv.conf, coutInaction:d.coutInaction||'', auraSens:(d.aura&&d.aura.sens)||'', sources:d.sources||'' };
   // « sélectionnés pour vous » était faux : ces pistes sortent de la vitrine, pas d'un diagnostic.
   var outilsTease=(d.agents&&d.agents.length)?'<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:9px 11px;color:#7c2d12;"><i class="ti ti-lock"></i> <b>'+d.agents.length+' piste'+(d.agents.length>1?'s':'')+' d\'outils IA</b> vue'+(d.agents.length>1?'s':'')+' depuis votre vitrine. Votre liste, elle, se construit avec '+bLink+'.</div>':'';
   var qwList=(d.quickwins&&d.quickwins.length)?'<div style="margin-top:8px;"><b>Actions rapides :</b><ul style="margin:4px 0 0;padding-left:18px;">'+d.quickwins.map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul></div>':'';
@@ -10480,7 +10520,11 @@ function sentApercu(){
         +'<div style="text-align:center;flex:0 0 auto;color:#9ca3af;"><i class="ti ti-arrow-right" style="font-size:clamp(20px,5.5vw,26px);color:#E8541A;"></i><div style="font-size:clamp(8.5px,2.4vw,9.5px);color:#c2410c;font-weight:700;">objectif</div></div>'
         +past('#E8541A','OBJECTIF',v.pot,'à atteindre')
       +'</div>'
-      +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span></div>'
+      +'<div style="text-align:center;margin-top:18px;"><span style="display:inline-block;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;border-radius:22px;padding:9px 22px;font-size:16px;">+'+v.gain+' points possibles</span>'
+      /* ⚠️ CE +18 EST UNE CONSTANTE, PAS UNE MESURE. Le serveur pose potentiel = note + 18,
+         plafonné à 100 : le même écart pour toutes les entreprises. C'est le principal ressort
+         commercial de cet écran — raison de plus pour dire ce qu'il est. */
+      +'<div style="font-size:10.5px;color:#9ca3af;margin-top:5px;">Marge habituellement observée. La vôtre se précise en entretien.</div></div>'
       +'<div style="text-align:center;margin-top:12px;">'+iveDateAnalyse()+'</div>'
       +'<div style="margin-top:18px;">'+(typeof iveCarteIdentite==='function'?iveCarteIdentite(f):'')+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:20px 0 8px;"><i class="ti ti-layout-grid" style="color:#2563EB;"></i> VUE D\'ENSEMBLE</div>'

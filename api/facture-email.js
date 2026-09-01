@@ -116,8 +116,12 @@ function sentinelleHtml(s) {
   // Indicateurs (mêmes chiffres que la page — envoyés dans le payload)
   const band = (n) => n >= 75 ? { l: "Solide", c: "#16a34a" } : n >= 60 ? { l: "Bon niveau", c: "#2563EB" } : n >= 45 ? { l: "À renforcer", c: "#d97706" } : { l: "Fragile", c: "#dc2626" };
   const lb = (o) => `<div style="display:inline-block;margin-top:6px;font-size:8.5px;font-weight:700;color:${o.c};background:${o.c}1e;padding:2px 7px;border-radius:7px;">${o.l}</div>`;
-  const est9 = '<span style="font-size:8px;color:#9ca3af;font-weight:600;">*</span>';
-  const vis = +s.visibilite || 0, sen = +s.sentiment || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;
+  const vis = +s.visibilite || 0, pos = +s.positionnement || 0, cfn = +s.confiance || 0;   // sen retiré avec la tuile Sentiment
+  /* La date du dernier avis est MESURÉE : elle remplace le pourcentage de « retours positifs »,
+     que personne n'avait compté. Format court, comme à l'écran. */
+  const dernTxt = (function (x) { if (!x) return null; const t = new Date(x); if (isNaN(t)) return null;
+    const vieux = (Date.now() - t.getTime()) > 330 * 86400000;
+    return t.toLocaleDateString("fr-FR", vieux ? { month: "short", year: "numeric" } : { day: "numeric", month: "short" }); })(s.dernier_avis);
   const uni = '<span style="font-size:10px;color:#6b7280;font-weight:400;">/100</span>';
   // Pastille RONDE ne contenant QUE le chiffre (une seule ligne centrée → jamais coupé).
   // VML v:roundrect (arcsize 50% = cercle) pour Outlook ; border-radius pour les autres clients.
@@ -222,13 +226,17 @@ function sentinelleHtml(s) {
   <tr><td style="padding:8px 20px 2px;">
     <div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;padding:0 4px 6px;">VUE D'ENSEMBLE</div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-      ${tile("#eff5ff", "#dbe7fb", "#2563EB", "&#11088;", "RÉPUTATION", noteTxt + (s.note_google != null ? '<span style="font-size:10px;color:#6b7280;font-weight:400;">/5</span>' : ""), (s.nb_avis != null ? esc(s.nb_avis) + " avis" : "à construire"), '<div style="font-size:10px;color:#f0a500;letter-spacing:1px;margin-top:1px;">' + stars + "</div>" + lb({ l: (s.note_google != null && +s.note_google >= 4 ? "Au-dessus moy." : "À développer"), c: "#2563EB" }))}
-      ${tile("#effaf3", "#cfeeda", "#16a34a", "&#128065;", "VISIBILITÉ", vis + uni + est9, "Présence web", lb(band(vis)))}
-      ${tile("#fff4ee", "#fdd9c3", "#E8541A", "&#10084;", "SENTIMENT", sen + '<span style="font-size:10px;color:#6b7280;font-weight:400;">%</span>' + est9, "retours positifs", lb({ l: (sen >= 70 ? "Positif" : "Mitigé"), c: (sen >= 70 ? "#16a34a" : "#d97706") }))}
-      ${tile("#eef0ff", "#dfe3ff", "#6366f1", "&#127970;", "POSITION.", pos + uni + est9, "différenciation", lb(band(pos)))}
-      ${tile("#e0f2fe", "#c3e6fb", "#0ea5e9", "&#128737;", "CONFIANCE", cfn + uni + est9, "perçue en ligne", lb(band(cfn)))}
+      ${tile("#eff5ff", "#dbe7fb", "#2563EB", "&#11088;", "RÉPUTATION", noteTxt + (s.note_google != null ? '<span style="font-size:10px;color:#6b7280;font-weight:400;">/5</span>' : ""), (s.nb_avis != null ? esc(s.nb_avis) + " avis" : "à construire"), '<div style="font-size:10px;color:#f0a500;letter-spacing:1px;margin-top:1px;">' + stars + "</div>" + lb({ l: (s.note_google != null && +s.note_google >= 4 ? "Bonne note" : "À développer"), c: "#2563EB" }))}
+      ${tile("#fff4ee", "#fdd9c3", "#E8541A", "&#128172;", "DERNIER AVIS", (dernTxt || "n.c."), (dernTxt ? "lu sur Google" : "date non trouvée"), lb({ l: (dernTxt ? "Mesuré" : "Non trouvé"), c: (dernTxt ? "#15803d" : "#9ca3af") }))}
+      ${tile("#effaf3", "#cfeeda", "#16a34a", "&#128065;", "VISIBILITÉ", vis + uni, "repère calculé", lb(band(vis)))}
+      ${tile("#eef0ff", "#dfe3ff", "#6366f1", "&#127970;", "POSITION.", pos + uni, "repère calculé", lb(band(pos)))}
+      ${tile("#e0f2fe", "#c3e6fb", "#0ea5e9", "&#128737;", "CONFIANCE", cfn + uni, "repère calculé", lb(band(cfn)))}
     </tr></table>
-    <div style="font-size:9px;color:#9ca3af;padding:6px 4px 0;">* Visibilité, Sentiment, Positionnement et Confiance sont des indicateurs estimés à partir de données publiques.</div>
+    <!-- ⚠️ « SENTIMENT — 92 % DE RETOURS POSITIFS » A ÉTÉ RETIRÉ (31/08/2026). Personne n'avait
+         jamais compté les retours positifs : le calcul était note / 5 x 100 - 6, et la tuile
+         faisait doublon avec RÉPUTATION. C'est le seul de ces défauts qui QUITTAIT
+         l'application — il partait dans la boîte mail du dirigeant. -->
+    <div style="font-size:10px;color:#6b7280;padding:6px 4px 0;line-height:1.45;">Les deux premiers chiffres sont <b>lus sur votre fiche Google</b>. Visibilité, Positionnement et Confiance sont des <b>repères calculés</b> à partir de votre note, de votre nombre d'avis et de la présence d'un site : ils situent votre image d'ensemble, aucun ne mesure son sujet à lui seul.</div>
   </td></tr>
 
   <tr><td style="padding:10px 24px 6px;">
