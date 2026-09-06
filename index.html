@@ -3461,6 +3461,21 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    payée. Son coût réel (0,004 € — six détails = 2,4 centimes) est absorbé par les 4 jetons de
    l'analyse SENTINELLE, qui coûte 0,08 € et se vend 1 €. Marge après inclusion : 90 %, bien
    au-dessus du plancher de 70 %. Ce n'est donc pas un cadeau, c'est déjà payé. */
+/* ═══ LES JETONS SONT ÉTEINTS — 06/09/2026 ═══════════════════════════════════════════════════
+   Didier : « on va supprimer toutes les notions de jetons, de toute façon c'est mon outil de
+   travail. » Il a raison : l'application n'a aucun client, et un compteur qui bloque son propre
+   auteur n'est plus un modèle économique, c'est un obstacle.
+
+   ⚠️ ON ÉTEINT, ON N'ARRACHE PAS — ET C'EST UN CHOIX, PAS UNE FACILITÉ. Le barème (12,90 €/mois
+   pour 30 jetons, 129 €/an pour 390) a été chiffré fin juillet, marges vérifiées. Le jour où
+   l'application aura des clients, ce compteur redeviendra la façon dont elle se paie. Retirer
+   les soixante-dix points de contact aujourd'hui, ce serait le réécrire de zéro demain — et
+   surtout risquer d'en casser un en chemin, sans que rien ne le dise.
+   Une ligne à `true` remet tout en marche, à l'identique.
+
+   CE QUE « ÉTEINT » VEUT DIRE, PRÉCISÉMENT : plus aucun décompte, plus aucune pastille, plus
+   aucun « · 4 jetons » nulle part, et plus jamais d'action refusée faute de solde. */
+var JETONS_ACTIFS=false;
 var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:0,detection:1};
 function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function jetPeriode(){
@@ -3487,6 +3502,9 @@ function jetLire(){
 }
 function jetEcrire(o){ try{ localStorage.setItem(jetKey(), JSON.stringify(o)); }catch(e){} }
 function jetEtat(){
+  /* Compteur éteint : un solde qui ne s'épuise pas. Les appelants qui testent `reste >= coût`
+     passent donc toujours, sans qu'aucun d'eux n'ait à connaître l'interrupteur. */
+  if(!JETONS_ACTIFS) return {util:0, total:Infinity, resteInclus:Infinity, packs:0, reste:Infinity};
   var o=jetLire(), total=jetInclus();
   var resteInclus=Math.max(0,total-(o.util||0));
   return {util:(o.util||0), total:total, resteInclus:resteInclus, packs:(o.packs||0), reste:resteInclus+(o.packs||0)};
@@ -3683,6 +3701,8 @@ function espaceRestaurer(p, b){
    au lieu de laisser un bouton sans effet. */
 async function jetLancer(cout, action, motif){
   cout=+cout||0;
+  /* Compteur éteint : l'action part, rien n'est décompté, rien n'est refusé. */
+  if(!JETONS_ACTIFS){ if(typeof action==='function') action(); return; }
   if(cout<=0){ if(typeof action==='function') action(); return; }
   try{
     await window.sbReady;
@@ -3703,6 +3723,7 @@ async function jetLancer(cout, action, motif){
 }
 /* Pastille du bandeau noir, à côté de l'abonnement. */
 function jetChip(){
+  if(!JETONS_ACTIFS) return '';   // compteur éteint : pas de pastille de solde
   if(!boussoleActif()) return '';
   var e=jetEtat();
   var coul = e.reste<=0 ? '#fca5a5' : (e.reste<=5 ? '#fcd34d' : '#93c5fd');
@@ -3759,7 +3780,7 @@ function jetBoutonBrut(libelle,cout,clic,etat,sombre){
         : (etat==='gratuit') ? {t:'#4b5563',f:'#ffffff',b:'#d7dbe3',i:'ti-info-circle'}
         : (etat==='maj')     ? {t:'#9a3412',f:'#fff7ed',b:'#fed7aa',i:'ti-refresh'}
         :                      {t:'#9a3412',f:'#fffaf6',b:'#fed7aa',i:'ti-refresh'};
-  var lib = libelle + ((etat==='gratuit')?'':(' · '+cout+' jeton'+(cout>1?'s':'')));
+  var lib = libelle + ((etat==='gratuit'||!JETONS_ACTIFS)?'':(' · '+cout+' jeton'+(cout>1?'s':'')));
   // Roue d'attente seulement quand ça appelle vraiment l'IA. Le bouton « Détail » gratuit relit
   // une réponse déjà payée : c'est instantané, une roue qui clignote serait du bruit.
   var attente = (etat==='gratuit') ? '' : 'jetOccupe(this);';
@@ -3769,6 +3790,7 @@ function jetBoutonBrut(libelle,cout,clic,etat,sombre){
    séparément de l'action : le bouton dit CE QU'ON FAIT, la pastille dit CE QUE ÇA COÛTE.
    Le nombre vient de JETONS_COUT — jamais écrit en dur, sinon il ment le jour où le tarif bouge. */
 function jetCoutChip(cle){
+  if(!JETONS_ACTIFS) return '';   // compteur éteint : plus de « coût : 4 jetons » en haut d'écran
   var c=JETONS_COUT[cle]||1;
   return '<span style="font-size:11px;font-weight:700;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:4px 11px;white-space:nowrap;">'
     +'<i class="ti ti-coins" style="font-size:12px;"></i> coût : '+c+' jeton'+(c>1?'s':'')+'</span>';
@@ -4265,7 +4287,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 355';
+var IVE_VERSION='06/09 · 356';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6617,7 +6639,7 @@ function concuAuto(d){
         jetons — mais il ouvre alors l'écran des offres et n'exécute JAMAIS l'action. Peindre la
         roue d'attente avant de le savoir la laisserait tourner pour toujours. */
   try{
-    var e=(typeof jetEtat==='function')?jetEtat():null;
+    var e=(JETONS_ACTIFS && typeof jetEtat==='function')?jetEtat():null;
     if(e && e.reste!=null && e.reste < JETONS_COUT.concurrence){
       concuPeindre({ erreur:'La carte des voisins demande '+JETONS_COUT.concurrence+' jetons, il vous en reste '+e.reste+'. Votre analyse est complète — la carte vous attend dans le menu quand vous voudrez.' }, mc);
       return;
@@ -10512,6 +10534,7 @@ function ivTuile(ic,titre,action,etat,ton,verrou){
    ⚠️ À n'ajouter QUE sur un état dont le clic dépense vraiment. Une tuile qui se contente
    d'ouvrir un résultat déjà produit ne coûte rien — y afficher un prix ferait hésiter pour rien. */
 function iveCout(cle){
+  if(!JETONS_ACTIFS) return '';   // compteur éteint : aucune tuile n'annonce de coût
   var c=(typeof JETONS_COUT!=='undefined')?JETONS_COUT[cle]:0;
   return c?(' · '+c+' jeton'+(c>1?'s':'')):'';
 }
