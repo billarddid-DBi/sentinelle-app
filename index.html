@@ -4265,7 +4265,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 354';
+var IVE_VERSION='06/09 · 355';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6559,16 +6559,31 @@ function concuBoutonCarte(txt){
    redébiterait 4 jetons pour un résultat que la mémoire a déjà. */
 function concuZone(){
   var z=document.getElementById('concuResume');
-  if(!z){
-    z=document.createElement('div'); z.id='concuResume';
-    var r=document.getElementById('result');
-    if(r) r.appendChild(z); else return null;
-  }
+  if(z) return z;
+  /* ⚠️ ON ÉCRIT LÀ OÙ LE DIRIGEANT REGARDE. `#result` n'est pas un abri : `showView()` le vide.
+     Si son espace est à l'écran, c'est là que le bloc doit vivre. */
+  var dir=document.getElementById('dirigeant');
+  var hote=(dir && getComputedStyle(dir).display!=='none') ? dir : document.getElementById('result');
+  if(!hote) return null;
+  z=document.createElement('div'); z.id='concuResume';
+  hote.appendChild(z);
   return z;
 }
+/* ⚠️ LE RÉSUMÉ SE SOUVIENT, PARCE QUE L'ÉCRAN SE REDESSINE SOUS LUI. Didier, 06/09/2026 :
+   « toujours pareil » — rien ne s'affichait. Cause : `showView()` VIDE `#result`, et pour le
+   dirigeant la fiche bascule vers son espace juste après l'analyse. Le bloc était donc effacé à
+   la seconde où il naissait, message d'erreur compris — d'où l'impression que rien ne partait.
+   L'état est désormais mémorisé, et l'écran SENTINELLE le repeint à chaque rendu. */
 function concuPeindre(cs, mc){
+  window.__concuEtat=cs;
+  if(mc) window.__concuMot=mc;
   var z=concuZone(); if(!z) return;
-  z.innerHTML=(typeof concuResumeHtml==='function')?concuResumeHtml(cs,mc):'';
+  z.innerHTML=concuResumeMemo();
+}
+/* Ce que le résumé doit afficher, où qu'il soit redessiné. */
+function concuResumeMemo(){
+  if(!window.__concuEtat || typeof concuResumeHtml!=='function') return '';
+  return concuResumeHtml(window.__concuEtat, window.__concuMot||null);
 }
 /* La carte d'aujourd'hui, si elle existe. Au-delà d'une journée on la considère à refaire :
    les voisins bougent, et une carte de la semaine dernière se présenterait comme neuve. */
@@ -10825,6 +10840,9 @@ function sentApercu(){
       +'<div style="margin-top:18px;">'+(typeof iveCarteIdentite==='function'?iveCarteIdentite(f):'')+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#6b7280;letter-spacing:.3px;margin:20px 0 8px;"><i class="ti ti-layout-grid" style="color:#2563EB;"></i> VUE D\'ENSEMBLE</div>'
       +(typeof iveTuilesHtml==='function'?iveTuilesHtml(f):'')
+      /* Le résumé des voisins a sa place ICI, dans l'écran SENTINELLE, et il est repeint à
+         chaque rendu depuis la mémoire : sinon un simple retour sur l'écran l'effacerait. */
+      +'<div id="concuResume">'+((typeof concuResumeMemo==='function')?concuResumeMemo():'')+'</div>'
       +'<div style="margin-top:18px;">'+noteBoxHtml(f,false)+'</div>'
       +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
       // Non abonné : l'offre. Abonné : rien à vendre, on enchaîne sur les menus déroulants.
