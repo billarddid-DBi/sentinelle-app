@@ -3096,10 +3096,34 @@ async function run(payload){
           var choice=await etabChooser(payload.text, list, dup);
           if(choice===null) return;
           if(choice.afficher){
-            var g=await window.sb.rpc('sentinelle_get',{p_texte:(choice.nom||payload.text)+', '+choice.adresse,p_adresse:choice.adresse});
-            if(!g.error && g.data && g.data.found && g.data.fiche){ showArchived(g.data); }
-            else alert('Diagnostic archivé introuvable pour cet établissement.');
-            return;
+            /* ⚠️ ON RELIT PAR L'IDENTIFIANT, PUISQUE C'EST LUI QUI A DIT « DÉJÀ ÉTUDIÉE ».
+               Didier, 06/09/2026, devant « Diagnostic archivé introuvable » : « ça ne fonctionne
+               plus ». Défaut introduit par moi le 31/08 : j'ai fait juger le DOUBLON sur le
+               place_id (sentinelle_par_place) sans toucher à la LECTURE qui suit, restée sur le
+               nom et l'adresse (sentinelle_get). Les deux ne s'accordaient donc plus : la
+               première reconnaissait la fiche, la seconde ne la retrouvait pas — et le dirigeant
+               se retrouvait bloqué devant une alerte, sans autre issue que d'annuler.
+               La règle est la même que partout ailleurs depuis le 31/08 : on cherche par
+               identifiant, jamais par ressemblance de texte. */
+            var g=null;
+            if(choice.place_id){
+              try{ g=await window.sb.rpc('sentinelle_get_par_place',{p_place_id:choice.place_id}); }catch(e){}
+            }
+            /* Repli sur l'ancienne lecture : la fonction en base n'existe peut-être pas encore,
+               et une fiche d'avant le 31/08 n'a pas d'identifiant du tout. */
+            if(!(g && !g.error && g.data && g.data.found)){
+              g=await window.sb.rpc('sentinelle_get',{p_texte:(choice.nom||payload.text)+', '+choice.adresse,p_adresse:choice.adresse});
+            }
+            if(!g.error && g.data && g.data.found && g.data.fiche){ showArchived(g.data); return; }
+            /* ⚠️ ET SI ON NE LA RETROUVE VRAIMENT PAS, ON NE LAISSE PAS DANS L'IMPASSE. L'ancien
+               message annonçait l'échec et s'arrêtait là : plus rien à faire que fermer. On
+               propose de refaire l'analyse, ce qui est la seule suite utile. */
+            if(confirm('Cette entreprise est marquée comme déjà étudiée, mais son analyse est introuvable.\n\nRefaire l\'analyse maintenant ?')){
+              window.__scanAdresse=choice.adresse;
+              window.__scanPlaceId=choice.place_id||null;
+              window.__scanNom=choice.nom||null;
+              payload.text=(choice.nom||payload.text)+', '+choice.adresse;
+            } else return;
           }
           if(choice.adresse){
             /* Le verrou anti-doublon interroge l'IDENTIFIANT, plus une ressemblance de texte. */
@@ -4300,7 +4324,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 358';
+var IVE_VERSION='06/09 · 360';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -7278,36 +7302,51 @@ function siteZone(){
   return z;
 }
 /* Ce que la section doit afficher, où qu'elle soit redessinée. */
+/* Le corps seul, sans son encadré : c'est la MÊME matière qui alimente les deux endroits où la
+   vitesse s'affiche — la section de la fiche (`#siteVit`, qui existe depuis toujours) et la
+   carte de l'écran SENTINELLE. Deux rendus séparés finiraient par diverger. */
+function siteCorps(e){
+  if(!e) return '';
+  if(e.attente){
+    return '<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#6b7280;">'
+      +'<span class="spin" style="width:20px;height:20px;margin:0;border-width:2px;"></span>'
+      +'<span>Google ouvre votre site sur un téléphone et chronomètre… 10 à 30 secondes.</span></div>';
+  }
+  if(e.erreur){
+    /* Un échec se dit, et il dit OÙ corriger. Le bouton reparaît ICI, et seulement ici : c'est
+       le seul cas où un clic sert encore à quelque chose. */
+    return '<div style="font-size:12.5px;color:#b45309;line-height:1.5;"><i class="ti ti-alert-triangle"></i> '+esc(e.erreur)+'</div>'
+      +((typeof siteBouton==='function')?('<div style="margin-top:8px;">'+siteBouton('Réessayer')+'</div>'):'');
+  }
+  if(e.sansSite){
+    return '<div style="font-size:12.5px;color:#6b7280;line-height:1.5;">Aucun site internet connu pour cette entreprise&nbsp;: il n\'y a rien à mesurer.'
+      +'<br><span style="color:#9ca3af;">Ce n\'est pas un défaut en soi — beaucoup d\'entreprises vivent très bien sans site. Mais alors, tout se joue sur la fiche Google.</span></div>';
+  }
+  return (typeof siteVitesseCorps==='function')?siteVitesseCorps(e.url):'';
+}
 function siteResumeMemo(){
   var e=window.__siteEtat;
   if(!e) return '';
-  var cadre=function(inner){
-    return '<div class="card"><div class="sec">'
-      +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-gauge"></i> LA VITESSE DE VOTRE SITE</div>'
-      +'<div style="font-size:11px;color:#9ca3af;margin:3px 0 7px;">Le contrôle technique du site, fait par Google&nbsp;: il l\'ouvre sur un téléphone et chronomètre.</div>'
-      +inner+'</div></div>';
-  };
-  if(e.attente){
-    return cadre('<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#6b7280;">'
-      +'<span class="spin" style="width:20px;height:20px;margin:0;border-width:2px;"></span>'
-      +'<span>Google ouvre votre site sur un téléphone et chronomètre… 10 à 30 secondes.</span></div>');
-  }
-  if(e.erreur){
-    /* Un échec se dit, et il dit OÙ corriger : sans cela on cherche au mauvais endroit. */
-    return cadre('<div style="font-size:12.5px;color:#b45309;line-height:1.5;"><i class="ti ti-alert-triangle"></i> '+esc(e.erreur)+'</div>');
-  }
-  if(e.sansSite){
-    return cadre('<div style="font-size:12.5px;color:#6b7280;line-height:1.5;">Aucun site internet connu pour cette entreprise&nbsp;: il n\'y a rien à mesurer.'
-      +'<br><span style="color:#9ca3af;">Ce n\'est pas un défaut en soi — beaucoup d\'entreprises vivent très bien sans site. Mais alors, tout se joue sur la fiche Google.</span></div>');
-  }
-  var corps=(typeof siteVitesseCorps==='function')?siteVitesseCorps(e.url):'';
+  var corps=siteCorps(e);
   if(!corps) return '';
-  return cadre('<div id="siteVit">'+corps+'</div>');
+  return '<div class="card"><div class="sec">'
+    +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-gauge"></i> LA VITESSE DE VOTRE SITE</div>'
+    +'<div style="font-size:11px;color:#9ca3af;margin:3px 0 7px;">Le contrôle technique du site, fait par Google&nbsp;: il l\'ouvre sur un téléphone et chronomètre.</div>'
+    +'<div>'+corps+'</div></div></div>';
 }
+/* ⚠️ ON PEINT LES DEUX ENDROITS, ET ON N'EN CRÉE QU'UN. Didier, 06/09/2026 : « toujours pareil »
+   — il voyait encore le bouton « Mesurer la vitesse ». Il était sur la FICHE, où vit la section
+   d'origine (`#siteVit`) ; ma mesure automatique alimentait une carte ajoutée AILLEURS, dans
+   l'écran SENTINELLE. Deux affichages, un seul alimenté.
+   Désormais : si la section d'origine est à l'écran, c'est ELLE qu'on remplit, et on ne crée
+   aucune carte — sinon la fiche afficherait deux fois la même mesure. */
 function sitePeindre(e){
   window.__siteEtat=e;
-  var z=siteZone(); if(!z) return;
-  z.innerHTML=siteResumeMemo();
+  var vieux=document.getElementById('siteVit');
+  if(vieux) vieux.innerHTML=siteCorps(e);
+  var carte=document.getElementById('siteVitAuto');
+  if(!carte && !vieux) carte=siteZone();
+  if(carte) carte.innerHTML=siteResumeMemo();
 }
 /* La mesure du jour, si elle existe. Au-delà d'une journée on remesure : un site refait ou un
    hébergeur qui rame ne se voient pas dans une mesure de la semaine dernière. */
@@ -7457,7 +7496,12 @@ function siteLectureHtml(m){
 }
 function siteVitesseCorps(u){
   var m=siteStore.de(u);
-  if(!m){ return (typeof iveIsAdmin==='function'&&iveIsAdmin())?siteBouton():''; }
+  /* ⚠️ PLUS DE BOUTON QUAND IL N'Y A RIEN : LA MESURE PART TOUTE SEULE (06/09/2026). Le bouton
+     ne servait qu'à la déclencher, et il n'apparaissait qu'à l'administrateur — un dirigeant
+     voyait donc une section vide, puis rien. On annonce ce qui se passe à la place. */
+  if(!m){ return '<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#6b7280;">'
+    +'<span class="spin" style="width:20px;height:20px;margin:0;border-width:2px;"></span>'
+    +'<span>Google ouvre votre site sur un téléphone et chronomètre… 10 à 30 secondes.</span></div>'; }
   var l=[];
   if(m.perf!=null)  l.push('Vitesse '+siteNote(m.perf));
   if(m.acces!=null) l.push('Lisibilité pour tous '+siteNote(m.acces));
@@ -7476,7 +7520,9 @@ function siteVitesseCorps(u){
 }
 function siteVitesseHtml(d){
   var u=siteUrlDe(d); if(!u) return '';
-  var corps=siteVitesseCorps(u); if(!corps) return '';
+  /* La section reste TOUJOURS présente : c'est elle que la mesure automatique viendra remplir
+     quelques secondes plus tard. Absente, il n'y aurait nulle part où écrire. */
+  var corps=siteVitesseCorps(u)||'';
   return '<div class="sec" data-chap="sitevitesse">'
     +'<div class="ktitle" style="color:#E8541A;"><i class="ti ti-gauge"></i> La vitesse de votre site</div>'
     +'<div style="font-size:11px;color:#9ca3af;margin:2px 0 6px;">Le contrôle technique du site, fait par Google : il l\'ouvre sur un téléphone et chronomètre.</div>'
