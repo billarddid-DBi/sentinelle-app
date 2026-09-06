@@ -4265,7 +4265,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='31/08 · 352';
+var IVE_VERSION='06/09 · 353';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6402,6 +6402,234 @@ function saveFicheSuite(d){
   }catch(e){ if(window.selfServe){ try{ saveFicheRetour(); }catch(e2){} } }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════════════════
+   LA CARTE DE LA CONCURRENCE PART AVEC SENTINELLE — 06/09/2026
+   ═══════════════════════════════════════════════════════════════════════════════════════════
+   Didier : « au lancement de SENTINELLE on lance tout de suite la carte de la concurrence, et
+   tu feras un résumé dans SENTINELLE — mais on garde toujours la carte dans le menu de départ. »
+
+   TROIS DÉCISIONS PRISES AVEC LUI, ET ELLES EXPLIQUENT TOUT CE QUI SUIT :
+   ① Une analyse coûte désormais 8 jetons : 4 pour SENTINELLE, 4 pour la concurrence. Le débit
+      est donc RÉEL et doit être annoncé avant, pas découvert après.
+   ② Le mot-clé métier ne se devine pas : il vient des CATÉGORIES que Google attribue à
+      l'établissement, il est AFFICHÉ, et il se corrige en un clic.
+   ③ La recherche part en ARRIÈRE-PLAN : la fiche SENTINELLE s'affiche comme avant, le résumé
+      arrive dedans quelques secondes plus tard. On ne double pas l'attente.
+
+   ⚠️ ET ON NE PAIE JAMAIS DEUX FOIS. Le résultat est rangé dans `concStore`, la même mémoire que
+   la carte du menu. Ouvrir la carte après une analyse ne relance donc rien : elle retrouve ce
+   qui vient d'être payé. Sans cette règle, chaque consultation aurait recoûté 4 jetons. */
+
+/* ── La table : ce que Google range, et le mot qu'un dirigeant emploierait ──────────────────
+   ⚠️ POURQUOI UNE TABLE ET PAS UNE DEVINETTE. Le 31/08, on a interdit de deviner le mot-clé : le
+   banc avait montré qu'en prenant le dernier mot de « reference pare brise augny » on cherchait
+   « augny », la ville — 4 jetons pour rien. Une catégorie Google, elle, n'est pas une supposition :
+   c'est un classement que Google a posé sur CET établissement. Elle se traduit, elle ne se devine
+   pas.
+   ⚠️ ET LE MOT FRANÇAIS COMPTE AUTANT QUE LA TRADUCTION. On ne cherche pas « car_repair » mais le
+   mot que les voisins ont écrit sur leur propre fiche : « garage », « plombier », « boulangerie ».
+   C'est ce mot-là qui ramène des concurrents. */
+var CONCU_METIERS={
+  bakery:'boulangerie', cafe:'café', bar:'bar', restaurant:'restaurant', meal_takeaway:'restauration à emporter',
+  meal_delivery:'livraison de repas', food:'alimentation', supermarket:'supermarché', grocery_or_supermarket:'épicerie',
+  butcher:'boucherie', liquor_store:'caviste', florist:'fleuriste',
+  hair_care:'coiffeur', beauty_salon:'institut de beauté', spa:'spa', nail_salon:'onglerie',
+  car_repair:'garage', car_dealer:'concessionnaire auto', car_wash:'lavage auto', car_rental:'location de voiture',
+  gas_station:'station-service', bicycle_store:'vélo', moving_company:'déménagement',
+  plumber:'plombier', electrician:'électricien', roofing_contractor:'couvreur', painter:'peintre',
+  locksmith:'serrurier', general_contractor:'travaux', hardware_store:'quincaillerie', storage:'garde-meuble',
+  furniture_store:'meubles', home_goods_store:'décoration', electronics_store:'électroménager',
+  clothing_store:'vêtements', shoe_store:'chaussures', jewelry_store:'bijouterie', book_store:'librairie',
+  pet_store:'animalerie', store:'magasin', shopping_mall:'centre commercial',
+  dentist:'dentiste', doctor:'médecin', physiotherapist:'kinésithérapeute', veterinary_care:'vétérinaire',
+  pharmacy:'pharmacie', optician:'opticien', hospital:'clinique',
+  lawyer:'avocat', accounting:'comptable', insurance_agency:'assurance', real_estate_agency:'agence immobilière',
+  travel_agency:'agence de voyage', bank:'banque',
+  gym:'salle de sport', lodging:'hôtel', campground:'camping', laundry:'pressing',
+  school:'école', driving_school:'auto-école', university:'formation',
+  photographer:'photographe', printer:'imprimerie', funeral_home:'pompes funèbres'
+};
+/* Ces catégories-là ne disent RIEN du métier : Google les colle à presque tout. Les retenir
+   ferait chercher « point d'intérêt » aux quatre coins du département. */
+var CONCU_TYPES_VIDES=/^(point_of_interest|establishment|premise|finance|health|store|food)$/;
+
+/* Le mot-clé, et d'où il vient — les deux voyagent ensemble, toujours. */
+function concuMotCle(d){
+  d=d||{};
+  var g=(d._auraCalc&&d._auraCalc.fiche_google)||{};
+  var types=Array.isArray(g.types)?g.types:[];
+  for(var i=0;i<types.length;i++){
+    var t=String(types[i]||'').toLowerCase();
+    if(CONCU_TYPES_VIDES.test(t)) continue;
+    if(CONCU_METIERS[t]) return { mot:CONCU_METIERS[t], source:'catégorie Google « '+t+' »', sur:true };
+  }
+  /* ⚠️ AUCUNE CATÉGORIE EXPLOITABLE = ON NE CHERCHE PAS. C'est la règle du 31/08, tenue : une
+     recherche lancée sur un mot inventé coûte 4 jetons et ramène n'importe qui. Mieux vaut
+     demander le mot au dirigeant — il le connaît, lui. */
+  return { mot:'', source:types.length?('catégories Google inexploitables : '+types.join(', ')):'aucune catégorie Google', sur:false };
+}
+
+/* ── Le résumé affiché dans SENTINELLE ─────────────────────────────────────────────────────
+   Quelques lignes, jamais la carte entière : elle reste dans le menu, et c'est là qu'on la lit. */
+function concuResumeHtml(cs, mc){
+  var cadre=function(inner){
+    return '<div class="card"><div class="sec">'
+      +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-users-group"></i> AUTOUR DE VOUS</div>'
+      +inner+'</div></div>';
+  };
+  if(!cs){ return ''; }
+  if(cs.attente){
+    return cadre('<div style="display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12.5px;color:#6b7280;">'
+      +'<span class="spin" style="width:20px;height:20px;margin:0;border-width:2px;"></span>'
+      +'<span>Recherche des entreprises voisines'+(mc&&mc.mot?(' en « '+esc(mc.mot)+' »'):'')+'…</span></div>');
+  }
+  if(cs.erreur){
+    /* Un échec ne se cache pas : il a coûté des jetons, et le dirigeant doit savoir quoi faire. */
+    return cadre('<div style="margin-top:8px;font-size:12.5px;color:#b45309;"><i class="ti ti-alert-triangle"></i> '+esc(cs.erreur)
+      +'</div><div style="margin-top:8px;">'+concuBoutonCarte('Ouvrir la carte de la concurrence')+'</div>');
+  }
+  var d=cs.d||{}, list=Array.isArray(d.concurrents)?d.concurrents:[];
+  if(!list.length){
+    return cadre('<div style="margin-top:8px;font-size:12.5px;color:#6b7280;">Aucune entreprise voisine trouvée en <b>'+esc(cs.kw||'')+'</b>.'
+      +'<br>Le mot est peut-être trop précis — la carte permet d\'en essayer un autre.</div>'
+      +'<div style="margin-top:8px;">'+concuMotCleLigne(cs,mc)+'</div>');
+  }
+  /* Trois chiffres, pas un de plus : combien, jusqu'où, et où il se situe. */
+  var dk=list.map(function(c){ return c.distance; }).filter(function(x){ return x!=null; });
+  var km=function(x){ return String(Math.round(x*10)/10).replace('.',',')+' km'; };
+  var portee=dk.length?(dk.length===1?('à '+km(dk[0])):('entre '+km(Math.min.apply(null,dk))+' et '+km(Math.max.apply(null,dk)))):'';
+  var moi=(d.prospect&&d.prospect.aura&&d.prospect.aura.note!=null)?+d.prospect.aura.note:null;
+  var notes=list.map(function(c){ return (c.aura&&c.aura.note!=null)?+c.aura.note:null; }).filter(function(x){ return x!=null; });
+  var rang='';
+  if(moi!=null && notes.length){
+    var devant=notes.filter(function(x){ return x>moi; }).length;
+    rang=devant
+      ? ('<b>'+devant+'</b> '+(devant>1?'ont':'a')+' une note publique plus haute que la vôtre, sur '+(notes.length+1)+' comparées.')
+      : ('Aucune n\'a une note publique plus haute que la vôtre, sur '+(notes.length+1)+' comparées.');
+  }
+  var ligne=function(ic,txt){
+    return '<div style="display:flex;gap:9px;align-items:flex-start;margin-top:7px;font-size:12.5px;color:#374151;line-height:1.5;">'
+      +'<i class="ti '+ic+'" style="font-size:15px;color:#9ca3af;padding-top:2px;"></i><div style="flex:1;">'+txt+'</div></div>';
+  };
+  return cadre(
+    ligne('ti-map-pin','<b>'+list.length+'</b> entreprise'+(list.length>1?'s':'')+' en <b>'+esc(cs.kw||'')+'</b> '+(portee?('autour de vous, '+portee):'autour de vous')+'.')
+    +(cs.dejaFaite?ligne('ti-history','Carte <b>déjà faite aujourd\'hui</b> — rien n\'a été redébité.'):'')
+    +(rang?ligne('ti-star',rang):'')
+    +'<div style="margin-top:10px;">'+concuBoutonCarte('Voir la carte et le détail')+'</div>'
+    +concuMotCleLigne(cs,mc));
+}
+/* ⚠️ LE MOT-CLÉ EST AFFICHÉ ET CORRIGEABLE. C'est la contrepartie de l'automatisme : le
+   dirigeant doit pouvoir dire « ce n'est pas mon métier » sans chercher où. */
+function concuMotCleLigne(cs, mc){
+  var src=(mc&&mc.source)||(cs&&cs.source)||'';
+  return '<div style="margin-top:9px;padding-top:8px;border-top:1px solid #f1f3f4;font-size:11px;color:#9ca3af;line-height:1.5;">'
+    +'Cherché en <b>« '+esc((cs&&cs.kw)||'')+' »</b>'+(src?(' — '+esc(src)):'')+'. '
+    +'<a onclick="concuChangerMot()" style="color:#E8541A;font-weight:700;text-decoration:underline;cursor:pointer;">Ce n\'est pas mon métier</a></div>';
+}
+function concuBoutonCarte(txt){
+  return '<button type="button" onclick="concuOuvrirCarte()" style="border:1px solid #E8541A;background:#fff;color:#E8541A;border-radius:10px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;"><i class="ti ti-map-2"></i> '+esc(txt)+'</button>';
+}
+
+/* ── Le lancement en arrière-plan ───────────────────────────────────────────────────────────
+   La fiche SENTINELLE est déjà à l'écran quand ceci part. Le résumé s'y ajoute quand la réponse
+   arrive — personne n'attend devant un écran de chargement de deux minutes.
+
+   ⚠️ ON NE LANCE RIEN SANS ÊTRE SÛR DU MOT. Sans catégorie Google exploitable, on n'invente pas :
+   on affiche un encadré qui demande le métier, et les 4 jetons restent au dirigeant.
+   ⚠️ ON NE LANCE RIEN SI LA CARTE DU JOUR EXISTE DÉJÀ. Relancer une analyse dans la même journée
+   redébiterait 4 jetons pour un résultat que la mémoire a déjà. */
+function concuZone(){
+  var z=document.getElementById('concuResume');
+  if(!z){
+    z=document.createElement('div'); z.id='concuResume';
+    var r=document.getElementById('result');
+    if(r) r.appendChild(z); else return null;
+  }
+  return z;
+}
+function concuPeindre(cs, mc){
+  var z=concuZone(); if(!z) return;
+  z.innerHTML=(typeof concuResumeHtml==='function')?concuResumeHtml(cs,mc):'';
+}
+/* La carte d'aujourd'hui, si elle existe. Au-delà d'une journée on la considère à refaire :
+   les voisins bougent, et une carte de la semaine dernière se présenterait comme neuve. */
+function concuCarteDuJour(){
+  try{
+    var s=concStore.load();
+    if(s && s.ts && (Date.now()-s.ts) < 20*3600*1000) return s;
+  }catch(e){}
+  return null;
+}
+function concuAuto(d){
+  if(!concuZone()) return;
+  var mc=concuMotCle(d);
+
+  /* ① Déjà payée aujourd'hui : on montre, on ne relance pas. */
+  var deja=concuCarteDuJour();
+  /* ⚠️ DEUX INFORMATIONS DIFFÉRENTES, DEUX PLACES. La provenance du mot-clé et le fait que la
+     carte soit celle du jour ne se remplacent pas l'une l'autre : la première dit POURQUOI on a
+     cherché ce mot, la seconde dit qu'on n'a rien redébité. Les confondre en effaçait une. */
+  if(deja){ concuPeindre({d:deja.d, kw:deja.kw, source:mc.source, dejaFaite:true}, mc); return; }
+
+  /* ② Pas de mot-clé sûr : on demande, on ne devine pas. */
+  if(!mc.sur || !mc.mot){
+    concuPeindre({ erreur:'Nous n\'avons pas pu déduire votre métier des catégories Google. Ouvrez la carte et indiquez-le en un mot — la recherche partira alors sur le bon terme.' }, mc);
+    return;
+  }
+
+  /* ③ Le solde AVANT l'indicateur de recherche. `jetLancer` refuse tout seul quand il manque des
+        jetons — mais il ouvre alors l'écran des offres et n'exécute JAMAIS l'action. Peindre la
+        roue d'attente avant de le savoir la laisserait tourner pour toujours. */
+  try{
+    var e=(typeof jetEtat==='function')?jetEtat():null;
+    if(e && e.reste!=null && e.reste < JETONS_COUT.concurrence){
+      concuPeindre({ erreur:'La carte des voisins demande '+JETONS_COUT.concurrence+' jetons, il vous en reste '+e.reste+'. Votre analyse est complète — la carte vous attend dans le menu quand vous voudrez.' }, mc);
+      return;
+    }
+  }catch(e2){}
+
+  /* ④ Les 4 jetons de la carte, débités ici et pas ailleurs. */
+  concuPeindre({ attente:true }, mc);
+  var partir=function(){
+    fetch('/api/concurrents',{method:'POST',headers:{'content-type':'application/json'},
+      body:JSON.stringify({ nom:(window.lastNom||d.nom||''), ville:(window.lastVille||d.ville||''), keyword:mc.mot,
+                            archetype:(d.archetype||''), activite:(d.activite||''),
+                            prospectAura:(d.indice&&d.indice.estime!=null)?d.indice.estime:null,
+                            prospectAvis:(d._auraCalc&&d._auraCalc.nb_avis)||null,
+                            prospectSite:(d._auraCalc&&d._auraCalc.site_url)||'' })})
+     .then(function(r){ if(r.status===504||r.status===408||r.status===502){ throw new Error('timeout'); } return r.json(); })
+     .then(function(res){
+       if(typeof jetLibere==='function') jetLibere();
+       if(res && res.error){ concuPeindre({ erreur:res.error }, mc); return; }
+       /* Le mot-clé est mémorisé : la carte du menu s'ouvrira remplie avec lui, et non avec
+          l'activité brute de la fiche. */
+       try{ concStore.save(res, mc.mot); if(typeof concKwGarder==='function') concKwGarder(mc.mot); }catch(e){}
+       concuPeindre({ d:res, kw:mc.mot, source:mc.source }, mc);
+     })
+     .catch(function(){
+       if(typeof jetLibere==='function') jetLibere();
+       /* ⚠️ ET ON DIT QUE LES JETONS SONT PARTIS. Un échec silencieux sur une action payante est
+          la pire des combinaisons : le dirigeant ne sait ni ce qui s'est passé, ni ce qu'il a payé. */
+       concuPeindre({ erreur:'La recherche des voisins a pris trop de temps. Les jetons ont été décomptés — la carte du menu permet de relancer sans en dépenser d\'autres aujourd\'hui.' }, mc);
+     });
+  };
+  if(typeof jetLancer==='function'){ jetLancer(JETONS_COUT.concurrence, partir, 'concurrence'); }
+  else partir();
+}
+
+/* ── Les deux actions du résumé ─────────────────────────────────────────────────────────── */
+/* La carte complète reste dans le menu : on y va, on ne la recopie pas ici. */
+function concuOuvrirCarte(){
+  try{ if(typeof openConcurrence==='function'){ openConcurrence(); return; } }catch(e){}
+}
+/* ⚠️ CORRIGER LE MOT NE DOIT RIEN COÛTER DE PLUS AUJOURD'HUI. On envoie sur la carte, où le
+   champ existe déjà et où le mot saisi est mémorisé — plutôt que d'ouvrir une deuxième saisie
+   qui ferait deux endroits pour une même chose. */
+function concuChangerMot(){
+  try{ if(typeof concKwGarder==='function') concKwGarder(''); }catch(e){}
+  concuOuvrirCarte();
+}
+
 /* ===== CONCURRENCE (module SENTINELLE) ===== */
 function openConcurrence(){
   var nom=window.lastNom||'';
@@ -6419,6 +6647,17 @@ function openConcurrence(){
    +'<div style="font-size:11px;color:#9ca3af;margin:4px 0 12px;">1-2 mots <b>précis</b> — on cherche les entreprises dont le nom ou l\'activité contient ce mot, autour de votre prospect.</div>'
    +concActionsHtml()
    +'<div class="hint">Avis récupérés par l\'IA — comptez ~30 s pour 8 entreprises.</div></div><div id="cOut"></div>';
+  /* ⚠️ LA CARTE DU JOUR EST DÉJÀ PAYÉE : ON LA MONTRE. Sans cette reprise, le panneau s'ouvrait
+     vide après une analyse, le dirigeant cliquait « Chercher », et les 4 jetons repartaient pour
+     un résultat qu'on avait déjà en mémoire. */
+  try{
+    var _cj=(typeof concuCarteDuJour==='function')?concuCarteDuJour():null;
+    if(_cj && _cj.d && typeof renderConcu==='function'){
+      renderConcu(_cj.d);
+      var _co=document.getElementById('cOut');
+      if(_co) _co.insertAdjacentHTML('afterbegin','<div class="sec" style="font-size:11.5px;color:#6b7280;padding-bottom:0;"><i class="ti ti-history" style="color:#E8541A;"></i> Carte faite aujourd\'hui avec votre analyse. La relancer coûterait '+JETONS_COUT.concurrence+' jetons de plus.</div>');
+    }
+  }catch(e){}
   host.scrollIntoView({behavior:'smooth',block:'start'});
 }
 function presBadge(p){
