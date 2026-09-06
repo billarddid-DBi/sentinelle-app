@@ -4300,7 +4300,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 357';
+var IVE_VERSION='06/09 · 358';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6367,6 +6367,12 @@ function render(d,skipSave){
      d'enregistrer le fichier, et rien ne l'a signalé. Le banc appelait `concuAuto` directement :
      il vérifiait la pièce, jamais le branchement. Les deux sont corrigés. */
   if(!skipSave) setTimeout(function(){
+    /* La vitesse part avec : elle est gratuite chez Google, donc rien ne justifie d'attendre
+       qu'on la demande. */
+    try{ siteAuto(d); }
+    catch(e){
+      try{ sitePeindre({ erreur:'La mesure de vitesse n\'a pas pu démarrer ('+((e&&e.message)||e)+').' }); }catch(e2){}
+    }
     try{ concuAuto(d); }
     catch(e){
       try{ concuPeindre({ erreur:'La recherche des voisins n\'a pas pu démarrer ('+((e&&e.message)||e)+'). La carte reste disponible dans le menu.' }, null); }catch(e2){}
@@ -7247,6 +7253,100 @@ function siteUrlDe(d){
   var u=(g&&g.site_url)?g.site_url:((d&&d.site)?d.site:'');
   return (/^https?:\/\//i.test(u||''))?u:'';
 }
+/* ═══ LA VITESSE DU SITE SE MESURE TOUTE SEULE — 06/09/2026 ══════════════════════════════════
+   Didier : « fais toujours la mesure de vitesse du site et affiche les résultats. »
+
+   Jusqu'ici elle attendait un clic — et le bouton n'apparaissait QUE pour l'administrateur.
+   Un dirigeant ne voyait donc rien du tout : la section entière disparaissait de sa fiche.
+   Elle part désormais avec l'analyse, comme la carte des voisins.
+
+   ⚠️ ELLE NE COÛTE RIEN. L'appel PageSpeed est gratuit chez Google et ne passe ni par l'IA ni
+   par le décompte : c'est ce qui permet de la lancer systématiquement sans y réfléchir.
+   ⚠️ ET ELLE N'ENTRE TOUJOURS PAS DANS LA NOTE (décision du 13/08/2026). On la mesure, on
+   l'affiche, on ne la compte pas : un site lent n'est pas une mauvaise entreprise.
+   ⚠️ ENFIN, ELLE SE SOUVIENT. Même piège que le résumé des voisins : `showView()` vide
+   `#result`, et l'écran du dirigeant se redessine après l'analyse. Une mesure peinte dans une
+   zone effacée serait perdue sans que rien ne le dise. */
+function siteZone(){
+  var z=document.getElementById('siteVitAuto');
+  if(z) return z;
+  var dir=document.getElementById('dirigeant');
+  var hote=(dir && getComputedStyle(dir).display!=='none') ? dir : document.getElementById('result');
+  if(!hote) return null;
+  z=document.createElement('div'); z.id='siteVitAuto';
+  hote.appendChild(z);
+  return z;
+}
+/* Ce que la section doit afficher, où qu'elle soit redessinée. */
+function siteResumeMemo(){
+  var e=window.__siteEtat;
+  if(!e) return '';
+  var cadre=function(inner){
+    return '<div class="card"><div class="sec">'
+      +'<div style="font-size:10px;font-weight:800;letter-spacing:1.2px;color:#E8541A;"><i class="ti ti-gauge"></i> LA VITESSE DE VOTRE SITE</div>'
+      +'<div style="font-size:11px;color:#9ca3af;margin:3px 0 7px;">Le contrôle technique du site, fait par Google&nbsp;: il l\'ouvre sur un téléphone et chronomètre.</div>'
+      +inner+'</div></div>';
+  };
+  if(e.attente){
+    return cadre('<div style="display:flex;align-items:center;gap:10px;font-size:12.5px;color:#6b7280;">'
+      +'<span class="spin" style="width:20px;height:20px;margin:0;border-width:2px;"></span>'
+      +'<span>Google ouvre votre site sur un téléphone et chronomètre… 10 à 30 secondes.</span></div>');
+  }
+  if(e.erreur){
+    /* Un échec se dit, et il dit OÙ corriger : sans cela on cherche au mauvais endroit. */
+    return cadre('<div style="font-size:12.5px;color:#b45309;line-height:1.5;"><i class="ti ti-alert-triangle"></i> '+esc(e.erreur)+'</div>');
+  }
+  if(e.sansSite){
+    return cadre('<div style="font-size:12.5px;color:#6b7280;line-height:1.5;">Aucun site internet connu pour cette entreprise&nbsp;: il n\'y a rien à mesurer.'
+      +'<br><span style="color:#9ca3af;">Ce n\'est pas un défaut en soi — beaucoup d\'entreprises vivent très bien sans site. Mais alors, tout se joue sur la fiche Google.</span></div>');
+  }
+  var corps=(typeof siteVitesseCorps==='function')?siteVitesseCorps(e.url):'';
+  if(!corps) return '';
+  return cadre('<div id="siteVit">'+corps+'</div>');
+}
+function sitePeindre(e){
+  window.__siteEtat=e;
+  var z=siteZone(); if(!z) return;
+  z.innerHTML=siteResumeMemo();
+}
+/* La mesure du jour, si elle existe. Au-delà d'une journée on remesure : un site refait ou un
+   hébergeur qui rame ne se voient pas dans une mesure de la semaine dernière. */
+function siteMesureDuJour(u){
+  try{
+    var m=siteStore.de(u);
+    if(m && m.ts && (Date.now()-m.ts) < 20*3600*1000) return m;
+  }catch(e){}
+  return null;
+}
+function siteAuto(d){
+  if(!siteZone()) return;
+  var u=(typeof siteUrlDe==='function')?siteUrlDe(d):'';
+  if(!u){ sitePeindre({ sansSite:true }); return; }
+  if(siteMesureDuJour(u)){ sitePeindre({ url:u }); return; }
+
+  sitePeindre({ attente:true });
+  fetch('/api/sentinelle',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pagespeed:u})})
+    .then(function(r){ return r.json(); })
+    .then(function(m){
+      if(!m || !m.ok){
+        /* Le mot de Google est repris tel quel et TRADUIT en geste : chacun de ces refus se
+           corrige à un endroit différent, et envoyer quelqu'un au mauvais écran lui fait perdre
+           le quart d'heure qu'on cherchait à lui épargner. */
+        var QUOI={ SANS_CLE:'aucune clé Google n\'est configurée côté serveur.',
+                   SANS_URL:'l\'adresse du site n\'est pas exploitable.',
+                   SANS_REPONSE:'Google n\'a pas répondu dans le délai.',
+                   '403':'la clé Google n\'autorise pas cette API (restriction de clé, ou API non activée).',
+                   '429':'quota Google dépassé — la mesure repartira toute seule à la prochaine analyse.' };
+        sitePeindre({ erreur:'La mesure n\'a pas abouti — '+(QUOI[m&&m.statut]||('réponse '+((m&&m.statut)||'?'))) });
+        return;
+      }
+      m.ts=Date.now();
+      try{ siteStore.poser(u,m); }catch(e){}
+      sitePeindre({ url:u });
+    })
+    .catch(function(){ sitePeindre({ erreur:'La mesure n\'a pas abouti — le réseau n\'a pas répondu.' }); });
+}
+
 function siteMesurer(){
   var d=window.__sentData||{}, u=siteUrlDe(d);
   var z=$('siteVit'); if(!z) return;
@@ -10882,6 +10982,7 @@ function sentApercu(){
       +(typeof iveTuilesHtml==='function'?iveTuilesHtml(f):'')
       /* Le résumé des voisins a sa place ICI, dans l'écran SENTINELLE, et il est repeint à
          chaque rendu depuis la mémoire : sinon un simple retour sur l'écran l'effacerait. */
+      +'<div id="siteVitAuto">'+((typeof siteResumeMemo==='function')?siteResumeMemo():'')+'</div>'
       +'<div id="concuResume">'+((typeof concuResumeMemo==='function')?concuResumeMemo():'')+'</div>'
       +'<div style="margin-top:18px;">'+noteBoxHtml(f,false)+'</div>'
       +(typeof iveBlocLeviers==='function'?iveBlocLeviers():'')
