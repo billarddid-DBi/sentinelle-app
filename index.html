@@ -3029,7 +3029,7 @@ function showArchived(g){
 function remesurer(){
   var g=window.__lastGet||{};
   var acc=currentAccount();
-  if(window.selfServe && (!acc || !(acc.price>0))){ paywallView(); return; }
+  if(ABONNEMENT_ACTIF && window.selfServe && (!acc || !(acc.price>0))){ paywallView(); return; }
   window.__remesure=true;
   window.__scanAdresse=(g.adresse||null);
   /* Une re-mesure repart de l'identifiant DÉJÀ connu de la fiche : refaire une recherche par
@@ -3476,6 +3476,19 @@ function iveFaitSet(k){ try{ var o=iveFaits(); o[k]=Date.now(); localStorage.set
    CE QUE « ÉTEINT » VEUT DIRE, PRÉCISÉMENT : plus aucun décompte, plus aucune pastille, plus
    aucun « · 4 jetons » nulle part, et plus jamais d'action refusée faute de solde. */
 var JETONS_ACTIFS=false;
+/* ═══ L'ABONNEMENT EST ÉTEINT LUI AUSSI — 06/09/2026 ═════════════════════════════════════════
+   Didier, dans la foulée des jetons : « enlève aussi la notion d'abonnement partout. »
+   Même raison, même méthode. Sans client, un abonnement ne fait que verrouiller des écrans
+   devant son propre auteur, et afficher des prix à personne.
+
+   ⚠️ ÉTEINT VEUT DIRE : plus de pastille « Abonnement 129 €/an », plus d'écran d'offre imposé,
+   plus de bouton « Débloquer mes outils », plus aucun écran fermé. Tout est ouvert.
+   ⚠️ ON N'ARRACHE PAS, POUR LA MÊME RAISON QUE LES JETONS : les deux formules et leurs cartes
+   de tarifs sont le modèle économique chiffré fin juillet. Une ligne à `true` les remet en
+   service, à l'identique.
+   ⚠️ CE QUE CET INTERRUPTEUR NE TOUCHE PAS : la console de facturation (console.html), qui est
+   un outil d'administration séparé, et les prix mémorisés sur les comptes en base. */
+var ABONNEMENT_ACTIF=false;
 var JETONS_COUT={sentinelle:4,concurrence:4,miroir:3,detail:0,detection:1};
 function jetKey(){ var a=(typeof currentAccount==='function')?currentAccount():window.currentUser; return 'ive_jetons_v1_'+(((a&&a.email)||'anon')+'').toLowerCase(); }
 function jetPeriode(){
@@ -4287,7 +4300,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 356';
+var IVE_VERSION='06/09 · 357';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -9880,12 +9893,14 @@ function ivePlanReel(){
   return '';
 }
 function iveAbonnementTxt(){
+  if(!ABONNEMENT_ACTIF) return '';   // éteint : plus de « 129 €/an » nulle part
   var p=ivePlanReel();
   if(!p) return '';
   return (p==='annuel')?'129 €/an':'12,90 €/mois';
 }
 // Pastille verte « abonnement actif » pour les bandeaux noirs — le dirigeant voit qu'il est bien pris en compte.
 function iveAbonnementChip(){
+  if(!ABONNEMENT_ACTIF) return '';   // éteint : aucune mention d'abonnement dans les bandeaux
   if(!boussoleActif()) return '';
   var t=iveAbonnementTxt();
   // Cliquable : mène à l'offre — changer de formule ou racheter des jetons.
@@ -10127,7 +10142,9 @@ function iveBandDroite(avecDeconnexion){
     +(avecDeconnexion?'<div><a href="#" onclick="authLogout();return false;" style="font-size:10.5px;color:#9ca3af;"><i class="ti ti-logout"></i> Déconnexion</a></div>':'')
   +'</div>';
 }
-function boussoleActif(){ return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
+/* Abonnement éteint : plus rien n'est verrouillé. C'est cette fonction que TOUS les écrans
+   interrogent pour savoir s'ils ont le droit de s'ouvrir — une seule garde suffit donc ici. */
+function boussoleActif(){ if(!ABONNEMENT_ACTIF) return true; return !!window.__boussoleActive || !!ivePlanGet() || iveIsAdmin() || !!(window.currentUser && +window.currentUser.price>0); }
 // Clé EXACTE de la fiche SENTINELLE du dirigeant. Le nom officiel du scan (ex "IT MATELEC ET ASSOCIES",
 // ville "Norroy-le-Veneur") diffère souvent de ce que le dirigeant a tapé ("it matelec") → on retrouve
 // la fiche par la clé mémorisée sur le compte (sentNom/sentVille), sinon on retombe sur le nom saisi.
@@ -12749,6 +12766,10 @@ function boussoleOutil(which){
 // BOUSSOLE commence par écouter : tant que les 5 questions ne sont pas faites, on ne montre NI
 // les outils, NI le plan, NI les tarifs. L'offre n'arrive qu'après la question d'intention.
 function paywallView(){
+  /* ⚠️ FILET, PAS SERRURE. Les appelants sont neutralisés un par un, mais un chemin oublié — ou
+     un écran ajouté demain — ramènerait le dirigeant devant une offre alors qu'il n'y a plus
+     rien à vendre. Ici on le renvoie simplement chez lui. */
+  if(!ABONNEMENT_ACTIF){ if(typeof dirigeantSpace==='function') dirigeantSpace(); return; }
   window.__bouRep=null;                       // relit le stockage (changement de compte possible)
   var r=bouRep(), et=bouEtape();
   if(et<6) return bouIntro();                 // questionnaire non terminé → on écoute d'abord
