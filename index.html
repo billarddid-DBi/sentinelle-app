@@ -2827,7 +2827,10 @@ function etabChooser(q, list, dup){
                    : 'Cliquez sur le vôtre : son nom et son adresse seront repris tels que Google les connaît.')+'</div>'
       +'<div style="margin-top:4px;">'+rows+'</div>'
       +'<button type="button" id="etabAutre" style="width:100%;margin-top:10px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-pencil"></i> Autre adresse…</button>'
-      +(dup&&dup.found&&conseiller?'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>':'')
+      /* ⚠️ MEME SOURCE QUE LE SURLIGNAGE. Ce bouton se fiait à dup, issu de la recherche par
+         TEXTE, pendant que les lignes étaient surlignées par l'IDENTIFIANT : il restait donc
+         caché exactement quand il servait. dejaVues compte ce qui est réellement marqué. */
+      +((dejaVues||(dup&&dup.found))&&conseiller?'<button type="button" id="etabRedo" style="width:100%;margin-top:8px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:10px;padding:10px;font-size:13px;cursor:pointer;font-family:inherit;"><i class="ti ti-refresh"></i> Refaire quand même (passe-droit conseiller)</button>':'')
       +'<button type="button" id="etabCancel" style="width:100%;margin-top:8px;border:none;background:none;color:#9ca3af;font-size:13px;cursor:pointer;font-family:inherit;padding:8px;">Annuler</button></div>';
     document.body.appendChild(ov);
     function done(v){ ov.remove(); resolve(v); }
@@ -2837,7 +2840,22 @@ function etabChooser(q, list, dup){
         /* Le NOM de Google part avec le choix, pas seulement l'adresse : c'est lui qui devient
            le nom de la fiche. Sans cela, « La Romana » et « LE ROMANA (PIZZERIA ROMANA) »
            continueraient de créer deux fiches pour un seul restaurant. */
-        if(x.pris){ done({nom:x.nom,adresse:x.adresse,place_id:x.place_id,afficher:true}); return; }
+        if(x.pris){
+          /* ⚠️ UNE ENTREPRISE DÉJÀ ÉTUDIÉE DOIT POUVOIR ÊTRE REFAITE. Didier, 06/09/2026 :
+             « impossible de lancer SENTINELLE » sur Fitness Park. La ligne était marquée
+             « étudiée » — juste — et le seul clic possible menait à l'archive. Le bouton
+             « Refaire quand même » existait pourtant, mais sa condition reposait sur l'ANCIEN
+             test par texte, qui répondait non pendant que l'identifiant répondait oui. Deux
+             sources pour une même question, et une porte qui ne s'ouvrait jamais.
+             On pose donc les deux issues ICI, à l'instant où il désigne son établissement. */
+          var quand=x.prisLe?(' le '+new Date(x.prisLe).toLocaleDateString('fr-FR')):'';
+          var voir=confirm((x.nom||'Cette entreprise')+' a déjà été analysée'+quand+'.\n\n'
+            +'OK — voir cette analyse\nAnnuler — en refaire une nouvelle');
+          done(voir
+            ? {nom:x.nom,adresse:x.adresse,place_id:x.place_id,afficher:true}
+            : {nom:x.nom,adresse:x.adresse,place_id:x.place_id,refaire:true});
+          return;
+        }
         done({nom:x.nom,adresse:x.adresse,place_id:x.place_id,refaire:false});
       };
     });
@@ -4324,7 +4342,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 360';
+var IVE_VERSION='06/09 · 361';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
