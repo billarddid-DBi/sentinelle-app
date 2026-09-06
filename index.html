@@ -4265,7 +4265,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 353';
+var IVE_VERSION='06/09 · 354';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -6322,6 +6322,21 @@ function render(d,skipSave){
      la version nettoyée : sauver celle-ci réécrirait en base ce que le serveur a produit, et un
      défaut de nettoyage deviendrait alors une perte de données. */
   if(!skipSave) setTimeout(function(){ saveFiche(window.__ficheBrute||d); }, 700);
+  /* ⚠️ LA CARTE DE LA CONCURRENCE PART D'ICI, ET SEULEMENT APRÈS L'AFFICHAGE. Didier,
+     06/09/2026 : « au lancement de SENTINELLE on lance tout de suite la carte de la
+     concurrence. » En arrière-plan : la fiche est déjà à l'écran, le résumé s'y ajoute quelques
+     secondes plus tard.
+     ⚠️ PAS SUR UNE FICHE ROUVERTE (`skipSave`) : consulter une archive ne doit rien redébiter.
+     ⚠️ ET ON N'AVALE PAS L'ERREUR. Première version : `try{ concuAuto(d); }catch(e){}`. Pire
+     encore, cette ligne n'a jamais été écrite — ma commande d'insertion s'était arrêtée avant
+     d'enregistrer le fichier, et rien ne l'a signalé. Le banc appelait `concuAuto` directement :
+     il vérifiait la pièce, jamais le branchement. Les deux sont corrigés. */
+  if(!skipSave) setTimeout(function(){
+    try{ concuAuto(d); }
+    catch(e){
+      try{ concuPeindre({ erreur:'La recherche des voisins n\'a pas pu démarrer ('+((e&&e.message)||e)+'). La carte reste disponible dans le menu.' }, null); }catch(e2){}
+    }
+  }, 900);
   // Dirigeant : on ne montre JAMAIS le scan brut ; on prépare son espace (cockpit) qui prendra le relais.
   if(SS){ $('result').innerHTML='<div class="card" style="text-align:center;padding:34px 20px;color:#6b7280;"><span class="spin"></span><div style="margin-top:10px;font-size:13px;">Préparation de votre espace…</div></div>'; }
 }
@@ -6485,8 +6500,12 @@ function concuResumeHtml(cs, mc){
   }
   if(cs.erreur){
     /* Un échec ne se cache pas : il a coûté des jetons, et le dirigeant doit savoir quoi faire. */
-    return cadre('<div style="margin-top:8px;font-size:12.5px;color:#b45309;"><i class="ti ti-alert-triangle"></i> '+esc(cs.erreur)
-      +'</div><div style="margin-top:8px;">'+concuBoutonCarte('Ouvrir la carte de la concurrence')+'</div>');
+    /* ⚠️ ET ON MONTRE CE QUE GOOGLE A RÉPONDU. Sans les catégories reçues, ni le dirigeant ni
+       moi ne pouvons savoir quel mot il aurait fallu — c'est la différence entre « ça n'a pas
+       marché » et « voici pourquoi ». */
+    return cadre('<div style="margin-top:8px;font-size:12.5px;color:#b45309;"><i class="ti ti-alert-triangle"></i> '+esc(cs.erreur)+'</div>'
+      +((mc&&mc.source)?('<div style="margin-top:6px;font-size:11px;color:#9ca3af;">'+esc(mc.source)+'</div>'):'')
+      +'<div style="margin-top:8px;">'+concuBoutonCarte('Ouvrir la carte de la concurrence')+'</div>');
   }
   var d=cs.d||{}, list=Array.isArray(d.concurrents)?d.concurrents:[];
   if(!list.length){
@@ -6561,7 +6580,9 @@ function concuCarteDuJour(){
   return null;
 }
 function concuAuto(d){
-  if(!concuZone()) return;
+  /* ⚠️ SANS ZONE D'AFFICHAGE, ON NE PART PAS — ET ON LAISSE UNE TRACE. Sortir en silence ici
+     était l'une des façons dont la carte pouvait « ne pas se lancer » sans rien dire. */
+  if(!concuZone()){ try{ console.warn('SENTINELLE : pas de zone #result, la carte des voisins ne part pas.'); }catch(e){} return; }
   var mc=concuMotCle(d);
 
   /* ① Déjà payée aujourd'hui : on montre, on ne relance pas. */
