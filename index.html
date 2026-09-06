@@ -4342,7 +4342,7 @@ function iveTuilesHtml(d){
 // Page de synthèse « Voilà ce que les autres voient » — vue d'ensemble sur une seule slide.
 // Repère de version : affiché en bas de la page SENTINELLE. À incrémenter à chaque livraison
 // pour vérifier d'un coup d'œil quelle version le navigateur a réellement chargée.
-var IVE_VERSION='06/09 · 361';
+var IVE_VERSION='06/09 · 362';
 // La version s'affiche sur la carte « Mon compte » : repère immédiat au premier écran.
 try{ document.addEventListener('DOMContentLoaded',function(){ var e=document.getElementById('verCompte'); if(e) e.textContent='version '+IVE_VERSION; }); }catch(e){}
 // Carte d'identité — SOURCE UNIQUE (page SENTINELLE + rapport).
@@ -5181,14 +5181,23 @@ function chaineConsultant(d, v){
       var moi=(s.d.prospect&&s.d.prospect.aura&&s.d.prospect.aura.note!=null)?+s.d.prospect.aura.note:null;
       var n=s.d.concurrents.map(function(x){ return (x.aura&&x.aura.note!=null)?+x.aura.note:null; }).filter(function(x){ return x!=null; });
       if(moi!=null && n.length){
+        /* ⚠️ LES TROIS CHIFFRES, PAS SEULEMENT CELUI QUI FÂCHE. Didier, 06/09/2026 : « dans ce
+           qu'on voit, tu mets le nombre d'entreprises au-dessus, le nombre à égalité et le
+           nombre en dessous. »
+           On n'annonçait que celles qui devancent. C'était vrai, et incomplet : « 1 au-dessus »
+           ne dit pas s'il y en a sept derrière ou une seule. Le rang complet se lit d'un coup,
+           et il se défend en rendez-vous — c'est la même exigence que partout ailleurs, on donne
+           la mesure entière plutôt que la moitié qui sert le propos. */
         var dessus=n.filter(function(x){ return x>moi; }).length;
-        /* ⚠️ « 0 OBTIENNENT UNE NOTE SUPÉRIEURE » NE SE DIT PAS. Un chiffre qui vaut zéro se dit
-           avec un mot, pas avec un chiffre : « aucune ». C'est la même information et ça se lit
-           du premier coup. */
+        var egal  =n.filter(function(x){ return x===moi; }).length;
+        var dessous=n.length-dessus-egal;
+        /* ⚠️ « 0 » NE SE DIT PAS EN CHIFFRE. Un compte nul s'écrit avec un mot — « aucune » — :
+           c'est la même information et elle se lit du premier coup. */
+        var cpt=function(k,mot){ return (k===0?'aucune':String(k))+' '+mot; };
         ch.push({poids:2,
           titre: dessus? 'Où vous vous situez face aux voisins' : 'Vous êtes le mieux exposé du secteur',
-          fait: dessus? (dessus+' entreprise'+(dessus>1?'s':'')+' du coin '+(dessus>1?'ont':'a')+' une note publique plus haute que la vôtre, sur '+(n.length+1)+' comparées.')
-                      : ('Aucune des '+n.length+' entreprises voisines n\'a une note publique plus haute que la vôtre.'),
+          fait: 'Sur '+n.length+' entreprise'+(n.length>1?'s':'')+' voisine'+(n.length>1?'s':'')+' comparée'+(n.length>1?'s':'')+' : '
+                +cpt(dessus,'au-dessus de vous')+', '+cpt(egal,'à égalité')+', '+cpt(dessous,'en dessous')+'.',
           source:'Notes publiques des entreprises voisines, relevées le même jour et de la même façon que la vôtre.',
           implique: dessus? 'Elles se montrent mieux sur ce qui se voit de l\'extérieur — pas forcément qu\'elles travaillent mieux.'
                           : 'Sur tout ce qui se voit de l\'extérieur, vous passez devant vos voisins.',
